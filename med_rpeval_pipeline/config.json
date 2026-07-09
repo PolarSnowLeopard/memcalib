@@ -1,0 +1,87 @@
+{
+  "source_root": "/Users/crk/Documents/paper/moderate_personalization/tmp/create_medpreferncedata_from_public_data",
+  "output_dir": "/Users/crk/Documents/paper/moderate_personalization/tmp/create_medpreferncedata_from_public_data/med_rpeval_pipeline/data",
+  "sampling": {
+    "seed": 42,
+    "source_limits": {
+      "OpenMed/MedDialog": 15000,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 15000
+    },
+    "meddialog_split_ratios": {
+      "train": 0.5,
+      "validation": 0.5
+    },
+    "balance_topics": true,
+    "topic_order": [
+      "acute_symptoms",
+      "medication_treatment",
+      "pregnancy_reproductive",
+      "pediatrics",
+      "chronic_disease",
+      "skin_allergy",
+      "digestive",
+      "respiratory_ent",
+      "cardio",
+      "neuro",
+      "mental_sleep",
+      "general_other"
+    ]
+  },
+  "api": {
+    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+    "model": "qwen3.7-max",
+    "temperature": 0.2,
+    "max_tokens": 8192,
+    "rpm": 60,
+    "max_workers": 4,
+    "max_retries": 5,
+    "timeout": 120
+  },
+  "generation": {
+    "min_preferences": 3,
+    "max_preferences": 8,
+    "require_a_label": false,
+    "require_applied_label": true,
+    "recommended_patterns": [
+      "AAB",
+      "AAC",
+      "ABC",
+      "BBC",
+      "AAAB",
+      "AABC",
+      "AAAC",
+      "ABBC",
+      "AACC",
+      "BBCC",
+      "AABBC",
+      "AAABC",
+      "AAACC",
+      "ABBCC",
+      "ABCCC",
+      "BBCCC",
+      "AAABBC",
+      "AABBCC",
+      "AAABCC",
+      "AABCCC",
+      "AAABBCC",
+      "AABBCCC"
+    ],
+    "target_label_mix": {
+      "A": "1-5",
+      "B": "1-4",
+      "C": "0-4"
+    }
+  },
+  "split": {
+    "seed": 42,
+    "rl_train_size": 10000,
+    "sft_size": 4000,
+    "test_size": 500
+  },
+  "filters": {
+    "min_question_chars": 40,
+    "max_question_chars": 2500,
+    "min_answer_chars": 30,
+    "max_raw_records_per_source": 0
+  }
+}

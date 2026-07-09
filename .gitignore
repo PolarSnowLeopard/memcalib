@@ -1,0 +1,43 @@
+# OS/editor noise
+.DS_Store
+Thumbs.db
+
+# Python cache and local environments
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# Local secrets and run logs
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
+
+# Notebook/editor cache
+.ipynb_checkpoints/
+.cache/
+
+# Raw public dataset downloads
+ChatDoctor-HealthCareMagic-100k/data/
+MedDialog/train.json
+MedDialog/validation.json
+MedDialog/test.json
+*.parquet
+
+# Large early-stage pipeline intermediates
+med_rpeval_pipeline/data/normalized_raw.jsonl
+med_rpeval_pipeline/data/generated_candidates.jsonl
+med_rpeval_pipeline/data/verified_records.jsonl
+med_rpeval_pipeline/data/verified_rejected.jsonl
+med_rpeval_pipeline/data/crawl_generation_input.jsonl
+med_rpeval_pipeline/data/crawl_generation_result.jsonl
+med_rpeval_pipeline/data/crawl_verify_input.jsonl
+med_rpeval_pipeline/data/crawl_verify_result.jsonl
+med_rpeval_pipeline/data/crawl_verify_retry_input.jsonl

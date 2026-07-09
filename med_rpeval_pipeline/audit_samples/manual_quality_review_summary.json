@@ -1,0 +1,49 @@
+{
+  "seed": 20260706,
+  "sample_rows": 195,
+  "source_verified_rows": 25269,
+  "source_rejected_rows": 4713,
+  "by_status": {
+    "verified": 155,
+    "rejected": 40
+  },
+  "by_bucket": {
+    "verified_core_stratified": 51,
+    "verified_topic_focus": 32,
+    "verified_boundary_cases": 28,
+    "verified_language_edge": 12,
+    "verified_duplicate_question": 11,
+    "verified_unusual_combos": 21,
+    "rejected_leakage_calibration": 20,
+    "rejected_label_calibration": 10,
+    "rejected_parse_or_other": 10
+  },
+  "by_source": {
+    "OpenMed/MedDialog": 88,
+    "lavita/ChatDoctor-HealthCareMagic-100k": 67
+  },
+  "by_topic_verified": {
+    "acute_symptoms": 6,
+    "general_other": 7,
+    "chronic_disease": 14,
+    "neuro": 11,
+    "medication_treatment": 24,
+    "mental_sleep": 11,
+    "respiratory_ent": 7,
+    "cardio": 13,
+    "pediatrics": 17,
+    "digestive": 9,
+    "skin_allergy": 14,
+    "pregnancy_reproductive": 22
+  },
+  "by_question_lang_verified": {
+    "cjk_heavy": 81,
+    "mixed_cjk": 5,
+    "mostly_non_cjk": 69
+  },
+  "outputs": {
+    "csv": "/Users/zhaofanyu/Code/create_medpreferncedata_from_public_data/med_rpeval_pipeline/audit_samples/manual_quality_review_samples.csv",
+    "jsonl": "/Users/zhaofanyu/Code/create_medpreferncedata_from_public_data/med_rpeval_pipeline/audit_samples/manual_quality_review_samples.jsonl",
+    "guide": "/Users/zhaofanyu/Code/create_medpreferncedata_from_public_data/med_rpeval_pipeline/audit_samples/manual_quality_review_guide.md"
+  }
+}

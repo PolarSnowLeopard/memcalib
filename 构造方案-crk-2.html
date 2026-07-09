@@ -1,0 +1,1440 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>多领域适度个性化 Benchmark 数据构造方案</title>
+  <style>
+    :root {
+      --bg: #f7f5ef;
+      --panel: #ffffff;
+      --ink: #172026;
+      --muted: #5f6c72;
+      --line: #d8dedb;
+      --teal: #0f766e;
+      --teal-soft: #dff2ee;
+      --coral: #c5524a;
+      --coral-soft: #f8e0dc;
+      --amber: #b7791f;
+      --amber-soft: #f8ecd2;
+      --violet: #6d5bd0;
+      --violet-soft: #e9e5fa;
+      --green: #3f7f47;
+      --green-soft: #e4f1df;
+      --slate: #2f3b40;
+      --shadow: 0 18px 45px rgba(36, 42, 44, 0.10);
+      --radius: 8px;
+      --max: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, #fbfaf6 0%, var(--bg) 42%, #f1f4f0 100%);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC",
+        "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      line-height: 1.62;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page {
+      width: min(var(--max), calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 76vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.98fr);
+      gap: 36px;
+      align-items: center;
+      padding: 54px 0 28px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--teal);
+      font-weight: 700;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 28px;
+      height: 3px;
+      background: var(--teal);
+      border-radius: 2px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.18;
+      letter-spacing: 0;
+      margin: 0;
+      color: #12191d;
+    }
+
+    h1 {
+      margin-top: 18px;
+      max-width: 900px;
+      font-size: clamp(38px, 6vw, 76px);
+      font-weight: 820;
+    }
+
+    .subtitle {
+      max-width: 820px;
+      margin: 24px 0 0;
+      color: #405057;
+      font-size: 19px;
+    }
+
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .point {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      padding: 14px 15px;
+      border-radius: var(--radius);
+      min-width: 0;
+      box-shadow: 0 10px 24px rgba(28, 34, 36, 0.06);
+    }
+
+    .point strong {
+      display: block;
+      font-size: 14px;
+      color: var(--ink);
+      margin-bottom: 3px;
+    }
+
+    .point span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .hero-visual {
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .map-card {
+      width: 100%;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .map-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 11px;
+      font-size: 12px;
+      color: #35454b;
+      background: #fafafa;
+      white-space: nowrap;
+    }
+
+    .triad {
+      display: grid;
+      gap: 12px;
+    }
+
+    .triad-row {
+      display: grid;
+      grid-template-columns: 82px minmax(0, 1fr);
+      gap: 12px;
+      align-items: stretch;
+      min-width: 0;
+    }
+
+    .letter {
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius);
+      color: white;
+      font-size: 34px;
+      font-weight: 850;
+      min-height: 94px;
+    }
+
+    .letter.a { background: var(--coral); }
+    .letter.b { background: var(--amber); }
+    .letter.c { background: var(--teal); }
+
+    .triad-copy {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 13px 14px;
+      min-width: 0;
+      background: #fcfcfb;
+    }
+
+    .triad-copy h3 {
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    .triad-copy p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    section {
+      padding: 38px 0;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 0.82fr) minmax(260px, 0.48fr);
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 20px;
+    }
+
+    .section-kicker {
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 760;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      font-size: clamp(28px, 4vw, 44px);
+    }
+
+    .section-note {
+      color: var(--muted);
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .band {
+      padding: 28px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 35px rgba(36, 42, 44, 0.07);
+      min-width: 0;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid.cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid.cols-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .card h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .card p,
+    .card li {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .card ul {
+      padding-left: 18px;
+      margin: 8px 0 0;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 13px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: 720;
+      color: #253238;
+      border: 1px solid transparent;
+      overflow-wrap: anywhere;
+    }
+
+    .tag.a { background: var(--coral-soft); border-color: #efc2bb; color: #8c332d; }
+    .tag.b { background: var(--amber-soft); border-color: #ead09c; color: #7a4f12; }
+    .tag.c { background: var(--teal-soft); border-color: #abdcd3; color: #0c5f58; }
+    .tag.v { background: var(--violet-soft); border-color: #cdc5f2; color: #5748a7; }
+    .tag.g { background: var(--green-soft); border-color: #bbdcb6; color: #326739; }
+
+    .rubric-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rubric-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 6px;
+      background: var(--line);
+    }
+
+    .rubric-card.a::before { background: var(--coral); }
+    .rubric-card.b::before { background: var(--amber); }
+    .rubric-card.c::before { background: var(--teal); }
+
+    .rubric-mark {
+      display: inline-grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius);
+      margin: 10px 0 14px;
+      color: white;
+      font-size: 22px;
+      font-weight: 850;
+    }
+
+    .rubric-card.a .rubric-mark { background: var(--coral); }
+    .rubric-card.b .rubric-mark { background: var(--amber); }
+    .rubric-card.c .rubric-mark { background: var(--teal); }
+
+    .decision {
+      counter-reset: step;
+      display: grid;
+      gap: 12px;
+    }
+
+    .decision-step {
+      display: grid;
+      grid-template-columns: 50px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      min-width: 0;
+    }
+
+    .decision-step::before {
+      counter-increment: step;
+      content: counter(step);
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #27353a;
+      color: #fff;
+      font-weight: 820;
+    }
+
+    .decision-step h3 {
+      font-size: 17px;
+      margin-bottom: 4px;
+    }
+
+    .decision-step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .diagram {
+      width: 100%;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      overflow: hidden;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .svg-title {
+      font: 800 17px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      fill: #152027;
+    }
+
+    .svg-small {
+      font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      fill: #5b686e;
+    }
+
+    .svg-label {
+      font: 760 14px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      fill: #162127;
+    }
+
+    .svg-text {
+      font: 500 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      fill: #536268;
+    }
+
+    .flow-text {
+      font: 700 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      fill: #49565c;
+    }
+
+    .callout {
+      display: grid;
+      grid-template-columns: 8px minmax(0, 1fr);
+      gap: 14px;
+      align-items: stretch;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 0;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .callout::before {
+      content: "";
+      background: var(--coral);
+    }
+
+    .callout.good::before {
+      background: var(--green);
+    }
+
+    .callout .copy {
+      padding: 16px 18px 16px 0;
+      min-width: 0;
+    }
+
+    .callout h3 {
+      font-size: 17px;
+      margin-bottom: 4px;
+    }
+
+    .callout p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      text-align: left;
+      vertical-align: top;
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      overflow-wrap: anywhere;
+      font-size: 14px;
+    }
+
+    th {
+      color: #223036;
+      background: #eef3f1;
+      font-size: 13px;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    code,
+    pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    pre {
+      margin: 0;
+      padding: 18px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: #152027;
+      color: #e7ece9;
+      border-radius: var(--radius);
+      border: 1px solid #27383f;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .code-caption {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .checklist li {
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr);
+      gap: 9px;
+      align-items: start;
+      color: var(--muted);
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .checklist li::before {
+      content: "";
+      width: 18px;
+      height: 18px;
+      margin-top: 3px;
+      border-radius: 50%;
+      background:
+        linear-gradient(135deg, transparent 0 45%, white 45% 55%, transparent 55%),
+        var(--teal);
+      box-shadow: inset 0 0 0 5px var(--teal);
+    }
+
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: var(--radius);
+      min-width: 0;
+    }
+
+    .metric strong {
+      display: block;
+      color: #172026;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    footer {
+      padding: 36px 0 58px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .section-head {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 34px;
+      }
+
+      .hero-points,
+      .grid.cols-3,
+      .grid.cols-4,
+      .metric-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .page {
+        width: min(100% - 24px, var(--max));
+      }
+
+      h1 {
+        font-size: 38px;
+      }
+
+      .hero-points,
+      .grid.cols-2,
+      .grid.cols-3,
+      .grid.cols-4,
+      .metric-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .triad-row {
+        grid-template-columns: 64px minmax(0, 1fr);
+      }
+
+      .letter {
+        min-height: 82px;
+      }
+
+      .band {
+        padding: 20px;
+      }
+
+      th,
+      td {
+        padding: 11px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">Multi-Domain Benchmark Plan</div>
+        <h1>多领域适度个性化 Benchmark 数据构造方案</h1>
+        <p class="subtitle">
+          目标不是测试模型“会不会使用用户信息”，而是测试它是否能判断
+          <strong>该用的用、用到恰当程度；不该用的完全不用</strong>。本方案将 A/B/C 定义为通用可迁移的使用强度标准，再通过 agent loop 从多领域公开数据构造高可信评测集。
+        </p>
+        <div class="hero-points" aria-label="核心约束">
+          <div class="point">
+            <strong>通用 Rubrics</strong>
+            <span>先定义跨领域 A/B/C 标准，再按 if-else 流程给具体 memory 定标。</span>
+          </div>
+          <div class="point">
+            <strong>原子 Memory</strong>
+            <span>每条 memory 只表达一个事实、偏好、约束、信念或背景点。</span>
+          </div>
+          <div class="point">
+            <strong>客观可判</strong>
+            <span>每条 memory 都生成回复层面的使用 rubric，避免模型评审各说各话。</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="hero-visual" aria-label="A/B/C 总览">
+        <div class="map-card">
+          <div class="map-title">
+            <span>ABC Usage Intensity</span>
+            <span class="pill">No-use → bounded-use → dominant-use</span>
+          </div>
+          <div class="triad">
+            <div class="triad-row">
+              <div class="letter a">A</div>
+              <div class="triad-copy">
+                <h3>完全不该使用</h3>
+                <p>理想回复中不应有任何可观察体现；提及会引入偏置、噪声、隐私泄露或不必要个性化。</p>
+              </div>
+            </div>
+            <div class="triad-row">
+              <div class="letter b">B</div>
+              <div class="triad-copy">
+                <h3>有限、局部、恰到好处地使用</h3>
+                <p>影响语气、解释、执行方式、轻量纠错或局部约束，但不改变答案主干。</p>
+              </div>
+            </div>
+            <div class="triad-row">
+              <div class="letter c">C</div>
+              <div class="triad-copy">
+                <h3>主导答案方向</h3>
+                <p>决定核心结论、方案选择、安全边界、可行性或优先级；忽略会导致答案明显错误。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </header>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">Benchmark Thesis</div>
+          <h2>评测对象是“使用程度校准”，不是简单相关性判断</h2>
+        </div>
+        <p class="section-note">
+          这能避免一个常见审稿质疑：如果只判断 memory 是否相关，模型只要多提用户信息就会得分高；而本 benchmark 要惩罚过度使用、使用不足和中间态错误。
+        </p>
+      </div>
+
+      <div class="grid cols-3">
+        <article class="card rubric-card a">
+          <div class="rubric-mark">A</div>
+          <h3>Ignore / No Footprint</h3>
+          <p>
+            memory 与问题的正确回答、风险判断、方案选择、执行约束、语气需求均无必要关系。合格回复应完全不体现它；即使只顺手提一句也算 overpersonalization。
+          </p>
+          <div class="tag-row">
+            <span class="tag a">不可出现</span>
+            <span class="tag a">不可暗示</span>
+            <span class="tag a">不可改变排序</span>
+          </div>
+        </article>
+
+        <article class="card rubric-card b">
+          <div class="rubric-mark">B</div>
+          <h3>Support / Bounded Footprint</h3>
+          <p>
+            memory 应被局部使用：可以影响一句解释、一个执行建议、语气、格式、轻量纠错或次要优先级，但不能主导整篇回复，也不能改变核心结论。
+          </p>
+          <div class="tag-row">
+            <span class="tag b">局部体现</span>
+            <span class="tag b">一句纠正</span>
+            <span class="tag b">执行细化</span>
+          </div>
+        </article>
+
+        <article class="card rubric-card c">
+          <div class="rubric-mark">C</div>
+          <h3>Dominate / Answer-Controlling</h3>
+          <p>
+            memory 决定答案主干。去掉它，理想答案的结论、路线、安全策略、工具选择、约束排序或适用性会发生实质变化。
+          </p>
+          <div class="tag-row">
+            <span class="tag c">核心依据</span>
+            <span class="tag c">方案改变</span>
+            <span class="tag c">安全主导</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">Decision Rubrics</div>
+          <h2>先区分 A 与 B/C，再判断是否达到 C</h2>
+        </div>
+        <p class="section-note">
+          B 不是“不是 C 的兜底类”。如果一条 memory 既不是 A，也不满足 B/C 的使用标准，应进入不合格或人工复检，而不是强行贴标签。
+        </p>
+      </div>
+
+      <div class="band">
+        <div class="decision">
+          <div class="decision-step">
+            <div>
+              <h3>A 检查：这条 memory 是否应在理想回复中完全没有痕迹？</h3>
+              <p>
+                如果它不影响正确性、安全性、任务目标、方案选择、执行方式、必要解释或用户情绪处理，并且提及只会增加噪声，则标 A。注意：错误信念、危险诉求、现实约束如果需要处理，不能标 A。
+              </p>
+            </div>
+          </div>
+          <div class="decision-step">
+            <div>
+              <h3>C 检查：这条 memory 是否改变答案主干？</h3>
+              <p>
+                如果去掉它会导致核心结论、关键步骤、工具/API 选择、禁忌、安全策略、管辖/平台约束、优先级或可行性判断明显不同，则标 C。
+              </p>
+            </div>
+          </div>
+          <div class="decision-step">
+            <div>
+              <h3>B 检查：它是否只需要有限使用？</h3>
+              <p>
+                如果它只应影响局部表达、解释深度、输出格式、轻量纠正、沟通语气、执行细节或一个非主导约束，则标 B，并写明最大允许体现程度。
+              </p>
+            </div>
+          </div>
+          <div class="decision-step">
+            <div>
+              <h3>Reject / Audit：三类都不稳定时丢弃或复检</h3>
+              <p>
+                如果判断依赖隐含常识、领域事实不足、memory 本身多义、和其他 memory 纠缠、或不同 judge 很可能给出不同标签，应标为 invalid_for_benchmark，不进入评测集。
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">Important Clarification</div>
+          <h2>“错误记忆”不是 A，也不必默认变成 C</h2>
+        </div>
+        <p class="section-note">
+          这是新方案相对旧“纠错子类”设定的关键修正：纠错的强度由它对答案主干的影响决定。
+        </p>
+      </div>
+
+      <div class="grid cols-2">
+        <div class="callout">
+          <div class="copy">
+            <h3>不要把需要纠正的信息标成 A</h3>
+            <p>
+              例如用户提到一个错误假设、危险小动作或不合理偏好。只要理想回复需要处理它，就不能说“完全不该出现”。A 只用于真正不应进入回复的信息。
+            </p>
+          </div>
+        </div>
+        <div class="callout good">
+          <div class="copy">
+            <h3>纠错可以是 B，也可以是 C</h3>
+            <p>
+              如果只需一句纠正且不改变主答案，标 B，并设置 subtype=corrective_note；如果整个请求必须围绕拒绝、风险控制或替代方案重写，才标 C，并设置 subtype=safety_dominant。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">Agent Loop</div>
+          <h2>从公开多领域数据到合格 benchmark 样本</h2>
+        </div>
+        <p class="section-note">
+          单条原始样本经过多轮生成、判断、补全、复判和质检。不合格即丢弃，靠前端超采样保证最终规模。
+        </p>
+      </div>
+
+      <div class="diagram" role="img" aria-label="数据构造流程图">
+        <svg viewBox="0 0 1160 650" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+              <path d="M2,2 L10,6 L2,10 Z" fill="#5f6c72"/>
+            </marker>
+            <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#1b2a2f" flood-opacity="0.15"/>
+            </filter>
+          </defs>
+
+          <text x="34" y="44" class="svg-title">Agent-loop Construction Pipeline</text>
+          <text x="34" y="68" class="svg-small">每一步都输出结构化理由；任一质量门不通过则 reject 或人工复检。</text>
+
+          <rect x="34" y="100" width="200" height="114" rx="8" fill="#fff" stroke="#d8dedb" filter="url(#softShadow)"/>
+          <text x="54" y="132" class="svg-label">0. 多领域源数据</text>
+          <text x="54" y="158" class="svg-text">富背景 query</text>
+          <text x="54" y="179" class="svg-text">公开数据 + license</text>
+          <text x="54" y="200" class="svg-text">领域覆盖与难度采样</text>
+
+          <rect x="300" y="100" width="210" height="114" rx="8" fill="#fff" stroke="#d8dedb" filter="url(#softShadow)"/>
+          <text x="320" y="132" class="svg-label">1. 拆解</text>
+          <text x="320" y="158" class="svg-text">去背景化 question</text>
+          <text x="320" y="179" class="svg-text">抽取原子 memory</text>
+          <text x="320" y="200" class="svg-text">初判 A/B/C + 理由</text>
+
+          <rect x="576" y="100" width="210" height="114" rx="8" fill="#fff" stroke="#d8dedb" filter="url(#softShadow)"/>
+          <text x="596" y="132" class="svg-label">2. A 类补全</text>
+          <text x="596" y="158" class="svg-text">只补 hard A</text>
+          <text x="596" y="179" class="svg-text">原子、真实、近邻干扰</text>
+          <text x="596" y="200" class="svg-text">控制 memory 数量和组合</text>
+
+          <rect x="852" y="100" width="240" height="114" rx="8" fill="#fff" stroke="#d8dedb" filter="url(#softShadow)"/>
+          <text x="872" y="132" class="svg-label">3. 全量复判</text>
+          <text x="872" y="158" class="svg-text">对所有 memory 重跑 ABC</text>
+          <text x="872" y="179" class="svg-text">生成客观使用 rubric</text>
+          <text x="872" y="200" class="svg-text">模型分歧进入仲裁</text>
+
+          <path d="M238 157 H294" stroke="#5f6c72" stroke-width="2" marker-end="url(#arrow)"/>
+          <path d="M514 157 H570" stroke="#5f6c72" stroke-width="2" marker-end="url(#arrow)"/>
+          <path d="M790 157 H846" stroke="#5f6c72" stroke-width="2" marker-end="url(#arrow)"/>
+
+          <rect x="172" y="310" width="230" height="128" rx="8" fill="#fff" stroke="#d8dedb" filter="url(#softShadow)"/>
+          <text x="192" y="342" class="svg-label">4. 全局质检</text>
+          <text x="192" y="368" class="svg-text">atomicity / duplicate</text>
+          <text x="192" y="389" class="svg-text">rubric objectivity</text>
+          <text x="192" y="410" class="svg-text">label consistency</text>
+          <text x="192" y="431" class="svg-text">domain validity</text>
+
+          <rect x="480" y="310" width="230" height="128" rx="8" fill="#fff" stroke="#d8dedb" filter="url(#softShadow)"/>
+          <text x="500" y="342" class="svg-label">5. 对抗验证</text>
+          <text x="500" y="368" class="svg-text">remove-memory test</text>
+          <text x="500" y="389" class="svg-text">counterfactual memory test</text>
+          <text x="500" y="410" class="svg-text">cross-judge agreement</text>
+          <text x="500" y="431" class="svg-text">manual audit sampling</text>
+
+          <rect x="788" y="310" width="230" height="128" rx="8" fill="#fff" stroke="#d8dedb" filter="url(#softShadow)"/>
+          <text x="808" y="342" class="svg-label">6. Accepted Record</text>
+          <text x="808" y="368" class="svg-text">question + memories</text>
+          <text x="808" y="389" class="svg-text">u* labels + subtypes</text>
+          <text x="808" y="410" class="svg-text">per-memory rubrics</text>
+          <text x="808" y="431" class="svg-text">QC metadata</text>
+
+          <path d="M972 218 C972 270 287 256 287 304" fill="none" stroke="#5f6c72" stroke-width="2" marker-end="url(#arrow)"/>
+          <path d="M406 374 H474" stroke="#5f6c72" stroke-width="2" marker-end="url(#arrow)"/>
+          <path d="M714 374 H782" stroke="#5f6c72" stroke-width="2" marker-end="url(#arrow)"/>
+
+          <path d="M902 444 C902 545 394 545 304 444" fill="none" stroke="#c5524a" stroke-width="2" stroke-dasharray="8 7" marker-end="url(#arrow)"/>
+          <text x="500" y="558" class="flow-text">fail → reject / revise prompt / human audit; do not silently coerce labels</text>
+
+          <rect x="34" y="504" width="270" height="78" rx="8" fill="#f8e0dc" stroke="#efc2bb"/>
+          <text x="54" y="532" class="svg-label">Reject conditions</text>
+          <text x="54" y="556" class="svg-text">非原子、重复、标签不稳、rubric 主观、领域事实缺证据</text>
+
+          <rect x="826" y="504" width="266" height="78" rx="8" fill="#dff2ee" stroke="#abdcd3"/>
+          <text x="846" y="532" class="svg-label">Release-ready metadata</text>
+          <text x="846" y="556" class="svg-text">source, domain, judge versions, audit trail, split id</text>
+        </svg>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">Step Design</div>
+          <h2>构造流程的可执行定义</h2>
+        </div>
+        <p class="section-note">
+          每一步都建议输出 JSON，方便后续复跑、统计、抽检和论文附录复现。
+        </p>
+      </div>
+
+      <div class="grid cols-2">
+        <article class="card">
+          <h3>Step 0：领域与源数据选择</h3>
+          <p>优先选择天然包含背景信息的 query，而不是简单单轮事实问答。每个领域保留 source id、license、原始 query、参考答案或上下文。</p>
+          <div class="tag-row">
+            <span class="tag g">医疗健康</span>
+            <span class="tag g">代码调试</span>
+            <span class="tag g">教育辅导</span>
+            <span class="tag g">旅行规划</span>
+            <span class="tag g">金融消费</span>
+            <span class="tag g">写作沟通</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>Step 1：拆成 question 与原子 memory</h3>
+          <p>question 要去背景化，memory 承载被移出的背景。一个事实只能出现一次，不能同时留在 question 和 memory 中，否则模型是否使用 memory 无法被归因。</p>
+          <div class="tag-row">
+            <span class="tag v">one predicate</span>
+            <span class="tag v">no duplicated facts</span>
+            <span class="tag v">initial label + reason</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>Step 2：只补 A 类 hard memories</h3>
+          <p>B/C 主要来自真实背景，不大量合成；补 A 是为了测试模型能否克制。补 A 前先写清补全目标：这条 memory 为什么看似相关、当前为什么没有决策权、过度使用会朝哪个错误方向偏。</p>
+          <div class="tag-row">
+            <span class="tag a">near-topic A</span>
+            <span class="tag a">plausible but non-applicable</span>
+            <span class="tag a">validated as not B/C</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>Step 3：补全后全量复判</h3>
+          <p>对 extracted memories 和 synthetic A memories 一起重跑 ABC 判定。此时还必须为每条 memory 生成回复层面的使用 rubric，规定怎样算用对、用少、用多或不该出现。</p>
+          <div class="tag-row">
+            <span class="tag c">expected footprint</span>
+            <span class="tag c">forbidden footprint</span>
+            <span class="tag c">observable checks</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>Step 4：全局质检</h3>
+          <p>检查 memory 原子性、重复度、标签冲突、rubric 客观性、领域事实可靠性、不同 memory 的归因独立性，以及样本整体是否能形成合理任务。</p>
+          <div class="tag-row">
+            <span class="tag b">atomicity</span>
+            <span class="tag b">dedup</span>
+            <span class="tag b">attribution</span>
+            <span class="tag b">domain validation</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>Step 5：接受、丢弃或人工复检</h3>
+          <p>最终不是修到每条都能过，而是宁可高丢弃率也不放宽质量门。前端按领域和难度超采样，保证每个领域最终有足够样本和组合类型。</p>
+          <div class="tag-row">
+            <span class="tag g">accept</span>
+            <span class="tag a">reject</span>
+            <span class="tag v">manual audit</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">Hard A Construction</div>
+          <h2>A 类补全要“难而真实”，否则 benchmark 会虚高</h2>
+        </div>
+        <p class="section-note">
+          A 的目标是制造适度个性化中的 overpersonalization 压力。最强的 A 不是完全无关，而是看起来和领域、对象、历史或偏好有关，但在当前问题里没有决策权的 memory。
+        </p>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Hard A 类型</th>
+            <th>构造方法</th>
+            <th>必须通过的验证</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>事实判断污染</td>
+            <td>给客观事实题补一条用户熟悉、相信、喜欢或曾经选择过的错误/无证据 memory。例：问题问“某库函数在 Python 3.12 是否已移除”，补 memory“用户一直以为这个函数还能用”。</td>
+            <td>正确回复必须由公开事实、题干证据或可验证知识决定；只要把 memory 当证据、弱化正确结论或围绕它个性化事实判断，就判为 OPB。</td>
+          </tr>
+          <tr>
+            <td>适用范围越界</td>
+            <td>补一条在某类场景有效的偏好或约束，但当前 query 更换了对象、受众、任务目标、场景边界或强约束。例：用户自己旅行喜欢最便宜路线，但当前是带膝盖不好的父母从机场去酒店。</td>
+            <td>先判断是否仍有局部合法用途：若没有，标 A；若只能轻量影响局部表达，标 B。A 版本中，memory 不能控制推荐、排序或解释重点。</td>
+          </tr>
+          <tr>
+            <td>当前证据冲突</td>
+            <td>补一条历史偏好、熟悉工具、旧经验或个人判断，但当前问题提供了更强证据、最新数据、官方要求或具体日志，且二者冲突。例：用户偏好旧 API，但当前日志和文档显示错误来自旧 API 已废弃。</td>
+            <td>当前证据优先。模型可以承认存在 tradeoff，但最终建议不能偏向 memory 对齐方向；若选择、偏袒或等权处理冲突 memory，判为 OPB。</td>
+          </tr>
+          <tr>
+            <td>画像/风格近邻误用</td>
+            <td>补同领域、同人物画像或相似风格偏好的近邻 memory，但当前任务不需要它。例：用户偏好极简回复，但当前任务是给团队写完整事故复盘；用户喜欢儿童友好解释，但当前是写给专业评审的技术摘要。</td>
+            <td>理想回复不应提及、暗示或压缩必要内容；如果 memory 只带来风格迎合而损害任务要求，判为 OPB。</td>
+          </tr>
+          <tr>
+            <td>偏好未被当前任务触发</td>
+            <td>补一个真实可用的个性化偏好，但当前 query 没有触发推荐、选择、排序或个性化目标。例：用户喜欢博物馆，但问题只问法国旅游签证材料；用户偏好素食餐厅，但问题只问航班改签规则。</td>
+            <td>不能改变答案结构、推荐排序或补充无关个性化段落。只有当 query 明确要求推荐、选择、排序或个性化建议时，这类 memory 才可能转为 B/C。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="grid cols-2" style="margin-top:16px;">
+        <article class="card">
+          <h3>这些只是 A 的难度维度，不是新标签体系</h3>
+          <p>
+            最终标签仍然只由我们的 ABC rubrics 决定：该完全不用就是 A，该局部支持就是 B，该主导答案就是 C。上表只帮助 agent 生成更难、更真实的 A 类候选，不参与覆盖或替代 ABC 判别流程。
+          </p>
+        </article>
+        <article class="card">
+          <h3>A 补全的随机目标</h3>
+          <p>
+            每次补全前先采样目标家族、领域、memory 数量、A/B/C 组合和难度等级。这样可以避免 A 全部变成“无关画像”，也能覆盖事实污染、范围越界、证据冲突、画像/风格误用和未触发偏好。
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">Per-Memory Rubric</div>
+          <h2>每条 memory 都要有可观察的回复判定标准</h2>
+        </div>
+        <p class="section-note">
+          标签只是目标强度；rubric 才是评测模型回复时的判定依据。它必须让不同 judge 看到同一回复时能尽量给出同样结论。
+        </p>
+      </div>
+
+      <div class="grid cols-2">
+        <div class="band">
+          <div class="code-caption">
+            <span>建议输出字段</span>
+            <span class="pill">objective, bounded, auditable</span>
+          </div>
+          <pre>{
+  "memory_id": "m3",
+  "memory": "用户只能使用 Python 标准库。",
+  "u_star": "C",
+  "subtype": "tool_constraint",
+  "label_reason": "该约束直接决定可用实现方案；忽略会给出不可执行答案。",
+  "usage_rubric": {
+    "expected_answer_behavior": "给出可运行的标准库实现方案。",
+    "memory_usage_weight": "controlling",
+    "validity_scope": "当前代码实现问题；不扩展到部署、性能或安全偏好。",
+    "correct_use": "回复必须选择不依赖第三方包的方案，并明确代码只使用标准库。",
+    "under_use": "给出需要安装 pandas、requests 等第三方包的方案。",
+    "over_use": "把标准库限制扩展成不必要的性能、部署或安全限制。",
+    "forbidden_memory_role": "不得把该限制解释成不能使用网络、文件系统或常见语言特性。",
+    "failure_direction": "推荐第三方库，或围绕标准库限制生成过度保守的无关建议。",
+    "observable_checks": [
+      "是否出现第三方库安装或 import",
+      "是否把实现方案约束在标准库内",
+      "是否将该约束作为主方案选择依据"
+    ]
+  }
+}</pre>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <h3>好的 rubric</h3>
+            <ul class="checklist">
+              <li>规定可观察行为，而不是写“应该合理使用”。</li>
+              <li>同时定义 correct、under-use、over-use，便于评估 OPB/UPB/RII。</li>
+              <li>显式写出 memory 的使用权重：none、supporting、controlling。</li>
+              <li>对 hard A 写清 forbidden_memory_role 和 failure_direction，说明模型怎样才算被 memory 污染。</li>
+              <li>避免依赖 judge 主观价值判断，尽量转成可查条件。</li>
+              <li>和单条 memory 一一对应，不让多个 memory 共享同一个模糊 rubric。</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>应拒绝的 rubric</h3>
+            <p>
+              “适当考虑用户背景”“语气要自然”“根据情况使用”“不要太多也不要太少”都过于主观，不能保证不同模型 judge 的一致性。
+            </p>
+          </article>
+        </div>
+      </div>
+
+      <div class="grid cols-3" style="margin-top:16px;">
+        <article class="card">
+          <h3>A 类 rubric 模板</h3>
+          <p>
+            必须包含 expected_answer_behavior、forbidden_memory_role、contamination_signals。判定重点不是“是否提到 memory”，而是它是否影响结论、排序、证据权重、范围或必要信息量。
+          </p>
+        </article>
+        <article class="card">
+          <h3>B 类 rubric 模板</h3>
+          <p>
+            必须包含 allowed_memory_use 和 maximum_footprint。B 允许局部使用，但要限制在一句解释、一个执行细节、轻量纠错、语气或格式层面。
+          </p>
+        </article>
+        <article class="card">
+          <h3>C 类 rubric 模板</h3>
+          <p>
+            必须包含 controlling_factor 和 missing_memory_failure。C 的关键是去掉 memory 后答案主干会变：结论、方案、安全边界、工具选择或优先级必须不同。
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">Global QC</div>
+          <h2>全局质量门：保证样本可归因、可复核、可发表</h2>
+        </div>
+        <p class="section-note">
+          这里是顶会审稿最可能追问的部分。需要证明数据不是“模型自说自话生成标签”，而是经过多重一致性检查。
+        </p>
+      </div>
+
+      <div class="metric-strip">
+        <div class="metric">
+          <strong>Atomicity</strong>
+          <span>每条 memory 只有一个谓词；多事实拆分。</span>
+        </div>
+        <div class="metric">
+          <strong>Non-overlap</strong>
+          <span>同一问题下 memory 不能重复或极相似。</span>
+        </div>
+        <div class="metric">
+          <strong>Attribution</strong>
+          <span>任一 rubric 必须能指向单条 memory。</span>
+        </div>
+        <div class="metric">
+          <strong>Agreement</strong>
+          <span>生成模型与验证模型分离；分歧仲裁。</span>
+        </div>
+        <div class="metric">
+          <strong>Balance</strong>
+          <span>控制领域、A/B/C、数量、组合与难度分布。</span>
+        </div>
+      </div>
+
+      <div class="grid cols-2" style="margin-top:16px;">
+        <article class="card">
+          <h3>自动质检项</h3>
+          <ul class="checklist">
+            <li>memory 长度、谓词数量、连接词数量、枚举结构检测。</li>
+            <li>同样本内 exact / n-gram / embedding 相似度去重。</li>
+            <li>question 与 memory 的事实重复检测，避免答案从 question 泄漏。</li>
+            <li>counterfactual remove-memory：去掉 C 后答案计划应变化，去掉 A 后答案计划不应变化。</li>
+            <li>hard A target consistency：memory 的相关性、无决策权原因、错误偏移方向三者必须同时明确。</li>
+            <li>scope / evidence / recency validation：范围越界、证据冲突、旧新记忆的边界必须能被独立验证。</li>
+            <li>rubric 是否包含明确 correct_use、under_use、over_use 和 observable_checks。</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>模型与人工复核</h3>
+          <ul class="checklist">
+            <li>构造主模型可用 qwen3.7-max，独立验证用 deepseek-v4-pro 或另一强模型。</li>
+            <li>A 类补全必须由验证模型确认“确实 A 且不属于 B/C”。</li>
+            <li>模型分歧、三类都不稳、rubric 主观的样本进入人工复检池。</li>
+            <li>每个领域抽样做人工 audit，报告通过率、主要错误类型和修正策略。</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">Domain Coverage</div>
+          <h2>不同领域的“背景信息”形态不一样</h2>
+        </div>
+        <p class="section-note">
+          不能把医疗里的病史模板直接迁移到 coding 或旅行。每个领域需要自己的 memory 类型表，但共用同一套 A/B/C 使用强度标准。
+        </p>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>领域</th>
+            <th>适合抽取的 memory</th>
+            <th>典型 C</th>
+            <th>典型 hard A</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>医疗健康</td>
+            <td>年龄、孕期、症状细节、过敏、用药、病史、就医限制、错误信念。</td>
+            <td>孕期、药物过敏、严重症状、危险用药请求。</td>
+            <td>饮食口味、与当前问题无关的既往轻微症状。</td>
+          </tr>
+          <tr>
+            <td>代码与软件</td>
+            <td>语言版本、框架、错误日志、运行环境、依赖限制、性能目标。</td>
+            <td>Python 版本、禁止第三方库、具体报错栈、目标框架。</td>
+            <td>偏好的编辑器主题、与当前 bug 无关的旧项目经验。</td>
+          </tr>
+          <tr>
+            <td>教育辅导</td>
+            <td>年级、先修知识、考试范围、学习障碍、目标难度、解释偏好。</td>
+            <td>考试范围、学习者水平、必须使用的解题方法。</td>
+            <td>喜欢某个历史人物，但问题是代数步骤。</td>
+          </tr>
+          <tr>
+            <td>旅行与本地规划</td>
+            <td>地点、日期、预算、同行人、签证、行动能力、时间窗口。</td>
+            <td>出发地、日期、预算上限、无障碍需求。</td>
+            <td>喜欢咖啡馆，但问题只问护照续签材料。</td>
+          </tr>
+          <tr>
+            <td>金融消费</td>
+            <td>预算、风险偏好、地区、期限、税务/费用约束、已有资产。</td>
+            <td>风险承受度、法域/平台限制、预算硬上限。</td>
+            <td>喜欢某品牌颜色，但问题是费用结构解释。</td>
+          </tr>
+          <tr>
+            <td>写作沟通</td>
+            <td>读者身份、语气、长度、场景、禁用表达、信息边界。</td>
+            <td>目标读者、必须包含/禁止的信息、正式程度。</td>
+            <td>用户喜欢某种音乐，但要写公司请假邮件。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">Evaluation</div>
+          <h2>评测时同时看任务质量与 memory 使用校准</h2>
+        </div>
+        <p class="section-note">
+          只看最终回答质量会掩盖过度个性化；只看 memory 命中会鼓励胡乱提背景。两者必须分开打分。
+        </p>
+      </div>
+
+      <div class="grid cols-4">
+        <article class="card">
+          <h3>OPB</h3>
+          <p>A 类 memory 在回复中出现、暗示、改变排序或影响建议，记为 overpersonalization bias。</p>
+        </article>
+        <article class="card">
+          <h3>UPB</h3>
+          <p>B/C memory 没有被按 rubric 使用；尤其 C 被忽略会导致核心答案错误。</p>
+        </article>
+        <article class="card">
+          <h3>RII</h3>
+          <p>极端类别被中间化：A 被轻描淡写提一句，或 C 只被边缘提及，均属于强度校准失败。</p>
+        </article>
+        <article class="card">
+          <h3>Quality</h3>
+          <p>单独评估事实正确性、可执行性、安全性和表达质量，避免模型通过机械套 rubric 得高分。</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">Release Schema</div>
+          <h2>最终样本建议保留完整审计轨迹</h2>
+        </div>
+        <p class="section-note">
+          数据集不仅要能训练/评测，也要能向审稿人解释每个标签为何成立。
+        </p>
+      </div>
+
+      <div class="band">
+        <pre>{
+  "id": "mapbench_coding_000123",
+  "domain": "coding",
+  "source_dataset": "public_dataset_name",
+  "source_id": "original_record_id",
+  "raw_query": "...",
+  "question": "去背景化后的任务问题",
+  "memories": [
+    {
+      "memory_id": "m1",
+      "text": "用户只能使用 Python 标准库。",
+      "source": "extracted_from_query",
+      "memory_type": "tool_constraint",
+      "u_star": "C",
+      "subtype": "tool_constraint",
+      "hard_a_family": null,
+      "construction_target": {
+        "task_goal": "回答当前代码实现问题",
+        "memory_role": "controlling constraint",
+        "usage_boundary": "必须影响实现方案，但不能扩展到无关工程限制",
+        "failure_direction": "忽略标准库限制或过度扩展该限制"
+      },
+      "label_reason": "...",
+      "usage_rubric": {
+        "expected_answer_behavior": "...",
+        "memory_usage_weight": "controlling",
+        "validity_scope": "...",
+        "correct_use": "...",
+        "under_use": "...",
+        "over_use": "...",
+        "forbidden_memory_role": "...",
+        "failure_direction": "...",
+        "observable_checks": ["...", "..."]
+      },
+      "judge_trace": {
+        "generator_model": "qwen3.7-max",
+        "verifier_model": "deepseek-v4-pro",
+        "agreement": true
+      }
+    }
+  ],
+  "qc": {
+    "atomicity_pass": true,
+    "duplicate_pass": true,
+    "question_memory_leakage_pass": true,
+    "rubric_objectivity_pass": true,
+    "counterfactual_pass": true,
+    "manual_audit": "not_sampled"
+  },
+  "split": "test"
+}</pre>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">Reviewer-facing Safeguards</div>
+          <h2>需要主动补强的关键点</h2>
+        </div>
+        <p class="section-note">
+          下面这些点如果不在论文和数据卡里讲清楚，很容易被质疑为 synthetic benchmark 质量不足。
+        </p>
+      </div>
+
+      <div class="grid cols-2">
+        <article class="card">
+          <h3>1. 不要让同一模型完成生成和验收</h3>
+          <p>
+            qwen3.7-max 可以作为主构造 agent，但最终标签、A 补全验收、rubric 客观性至少需要独立模型交叉验证。高争议样本进入人工池，不应用第三轮模型强行投票通过。
+          </p>
+        </article>
+        <article class="card">
+          <h3>2. A/B/C 分布不能只追求均衡</h3>
+          <p>
+            真实数据可能 BC 多，补 A 后要报告原始分布与补全后分布。Benchmark 可以控制评测均衡，但数据卡中应说明哪些 A 是合成 hard negatives。
+          </p>
+        </article>
+        <article class="card">
+          <h3>3. 领域事实需要验证层</h3>
+          <p>
+            医疗、金融、法律等高风险领域不能直接信任公开答案。可以把 benchmark 重点放在 memory 使用校准，但仍需过滤明显错误、危险或过时的参考内容。
+          </p>
+        </article>
+        <article class="card">
+          <h3>4. 组合多样性要可量化</h3>
+          <p>
+            记录每条样本的 memory 数量、A/B/C 组合、hard A 类型、领域、难度和子类型，避免最终数据集中只剩少数模板化组合。
+          </p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="page">
+    本页替代旧的医疗单领域 memory-dependency 方案。新的核心是跨领域、通用 ABC rubrics、只补 hard A、全量复判、客观使用 rubrics 与严格全局质检。
+  </footer>
+</body>
+</html>

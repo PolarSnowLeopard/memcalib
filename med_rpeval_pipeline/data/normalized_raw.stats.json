@@ -1,0 +1,55 @@
+{
+  "total": 30000,
+  "groups": {
+    "OpenMed/MedDialog": {
+      "loaded": 251710,
+      "kept": 15000,
+      "limit": 15000,
+      "split_counts": {
+        "train": 7500,
+        "validation": 7500
+      },
+      "topic_counts": {
+        "acute_symptoms": 1045,
+        "cardio": 347,
+        "chronic_disease": 1319,
+        "digestive": 1133,
+        "general_other": 824,
+        "medication_treatment": 2569,
+        "mental_sleep": 705,
+        "neuro": 745,
+        "pediatrics": 1778,
+        "pregnancy_reproductive": 1854,
+        "respiratory_ent": 1375,
+        "skin_allergy": 1306
+      }
+    },
+    "lavita/ChatDoctor-HealthCareMagic-100k": {
+      "loaded": 110975,
+      "kept": 15000,
+      "limit": 15000,
+      "split_counts": {
+        "train": 15000
+      },
+      "topic_counts": {
+        "acute_symptoms": 1264,
+        "cardio": 213,
+        "chronic_disease": 1416,
+        "digestive": 1310,
+        "general_other": 852,
+        "medication_treatment": 2485,
+        "mental_sleep": 528,
+        "neuro": 567,
+        "pediatrics": 1709,
+        "pregnancy_reproductive": 1806,
+        "respiratory_ent": 1483,
+        "skin_allergy": 1367
+      }
+    }
+  },
+  "loaded_splits": {
+    "meddialog_train": 226537,
+    "meddialog_validation": 25173,
+    "chatdoctor_train": 110975
+  }
+}
