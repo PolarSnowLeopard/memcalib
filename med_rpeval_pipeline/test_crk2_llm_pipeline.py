@@ -50,6 +50,30 @@ class Crk2LlmPipelineTest(unittest.TestCase):
         self.assertIn("I ate chili", content)
         self.assertIn("只允许补充 hard A", content)
         self.assertIn("至少补充 1 条 synthetic_hard_a", content)
+        self.assertIn("语言规范", content)
+        self.assertIn("所有生成字段必须使用简体中文", content)
+        self.assertIn("raw_evidence 和 evidence 字段保留原始证据语言", content)
+        self.assertEqual("zh", request["user_defined_params"]["output_language"])
+
+    def test_prepare_request_can_target_english_for_final_benchmark(self) -> None:
+        row = {
+            "id": "raw1",
+            "source_dataset": "OpenMed/MedDialog",
+            "source_split": "train",
+            "source_index": 1,
+            "topic": "digestive",
+            "raw_question": "I ate chili and now have abdominal pain.",
+            "doctor_answer": "This may be gastritis.",
+        }
+
+        request = self.prepare.build_request(row, request_index=1, target_memory_count="3-6", output_language="en")
+
+        content = request["prompt"][0]["content"]
+        self.assertIn("Language policy", content)
+        self.assertIn("All generated natural-language fields must be written in English", content)
+        self.assertIn("raw_evidence and evidence fields preserve the original evidence language", content)
+        self.assertNotIn("所有生成字段必须使用简体中文", content)
+        self.assertEqual("en", request["user_defined_params"]["output_language"])
 
     def test_select_balanced_records_round_robins_topics(self) -> None:
         rows = [
@@ -63,6 +87,34 @@ class Crk2LlmPipelineTest(unittest.TestCase):
 
         self.assertEqual(3, len(selected))
         self.assertEqual({"a", "b"}, {row["topic"] for row in selected})
+
+    def test_verify_input_lineage_rejects_stale_admitted_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            admitted = tmp_path / "admitted.jsonl"
+            manifest = tmp_path / "admission.manifest.json"
+            admitted.write_text('{"id":"raw1"}\n', encoding="utf-8")
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "crk2-source-semantic-admission-v1",
+                        "counts": {"admitted": 1},
+                        "outputs": {
+                            "admitted": {
+                                "sha256": self.prepare.file_sha256(admitted),
+                            }
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            lineage = self.prepare.verify_input_lineage(admitted, manifest)
+            self.assertEqual("crk2-source-semantic-admission-v1", lineage["schema_version"])
+
+            admitted.write_text('{"id":"changed"}\n', encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "hash does not match"):
+                self.prepare.verify_input_lineage(admitted, manifest)
 
     def test_normalize_model_record_preserves_parent_blocks_and_atomic_memories(self) -> None:
         params = {

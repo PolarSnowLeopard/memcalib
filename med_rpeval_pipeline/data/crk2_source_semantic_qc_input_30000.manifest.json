@@ -1,0 +1,59 @@
+{
+  "schema_version": "crk2-source-semantic-qc-v1",
+  "input": {
+    "path": "med_rpeval_pipeline/data/crk2_source_candidate_pool_30000.jsonl",
+    "sha256": "8df4af77189b0515cb8448ded862a3c3d42442d001fb5be0f689a2ed1684d124",
+    "manifest_path": "med_rpeval_pipeline/data/crk2_source_candidate_pool_30000.manifest.json",
+    "manifest_sha256": "d02c005e6d5a1f10824232ef8d81c80316c5968a4fb6dab1e14652374e2300f6"
+  },
+  "prompt": {
+    "path": "/Users/zhaofanyu/Code/create_medpreferncedata_from_public_data/med_rpeval_pipeline/prompts/verify_source_qa_semantic_quality.txt",
+    "sha256": "09b38142b117b929b87f60234f502ebca17e99081730cf9841310b11b2426dcb"
+  },
+  "config": {
+    "path": "/Users/zhaofanyu/Code/create_medpreferncedata_from_public_data/med_rpeval_pipeline/config.json",
+    "sha256": "951bbf79f177faa538921ad1a26293866fd969a0cb01c22c450727f800e2216b"
+  },
+  "parameters": {
+    "limit": 30000,
+    "seed": 42,
+    "dimensions": [
+      "question_completeness",
+      "answer_relevance",
+      "answer_substantiveness",
+      "memory_extractability",
+      "text_integrity",
+      "safety_plausibility"
+    ]
+  },
+  "requests": 30000,
+  "distributions": {
+    "source_dataset": {
+      "OpenMed/MedDialog": 15000,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 15000
+    },
+    "topic": {
+      "acute_symptoms": 1455,
+      "cardio": 288,
+      "chronic_disease": 2604,
+      "digestive": 1839,
+      "general_other": 868,
+      "medication_treatment": 7038,
+      "mental_sleep": 508,
+      "neuro": 611,
+      "pediatrics": 4568,
+      "pregnancy_reproductive": 4828,
+      "respiratory_ent": 3066,
+      "skin_allergy": 2327
+    },
+    "seed_complexity": {
+      "complex": 7361,
+      "medium": 15306,
+      "simple": 7333
+    }
+  },
+  "output": {
+    "path": "med_rpeval_pipeline/data/crk2_source_semantic_qc_input_30000.jsonl",
+    "sha256": "5ce80c9aa99e6f7f92f6714ee89fd4ff7e0120ad217cf9b62cadbae158914116"
+  }
+}

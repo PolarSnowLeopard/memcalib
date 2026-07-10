@@ -1,0 +1,128 @@
+{
+  "schema_version": "crk2-source-semantic-qc-v1",
+  "total": 100,
+  "valid": 100,
+  "invalid": 0,
+  "strict_pass": 68,
+  "review": 22,
+  "reject": 10,
+  "strict_pass_rate": 0.68,
+  "strict_pass_wilson_lower_95": 0.583374,
+  "dimension_counts": {
+    "question_completeness": {
+      "pass": 100
+    },
+    "answer_relevance": {
+      "pass": 96,
+      "reject": 4
+    },
+    "answer_substantiveness": {
+      "pass": 100
+    },
+    "memory_extractability": {
+      "pass": 99,
+      "reject": 1
+    },
+    "text_integrity": {
+      "pass": 88,
+      "uncertain": 12
+    },
+    "safety_plausibility": {
+      "pass": 80,
+      "reject": 5,
+      "uncertain": 15
+    }
+  },
+  "reject_reasons": {
+    "answer_irrelevant": 4,
+    "medical_safety_concern": 5,
+    "no_extractable_memory": 1
+  },
+  "confidence": {
+    "high": 100
+  },
+  "state_by_source": {
+    "OpenMed/MedDialog": {
+      "reject": 2,
+      "review": 9,
+      "strict_pass": 39
+    },
+    "lavita/ChatDoctor-HealthCareMagic-100k": {
+      "reject": 8,
+      "review": 13,
+      "strict_pass": 29
+    }
+  },
+  "state_by_topic": {
+    "acute_symptoms": {
+      "reject": 1,
+      "strict_pass": 5
+    },
+    "cardio": {
+      "review": 1,
+      "strict_pass": 2
+    },
+    "chronic_disease": {
+      "reject": 1,
+      "review": 1,
+      "strict_pass": 7
+    },
+    "digestive": {
+      "reject": 3,
+      "review": 1,
+      "strict_pass": 4
+    },
+    "general_other": {
+      "review": 2,
+      "strict_pass": 4
+    },
+    "medication_treatment": {
+      "reject": 2,
+      "review": 2,
+      "strict_pass": 12
+    },
+    "mental_sleep": {
+      "reject": 1,
+      "strict_pass": 3
+    },
+    "neuro": {
+      "review": 1,
+      "strict_pass": 4
+    },
+    "pediatrics": {
+      "review": 3,
+      "strict_pass": 9
+    },
+    "pregnancy_reproductive": {
+      "reject": 1,
+      "review": 3,
+      "strict_pass": 8
+    },
+    "respiratory_ent": {
+      "reject": 1,
+      "review": 1,
+      "strict_pass": 8
+    },
+    "skin_allergy": {
+      "review": 7,
+      "strict_pass": 2
+    }
+  },
+  "state_by_seed_complexity": {
+    "complex": {
+      "reject": 4,
+      "review": 8,
+      "strict_pass": 17
+    },
+    "medium": {
+      "reject": 2,
+      "review": 11,
+      "strict_pass": 37
+    },
+    "simple": {
+      "reject": 4,
+      "review": 3,
+      "strict_pass": 14
+    }
+  }
+}

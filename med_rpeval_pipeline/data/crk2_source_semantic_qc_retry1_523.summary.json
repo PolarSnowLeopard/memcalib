@@ -1,0 +1,139 @@
+{
+  "schema_version": "crk2-source-semantic-qc-v1",
+  "total": 523,
+  "valid": 504,
+  "invalid": 19,
+  "strict_pass": 365,
+  "review": 99,
+  "reject": 40,
+  "strict_pass_rate": 0.697897,
+  "strict_pass_wilson_lower_95": 0.657219,
+  "dimension_counts": {
+    "question_completeness": {
+      "pass": 502,
+      "reject": 1,
+      "uncertain": 1
+    },
+    "answer_relevance": {
+      "pass": 495,
+      "reject": 4,
+      "uncertain": 5
+    },
+    "answer_substantiveness": {
+      "pass": 500,
+      "reject": 2,
+      "uncertain": 2
+    },
+    "memory_extractability": {
+      "pass": 496,
+      "reject": 8
+    },
+    "text_integrity": {
+      "pass": 469,
+      "reject": 5,
+      "uncertain": 30
+    },
+    "safety_plausibility": {
+      "pass": 390,
+      "reject": 24,
+      "uncertain": 90
+    }
+  },
+  "reject_reasons": {
+    "answer_irrelevant": 4,
+    "answer_non_substantive": 2,
+    "corrupted_text": 5,
+    "incomplete_question": 1,
+    "medical_safety_concern": 24,
+    "no_extractable_memory": 8
+  },
+  "confidence": {
+    "high": 504
+  },
+  "state_by_source": {
+    "OpenMed/MedDialog": {
+      "reject": 12,
+      "review": 37,
+      "strict_pass": 195
+    },
+    "lavita/ChatDoctor-HealthCareMagic-100k": {
+      "reject": 28,
+      "review": 62,
+      "strict_pass": 170
+    }
+  },
+  "state_by_topic": {
+    "acute_symptoms": {
+      "reject": 1,
+      "review": 5,
+      "strict_pass": 10
+    },
+    "cardio": {
+      "review": 3,
+      "strict_pass": 3
+    },
+    "chronic_disease": {
+      "reject": 4,
+      "review": 9,
+      "strict_pass": 47
+    },
+    "digestive": {
+      "reject": 5,
+      "review": 11,
+      "strict_pass": 24
+    },
+    "general_other": {
+      "reject": 1,
+      "review": 1,
+      "strict_pass": 17
+    },
+    "medication_treatment": {
+      "reject": 8,
+      "review": 23,
+      "strict_pass": 79
+    },
+    "mental_sleep": {
+      "review": 1,
+      "strict_pass": 2
+    },
+    "neuro": {
+      "strict_pass": 7
+    },
+    "pediatrics": {
+      "reject": 13,
+      "review": 15,
+      "strict_pass": 55
+    },
+    "pregnancy_reproductive": {
+      "reject": 6,
+      "review": 18,
+      "strict_pass": 61
+    },
+    "respiratory_ent": {
+      "reject": 2,
+      "review": 7,
+      "strict_pass": 40
+    },
+    "skin_allergy": {
+      "review": 6,
+      "strict_pass": 20
+    }
+  },
+  "state_by_seed_complexity": {
+    "complex": {
+      "reject": 6,
+      "review": 28,
+      "strict_pass": 79
+    },
+    "medium": {
+      "reject": 21,
+      "review": 52,
+      "strict_pass": 195
+    },
+    "simple": {
+      "reject": 13,
+      "review": 19,
+      "strict_pass": 91
+    }
+  }
+}

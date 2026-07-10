@@ -1,0 +1,40 @@
+{
+  "schema_version": "crk2-source-semantic-qc-run-lock-v1",
+  "accepted_calibration": {
+    "records": 100,
+    "strict_pass": 68,
+    "review": 22,
+    "reject": 10,
+    "invalid": 0,
+    "summary_sha256": "9c03a15939e077140e6bf1287d8eebcfffd044e457b1d197b814bdb9842b73f5"
+  },
+  "input": {
+    "records": 30000,
+    "jsonl_sha256": "5ce80c9aa99e6f7f92f6714ee89fd4ff7e0120ad217cf9b62cadbae158914116",
+    "manifest_sha256": "5759ee24a484b9c754a254cc83e20b5e0f34890c2d16381bbdab32523cb1ede6",
+    "candidate_pool_manifest_sha256": "d02c005e6d5a1f10824232ef8d81c80316c5968a4fb6dab1e14652374e2300f6"
+  },
+  "api": {
+    "model": "qwen3.7-max",
+    "temperature": 0.2,
+    "max_tokens": 8192,
+    "rpm": 150,
+    "max_workers": 96,
+    "max_retries": 5,
+    "timeout_seconds": 300
+  },
+  "implementation_sha256": {
+    "runner": "a627fa7bdd63628b82cc11a2011a98965253c7a0324d68047adb9aca75237d36",
+    "prepare": "3540571b69727dacad683e9bb09c2642a90597006788a92e39935f103956a84e",
+    "postprocess": "7c9959803fe1b8aacece8f563496cde6075622ec15f98fbe2c9182767f0ec420",
+    "audit": "c2c863b8c87251735840b7c152445d909d936daf3d7fb1752728c3cb017c7898",
+    "admission": "8b515fb07c0833b45f244d715c82b963e9f10976b87c93d1f81ec877301c4478",
+    "prompt": "09b38142b117b929b87f60234f502ebca17e99081730cf9841310b11b2426dcb",
+    "config": "951bbf79f177faa538921ad1a26293866fd969a0cb01c22c450727f800e2216b"
+  },
+  "outputs": {
+    "result": "med_rpeval_pipeline/data/crk2_source_semantic_qc_result_30000.jsonl",
+    "failed": "med_rpeval_pipeline/data/crk2_source_semantic_qc_failed_30000.jsonl",
+    "log": "med_rpeval_pipeline/data/crk2_source_semantic_qc_run_30000.log"
+  }
+}

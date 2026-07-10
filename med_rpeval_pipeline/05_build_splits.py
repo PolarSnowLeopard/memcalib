@@ -8,7 +8,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-from utils import LABELS, compact_rpeval_record, iter_jsonl, label_counts, load_json, norm_text, write_json, write_jsonl
+from utils import LABELS, compact_rpeval_record, iter_jsonl, label_counts, load_json, norm_text, resolve_config_path, write_json, write_jsonl
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -117,8 +117,9 @@ def main() -> None:
     args = parser.parse_args()
 
     cfg = load_json(args.config)
-    input_path = args.input or Path(cfg["output_dir"]) / "verified_records.jsonl"
-    output_dir = args.output_dir or Path(cfg["output_dir"]) / "rpeval_med_public"
+    configured_output_dir = resolve_config_path(args.config, str(cfg["output_dir"]))
+    input_path = args.input or configured_output_dir / "verified_records.jsonl"
+    output_dir = args.output_dir or configured_output_dir / "rpeval_med_public"
     split_cfg = cfg["split"]
 
     source_records = list(iter_jsonl(input_path))

@@ -1,0 +1,68 @@
+{
+  "schema_version": "crk2-source-semantic-admission-v1",
+  "status": "strict_sufficient",
+  "final_target": 15000,
+  "admission_target": 15577,
+  "generation_pilot": {
+    "successes": 100,
+    "total": 100,
+    "wilson_lower_95": 0.9630065017930143
+  },
+  "counts": {
+    "input": 29981,
+    "strict_pass": 21129,
+    "review": 5219,
+    "reject": 3633,
+    "admitted": 15577,
+    "secondary_review_candidates": 0
+  },
+  "parameters": {
+    "seed": 42
+  },
+  "input": {
+    "path": "med_rpeval_pipeline/data/crk2_source_semantic_qc_resolved_29981.jsonl",
+    "sha256": "4824d5463c975cff87aabaec7d590abd7d5a0d692a48d88ca503d8b7eee372e0"
+  },
+  "distributions": {
+    "admitted": {
+      "source_dataset": {
+        "OpenMed/MedDialog": 7789,
+        "lavita/ChatDoctor-HealthCareMagic-100k": 7788
+      },
+      "topic": {
+        "acute_symptoms": 1060,
+        "cardio": 222,
+        "chronic_disease": 1612,
+        "digestive": 1206,
+        "general_other": 621,
+        "medication_treatment": 2544,
+        "mental_sleep": 372,
+        "neuro": 452,
+        "pediatrics": 2054,
+        "pregnancy_reproductive": 2197,
+        "respiratory_ent": 1844,
+        "skin_allergy": 1393
+      },
+      "seed_complexity": {
+        "complex": 3821,
+        "medium": 7992,
+        "simple": 3764
+      }
+    },
+    "secondary_review_candidates": {
+      "source_dataset": {},
+      "topic": {},
+      "seed_complexity": {}
+    }
+  },
+  "outputs": {
+    "admitted": {
+      "path": "med_rpeval_pipeline/data/crk2_source_semantic_admitted_15577.jsonl",
+      "sha256": "2ece3e5b24cbfdf2b66180d9826cb5d0333e237676a2952caa76feba0f2a52c6"
+    },
+    "secondary_review": {
+      "path": "med_rpeval_pipeline/data/crk2_source_semantic_secondary_review.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

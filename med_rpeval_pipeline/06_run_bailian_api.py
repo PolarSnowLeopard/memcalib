@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import http.client
 import json
 import os
 import threading
@@ -40,12 +42,25 @@ class RateLimiter:
 
 
 def request_id(row: dict[str, Any]) -> str:
+    explicit_id = row.get("request_id")
+    if explicit_id:
+        return str(explicit_id)
     params = row.get("user_defined_params") or row.get("passParams") or row.get("params") or {}
     for key in ("id", "source_raw_id", "source_id"):
         value = params.get(key)
         if value:
             return str(value)
     return stable_id(json.dumps(row.get("prompt", ""), ensure_ascii=False), prefix="req")
+
+
+def request_fingerprint(row: dict[str, Any]) -> str:
+    payload = {
+        "request_id": request_id(row),
+        "prompt": parse_messages(row),
+        "user_defined_params": row.get("user_defined_params") or row.get("passParams") or row.get("params") or {},
+    }
+    data = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(data).hexdigest()
 
 
 def parse_messages(row: dict[str, Any]) -> list[dict[str, str]]:
@@ -87,20 +102,25 @@ def is_bad_output_row(row: dict[str, Any], *, allow_length_finish: bool = False)
     return False, ""
 
 
-def load_done_ids(path: Path) -> set[str]:
+def load_done_ids(path: Path, expected_fingerprints: dict[str, str] | None = None) -> set[str]:
     done: set[str] = set()
     if not path.exists():
         return done
     for row in iter_jsonl(path):
-        rid = row.get("request_id")
-        if rid:
-            done.add(str(rid))
+        rid = str(row.get("request_id") or request_id(row))
+        if expected_fingerprints is not None and row.get("input_fingerprint") != expected_fingerprints.get(rid):
             continue
-        done.add(request_id(row))
+        done.add(rid)
     return done
 
 
-def repair_output_for_resume(path: Path, invalid_path: Path | None, *, allow_length_finish: bool = False) -> dict[str, Any]:
+def repair_output_for_resume(
+    path: Path,
+    invalid_path: Path | None,
+    *,
+    allow_length_finish: bool = False,
+    expected_fingerprints: dict[str, str] | None = None,
+) -> dict[str, Any]:
     if not path.exists():
         return {"valid": 0, "invalid": 0, "invalid_reasons": {}}
     valid_rows = []
@@ -108,6 +128,13 @@ def repair_output_for_resume(path: Path, invalid_path: Path | None, *, allow_len
     invalid_reasons: dict[str, int] = {}
     for row in iter_jsonl(path):
         bad, reason = is_bad_output_row(row, allow_length_finish=allow_length_finish)
+        if not bad and expected_fingerprints is not None:
+            rid = str(row.get("request_id") or request_id(row))
+            expected = expected_fingerprints.get(rid)
+            if expected is None:
+                bad, reason = True, "request_not_in_current_input"
+            elif row.get("input_fingerprint") != expected:
+                bad, reason = True, "input_fingerprint_mismatch"
         if bad:
             row["_invalid_reason"] = reason
             invalid_rows.append(row)
@@ -179,6 +206,7 @@ def ensure_not_truncated(response: dict[str, Any]) -> None:
 
 def run_one(row: dict[str, Any], args: argparse.Namespace, api_key: str, limiter: RateLimiter) -> dict[str, Any]:
     rid = request_id(row)
+    fingerprint = request_fingerprint(row)
     messages = parse_messages(row)
     last_error = ""
     for attempt in range(args.max_retries + 1):
@@ -197,6 +225,7 @@ def run_one(row: dict[str, Any], args: argparse.Namespace, api_key: str, limiter
             return {
                 "ok": True,
                 "request_id": rid,
+                "input_fingerprint": fingerprint,
                 "response": extract_content(response),
                 "raw_response": response,
                 "user_defined_params": row.get("user_defined_params") or row.get("passParams") or row.get("params") or {},
@@ -208,7 +237,7 @@ def run_one(row: dict[str, Any], args: argparse.Namespace, api_key: str, limiter
         except LengthFinishError as exc:
             last_error = f"{type(exc).__name__}: {exc}"
             retryable = False
-        except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
+        except (urllib.error.URLError, http.client.HTTPException, TimeoutError, ValueError, json.JSONDecodeError) as exc:
             last_error = f"{type(exc).__name__}: {exc}"
             retryable = True
         if attempt >= args.max_retries or not retryable:
@@ -218,6 +247,7 @@ def run_one(row: dict[str, Any], args: argparse.Namespace, api_key: str, limiter
     return {
         "ok": False,
         "request_id": rid,
+        "input_fingerprint": fingerprint,
         "error": last_error,
         "user_defined_params": row.get("user_defined_params") or row.get("passParams") or row.get("params") or {},
         "prompt": row.get("prompt"),
@@ -292,7 +322,7 @@ def main() -> None:
     args.rpm = args.rpm if args.rpm is not None else int(cfg.get("rpm", 60))
     args.max_workers = args.max_workers if args.max_workers is not None else int(cfg.get("max_workers", 4))
     args.max_retries = args.max_retries if args.max_retries is not None else int(cfg.get("max_retries", 5))
-    args.timeout = args.timeout if args.timeout is not None else int(cfg.get("timeout", 120))
+    args.timeout = args.timeout if args.timeout is not None else int(cfg.get("timeout", 300))
     args.failed = args.failed or args.output.with_suffix(".failed.jsonl")
 
     env_names = [args.api_key_env] if args.api_key_env else ["BAILIAN_API_KEY", "DASHSCOPE_API_KEY"]
@@ -300,15 +330,23 @@ def main() -> None:
     if not api_key:
         raise SystemExit(f"Missing API key. Set one of: {', '.join(env_names)}")
 
+    input_rows = list(iter_jsonl(args.input))
+    expected_fingerprints = {request_id(row): request_fingerprint(row) for row in input_rows}
+
     repair_report = {"valid": 0, "invalid": 0, "invalid_reasons": {}}
     if not args.no_resume and not args.no_repair_output:
-        repair_report = repair_output_for_resume(args.output, args.invalid_output, allow_length_finish=args.allow_length_finish)
+        repair_report = repair_output_for_resume(
+            args.output,
+            args.invalid_output,
+            allow_length_finish=args.allow_length_finish,
+            expected_fingerprints=expected_fingerprints,
+        )
         if repair_report["invalid"]:
             print(json.dumps({"repair_output": str(args.output), **repair_report}, ensure_ascii=False))
 
-    done = set() if args.no_resume else load_done_ids(args.output)
+    done = set() if args.no_resume else load_done_ids(args.output, expected_fingerprints=expected_fingerprints)
     rows = []
-    for idx, row in enumerate(iter_jsonl(args.input)):
+    for idx, row in enumerate(input_rows):
         if args.limit and len(rows) >= args.limit:
             break
         rid = request_id(row)

@@ -1,0 +1,59 @@
+{
+  "total_samples": 100,
+  "total_atoms": 400,
+  "avg_atoms_per_sample": 4.0,
+  "label_counts": {
+    "A": 100,
+    "B": 200,
+    "C": 100
+  },
+  "relation_counts": {
+    "auxiliary": 200,
+    "necessary": 100,
+    "non_applicable": 100
+  },
+  "atom_type_counts": {
+    "constraint": 75,
+    "episodic_fact": 17,
+    "format_preference": 60,
+    "preference": 116,
+    "profile_fact": 107,
+    "safety_sensitive": 8,
+    "skill_level": 17
+  },
+  "theme_counts": {
+    "book_recommendation": 9,
+    "coding_explanation": 9,
+    "event_planning": 8,
+    "fitness_plan": 8,
+    "home_cleaning": 8,
+    "language_learning": 8,
+    "meal_planning": 9,
+    "shopping_bag": 8,
+    "study_plan": 8,
+    "travel_day_plan": 9,
+    "weekly_report": 8,
+    "work_email": 8
+  },
+  "domain_counts": {
+    "coding": 9,
+    "daily_life": 25,
+    "education": 16,
+    "entertainment": 9,
+    "fitness": 8,
+    "shopping": 8,
+    "travel": 9,
+    "work": 16
+  },
+  "task_type_counts": {
+    "planning": 49,
+    "qa": 9,
+    "recommendation": 26,
+    "writing": 16
+  },
+  "prototype_limitations": [
+    "This is a controlled seed set for judging benchmark framing, not final naturalistic data.",
+    "Memory blocks are template-written to enforce coherence.",
+    "Overlap and conflict subsets are still excluded from this main-candidate prototype."
+  ]
+}

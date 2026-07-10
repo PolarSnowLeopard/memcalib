@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from utils import LABELS, extract_json_object, load_json, validate_candidate, write_json, write_jsonl
+from utils import LABELS, extract_json_object, load_json, resolve_config_path, validate_candidate, write_json, write_jsonl
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -74,8 +74,9 @@ def main() -> None:
 
     cfg = load_json(args.config)
     gen_cfg = cfg["generation"]
-    output = args.output or Path(cfg["output_dir"]) / "verified_records.jsonl"
-    rejected_path = args.rejected or Path(cfg["output_dir"]) / "verified_rejected.jsonl"
+    output_dir = resolve_config_path(args.config, str(cfg["output_dir"]))
+    output = args.output or output_dir / "verified_records.jsonl"
+    rejected_path = args.rejected or output_dir / "verified_rejected.jsonl"
 
     kept = []
     rejected = []

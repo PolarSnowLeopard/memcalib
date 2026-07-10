@@ -344,7 +344,8 @@ def summarize_and_render(samples: list[dict[str, Any]], summary_path: Path, html
     ]
     write_json(summary_path, summary)
     html_path.parent.mkdir(parents=True, exist_ok=True)
-    html_path.write_text(builder.build_html(samples, summary), encoding="utf-8")
+    html = "\n".join(line.rstrip() for line in builder.build_html(samples, summary).splitlines()) + "\n"
+    html_path.write_text(html, encoding="utf-8")
     return summary
 
 

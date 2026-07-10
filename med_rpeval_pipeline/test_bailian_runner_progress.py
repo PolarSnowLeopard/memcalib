@@ -2,11 +2,16 @@
 from __future__ import annotations
 
 import importlib.util
+import json
+import tempfile
 import unittest
+from http.client import RemoteDisconnected
 from pathlib import Path
+from types import SimpleNamespace
 
 
 SCRIPT = Path(__file__).resolve().parent / "06_run_bailian_api.py"
+CONFIG = Path(__file__).resolve().parent / "config.json"
 
 
 def load_runner():
@@ -45,6 +50,107 @@ class BailianRunnerProgressTest(unittest.TestCase):
         self.assertEqual(13, payload["remaining"])
         self.assertEqual(30, payload["elapsed_s"])
         self.assertEqual(14.0, payload["rpm_actual"])
+
+    def test_project_config_defaults_to_300_second_timeout(self) -> None:
+        cfg = json.loads(CONFIG.read_text(encoding="utf-8"))
+
+        self.assertEqual(300, cfg["api"]["timeout"])
+
+    def test_resume_rejects_output_when_input_fingerprint_changes(self) -> None:
+        current_input = {
+            "request_id": "r1",
+            "prompt": [{"role": "user", "content": "new prompt"}],
+            "user_defined_params": {"id": "raw1"},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "out.jsonl"
+            invalid = Path(tmp) / "invalid.jsonl"
+            output.write_text(
+                json.dumps(
+                    {
+                        "request_id": "r1",
+                        "input_fingerprint": "old-fingerprint",
+                        "response": "{}",
+                        "raw_response": {"choices": [{"finish_reason": "stop"}]},
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            expected = {"r1": self.runner.request_fingerprint(current_input)}
+            report = self.runner.repair_output_for_resume(output, invalid, expected_fingerprints=expected)
+
+            self.assertEqual({"valid": 0, "invalid": 1, "invalid_reasons": {"input_fingerprint_mismatch": 1}}, report)
+            self.assertEqual(set(), self.runner.load_done_ids(output, expected_fingerprints=expected))
+            invalid_row = json.loads(invalid.read_text(encoding="utf-8").splitlines()[0])
+            self.assertEqual("input_fingerprint_mismatch", invalid_row["_invalid_reason"])
+
+    def test_run_one_records_input_fingerprint(self) -> None:
+        row = {
+            "request_id": "r1",
+            "prompt": [{"role": "user", "content": "hello"}],
+            "user_defined_params": {"id": "raw1"},
+        }
+        args = SimpleNamespace(
+            base_url="https://example.invalid",
+            model="test-model",
+            temperature=0.0,
+            max_tokens=32,
+            timeout=1,
+            max_retries=0,
+            retry_base_sleep=0.0,
+            retry_max_sleep=0.0,
+        )
+
+        original_call = self.runner.call_chat_completions
+        self.runner.call_chat_completions = lambda **_: {
+            "choices": [{"finish_reason": "stop", "message": {"content": "{}"}}]
+        }
+        try:
+            result = self.runner.run_one(row, args, "fake-key", self.runner.RateLimiter(0))
+        finally:
+            self.runner.call_chat_completions = original_call
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(self.runner.request_fingerprint(row), result["input_fingerprint"])
+
+    def test_run_one_retries_remote_disconnect(self) -> None:
+        row = {
+            "request_id": "r1",
+            "prompt": [{"role": "user", "content": "hello"}],
+            "user_defined_params": {"id": "raw1"},
+        }
+        args = SimpleNamespace(
+            base_url="https://example.invalid",
+            model="test-model",
+            temperature=0.0,
+            max_tokens=32,
+            timeout=1,
+            max_retries=1,
+            retry_base_sleep=0.0,
+            retry_max_sleep=0.0,
+        )
+        calls = 0
+
+        def disconnect_once(**_):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                raise RemoteDisconnected("remote closed connection")
+            return {"choices": [{"finish_reason": "stop", "message": {"content": "{}"}}]}
+
+        original_call = self.runner.call_chat_completions
+        self.runner.call_chat_completions = disconnect_once
+        try:
+            result = self.runner.run_one(row, args, "fake-key", self.runner.RateLimiter(0))
+        finally:
+            self.runner.call_chat_completions = original_call
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(2, calls)
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ import argparse
 import json
 from pathlib import Path
 
-from utils import iter_jsonl, load_json, write_jsonl
+from utils import iter_jsonl, load_json, resolve_config_path, write_jsonl
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -23,8 +23,9 @@ def main() -> None:
     args = parser.parse_args()
 
     cfg = load_json(args.config)
-    input_path = args.input or Path(cfg["output_dir"]) / "generated_candidates.jsonl"
-    output_path = args.output or Path(cfg["output_dir"]) / "crawl_verify_input.jsonl"
+    output_dir = resolve_config_path(args.config, str(cfg["output_dir"]))
+    input_path = args.input or output_dir / "generated_candidates.jsonl"
+    output_path = args.output or output_dir / "crawl_verify_input.jsonl"
     template = args.prompt_template.read_text(encoding="utf-8")
 
     rows = []

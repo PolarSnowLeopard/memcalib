@@ -9,7 +9,7 @@ from typing import Any
 
 import pandas as pd
 
-from utils import load_json, norm_text, stable_id, write_json, write_jsonl
+from utils import load_json, norm_text, resolve_config_path, stable_id, write_json, write_jsonl
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -380,8 +380,9 @@ def main() -> None:
     args = parser.parse_args()
 
     cfg = load_json(args.config)
-    root = Path(cfg["source_root"])
-    output = args.output or Path(cfg["output_dir"]) / "normalized_raw.jsonl"
+    root = resolve_config_path(args.config, str(cfg["source_root"]))
+    output_dir = resolve_config_path(args.config, str(cfg["output_dir"]))
+    output = args.output or output_dir / "normalized_raw_full.jsonl"
     max_per_source = args.max_per_source
     if max_per_source is None:
         max_per_source = int(cfg["filters"].get("max_raw_records_per_source", 0))
