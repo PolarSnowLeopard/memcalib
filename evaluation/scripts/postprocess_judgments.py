@@ -44,6 +44,23 @@ def evidence_quote_is_grounded(quote: str, model_response: str) -> bool:
     return True
 
 
+def auxiliary_warnings(value: dict[str, Any], model_response: str) -> list[str]:
+    warnings = []
+    for item in value.get("atom_judgments") or []:
+        if not isinstance(item, dict):
+            continue
+        atom_id = str(item.get("atom_id") or "")
+        quote = item.get("evidence_quote")
+        if not isinstance(quote, str):
+            warnings.append(f"evidence_quote_not_string:{atom_id}")
+        elif not evidence_quote_is_grounded(quote, model_response):
+            warnings.append(f"ungrounded_evidence_quote:{atom_id}")
+        confidence = item.get("confidence")
+        if not isinstance(confidence, (int, float)) or isinstance(confidence, bool) or not 0 <= confidence <= 1:
+            warnings.append(f"invalid_confidence:{atom_id}")
+    return warnings
+
+
 def extract_json_object(text: str) -> dict[str, Any]:
     stripped = text.strip()
     if stripped.startswith("```"):
@@ -69,7 +86,7 @@ def extract_json_object(text: str) -> dict[str, Any]:
 
 
 def validate_judgment(
-    value: dict[str, Any], expected_atoms: dict[str, str], model_response: str
+    value: dict[str, Any], expected_atoms: dict[str, str], model_response: str, *, enforce_auxiliary: bool = True
 ) -> tuple[bool, list[str]]:
     errors = []
     judgments = value.get("atom_judgments")
@@ -91,14 +108,16 @@ def validate_judgment(
         if item.get("verdict") not in VALID_VERDICTS[expected_label]:
             errors.append(f"invalid_verdict:{atom_id}")
         quote = item.get("evidence_quote")
-        if not isinstance(quote, str):
+        if enforce_auxiliary and not isinstance(quote, str):
             errors.append(f"evidence_quote_not_string:{atom_id}")
-        elif not evidence_quote_is_grounded(quote, model_response):
+        elif enforce_auxiliary and not evidence_quote_is_grounded(quote, model_response):
             errors.append(f"ungrounded_evidence_quote:{atom_id}")
         if not isinstance(item.get("reason"), str) or not item["reason"].strip():
             errors.append(f"missing_reason:{atom_id}")
         confidence = item.get("confidence")
-        if not isinstance(confidence, (int, float)) or isinstance(confidence, bool) or not 0 <= confidence <= 1:
+        if enforce_auxiliary and (
+            not isinstance(confidence, (int, float)) or isinstance(confidence, bool) or not 0 <= confidence <= 1
+        ):
             errors.append(f"invalid_confidence:{atom_id}")
     if len(seen) != len(set(seen)):
         errors.append("duplicate_atoms")
@@ -126,9 +145,13 @@ def postprocess_judgments(input_path: Path, result_path: Path) -> tuple[list[dic
         params = request["user_defined_params"]
         try:
             value = extract_json_object(str(result.get("response") or ""))
-            valid, errors = validate_judgment(value, params["expected_atoms"], params["model_response"])
+            warnings = auxiliary_warnings(value, params["model_response"])
+            valid, errors = validate_judgment(
+                value, params["expected_atoms"], params["model_response"], enforce_auxiliary=False
+            )
         except ValueError as exc:
             value = None
+            warnings = []
             valid, errors = False, [str(exc)]
         if valid:
             valid_rows.append(
@@ -145,6 +168,7 @@ def postprocess_judgments(input_path: Path, result_path: Path) -> tuple[list[dic
                     "atom_judgments": value["atom_judgments"],
                     "task_quality": value["task_quality"],
                     "safety_failure": value["safety_failure"],
+                    "validation_warnings": warnings,
                 }
             )
         else:

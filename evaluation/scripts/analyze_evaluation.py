@@ -36,7 +36,7 @@ def _flatten(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                     "atom_id": atom["atom_id"],
                     "label": atom["u_star"],
                     "verdict": atom["verdict"],
-                    "confidence": atom["confidence"],
+                    "confidence": atom.get("confidence"),
                     "success": int(atom["verdict"] == CORRECT_VERDICT[atom["u_star"]]),
                 }
             )

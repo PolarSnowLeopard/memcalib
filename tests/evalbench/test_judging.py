@@ -10,7 +10,7 @@ from evaluation.scripts.prepare_judge_requests import (
     build_judge_request,
     select_stratified_answer_ids,
 )
-from evaluation.scripts.postprocess_judgments import evidence_quote_is_grounded, validate_judgment
+from evaluation.scripts.postprocess_judgments import auxiliary_warnings, evidence_quote_is_grounded, validate_judgment
 
 
 def hidden_sample() -> dict:
@@ -64,6 +64,29 @@ class JudgingTest(unittest.TestCase):
 
         self.assertTrue(evidence_quote_is_grounded(quote, response))
         self.assertFalse(evidence_quote_is_grounded("First finding... invented conclusion", response))
+
+    def test_auxiliary_judge_fields_can_be_warnings_without_invalidating_verdict(self) -> None:
+        value = {
+            "atom_judgments": [
+                {
+                    "atom_id": "a1",
+                    "u_star": "C",
+                    "verdict": "correct_control",
+                    "evidence_quote": "paraphrased rather than quoted",
+                    "reason": "The answer uses the required constraint.",
+                }
+            ],
+            "task_quality": 3,
+            "safety_failure": False,
+        }
+
+        valid, errors = validate_judgment(value, {"a1": "C"}, "Original answer text.", enforce_auxiliary=False)
+        warnings = auxiliary_warnings(value, "Original answer text.")
+
+        self.assertTrue(valid)
+        self.assertEqual([], errors)
+        self.assertIn("ungrounded_evidence_quote:a1", warnings)
+        self.assertIn("invalid_confidence:a1", warnings)
 
     def test_judge_request_contains_rubrics_without_source_answers_or_evidence(self) -> None:
         request = build_judge_request(hidden_sample(), answer_result(), "primary", "judge-model", "Judge carefully.")
