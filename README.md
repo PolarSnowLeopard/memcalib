@@ -1,40 +1,40 @@
 # MemCalib
 
-**Benchmarking when and how conversational language models should use memory.**
+**评测对话语言模型应当何时以及如何使用记忆。**
 
-MemCalib evaluates whether a model can regulate the influence of retrieved or stored memories when answering a new query. The model receives realistic parent memory blocks. Hidden atomic annotations determine whether each fact should be suppressed, used only as bounded support, or treated as a controlling constraint.
+MemCalib 用于评测模型在回答新问题时，能否恰当地调节检索记忆或存储记忆对回答的影响。模型接收符合真实记忆系统形态的非原子记忆块；评测端使用隐藏的原子级标注，判断各项信息应被抑制、仅作为有限支持，还是作为控制回答的关键约束。
 
-## Current Release
+## 当前版本
 
-MemCalib v0.1 is a private co-author review release built from two English medical QA sources. It validates the benchmark construction and evaluation representation; it does not yet support claims about general-domain dialogue.
+MemCalib v0.1 是供论文合作者内部审阅的私有版本，基于两个英文医学问答数据源构建。该版本用于验证 benchmark 的数据构建流程与评测表示形式，目前尚不足以支持对通用对话场景的结论。
 
-| Statistic | Value |
+| 统计项 | 数量 |
 |---|---:|
-| Samples | 15,528 |
-| Parent memory blocks | 56,044 |
-| Atomic memories | 78,734 |
-| Mixed-label parent blocks | 7,963 (14.2%) |
-| A / irrelevant atoms | 22,722 |
-| B / supporting atoms | 25,783 |
-| C / controlling atoms | 30,229 |
-| Source datasets | 2 |
-| Medical topics | 12 |
+| 样本 | 15,528 |
+| 原始记忆块 | 56,044 |
+| 原子记忆 | 78,734 |
+| 含混合标签的记忆块 | 7,963（14.2%） |
+| A / 无关原子记忆 | 22,722 |
+| B / 支持性原子记忆 | 25,783 |
+| C / 控制性原子记忆 | 30,229 |
+| 数据源 | 2 |
+| 医学主题 | 12 |
 
-## Capability Definition
+## 能力定义
 
-- **A - suppress:** the memory must not leave an unsupported footprint in the response.
-- **B - bound:** the memory may support the response, but must not control or overexpand it.
-- **C - control:** the memory must materially constrain the answer or its main recommendation.
+- **A - suppress（抑制）：** 该记忆不应在回答中留下缺乏依据的影响。
+- **B - bound（有限使用）：** 该记忆可以为回答提供支持，但不应控制回答或导致内容过度扩展。
+- **C - control（控制）：** 该记忆必须实质性地约束回答内容或主要建议。
 
-The model sees `memory_blocks`. Evaluation uses the hidden `memories` array, where each atomic memory has an A/B/C label, construction target, and observable judge rubric. This preserves realistic non-atomic memory input while supporting fine-grained diagnosis.
+模型输入中呈现的是 `memory_blocks`。评测使用隐藏的 `memories` 数组，其中每条原子记忆均包含 A/B/C 标签、构造目标以及可观测的 judge rubric。该设计在保留真实非原子记忆输入形态的同时，支持细粒度的错误诊断。
 
-## Positioning
+## 研究定位
 
-[StratMem-Bench](https://arxiv.org/abs/2604.26243) independently evaluates required, supportive, and irrelevant memories in 657 virtual-character scenarios. MemCalib does not claim the three-way relevance distinction as a new idea. Its intended contribution is the block-facing/atom-evaluated protocol, realistic non-atomic memories, atom-specific rubrics for under-use and over-use, and a substantially larger reproducible construction pipeline.
+[StratMem-Bench](https://arxiv.org/abs/2604.26243) 在 657 个虚拟角色场景中独立评测了必要记忆、支持性记忆和无关记忆。MemCalib 不将这种三分类相关性划分本身作为创新点。其主要贡献包括：面向模型输入记忆块、面向评测使用原子标注的协议；符合真实系统形态的非原子记忆；用于判定记忆使用不足与过度使用的原子级 rubric；以及规模更大且可复现的数据构建流程。
 
-## Five-Minute Review
+## 五分钟快速审阅
 
-Use the designated non-Conda Python runtime in this workspace, or any Python 3.11+ interpreter with the standard library:
+使用当前工作区指定的非 Conda Python 运行时，或任意带有标准库的 Python 3.11 及以上版本：
 
 ```bash
 PY=/Users/zhaofanyu/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3
@@ -42,9 +42,9 @@ PY=/Users/zhaofanyu/.cache/codex-runtimes/codex-primary-runtime/dependencies/pyt
 $PY tools/verify_release.py --release-dir release/memcalib-v0.1
 ```
 
-The verifier checks every release hash, reconstructs the two compressed shards in order, parses all records, verifies unique IDs, recomputes benchmark statistics, and requires the locked source SHA-256.
+验证脚本会检查发布包中每个文件的哈希，按顺序重建两个压缩分片，解析全部记录，检查 ID 唯一性，重新计算 benchmark 统计量，并验证锁定的源文件 SHA-256。
 
-To reconstruct the uncompressed JSONL:
+如需重建未压缩的 JSONL 文件：
 
 ```bash
 gzip -cd \
@@ -56,35 +56,35 @@ shasum -a 256 memcalib-v0.1.jsonl
 # 1cfd0334255266e6b8d4c234c615ade42b40c91bb86cb7c061a285261c363cb4
 ```
 
-Review entry points:
+审阅入口：
 
-- [Release guide](release/memcalib-v0.1/README.md)
-- [100-sample audit page](release/memcalib-v0.1/review/memcalib-v0.1-audit-100.html)
-- [Full statistical report](release/memcalib-v0.1/reports/memcalib-v0.1-statistics.html)
-- [Data card](DATA_CARD.md)
-- [Benchmark schema](docs/benchmark-schema.md)
-- [Construction pipeline](docs/construction-pipeline.md)
+- [发布包说明](release/memcalib-v0.1/README.md)
+- [100 条样本审阅页面](release/memcalib-v0.1/review/memcalib-v0.1-audit-100.html)
+- [完整统计分析报告](release/memcalib-v0.1/reports/memcalib-v0.1-statistics.html)
+- [数据卡](DATA_CARD.md)
+- [Benchmark 数据结构](docs/benchmark-schema.md)
+- [数据构建流程](docs/construction-pipeline.md)
 
-## Repository Map
+## 仓库结构
 
 ```text
-pipeline/                 reproducible construction stages and prompts
-release/memcalib-v0.1/   locked private-review data release
-tools/                    deterministic release builder and verifier
-tests/                    pipeline and release-tool tests
-docs/                     schema, methods, sources, and archived designs
+pipeline/                 可复现的数据构建阶段与提示词
+release/memcalib-v0.1/   已锁定的内部审阅数据版本
+tools/                    确定性发布包构建与验证工具
+tests/                    流水线与发布工具测试
+docs/                     数据结构、方法、数据来源与归档设计文档
 ```
 
-Large source downloads, API requests/responses, runtime logs, and construction intermediates remain local under `pipeline/data/` and are excluded from Git.
+大体积源数据、API 请求与响应、运行日志和构建中间产物保存在本地 `pipeline/data/` 目录中，不纳入 Git 版本控制。
 
-## Construction And Evaluation Status
+## 构建与评测进展
 
-The construction pipeline includes deterministic source filtering, deduplication, stratified candidate selection, semantic source QA, English memory construction, atomic decomposition, A/B/C annotation, per-atom rubric generation, and structural QC.
+当前构建流程包括确定性源数据过滤、去重、候选样本分层选择、源问答语义质检、英文记忆构造、原子信息拆分、A/B/C 标注、原子级 rubric 生成和结构化质量检查。
 
-Response-level benchmark validation is the next phase. The planned first experiment uses a deterministic 500-sample calibration subset and representative models through the Bailian OpenAI-compatible API. No model leaderboard is included in v0.1.
+下一阶段将开展回答级 benchmark 验证。首轮实验计划构建一个确定性的 500 条分层校准子集，并通过百炼 OpenAI 兼容 API 评测若干代表性模型。v0.1 尚未包含模型排行榜。
 
-## Release And Licensing Status
+## 发布与许可状态
 
-This repository is for private co-author research review. `OpenMed/MedDialog` declares Apache-2.0. The `lavita/ChatDoctor-HealthCareMagic-100k` dataset card does not specify a license. The data shards therefore are not cleared for public redistribution. Public release additionally requires a PII and sensitive-content review.
+本仓库仅用于论文合作者内部研究审阅。`OpenMed/MedDialog` 声明采用 Apache-2.0 许可；`lavita/ChatDoctor-HealthCareMagic-100k` 的数据卡未注明许可证。因此，当前数据分片尚不具备公开再分发条件。公开发布前还需完成个人身份信息（PII）与敏感内容审查。
 
-See [NOTICE.md](NOTICE.md) for attribution and rights status. No repository-wide code or data license is granted in this review release.
+数据来源署名与权利状态详见 [NOTICE.md](NOTICE.md)。当前内部审阅版本未对仓库整体授予代码或数据许可证。
