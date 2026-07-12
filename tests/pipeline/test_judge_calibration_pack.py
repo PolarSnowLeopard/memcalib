@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 
 
-SCRIPT_DIR = Path(__file__).resolve().parent
+SCRIPT_DIR = Path(__file__).resolve().parents[2] / "pipeline"
 PACK_SCRIPT = SCRIPT_DIR / "14_build_judge_calibration_pack.py"
 
 

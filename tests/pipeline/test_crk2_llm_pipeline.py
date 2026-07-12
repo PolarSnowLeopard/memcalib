@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 
 
-SCRIPT_DIR = Path(__file__).resolve().parent
+SCRIPT_DIR = Path(__file__).resolve().parents[2] / "pipeline"
 PREPARE_SCRIPT = SCRIPT_DIR / "10_prepare_crk2_generation.py"
 POST_SCRIPT = SCRIPT_DIR / "11_post_crk2_generation.py"
 

@@ -10,7 +10,7 @@ import unittest
 from pathlib import Path
 
 
-AUDIT_DIR = Path(__file__).resolve().parent
+AUDIT_DIR = Path(__file__).resolve().parents[2] / "pipeline" / "audit_samples"
 SAMPLES_JSONL = AUDIT_DIR / "manual_quality_review_samples.jsonl"
 BUILDER = AUDIT_DIR / "build_manual_review_html.py"
 

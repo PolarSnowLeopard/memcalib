@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 
-SCRIPT = Path(__file__).resolve().parent / "07_build_memory_abc_prototype.py"
+SCRIPT = Path(__file__).resolve().parents[2] / "pipeline" / "07_build_memory_abc_prototype.py"
 
 
 def load_builder():

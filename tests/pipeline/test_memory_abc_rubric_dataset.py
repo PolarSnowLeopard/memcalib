@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 
-SCRIPT = Path(__file__).resolve().parent / "09_build_memory_abc_rubric_dataset.py"
+SCRIPT = Path(__file__).resolve().parents[2] / "pipeline" / "09_build_memory_abc_rubric_dataset.py"
 
 
 COMMON_RUBRIC_KEYS = {

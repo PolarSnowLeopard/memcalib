@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 
-SCRIPT_DIR = Path(__file__).resolve().parent
+SCRIPT_DIR = Path(__file__).resolve().parents[2] / "pipeline"
 PLAN_SCRIPT = SCRIPT_DIR / "13_build_counterfactual_qc_plan.py"
 
 

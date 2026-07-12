@@ -29,7 +29,7 @@ The normalization step reads the ChatDoctor parquet source and therefore require
 
 ```bash
 PY=/Users/zhaofanyu/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3
-$PY -m pip install -r med_rpeval_pipeline/requirements.txt
+$PY -m pip install -r pipeline/requirements.txt
 ```
 
 All paths in `config.json` are resolved relative to that configuration file. No user-specific absolute path is required.
@@ -39,7 +39,7 @@ All paths in `config.json` are resolved relative to that configuration file. No 
 Normalize every locally available record that passes broad schema and length checks. Source limits are zero by default, so this step does not randomly cap either source.
 
 ```bash
-$PY med_rpeval_pipeline/00_normalize_sources.py
+$PY pipeline/00_normalize_sources.py
 ```
 
 This writes the ignored full pool to `data/normalized_raw_full.jsonl` and a tracked statistical summary to `data/normalized_raw_full.stats.json`.
@@ -47,7 +47,7 @@ This writes the ignored full pool to `data/normalized_raw_full.jsonl` and a trac
 Run deterministic quality filtering, scoring, representative-based deduplication, and stratified selection:
 
 ```bash
-$PY med_rpeval_pipeline/15_select_crk2_raw_seeds.py \
+$PY pipeline/15_select_crk2_raw_seeds.py \
   --target 100 \
   --seed 42 \
   --progress-every 25000
@@ -63,10 +63,10 @@ Outputs:
 Build the one-sample-per-page review artifact:
 
 ```bash
-$PY med_rpeval_pipeline/16_build_raw_seed_audit.py \
-  --input med_rpeval_pipeline/data/crk2_selected_raw_seeds_100.jsonl \
-  --manifest med_rpeval_pipeline/data/crk2_raw_selection_100.manifest.json \
-  --output med_rpeval_pipeline/data/crk2_raw_seed_audit_100.html
+$PY pipeline/16_build_raw_seed_audit.py \
+  --input pipeline/data/crk2_selected_raw_seeds_100.jsonl \
+  --manifest pipeline/data/crk2_raw_selection_100.manifest.json \
+  --output pipeline/data/crk2_raw_seed_audit_100.html
 ```
 
 Use Left/Right Arrow to switch samples. `seed_complexity` is a construction-complexity proxy based on observable source context; it is not the final benchmark difficulty label.
@@ -74,7 +74,7 @@ Use Left/Right Arrow to switch samples. `seed_complexity` is a construction-comp
 Once the eligible-pool version has been reviewed and fixed, create the large source candidate pool without rerunning deterministic filtering:
 
 ```bash
-$PY med_rpeval_pipeline/17_select_crk2_candidate_pool.py \
+$PY pipeline/17_select_crk2_candidate_pool.py \
   --per-source 15000 \
   --seed 42 \
   --progress-every 50000
@@ -87,13 +87,13 @@ This verifies the eligible-pool hash and the parent selector/config lineage befo
 Prepare a stratified 100-record calibration set, run the fixed six-dimension rubric, validate grounded evidence, and build the one-record-per-page audit:
 
 ```bash
-$PY med_rpeval_pipeline/18_prepare_source_semantic_qc.py --limit 100 --seed 42
+$PY pipeline/18_prepare_source_semantic_qc.py --limit 100 --seed 42
 
 DASHSCOPE_API_KEY="$(cat ~/.config/crk2/dashscope_api_key)" \
-$PY med_rpeval_pipeline/06_run_bailian_api.py \
-  --input med_rpeval_pipeline/data/crk2_source_semantic_qc_input_100.jsonl \
-  --output med_rpeval_pipeline/data/crk2_source_semantic_qc_result_100.jsonl \
-  --failed med_rpeval_pipeline/data/crk2_source_semantic_qc_failed_100.jsonl \
+$PY pipeline/06_run_bailian_api.py \
+  --input pipeline/data/crk2_source_semantic_qc_input_100.jsonl \
+  --output pipeline/data/crk2_source_semantic_qc_result_100.jsonl \
+  --failed pipeline/data/crk2_source_semantic_qc_failed_100.jsonl \
   --max-workers 16 --rpm 60 --timeout 300 --progress-every 1
 ```
 
@@ -102,8 +102,8 @@ The calibrated result contains 68 `strict_pass`, 22 `review`, 10 `reject`, and 0
 After the full semantic run, apply the adaptive admission rule:
 
 ```bash
-$PY med_rpeval_pipeline/21_select_source_semantic_admission.py \
-  --input med_rpeval_pipeline/data/crk2_source_semantic_qc_30000.jsonl \
+$PY pipeline/21_select_source_semantic_admission.py \
+  --input pipeline/data/crk2_source_semantic_qc_30000.jsonl \
   --final-target 15000 \
   --generation-successes 100 \
   --generation-total 100
@@ -118,9 +118,9 @@ The completed 30k run produced 29,477 valid judgments and 523 evidence-grounding
 Prepare generation requests only from the selected seed file. The 100-sample review run uses Chinese generated fields for manual inspection; the final benchmark uses English.
 
 ```bash
-$PY med_rpeval_pipeline/10_prepare_crk2_generation.py \
-  --input med_rpeval_pipeline/data/crk2_selected_raw_seeds_100.jsonl \
-  --output med_rpeval_pipeline/data/crk2_canonical_generation_input_100.jsonl \
+$PY pipeline/10_prepare_crk2_generation.py \
+  --input pipeline/data/crk2_selected_raw_seeds_100.jsonl \
+  --output pipeline/data/crk2_canonical_generation_input_100.jsonl \
   --limit 100 \
   --output-language zh
 ```
@@ -130,11 +130,11 @@ For the final release, use the selected full-scale seed file and `--output-langu
 The locked English construction release uses the 15,577-record strict-pass admission file:
 
 ```bash
-$PY med_rpeval_pipeline/10_prepare_crk2_generation.py \
-  --input med_rpeval_pipeline/data/crk2_source_semantic_admitted_15577.jsonl \
-  --input-manifest med_rpeval_pipeline/data/crk2_source_semantic_admission_15577.manifest.json \
-  --output med_rpeval_pipeline/data/crk2_canonical_generation_input_en_15577.jsonl \
-  --manifest med_rpeval_pipeline/data/crk2_canonical_generation_input_en_15577.manifest.json \
+$PY pipeline/10_prepare_crk2_generation.py \
+  --input pipeline/data/crk2_source_semantic_admitted_15577.jsonl \
+  --input-manifest pipeline/data/crk2_source_semantic_admission_15577.manifest.json \
+  --output pipeline/data/crk2_canonical_generation_input_en_15577.jsonl \
+  --manifest pipeline/data/crk2_canonical_generation_input_en_15577.manifest.json \
   --limit 15577 --seed 42 --target-memory-count 3-6 --output-language en
 ```
 

@@ -481,7 +481,7 @@ def analyze_benchmark(
 
 
 def source_specs(generated_at: str) -> list[dict[str, Any]]:
-    rows_path = "med_rpeval_pipeline/data/crk2_formal_benchmark_analysis.rows.jsonl"
+    rows_path = "pipeline/data/crk2_formal_benchmark_analysis.rows.jsonl"
     return [
         {
             "id": "formal_benchmark_jsonl",

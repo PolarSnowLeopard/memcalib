@@ -10,8 +10,8 @@ from pathlib import Path
 from types import SimpleNamespace
 
 
-SCRIPT = Path(__file__).resolve().parent / "06_run_bailian_api.py"
-CONFIG = Path(__file__).resolve().parent / "config.json"
+SCRIPT = Path(__file__).resolve().parents[2] / "pipeline" / "06_run_bailian_api.py"
+CONFIG = Path(__file__).resolve().parents[2] / "pipeline" / "config.json"
 
 
 def load_runner():

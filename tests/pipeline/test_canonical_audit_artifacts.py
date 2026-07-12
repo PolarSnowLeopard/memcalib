@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 
 
-SCRIPT_DIR = Path(__file__).resolve().parent
+SCRIPT_DIR = Path(__file__).resolve().parents[2] / "pipeline"
 AUDIT_SCRIPT = SCRIPT_DIR / "12_build_canonical_audit_artifacts.py"
 
 

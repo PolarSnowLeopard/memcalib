@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 
-SCRIPT_DIR = Path(__file__).resolve().parent
+SCRIPT_DIR = Path(__file__).resolve().parents[2] / "pipeline"
 ANALYSIS_SCRIPT = SCRIPT_DIR / "24_analyze_crk2_formal_benchmark.py"
 
 
