@@ -1,0 +1,2 @@
+{"excluded_id": "crk2_raw_aca6868511c0511f", "kept_id": "crk2_raw_1f48d0003491e98d", "normalized_question": "what is the estimated life expectancy for a patient with widely metastatic terminal cancer?", "reason": "exact_normalized_question_duplicate"}
+{"excluded_id": "crk2_raw_d5ea1dc7cbf41139", "kept_id": "crk2_raw_d8cda2ac62103df5", "normalized_question": "how does a dentist discover cavities or holes in teeth that are not visible to the naked eye?", "reason": "exact_normalized_question_duplicate"}

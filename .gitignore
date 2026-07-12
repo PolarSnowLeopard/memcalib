@@ -75,3 +75,7 @@ pipeline/data/crawl_verify_retry_input.jsonl
 
 # Local evaluation API requests, responses, checkpoints, and logs
 evaluation/runs/
+
+# Full evaluation releases are committed as deterministic gzip packages.
+evaluation/releases/memcalib-v0.1-full-*/hidden-evaluation.jsonl
+evaluation/releases/memcalib-v0.1-full-*/model-facing.jsonl

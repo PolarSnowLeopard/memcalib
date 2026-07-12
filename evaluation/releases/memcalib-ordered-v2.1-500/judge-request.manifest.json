@@ -1,0 +1,102 @@
+{
+  "schema_version": "memcalib-judge-requests-ordered-usage-v2.1",
+  "primary_requests": 5000,
+  "secondary_requests": 1000,
+  "secondary_by_judge": {
+    "deepseek-v4-pro": 600,
+    "kimi-k2.6": 400
+  },
+  "human_random_ids": 60,
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "artifacts": {
+    "primary.jsonl": {
+      "rows": 5000,
+      "sha256": "22c1553adfed66eceb10b33254e5488934210b5a0f3ba10f699f8a422b04c55e"
+    },
+    "secondary-deepseek.jsonl": {
+      "rows": 600,
+      "sha256": "674e3455e5ea3e5e9ed2e6c9086d25061f3963f414178f874651fd8747ddf8b0"
+    },
+    "secondary-kimi.jsonl": {
+      "rows": 400,
+      "sha256": "cd60b9fed6e9d69313e1410425b5e93d4e6b8c932ec11fe6a2f1a10ea46a83ec"
+    },
+    "secondary-answer-ids.txt": {
+      "rows": 1000,
+      "sha256": "d85a4deb8706632f512e9a8eaf89dc12d88c72c823384e91b852177004c42a8d"
+    },
+    "human-random-answer-ids.txt": {
+      "rows": 60,
+      "sha256": "56b288745cbb09ac1feedad5afe44cf344ee955c9eac96488a37d4cfbc67e7ae"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/configs/memcalib-ordered-v2.1-500.json",
+      "sha256": "cc9f5accab7410ed136a43ebea73907b68b822595c5285f121779fe501d352c4"
+    },
+    "hidden": {
+      "path": "evaluation/releases/memcalib-v0.1-500/hidden-evaluation.jsonl",
+      "sha256": "7a91f0c97db6476b1e97d9fc5a6d3e219d24ac6a6c7666419e1618f0f03b4522"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/judge-system-v2.1.txt",
+      "sha256": "482899899ad089318068c562d909327bfee12f012eb266d3484a915244885dc6"
+    },
+    "answers": [
+      {
+        "path": "evaluation/runs/memcalib-v0.1-500/answers/qwen-max/full_memory.jsonl",
+        "sha256": "ae1620f8421e2aac76cf5e816be450305f7576758c4fa6693e382afb0f71fe72",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v0.1-500/answers/qwen-max/no_memory.jsonl",
+        "sha256": "ff52e0405bda0faa089f0bcab18ac54bc8f30d044ea50e8e9c765570e6f325c3",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v0.1-500/answers/qwen-flash/full_memory.jsonl",
+        "sha256": "cde6b1b32467333ca4e19d687cd10409e8b387ff043ab69384f4fe686ee71ccd",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v0.1-500/answers/qwen-flash/no_memory.jsonl",
+        "sha256": "64c4d8c0bc5cb19c59d8669409759658ddc4ce4ae92515bebe0a0497eb8568bc",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v0.1-500/answers/deepseek/full_memory.jsonl",
+        "sha256": "3a6ea2257b73e5956625b3a48d000ad6cbd0758f1442860604b3e7a7e46d90db",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v0.1-500/answers/deepseek/no_memory.jsonl",
+        "sha256": "1d5cac1f3e1c8efbd68ec162873b50778fdfc23fef8f9a51ddfde46bdf8215f5",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v0.1-500/answers/deepseek-flash/full_memory.jsonl",
+        "sha256": "bd3d260123c07c14a5d7c5a046a96142ec074d34b6a6ca65ea685c1053112ebd",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v0.1-500/answers/deepseek-flash/no_memory.jsonl",
+        "sha256": "1d5c97ed1b724701963272dbb8f5dc0da7d44302db4000392b8da1f09d9852f2",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v0.1-500/answers/kimi/full_memory.jsonl",
+        "sha256": "7dc34a3782c5bff4e3bdf933133a65953139813a493d9d4dc8518844fd19b50d",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v0.1-500/answers/kimi/no_memory.jsonl",
+        "sha256": "cb71bc062dc029f39150e4a3edfbc6ca690cdc2939c7f93742d33bfbd660902f",
+        "rows": 500
+      }
+    ]
+  }
+}

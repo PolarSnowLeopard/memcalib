@@ -1,0 +1,17 @@
+{
+  "schema_version": "memcalib-calibration-translation-v1",
+  "purpose": "display_only",
+  "source_language": "en",
+  "target_language": "zh-CN",
+  "authoritative_language": "en",
+  "translation_model": "qwen3.7-plus",
+  "temperature": 0,
+  "records": 30,
+  "api_rows": 70,
+  "expected_fields": 2834,
+  "translated_fields": 2834,
+  "complete_records": 30,
+  "incomplete_records": 0,
+  "errors": [],
+  "missing_by_answer": {}
+}

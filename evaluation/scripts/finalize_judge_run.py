@@ -75,8 +75,9 @@ def main() -> None:
         raise ValueError(f"secondary judgment count mismatch: {secondary_summary['rows']} != {expected_secondary}")
 
     retry_artifacts = {}
-    for path in sorted((args.run / "judges").glob("*.retry*.jsonl")):
-        retry_artifacts[path.name] = artifact(path)
+    for relative_dir in (Path("requests/judges"), Path("api"), Path("judgments")):
+        for path in sorted((args.run / relative_dir).glob("*retry*.jsonl")):
+            retry_artifacts[str(relative_dir / path.name)] = artifact(path)
     manifest = {
         "schema_version": "memcalib-judge-run-v1",
         "status": "completed",

@@ -57,6 +57,26 @@ class AnswerRequestTest(unittest.TestCase):
         self.assertEqual(500, manifest["formal_requests"])
         self.assertEqual(["full_memory"], manifest["conditions"])
 
+    def test_full_release_scale_is_not_hard_coded_to_500_samples(self) -> None:
+        samples = []
+        for index in range(3):
+            row = sample()
+            row["id"] = f"formal-{index}"
+            row["panel"] = "formal"
+            samples.append(row)
+        config = {"answer_models": [{"key": "m1", "model": "model-1"}], "answer_generation": {}}
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = prepare_answer_requests(
+                samples,
+                config,
+                SYSTEM,
+                Path(tmp),
+                conditions=("full_memory",),
+            )
+
+        self.assertEqual(3, manifest["samples"])
+        self.assertEqual(3, manifest["formal_requests"])
+
     def test_result_summary_aggregates_models_finish_reasons_and_usage(self) -> None:
         rows = [
             {

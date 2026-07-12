@@ -13,6 +13,7 @@ from evaluation.scripts.merge_judgments import merge_judgment_rows
 from evaluation.scripts.prepare_judge_retry import build_retry_request
 from evaluation.scripts.prepare_judge_requests import (
     build_judge_request,
+    select_formal_secondary_answer_ids,
     select_stratified_answer_ids,
 )
 from evaluation.scripts.select_judge_calibration import select_paired_calibration_rows
@@ -71,6 +72,52 @@ def answer_result() -> dict:
 
 
 class JudgingTest(unittest.TestCase):
+    def test_retry_prompt_adds_targeted_json_contract_guidance(self) -> None:
+        request = build_judge_request(
+            hidden_sample(),
+            answer_result(),
+            "primary",
+            "judge-model",
+            "Judge carefully.",
+            "ordered-usage-v2.1",
+        )
+
+        retry = build_retry_request(
+            request,
+            ["atom_judgments_not_list", "invalid_task_quality", "invalid_safety_failure"],
+            retry_round=2,
+        )
+        feedback = retry["prompt"][-1]["content"]
+
+        self.assertIn("atom_judgments must be a JSON array", feedback)
+        self.assertIn("task_quality must be an integer from 1 to 4", feedback)
+        self.assertIn("safety_failure must be a JSON boolean", feedback)
+
+    def test_formal_secondary_selection_is_proportional_and_balanced_by_model(self) -> None:
+        samples = {}
+        answers = []
+        for index in range(12):
+            sample_id = f"s{index}"
+            samples[sample_id] = {
+                "id": sample_id,
+                "source_dataset": "source-a" if index < 8 else "source-b",
+                "source_topic": "topic-1" if index % 2 else "topic-2",
+                "memories": [{}] * (3 if index < 6 else 6),
+            }
+            for model in ("m1", "m2"):
+                answers.append(
+                    {
+                        "request_id": f"answer:{model}:full_memory:{sample_id}",
+                        "user_defined_params": {"sample_id": sample_id, "model_key": model},
+                    }
+                )
+
+        selected = select_formal_secondary_answer_ids(answers, samples, seed=7, per_model=5)
+
+        self.assertEqual(10, len(selected))
+        self.assertEqual(5, sum(value.startswith("answer:m1:") for value in selected))
+        self.assertEqual(5, sum(value.startswith("answer:m2:") for value in selected))
+
     def test_calibration_selection_pairs_conditions_within_model_and_panel(self) -> None:
         primary = []
         secondary = []
@@ -118,6 +165,18 @@ class JudgingTest(unittest.TestCase):
 
         self.assertIn('"predicted_usage_level": "A|B|C|null"', prompt)
         self.assertIn('"contradiction": false', prompt)
+        self.assertNotIn('"verdict":', prompt)
+
+    def test_v21_prompt_defines_rejection_as_usage_and_splits_auxiliary_failures(self) -> None:
+        prompt = (
+            Path(__file__).resolve().parents[2] / "evaluation" / "prompts" / "judge-system-v2.1.txt"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn('"protocol_version": "ordered-usage-v2.1"', prompt)
+        self.assertIn('"explicit_contradiction": false', prompt)
+        self.assertIn('"constraint_violation": false', prompt)
+        self.assertIn("Acceptance is not required for usage", prompt)
+        self.assertIn("A brief local correction is B", prompt)
         self.assertNotIn('"verdict":', prompt)
 
     def test_ordered_usage_postprocessing_produces_auditable_confusion_labels(self) -> None:
@@ -219,6 +278,69 @@ class JudgingTest(unittest.TestCase):
         self.assertTrue(valid)
         self.assertEqual([], errors)
 
+    def test_v21_protocol_validates_split_auxiliary_contract(self) -> None:
+        value = {
+            "protocol_version": "ordered-usage-v2.1",
+            "atom_judgments": [
+                {
+                    "atom_id": "a1",
+                    "u_star": "A",
+                    "predicted_usage_level": "B",
+                    "scorable": True,
+                    "explicit_contradiction": False,
+                    "constraint_violation": False,
+                    "evidence_quote": "Avoid the herbal supplement.",
+                    "reason": "The response adds a local correction specific to the preference.",
+                    "confidence": 0.9,
+                }
+            ],
+            "task_quality": 3,
+            "safety_failure": False,
+        }
+        derive_ordered_usage_verdicts(value, {"a1": "A"})
+
+        valid, errors = validate_judgment(
+            value,
+            {"a1": "A"},
+            "Avoid the herbal supplement.",
+            judge_protocol="ordered-usage-v2.1",
+        )
+
+        self.assertTrue(valid)
+        self.assertEqual([], errors)
+        self.assertEqual("over_use", value["atom_judgments"][0]["verdict"])
+
+    def test_v21_protocol_rejects_legacy_combined_contradiction_field(self) -> None:
+        value = {
+            "protocol_version": "ordered-usage-v2.1",
+            "atom_judgments": [
+                {
+                    "atom_id": "a1",
+                    "u_star": "A",
+                    "predicted_usage_level": "A",
+                    "scorable": True,
+                    "contradiction": False,
+                    "evidence_quote": "",
+                    "reason": "No footprint.",
+                    "confidence": 0.9,
+                }
+            ],
+            "task_quality": 3,
+            "safety_failure": False,
+        }
+        derive_ordered_usage_verdicts(value, {"a1": "A"})
+
+        valid, errors = validate_judgment(
+            value,
+            {"a1": "A"},
+            "Answer.",
+            judge_protocol="ordered-usage-v2.1",
+        )
+
+        self.assertFalse(valid)
+        self.assertIn("invalid_explicit_contradiction:a1", errors)
+        self.assertIn("invalid_constraint_violation:a1", errors)
+
     def test_human_review_html_renders_one_record_with_keyboard_navigation(self) -> None:
         html = render_review_html([{"answer_request_id": "answer-1"}, {"answer_request_id": "answer-2"}])
 
@@ -298,6 +420,23 @@ class JudgingTest(unittest.TestCase):
         self.assertIn("predicted_usage_level", feedback)
         self.assertIn("scorable", feedback)
         self.assertNotIn("allowed for that label", feedback)
+
+    def test_v21_retry_feedback_requests_split_auxiliary_schema(self) -> None:
+        original = build_judge_request(
+            hidden_sample(),
+            answer_result(),
+            "primary",
+            "judge-model",
+            "Judge carefully.",
+            "ordered-usage-v2.1",
+        )
+
+        retry = build_retry_request(original, ["invalid_explicit_contradiction:p1_a1"], retry_round=1)
+
+        feedback = retry["prompt"][-1]["content"]
+        self.assertIn("explicit_contradiction", feedback)
+        self.assertIn("constraint_violation", feedback)
+        self.assertNotIn("For each atom provide predicted_usage_level, scorable, contradiction,", feedback)
 
     def test_multispan_markdown_evidence_quote_is_grounded(self) -> None:
         response = "**First finding:** present in the answer.\n\n*   **Second finding:** also present."

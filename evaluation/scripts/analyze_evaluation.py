@@ -20,12 +20,22 @@ DEFAULT_HIDDEN = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "hidde
 DEFAULT_METRICS = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "metrics.json"
 DEFAULT_REPORT = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "report.html"
 CORRECT_VERDICT = {"A": "correct_suppression", "B": "correct_bounded_use", "C": "correct_control"}
+MODEL_DISPLAY_NAMES = {
+    "deepseek": "DeepSeek-V4-Pro",
+    "deepseek-flash": "DeepSeek-V4-Flash",
+    "kimi": "Kimi-K2.6",
+    "qwen-flash": "Qwen3.6-Flash",
+    "qwen-max": "Qwen3.7-Max",
+}
 
 
 def _flatten(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     atoms = []
     for row in rows:
         for atom in row["atom_judgments"]:
+            explicit_contradiction = atom.get("explicit_contradiction")
+            constraint_violation = atom.get("constraint_violation")
+            legacy_contradiction = atom.get("contradiction", atom.get("verdict") == "contradiction")
             atoms.append(
                 {
                     "answer_request_id": row["answer_request_id"],
@@ -39,7 +49,15 @@ def _flatten(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                     "confidence": atom.get("confidence"),
                     "predicted_usage_level": atom.get("predicted_usage_level"),
                     "scorable": atom.get("scorable", atom.get("verdict") != "unscorable"),
-                    "contradiction": bool(atom.get("contradiction", atom.get("verdict") == "contradiction")),
+                    "explicit_contradiction": explicit_contradiction
+                    if isinstance(explicit_contradiction, bool)
+                    else None,
+                    "constraint_violation": constraint_violation
+                    if isinstance(constraint_violation, bool)
+                    else None,
+                    "contradiction": bool(legacy_contradiction)
+                    if explicit_contradiction is None and constraint_violation is None
+                    else bool(explicit_contradiction or constraint_violation),
                     "success": int(atom["verdict"] == CORRECT_VERDICT[atom["u_star"]]),
                 }
             )
@@ -89,6 +107,20 @@ def _directional_metrics(atoms: list[dict[str, Any]]) -> dict[str, Any]:
         "scorable_atoms": len(scorable),
         "scorable_coverage": len(scorable) / len(atoms) if atoms else None,
         "contradiction_rate": fmean(int(atom["contradiction"]) for atom in scorable) if scorable else None,
+        "explicit_contradiction_rate": fmean(
+            int(atom["explicit_contradiction"])
+            for atom in scorable
+            if atom["explicit_contradiction"] is not None
+        )
+        if any(atom["explicit_contradiction"] is not None for atom in scorable)
+        else None,
+        "constraint_violation_rate": fmean(
+            int(atom["constraint_violation"])
+            for atom in scorable
+            if atom["constraint_violation"] is not None
+        )
+        if any(atom["constraint_violation"] is not None for atom in scorable)
+        else None,
         "full_confusion_available": full_confusion,
         "confusion_matrix": confusion,
     }
@@ -233,12 +265,42 @@ def _bootstrap_model_atoms(atoms: list[dict[str, Any]], replicates: int, seed: i
 def _bootstrap_directional_metrics(
     atoms: list[dict[str, Any]], *, replicates: int, seed: int
 ) -> dict[str, dict[str, dict[str, float | int]]]:
-    by_cluster: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    by_cluster: dict[str, dict[str, Counter[tuple[str, str]]]] = defaultdict(
+        lambda: defaultdict(Counter)
+    )
     for atom in atoms:
-        by_cluster[str(atom["sample_id"])].append(atom)
+        if atom["scorable"]:
+            by_cluster[str(atom["sample_id"])][str(atom["condition"])][
+                (str(atom["label"]), str(atom["verdict"]))
+            ] += 1
     clusters = sorted(by_cluster)
     if not clusters:
         return {"full_memory": {}, "paired": {}}
+
+    def directional_from_counts(counts: Counter[tuple[str, str]]) -> dict[str, float | None]:
+        def label_rate(label: str, verdict: str) -> float | None:
+            total = sum(count for (gold, _), count in counts.items() if gold == label)
+            return counts[(label, verdict)] / total if total else None
+
+        a_over = label_rate("A", "over_use")
+        b_over = label_rate("B", "over_use")
+        b_under = label_rate("B", "under_use")
+        c_under = label_rate("C", "under_use")
+        opb_parts = [value for value in (a_over, b_over) if value is not None]
+        upb_parts = [value for value in (b_under, c_under) if value is not None]
+        opb_error = fmean(opb_parts) if opb_parts else None
+        upb_error = fmean(upb_parts) if upb_parts else None
+        harmonic = None
+        if opb_error is not None and upb_error is not None:
+            opb_resistance = 1 - opb_error
+            upb_resistance = 1 - upb_error
+            denominator = opb_resistance + upb_resistance
+            harmonic = 2 * opb_resistance * upb_resistance / denominator if denominator else 0.0
+        return {
+            "opb_error_rate": opb_error,
+            "upb_error_rate": upb_error,
+            "memcalib_h_score": harmonic,
+        }
 
     full_atoms = [atom for atom in atoms if atom["condition"] == "full_memory"]
     no_atoms = [atom for atom in atoms if atom["condition"] == "no_memory"]
@@ -248,13 +310,14 @@ def _bootstrap_directional_metrics(
     metric_samples: dict[tuple[str, str], list[float]] = defaultdict(list)
     rng = random.Random(seed)
     for _ in range(replicates):
-        sampled_atoms = [atom for _cluster in clusters for atom in by_cluster[rng.choice(clusters)]]
-        sampled_full = _directional_metrics(
-            [atom for atom in sampled_atoms if atom["condition"] == "full_memory"]
-        )
-        sampled_no = _directional_metrics(
-            [atom for atom in sampled_atoms if atom["condition"] == "no_memory"]
-        )
+        multiplicities = Counter(rng.choices(clusters, k=len(clusters)))
+        sampled_counts: dict[str, Counter[tuple[str, str]]] = defaultdict(Counter)
+        for cluster, multiplicity in multiplicities.items():
+            for condition, counts in by_cluster[cluster].items():
+                for key, count in counts.items():
+                    sampled_counts[condition][key] += multiplicity * count
+        sampled_full = directional_from_counts(sampled_counts["full_memory"])
+        sampled_no = directional_from_counts(sampled_counts["no_memory"])
         sampled_paired = _directional_pair(sampled_full, sampled_no)
         for key in ("opb_error_rate", "upb_error_rate", "memcalib_h_score"):
             if sampled_full.get(key) is not None:
@@ -290,13 +353,14 @@ def compute_metrics(
         model_rows = [row for row in rows if row["model_key"] == model]
         atoms = _flatten(model_rows)
         panel_metrics = {}
-        for panel in ("representative", "diagnostic"):
+        for panel in sorted({str(row["panel"]) for row in model_rows}):
             panel_rows = [row for row in model_rows if row["panel"] == panel]
             panel_atoms = _flatten(panel_rows)
+            panel_sample_ids = {str(row["sample_id"]) for row in panel_rows}
             panel_samples = {
                 sample_id: sample
                 for sample_id, sample in all_samples_by_id.items()
-                if any(row["sample_id"] == sample_id for row in panel_rows)
+                if sample_id in panel_sample_ids
             }
             panel_full = _condition_metrics(panel_rows, panel_atoms, "full_memory", panel_samples)
             panel_no_memory = _condition_metrics(panel_rows, panel_atoms, "no_memory", panel_samples)
@@ -370,6 +434,8 @@ def compute_judge_agreement(primary: list[dict[str, Any]], secondary: list[dict[
     ordered_pairs = []
     scorable_pairs = []
     contradiction_pairs = []
+    explicit_contradiction_pairs = []
+    constraint_violation_pairs = []
     for row in secondary:
         for atom in row["atom_judgments"]:
             key = (row["answer_request_id"], atom["atom_id"])
@@ -388,6 +454,18 @@ def compute_judge_agreement(primary: list[dict[str, Any]], secondary: list[dict[
                     atom.get("contradiction"), bool
                 ):
                     contradiction_pairs.append((primary_atom["contradiction"], atom["contradiction"]))
+                if isinstance(primary_atom.get("explicit_contradiction"), bool) and isinstance(
+                    atom.get("explicit_contradiction"), bool
+                ):
+                    explicit_contradiction_pairs.append(
+                        (primary_atom["explicit_contradiction"], atom["explicit_contradiction"])
+                    )
+                if isinstance(primary_atom.get("constraint_violation"), bool) and isinstance(
+                    atom.get("constraint_violation"), bool
+                ):
+                    constraint_violation_pairs.append(
+                        (primary_atom["constraint_violation"], atom["constraint_violation"])
+                    )
     if not pairs:
         return {"n": 0}
     overall = cohen_kappa([value[1] for value in pairs], [value[2] for value in pairs])
@@ -411,6 +489,14 @@ def compute_judge_agreement(primary: list[dict[str, Any]], secondary: list[dict[
         "scorable_exact_agreement": fmean(int(a == b) for a, b in scorable_pairs) if scorable_pairs else None,
         "contradiction_exact_agreement": fmean(int(a == b) for a, b in contradiction_pairs)
         if contradiction_pairs
+        else None,
+        "explicit_contradiction_exact_agreement": fmean(
+            int(a == b) for a, b in explicit_contradiction_pairs
+        )
+        if explicit_contradiction_pairs
+        else None,
+        "constraint_violation_exact_agreement": fmean(int(a == b) for a, b in constraint_violation_pairs)
+        if constraint_violation_pairs
         else None,
     }
 
@@ -452,12 +538,17 @@ def paired_bootstrap(values: list[tuple[str, float]], *, replicates: int, seed: 
     for cluster, value in values:
         by_cluster[str(cluster)].append(float(value))
     clusters = sorted(by_cluster)
+    cluster_stats = {
+        cluster: (sum(cluster_values), len(cluster_values))
+        for cluster, cluster_values in by_cluster.items()
+    }
     rng = random.Random(seed)
     estimates = []
     for _ in range(replicates):
-        sampled = [rng.choice(clusters) for _ in clusters]
-        flattened = [value for cluster in sampled for value in by_cluster[cluster]]
-        estimates.append(fmean(flattened))
+        multiplicities = Counter(rng.choices(clusters, k=len(clusters)))
+        numerator = sum(multiplicity * cluster_stats[cluster][0] for cluster, multiplicity in multiplicities.items())
+        denominator = sum(multiplicity * cluster_stats[cluster][1] for cluster, multiplicity in multiplicities.items())
+        estimates.append(numerator / denominator)
     estimate = fmean(value for _, value in values)
     return {
         "estimate": estimate,
@@ -561,6 +652,7 @@ def render_report(metrics: dict[str, Any]) -> str:
     panel_rows = []
     error_rows = []
     for model, values in metrics["models"].items():
+        display_model = MODEL_DISPLAY_NAMES.get(model, model)
         full = values["full_memory"]
         paired = values["paired"]
         directional_ci = values.get("bootstrap", {}).get("directional", {}).get("full_memory", {})
@@ -569,12 +661,12 @@ def render_report(metrics: dict[str, Any]) -> str:
             score = full.get("memcalib_score") or 0
         bootstrap = values.get("bootstrap", {}).get("full_memory_label_success", {})
         score_cards.append(
-            f'<article class="model-card"><span>{html.escape(model)}</span><strong>{score:.3f}</strong>'
+            f'<article class="model-card"><span>{html.escape(display_model)}</span><strong>{score:.3f}</strong>'
             f'<small>OPB {_format_metric(full.get("opb_error_rate"))} · UPB {_format_metric(full.get("upb_error_rate"))}</small></article>'
         )
         core_rows.append(
             "<tr>"
-            f"<td>{html.escape(model)}</td>"
+            f"<td>{html.escape(display_model)}</td>"
             f"<td>{score:.3f}</td>"
             f"<td>{_format_interval(directional_ci.get('memcalib_h_score'))}</td>"
             f"<td>{_format_metric(full.get('opb_error_rate'))}</td>"
@@ -586,29 +678,42 @@ def render_report(metrics: dict[str, Any]) -> str:
             "</tr>"
         )
         effect_rows.append(
-            f'<article class="effect-group"><h3>{html.escape(model)}</h3>'
+            f'<article class="effect-group"><h3>{html.escape(display_model)}</h3>'
             + _effect_rail("记忆诱发 OPB", paired.get("memory_induced_opb"), "red")
             + _effect_rail("记忆减少 UPB", paired.get("memory_reduced_upb"), "teal")
             + "</article>"
         )
-        representative = values["panels"]["representative"]["full_memory"]
-        diagnostic = values["panels"]["diagnostic"]["full_memory"]
-        panel_rows.append(
-            "<tr>"
-            f"<td>{html.escape(model)}</td><td>{_format_metric(representative.get('memcalib_h_score'))}</td>"
-            f"<td>{_format_metric(diagnostic.get('memcalib_h_score'))}</td>"
-            f"<td>{_format_metric((diagnostic.get('memcalib_h_score') or 0) - (representative.get('memcalib_h_score') or 0))}</td>"
-            f"<td>{_format_metric(representative.get('mixed_parent_strict_accuracy'))}</td>"
-            f"<td>{_format_metric(diagnostic.get('mixed_parent_strict_accuracy'))}</td></tr>"
-        )
+        panels = values.get("panels") or {}
+        if "representative" in panels and "diagnostic" in panels:
+            representative = panels["representative"]["full_memory"]
+            diagnostic = panels["diagnostic"]["full_memory"]
+            panel_rows.append(
+                "<tr>"
+                f"<td>{html.escape(display_model)}</td><td>{_format_metric(representative.get('memcalib_h_score'))}</td>"
+                f"<td>{_format_metric(diagnostic.get('memcalib_h_score'))}</td>"
+                f"<td>{_format_metric((diagnostic.get('memcalib_h_score') or 0) - (representative.get('memcalib_h_score') or 0))}</td>"
+                f"<td>{_format_metric(representative.get('mixed_parent_strict_accuracy'))}</td>"
+                f"<td>{_format_metric(diagnostic.get('mixed_parent_strict_accuracy'))}</td></tr>"
+            )
+        else:
+            for panel_name, panel_metrics in sorted(panels.items()):
+                panel_full = panel_metrics["full_memory"]
+                panel_rows.append(
+                    "<tr>"
+                    f"<td>{html.escape(display_model)}</td><td>{html.escape(panel_name)}</td>"
+                    f"<td>{_format_metric(panel_full.get('memcalib_h_score'))}</td>"
+                    f"<td>{_format_metric(panel_full.get('strict_sample_accuracy'))}</td>"
+                    f"<td>{_format_metric(panel_full.get('mixed_parent_strict_accuracy'))}</td></tr>"
+                )
         verdicts = full.get("verdict_counts") or {}
         total_verdicts = sum(verdicts.values()) or 1
         error_rows.append(
             "<tr>"
-            f"<td>{html.escape(model)}</td>"
+            f"<td>{html.escape(display_model)}</td>"
             f"<td>{verdicts.get('under_use', 0) / total_verdicts:.3f}</td>"
             f"<td>{verdicts.get('over_use', 0) / total_verdicts:.3f}</td>"
-            f"<td>{verdicts.get('contradiction', 0) / total_verdicts:.3f}</td>"
+            f"<td>{_format_metric(full.get('explicit_contradiction_rate'))}</td>"
+            f"<td>{_format_metric(full.get('constraint_violation_rate'))}</td>"
             f"<td>{verdicts.get('unscorable', 0) / total_verdicts:.3f}</td>"
             f"<td>{_format_metric(full.get('mean_task_quality'))}</td>"
             f"<td>{_format_metric(full.get('safety_failure_rate'))}</td></tr>"
@@ -640,20 +745,49 @@ def render_report(metrics: dict[str, Any]) -> str:
             f"<td>{_format_metric(values.get('exact_agreement'))}</td><td>{_format_metric(values.get('kappa'))}</td></tr>"
         )
     payload = html.escape(json.dumps(metrics, ensure_ascii=False))
+    evaluation_summary = metrics.get("evaluation_summary") or {}
+    sample_count = int(evaluation_summary.get("samples") or 0)
+    conditions = set(evaluation_summary.get("conditions") or [])
+    paired_available = ("full_memory" in conditions and "no_memory" in conditions) or any(
+        (values.get("no_memory", {}).get("answers") or 0) > 0 for values in metrics["models"].values()
+    )
+    full_release = sample_count > 500 and not paired_available
+    report_title = f"MemCalib {sample_count:,} 全量评测报告" if full_release else "MemCalib 500 验证报告"
+    report_subtitle = (
+        "五个代表性模型在完整 Full-memory benchmark 上的原子级记忆使用校准结果。"
+        if full_release
+        else "五个代表性模型在 Full-memory 与 No-memory 配对条件下的记忆使用校准结果。"
+    )
+    paired_section = (
+        f'<h2>配对因果诊断</h2><p class="section-note">Full-memory 与 No-memory 使用相同问题配对比较。记忆诱发 OPB 向右表示额外过度个性化；记忆减少 UPB 向右表示记忆有效缓解使用不足。</p><section class="effects">{"".join(effect_rows)}</section>'
+        if paired_available
+        else ""
+    )
+    panel_names = {
+        panel_name
+        for values in metrics["models"].values()
+        for panel_name in (values.get("panels") or {})
+    }
+    if {"representative", "diagnostic"}.issubset(panel_names):
+        panel_section = f'<h2>面板比较</h2><p class="section-note">Representative 贴近正式集分布；Diagnostic 定向覆盖混合标签、稀有 Hard-A、安全敏感和高原子数样本。</p><section class="panel"><table><thead><tr><th>模型</th><th>Representative</th><th>Diagnostic</th><th>Diagnostic 差值</th><th>Rep 混合严格</th><th>Diag 混合严格</th></tr></thead><tbody>{"".join(panel_rows)}</tbody></table></section>'
+    else:
+        panel_title = "全量面板" if panel_names == {"formal"} else "面板比较"
+        panel_note = "所有正式样本均属于 formal panel。" if panel_names == {"formal"} else "按实际存在的评测面板汇总。"
+        panel_section = f'<h2>{panel_title}</h2><p class="section-note">{panel_note}</p><section class="panel"><table><thead><tr><th>模型</th><th>面板</th><th>调和总分</th><th>样本严格</th><th>混合父记忆严格</th></tr></thead><tbody>{"".join(panel_rows)}</tbody></table></section>'
     return f"""<!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MemCalib 500 验证报告</title><style>
+<title>{html.escape(report_title)}</title><style>
 :root{{--ink:#182230;--muted:#667085;--line:#d5dce6;--paper:#fff;--bg:#f2f4f7;--nav:#17253d;--teal:#087d71;--blue:#2667a9;--red:#b42318;--amber:#a15c00}}
 *{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;letter-spacing:0}}header{{background:var(--nav);color:#fff;padding:46px max(24px,calc((100vw - 1180px)/2)) 38px;border-bottom:5px solid var(--teal)}}header p{{color:#c9d3e1;max-width:760px;margin:8px 0 0}}header .status{{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:6px 10px;border:1px solid #ffffff38;border-radius:4px}}header .status b{{color:#75e0d3}}
 main{{max-width:1180px;margin:0 auto;padding:26px 24px 64px}}h1{{font-size:32px;margin:0}}h2{{font-size:20px;margin:38px 0 6px}}.section-note{{color:var(--muted);margin:0 0 14px}}.cards{{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}}.model-card{{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:16px;min-width:0}}.model-card span,.model-card small{{display:block;color:var(--muted);overflow-wrap:anywhere}}.model-card strong{{display:block;font:700 28px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--teal);margin:10px 0 4px}}
 .panel{{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:16px;overflow:auto}}table{{width:100%;border-collapse:collapse;min-width:760px}}th,td{{padding:10px 11px;border-bottom:1px solid var(--line);text-align:right}}th:first-child,td:first-child{{text-align:left}}th{{color:var(--muted);font-size:12px}}tbody tr:last-child td{{border-bottom:0}}.effects{{display:grid;grid-template-columns:1fr 1fr;gap:10px}}.effect-group{{background:#fff;border:1px solid var(--line);border-radius:5px;padding:15px}}.effect-group h3{{font-size:14px;margin:0 0 10px}}.effect{{display:grid;grid-template-columns:82px 1fr 52px;gap:9px;align-items:center;margin:8px 0}}.effect-label{{font-size:12px;color:var(--muted)}}.rail{{height:10px;background:#e8ecf2;position:relative;border-radius:2px}}.rail:after{{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:#8793a5}}.marker{{position:absolute;top:-3px;width:5px;height:16px;transform:translateX(-50%);border-radius:1px}}.teal{{color:var(--teal)}}.blue{{color:var(--blue)}}.red{{color:var(--red)}}.marker.teal{{background:var(--teal)}}.marker.blue{{background:var(--blue)}}.marker.red{{background:var(--red)}}.effect strong{{font:650 12px ui-monospace,SFMono-Regular,Menlo,monospace;text-align:right}}.checks{{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}}.check{{font-size:12px;padding:4px 7px;background:#fff;border:1px solid var(--line);border-radius:4px}}.check.fail{{border-color:#f0b8b2;color:var(--red)}}details{{margin-top:34px}}pre{{white-space:pre-wrap;overflow-wrap:anywhere;background:#111827;color:#e5e7eb;padding:16px;border-radius:5px}}
 @media(max-width:820px){{.cards{{grid-template-columns:1fr 1fr}}.effects{{grid-template-columns:1fr}}header{{padding:30px 18px}}main{{padding:18px 14px}}}}
-</style></head><body><header><h1>MemCalib 500 验证报告</h1><p>五个代表性模型在 Full-memory 与 No-memory 配对条件下的记忆使用校准结果。正式结论需结合人工复核。</p><div class="status"><span>Benchmark 状态</span><b>{html.escape(status_label)}</b></div></header>
+</style></head><body><header><h1>{html.escape(report_title)}</h1><p>{html.escape(report_subtitle)}</p><div class="status"><span>Benchmark 状态</span><b>{html.escape(status_label)}</b></div></header>
 <main><div class="checks">{''.join(f'<span class="check fail">{html.escape(item)}</span>' for item in failed_checks) if failed_checks else '<span class="check">核心自动检查通过</span>'}{''.join(f'<span class="check fail">限制：{html.escape(caveat_labels.get(item, item))}</span>' for item in caveats)}<span class="check">人工一致性：待完成</span></div>
 <h2>OPB / UPB 主指标</h2><p class="section-note">主指标使用 Full-memory 条件。OPB 和 UPB 是按真实标签宏平均的方向性错误率，越低越好；总分是两个方向抵抗能力的调和平均，越高越好。置信区间按样本聚类 bootstrap 2000 次计算。当前模型总分极差为 {_format_metric(assessment.get('model_score_spread'))}。</p><section class="cards">{''.join(score_cards)}</section><section class="panel" style="margin-top:10px"><table><thead><tr><th>模型</th><th>调和总分</th><th>总分 95% CI</th><th>OPB 错误↓</th><th>OPB 95% CI</th><th>UPB 错误↓</th><th>UPB 95% CI</th><th>样本严格</th><th>混合父记忆严格</th></tr></thead><tbody>{''.join(core_rows)}</tbody></table></section>
-<h2>配对因果诊断</h2><p class="section-note">Full-memory 与 No-memory 使用相同问题配对比较。记忆诱发 OPB 向右表示额外过度个性化；记忆减少 UPB 向右表示记忆有效缓解使用不足。</p><section class="effects">{''.join(effect_rows)}</section>
-<h2>面板比较</h2><p class="section-note">Representative 贴近正式集分布；Diagnostic 定向覆盖混合标签、稀有 Hard-A、安全敏感和高原子数样本。两列均为调和总分。</p><section class="panel"><table><thead><tr><th>模型</th><th>Representative</th><th>Diagnostic</th><th>Diagnostic 差值</th><th>Rep 混合严格</th><th>Diag 混合严格</th></tr></thead><tbody>{''.join(panel_rows)}</tbody></table></section>
-<h2>辅助错误指标</h2><section class="panel"><table><thead><tr><th>模型</th><th>Under-use</th><th>Over-use</th><th>Contradiction</th><th>Unscorable</th><th>回答质量</th><th>安全失败</th></tr></thead><tbody>{''.join(error_rows)}</tbody></table></section>
+{paired_section}
+{panel_section}
+<h2>辅助错误指标</h2><section class="panel"><table><thead><tr><th>模型</th><th>Under-use</th><th>Over-use</th><th>事实冲突</th><th>约束违反</th><th>Unscorable</th><th>回答质量</th><th>安全失败</th></tr></thead><tbody>{''.join(error_rows)}</tbody></table></section>
 <h2>Judge 一致性</h2><p class="section-note">v1 verdict 一致性：n={overall_agreement.get('n', 0)}，exact={_format_metric(overall_agreement.get('exact_agreement'))}，κ={_format_metric(overall_agreement.get('kappa'))}。v2 有序等级一致性：n={ordered_agreement.get('n', 0)}，exact={_format_metric(ordered_agreement.get('exact_agreement'))}，线性加权 κ={_format_metric(ordered_agreement.get('linear_weighted_kappa'))}。主 Judge 共 {primary_quality.get('rows', 0)} 条有效判定，其中 {primary_quality.get('rows_with_warnings', 0)} 条带有不影响方向判定的辅助警告；复核 Judge 共 {secondary_quality.get('rows', 0)} 条。</p><section class="panel"><table><thead><tr><th>Gold 标签</th><th>原子数</th><th>Exact</th><th>Cohen κ</th></tr></thead><tbody>{''.join(agreement_rows) or '<tr><td colspan="4">复核评分尚未完成</td></tr>'}</tbody></table></section>
 <details><summary>机器可读指标</summary><pre id="raw">{payload}</pre></details></main></body></html>"""
 
@@ -674,6 +808,13 @@ def main() -> None:
     metrics["judge_output_quality"] = {
         "primary": compute_judge_output_quality(primary),
         "secondary": compute_judge_output_quality(secondary),
+    }
+    metrics["evaluation_summary"] = {
+        "samples": len(samples),
+        "conditions": sorted({str(row["condition"]) for row in primary}),
+        "models": sorted({str(row["model_key"]) for row in primary}),
+        "primary_judgments": len(primary),
+        "secondary_judgments": len(secondary),
     }
     metrics["validity_assessment"] = assess_benchmark_validity(metrics)
     write_json(args.metrics, metrics)

@@ -61,6 +61,31 @@ class AnalysisTest(unittest.TestCase):
         self.assertEqual(1, summary["agreement"]["ordered_usage"]["n"])
         self.assertTrue(all(summary["checks"].values()))
 
+    def test_v21_calibration_summary_tracks_split_auxiliary_agreement(self) -> None:
+        primary = [judgment("s1", "full_memory", [("a", "A", "over_use")])]
+        secondary = [judgment("s1", "full_memory", [("a", "A", "over_use")])]
+        secondary[0]["judge_model"] = "judge-2"
+        for row in primary + secondary:
+            row["judge_protocol"] = "ordered-usage-v2.1"
+            row["atom_judgments"][0].update(
+                predicted_usage_level="B",
+                scorable=True,
+                explicit_contradiction=False,
+                constraint_violation=False,
+            )
+
+        summary = summarize_calibration(
+            primary,
+            secondary,
+            expected_answers=1,
+            expected_protocol="ordered-usage-v2.1",
+        )
+
+        self.assertEqual("automatic_checks_passed", summary["status"])
+        self.assertEqual(1.0, summary["agreement"]["explicit_contradiction_exact_agreement"])
+        self.assertEqual(1.0, summary["agreement"]["constraint_violation_exact_agreement"])
+        self.assertIsNone(summary["primary_protocol"]["contradiction_rate"])
+
     def test_judge_output_quality_separates_warnings_from_repairs(self) -> None:
         rows = [
             {

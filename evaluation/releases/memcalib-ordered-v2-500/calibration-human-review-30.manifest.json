@@ -1,6 +1,12 @@
 {
-  "schema_version": "memcalib-ordered-calibration-human-review-v1",
+  "schema_version": "memcalib-ordered-calibration-human-review-v2",
   "records": 30,
+  "localized_records": 30,
+  "display_languages": [
+    "en",
+    "zh-CN"
+  ],
+  "authoritative_language": "en",
   "strata": {
     "diagnostic": 10,
     "random": 20
@@ -25,7 +31,13 @@
       "sha256": "f8aba952f68fe2e18a007e4df4b97ca5ac4b1f66dda6a25ba1b8d9303a9045f6"
     },
     "calibration-human-review-30.html": {
-      "sha256": "f1c189ff975e2d72388ccee0d10caa4b696e3dec89bce70b306cbd9783e064ca"
+      "sha256": "1466ec074f25b77d69fd7b2ab286e0dbe5317b9743f03a27ddf92d2404dcec12"
+    },
+    "calibration-human-review-30.translations-zh.jsonl": {
+      "sha256": "36153b2a5afb36ea3c18806d5d42b6edeee15afedf914a37f05af40281e6397c"
+    },
+    "calibration-human-review-30.translations-zh.summary.json": {
+      "sha256": "d59e0d3b98411044de676e0e139ae1ac64c35147f979504a7647bc5afcb72caa"
     }
   }
 }

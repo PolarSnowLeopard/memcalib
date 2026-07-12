@@ -23,6 +23,7 @@ VERDICT_ALIASES = {
 }
 USAGE_LEVEL_ORDER = {"A": 0, "B": 1, "C": 2}
 CORRECT_VERDICT = {"A": "correct_suppression", "B": "correct_bounded_use", "C": "correct_control"}
+ORDERED_PROTOCOLS = {"ordered-usage-v2", "ordered-usage-v2.1"}
 
 
 def derive_ordered_usage_verdicts(value: dict[str, Any], expected_atoms: dict[str, str]) -> list[str]:
@@ -144,7 +145,7 @@ def validate_judgment(
     judge_protocol: str = "verdict-v1",
 ) -> tuple[bool, list[str]]:
     errors = []
-    if judge_protocol == "ordered-usage-v2" and value.get("protocol_version") != "ordered-usage-v2":
+    if judge_protocol in ORDERED_PROTOCOLS and value.get("protocol_version") != judge_protocol:
         errors.append("protocol_version_mismatch")
     judgments = value.get("atom_judgments")
     if not isinstance(judgments, list):
@@ -162,7 +163,7 @@ def validate_judgment(
             continue
         if item.get("u_star") != expected_label:
             errors.append(f"label_mismatch:{atom_id}")
-        if judge_protocol == "ordered-usage-v2":
+        if judge_protocol in ORDERED_PROTOCOLS:
             scorable = item.get("scorable")
             predicted = item.get("predicted_usage_level")
             if not isinstance(scorable, bool):
@@ -171,8 +172,14 @@ def validate_judgment(
                 errors.append(f"invalid_predicted_usage_level:{atom_id}")
             elif not scorable and predicted is not None:
                 errors.append(f"unscorable_with_prediction:{atom_id}")
-            if not isinstance(item.get("contradiction"), bool):
-                errors.append(f"invalid_contradiction:{atom_id}")
+            if judge_protocol == "ordered-usage-v2":
+                if not isinstance(item.get("contradiction"), bool):
+                    errors.append(f"invalid_contradiction:{atom_id}")
+            else:
+                if not isinstance(item.get("explicit_contradiction"), bool):
+                    errors.append(f"invalid_explicit_contradiction:{atom_id}")
+                if not isinstance(item.get("constraint_violation"), bool):
+                    errors.append(f"invalid_constraint_violation:{atom_id}")
         if item.get("verdict") not in VALID_VERDICTS[expected_label]:
             errors.append(f"invalid_verdict:{atom_id}")
         quote = item.get("evidence_quote")
@@ -214,7 +221,7 @@ def postprocess_judgments(input_path: Path, result_path: Path) -> tuple[list[dic
         judge_protocol = str(params.get("judge_protocol") or "verdict-v1")
         try:
             value = extract_json_object(str(result.get("response") or ""))
-            if judge_protocol == "ordered-usage-v2":
+            if judge_protocol in ORDERED_PROTOCOLS:
                 derivations = derive_ordered_usage_verdicts(value, params["expected_atoms"])
                 repairs = []
             else:

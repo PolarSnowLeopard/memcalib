@@ -1,0 +1,112 @@
+{
+  "schema_version": "memcalib-answer-requests-v1",
+  "samples": 15526,
+  "formal_requests": 77630,
+  "smoke_requests": 10,
+  "models": [
+    {
+      "key": "qwen-max",
+      "model": "qwen3.7-max"
+    },
+    {
+      "key": "qwen-flash",
+      "model": "qwen3.6-flash"
+    },
+    {
+      "key": "deepseek",
+      "model": "deepseek-v4-pro"
+    },
+    {
+      "key": "deepseek-flash",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "key": "kimi",
+      "model": "kimi-k2.6"
+    }
+  ],
+  "conditions": [
+    "full_memory"
+  ],
+  "generation": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "enable_thinking": false
+  },
+  "artifacts": {
+    "deepseek-flash/full_memory.jsonl": {
+      "rows": 15526,
+      "sha256": "3998664d35175f9167e814174675c21f122bf811806f5f67ee195364f3174708",
+      "model": "deepseek-v4-flash",
+      "condition": "full_memory"
+    },
+    "deepseek-flash/smoke.jsonl": {
+      "rows": 2,
+      "sha256": "6c48cb3255d8d3f5941ddf58262ac85a0975a1fddfa66223ab58ee7813afaa5d",
+      "model": "deepseek-v4-flash",
+      "condition": "smoke"
+    },
+    "deepseek/full_memory.jsonl": {
+      "rows": 15526,
+      "sha256": "ed1bf53dafac583ea76f2ed127847c4cf632eeb3bf5e3d69a5def5fe18edc20d",
+      "model": "deepseek-v4-pro",
+      "condition": "full_memory"
+    },
+    "deepseek/smoke.jsonl": {
+      "rows": 2,
+      "sha256": "93db47a49507ede4b14ad595f722fb89feba4ab8848e724abbe19b65ad8f2eea",
+      "model": "deepseek-v4-pro",
+      "condition": "smoke"
+    },
+    "kimi/full_memory.jsonl": {
+      "rows": 15526,
+      "sha256": "f8ddd869a744af5ad3f20c4f4407aea870fcd879531fa53487b4c2087a0a16f6",
+      "model": "kimi-k2.6",
+      "condition": "full_memory"
+    },
+    "kimi/smoke.jsonl": {
+      "rows": 2,
+      "sha256": "e09a4672c5941a4db84e152a0cbd4589ffbdddb07c7c92b67ea07c11eae42288",
+      "model": "kimi-k2.6",
+      "condition": "smoke"
+    },
+    "qwen-flash/full_memory.jsonl": {
+      "rows": 15526,
+      "sha256": "65c8fd64f355ff7c01ce619c2cf4e0cd12c30c3c6965cf1951368b1b773e0f30",
+      "model": "qwen3.6-flash",
+      "condition": "full_memory"
+    },
+    "qwen-flash/smoke.jsonl": {
+      "rows": 2,
+      "sha256": "80156a83b6a0b5c0637bbbfe868f7f23fc0f523891c5350d694355efdb7feae2",
+      "model": "qwen3.6-flash",
+      "condition": "smoke"
+    },
+    "qwen-max/full_memory.jsonl": {
+      "rows": 15526,
+      "sha256": "8db18fc26a36f33864f857bdd7fc544a47397c844f7b7b39a30ab9e9db9a5c42",
+      "model": "qwen3.7-max",
+      "condition": "full_memory"
+    },
+    "qwen-max/smoke.jsonl": {
+      "rows": 2,
+      "sha256": "94b99c00035b06f2d9138f8d6597fb96dad124f8eb67a94085feac2ace91338d",
+      "model": "qwen3.7-max",
+      "condition": "smoke"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/configs/memcalib-ordered-v2.1-full-15526.json",
+      "sha256": "dc60653c4b9c04fe2327732a44c592b157cdcd1543fc8d84c0f48e8896e75c09"
+    },
+    "samples": {
+      "path": "evaluation/releases/memcalib-v0.1-full-15526/model-facing.jsonl",
+      "sha256": "0477f61cf4b904672748bb7c710b7a301ced344cbb847cccdf9a417c6a3c775a"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/answer-system.txt",
+      "sha256": "f52011f3a95e3be3a5692a128911c6eb3792c9aa4639af603613f859e516311f"
+    }
+  }
+}

@@ -66,4 +66,22 @@ ordered-usage-v2 已在 100 条配对回答上完成双 Judge 校准。主 Judge
 按回答模型切片后，DeepSeek-V4-Flash 的 exact agreement 为 0.796、线性加权 κ 为 0.679，低于校准阈值，已标记为人工复核重点。主 Judge 的 contradiction 标记率为 3.88%，复核 Judge 为 0.78%，同样需要检查正例口径。正式 5,000+1,000 条 v2 重评应在 30 条人工校准复核完成后启动。
 
 - `releases/memcalib-ordered-v2-500/calibration-summary.json`：自动校准结果与分层一致性。
-- `releases/memcalib-ordered-v2-500/calibration-human-review-30.html`：逐条人工校准复核页面。
+- `releases/memcalib-ordered-v2-500/calibration-human-review-30.html`：逐条人工校准复核页面。页面以英文原文为正式依据，并提供完整中文辅助译文；每条回答按原子记忆独立填写实际 A/B/C 使用强度，再给出整条审查结论。
+- `releases/memcalib-ordered-v2-500/calibration-human-review-30.translations-zh.jsonl`：30 条校准样本的逐字段中文辅助译文，不参与正式指标计算。
+
+## v2.1 Judge 协议
+
+`ordered-usage-v2.1` 明确将纠正、反驳和警告视为可能的记忆使用，并按其影响范围区分 B 与 C；同时将事实冲突和约束违反拆成两个辅助字段。旧 v2 配置、提示词和结果继续保留以支持复现。完整定义见 [v2.1 评测协议](../docs/evaluation_protocol_v2.1.md)。
+
+## v2.1 全量正式评测
+
+正式评测集由 15,528 条英文构建结果经过父记忆规范化和问题精确去重得到，共保留 15,526 条样本、56,031 条模型可见记忆和 78,726 条隐藏原子标注。每个回答模型在 `full_memory` 条件下覆盖全部样本，共生成 77,630 条正式回答。500 条配对集继续用于 Full/No-memory 反事实协议验证，不与全量排行榜口径混合。
+
+主 Judge 对全部 77,630 条回答进行评审；复核集按回答模型、来源数据集、主题和原子数分层抽取，每模型 500 条，共 2,500 条。复核子集上的有序等级 exact agreement 为 0.814，线性加权 Cohen κ 为 0.752。完整结果位于：
+
+- `releases/memcalib-v0.1-full-15526/`：锁定的数据清单、样本 ID 和确定性 gzip 发布包；
+- `releases/memcalib-ordered-v2.1-full-15526/metrics.json`：原子级混淆矩阵、OPB、UPB、H、2,000 次样本聚类 bootstrap 置信区间和 Judge 一致性；
+- `releases/memcalib-ordered-v2.1-full-15526/report.html`：中文可视化报告；
+- `configs/memcalib-ordered-v2.1-full-15526.json`：模型、条件、Judge 和复核抽样配置。
+
+当前有效性状态为 `provisionally_supported_with_caveat`。五模型 H 分数跨度为 0.0275，单一总分区分度有限；标签正确率最大跨度为 0.124，OPB 与 UPB 的模型排序也明显不同。后续论文实验应同时报告 H、OPB、UPB、完整混淆矩阵和置信区间，并补充人工 Judge 验证。

@@ -1,0 +1,120 @@
+{
+  "schema_version": "memcalib-full-release-v1",
+  "status": "locked",
+  "scope": "full_memory_primary",
+  "counts": {
+    "samples": 15526,
+    "source_samples": 15528,
+    "unique_sample_ids": 15526,
+    "parent_memories": 56031,
+    "atomic_memories": 78726,
+    "avg_atoms_per_sample": 5.070591266263043,
+    "duplicate_question_groups": 0,
+    "duplicate_question_rows": 0,
+    "excluded_exact_question_duplicates": 2,
+    "release_repaired_samples": 4,
+    "release_parent_block_merges": 6
+  },
+  "distributions": {
+    "source_dataset": {
+      "OpenMed/MedDialog": 7761,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 7765
+    },
+    "source_topic": {
+      "acute_symptoms": 1059,
+      "cardio": 219,
+      "chronic_disease": 1603,
+      "digestive": 1203,
+      "general_other": 620,
+      "medication_treatment": 2535,
+      "mental_sleep": 372,
+      "neuro": 451,
+      "pediatrics": 2048,
+      "pregnancy_reproductive": 2189,
+      "respiratory_ent": 1841,
+      "skin_allergy": 1386
+    },
+    "u_star": {
+      "A": 22719,
+      "B": 25781,
+      "C": 30226
+    },
+    "memory_type": {
+      "case_fact": 40309,
+      "constraint": 2841,
+      "preference": 13407,
+      "profile_fact": 18781,
+      "safety_sensitive": 3388
+    },
+    "atom_count_per_sample": {
+      "2": 126,
+      "3": 1770,
+      "4": 4007,
+      "5": 4291,
+      "6": 2966,
+      "7": 1489,
+      "8": 573,
+      "9": 194,
+      "10": 83,
+      "11": 23,
+      "12": 3,
+      "13": 1
+    }
+  },
+  "quality_checks": {
+    "required_fields": "passed",
+    "sample_id_uniqueness": "passed",
+    "parent_atom_integrity": "passed",
+    "abc_enum_validity": "passed",
+    "construction_qc": {
+      "atomicity_pass": 15526,
+      "duplicate_pass": 15526,
+      "question_memory_leakage_pass": 15526,
+      "hard_a_target_consistency_pass": 15526,
+      "rubric_objectivity_pass": 15526
+    },
+    "english_model_facing_text": "passed",
+    "hidden_field_exclusion": "passed",
+    "duplicate_parent_block_repair": {
+      "status": "passed",
+      "repaired_samples": 4,
+      "merged_duplicate_blocks": 6
+    },
+    "exact_question_deduplication": {
+      "status": "passed",
+      "excluded_rows": 2,
+      "remaining_duplicate_groups": 0
+    }
+  },
+  "artifacts": {
+    "source": {
+      "path": "pipeline/data/crk2_canonical_memory_benchmark_en_15528.jsonl",
+      "rows": 15528,
+      "sha256": "1cfd0334255266e6b8d4c234c615ade42b40c91bb86cb7c061a285261c363cb4"
+    },
+    "hidden-evaluation.jsonl": {
+      "rows": 15526,
+      "sha256": "c3e9e93010c16b0f9c5edab9d2dc31ba8eb4594ff7f354deaff5af70c6a0c30f"
+    },
+    "hidden-evaluation.jsonl.gz": {
+      "rows": 15526,
+      "sha256": "bcffcee3d7990f9a656d9ac022056e99cd02c7381e08a664d3bffb1d12f0df11"
+    },
+    "model-facing.jsonl": {
+      "rows": 15526,
+      "sha256": "0477f61cf4b904672748bb7c710b7a301ced344cbb847cccdf9a417c6a3c775a"
+    },
+    "model-facing.jsonl.gz": {
+      "rows": 15526,
+      "sha256": "6b0fa502c6cb283411fbac6d88d82a997a52175ccf2714f0fb5af83d00673a10"
+    },
+    "sample-ids.txt": {
+      "rows": 15526,
+      "sha256": "8f7729ec134a3c99e363aff597b516669fc30f1fe92ae76feb97492aac5e42a9"
+    },
+    "excluded-exact-question-duplicates.jsonl": {
+      "rows": 2,
+      "sha256": "bee3101054fb95323fc2681f7a557f694ce46a66e600e43b6e3740628ebf79bd"
+    }
+  }
+}

@@ -9,7 +9,6 @@ from pathlib import Path
 from evaluation.common import iter_jsonl, sha256_file, write_json, write_jsonl
 from evaluation.scripts.build_human_review import (
     build_review_records,
-    render_review_html,
     select_human_review_ids,
 )
 from evaluation.scripts.prepare_judge_requests import load_answers, select_stratified_answer_ids
@@ -26,6 +25,31 @@ DEFAULT_SECONDARY = RUN_ROOT / "judgments" / "secondary.valid.jsonl"
 DEFAULT_JSONL = RELEASE_ROOT / "calibration-human-review-30.jsonl"
 DEFAULT_HTML = RELEASE_ROOT / "calibration-human-review-30.html"
 DEFAULT_MANIFEST = RELEASE_ROOT / "calibration-human-review-30.manifest.json"
+DEFAULT_TRANSLATIONS = RELEASE_ROOT / "calibration-human-review-30.translations-zh.jsonl"
+DEFAULT_TRANSLATION_SUMMARY = RELEASE_ROOT / "calibration-human-review-30.translations-zh.summary.json"
+DEFAULT_TEMPLATE = ROOT / "evaluation" / "templates" / "calibration-review-bilingual.html"
+
+
+def attach_translations(records: list[dict], path: Path) -> int:
+    if not path.exists():
+        return 0
+    by_id = {str(row["answer_request_id"]): row.get("translations_zh") or {} for row in iter_jsonl(path)}
+    localized = 0
+    for record in records:
+        translations = by_id.get(str(record["answer_request_id"]))
+        if translations:
+            record["translations_zh"] = translations
+            localized += 1
+    return localized
+
+
+def render_calibration_review_html(records: list[dict], template_path: Path) -> str:
+    payload = json.dumps(records, ensure_ascii=False).replace("</", "<\\/")
+    template = template_path.read_text(encoding="utf-8")
+    placeholder = "__MEMCALIB_RECORDS_JSON__"
+    if template.count(placeholder) != 1:
+        raise ValueError(f"template must contain exactly one {placeholder} placeholder")
+    return template.replace(placeholder, payload)
 
 
 def main() -> None:
@@ -38,6 +62,8 @@ def main() -> None:
     parser.add_argument("--jsonl", type=Path, default=DEFAULT_JSONL)
     parser.add_argument("--html", type=Path, default=DEFAULT_HTML)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
+    parser.add_argument("--translations", type=Path, default=DEFAULT_TRANSLATIONS)
+    parser.add_argument("--template", type=Path, default=DEFAULT_TEMPLATE)
     args = parser.parse_args()
 
     config = json.loads(args.config.read_text(encoding="utf-8"))
@@ -63,19 +89,28 @@ def main() -> None:
     )
     records = build_review_records(selected, samples, answers, primary, secondary)
     write_jsonl(args.jsonl, records)
+    localized_records = attach_translations(records, args.translations)
     args.html.parent.mkdir(parents=True, exist_ok=True)
-    args.html.write_text(render_review_html(records), encoding="utf-8")
+    args.html.write_text(render_calibration_review_html(records, args.template), encoding="utf-8")
+    artifacts = {
+        args.jsonl.name: {"sha256": sha256_file(args.jsonl)},
+        args.html.name: {"sha256": sha256_file(args.html)},
+    }
+    if args.translations.exists():
+        artifacts[args.translations.name] = {"sha256": sha256_file(args.translations)}
+    if DEFAULT_TRANSLATION_SUMMARY.exists():
+        artifacts[DEFAULT_TRANSLATION_SUMMARY.name] = {"sha256": sha256_file(DEFAULT_TRANSLATION_SUMMARY)}
     manifest = {
-        "schema_version": "memcalib-ordered-calibration-human-review-v1",
+        "schema_version": "memcalib-ordered-calibration-human-review-v2",
         "records": len(records),
+        "localized_records": localized_records,
+        "display_languages": ["en", "zh-CN"] if localized_records else ["en"],
+        "authoritative_language": "en",
         "strata": dict(sorted(Counter(row["review_stratum"] for row in records).items())),
         "models": dict(sorted(Counter(row["model_key"] for row in records).items())),
         "conditions": dict(sorted(Counter(row["condition"] for row in records).items())),
         "panels": dict(sorted(Counter(row["panel"] for row in records).items())),
-        "artifacts": {
-            args.jsonl.name: {"sha256": sha256_file(args.jsonl)},
-            args.html.name: {"sha256": sha256_file(args.html)},
-        },
+        "artifacts": artifacts,
     }
     write_json(args.manifest, manifest)
     print(json.dumps(manifest, ensure_ascii=False, indent=2))

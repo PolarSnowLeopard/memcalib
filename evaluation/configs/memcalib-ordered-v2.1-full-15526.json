@@ -1,0 +1,38 @@
+{
+  "schema_version": "memcalib-full-evaluation-config-v1",
+  "seed": 20260712,
+  "sample_count": 15526,
+  "evaluation_modes": {
+    "leaderboard_required_conditions": ["full_memory"],
+    "official_research_conditions": ["full_memory"],
+    "primary_metrics_condition": "full_memory",
+    "counterfactual_validation_release": "memcalib-v0.1-500"
+  },
+  "answer_models": [
+    {"key": "qwen-max", "model": "qwen3.7-max"},
+    {"key": "qwen-flash", "model": "qwen3.6-flash"},
+    {"key": "deepseek", "model": "deepseek-v4-pro"},
+    {"key": "deepseek-flash", "model": "deepseek-v4-flash"},
+    {"key": "kimi", "model": "kimi-k2.6"}
+  ],
+  "answer_generation": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "enable_thinking": false
+  },
+  "judge_protocol": "ordered-usage-v2.1",
+  "judge_prompt": "evaluation/prompts/judge-system-v2.1.txt",
+  "primary_judge": {"key": "qwen-judge", "model": "qwen3.7-plus"},
+  "secondary_judge": {"key": "deepseek-judge", "model": "deepseek-v4-pro"},
+  "deepseek_secondary_judge": {"key": "kimi-judge", "model": "kimi-k2.6"},
+  "judge_generation": {
+    "temperature": 0.0,
+    "max_tokens": 4096,
+    "enable_thinking": false
+  },
+  "secondary_judge_sampling": {
+    "total": 2500,
+    "per_model": 500,
+    "stratify_by": ["source_dataset", "source_topic", "atom_count_bucket"]
+  }
+}

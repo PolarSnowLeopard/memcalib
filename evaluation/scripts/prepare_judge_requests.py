@@ -3,7 +3,8 @@ from __future__ import annotations
 
 import argparse
 import json
-from collections import defaultdict
+import math
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +19,65 @@ DEFAULT_PROMPT = ROOT / "evaluation" / "prompts" / "judge-system.txt"
 DEFAULT_OUTPUT = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "requests" / "judges"
 DEFAULT_MANIFEST = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "judge-request.manifest.json"
 CONDITIONS = ("full_memory", "no_memory")
+
+
+def atom_count_bucket(count: int) -> str:
+    if count <= 3:
+        return "2-3"
+    if count <= 5:
+        return "4-5"
+    if count <= 7:
+        return "6-7"
+    return "8+"
+
+
+def _proportional_quotas(counts: Counter[tuple[str, str, str]], total: int) -> dict[tuple[str, str, str], int]:
+    population = sum(counts.values())
+    if total <= 0 or total > population:
+        raise ValueError(f"invalid proportional sample size: {total} for population {population}")
+    exact = {key: total * count / population for key, count in counts.items()}
+    quotas = {key: math.floor(value) for key, value in exact.items()}
+    remaining = total - sum(quotas.values())
+    order = sorted(counts, key=lambda key: (-(exact[key] - quotas[key]), key))
+    for key in order[:remaining]:
+        quotas[key] += 1
+    return quotas
+
+
+def select_formal_secondary_answer_ids(
+    answers: list[dict[str, Any]],
+    samples_by_id: dict[str, dict[str, Any]],
+    *,
+    seed: int,
+    per_model: int,
+) -> set[str]:
+    by_model_cell: dict[str, dict[tuple[str, str, str], list[dict[str, Any]]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
+    for answer in answers:
+        params = answer.get("user_defined_params") or {}
+        sample = samples_by_id[str(params["sample_id"])]
+        cell = (
+            str(sample["source_dataset"]),
+            str(sample["source_topic"]),
+            atom_count_bucket(len(sample.get("memories") or [])),
+        )
+        by_model_cell[str(params["model_key"])][cell].append(answer)
+    selected: set[str] = set()
+    for model_key, cells in sorted(by_model_cell.items()):
+        counts = Counter({cell: len(rows) for cell, rows in cells.items()})
+        quotas = _proportional_quotas(counts, per_model)
+        for cell, rows in sorted(cells.items()):
+            ordered = sorted(rows, key=lambda row: stable_hash(seed, str(row["request_id"])))
+            selected.update(str(row["request_id"]) for row in ordered[: quotas[cell]])
+        model_selected = sum(
+            str(answer["request_id"]) in selected
+            for model_rows in cells.values()
+            for answer in model_rows
+        )
+        if model_selected != per_model:
+            raise ValueError(f"formal secondary selection mismatch for {model_key}: {model_selected} != {per_model}")
+    return selected
 
 
 def build_judge_request(
@@ -104,15 +164,16 @@ def load_answers(
     answer_root: Path, config: dict[str, Any], conditions: tuple[str, ...] = CONDITIONS
 ) -> list[dict[str, Any]]:
     answers = []
+    expected_per_file = int(config.get("sample_count") or 500)
     for model in config["answer_models"]:
         for condition in conditions:
             path = answer_root / str(model["key"]) / f"{condition}.jsonl"
             rows = list(iter_jsonl(path))
-            if len(rows) != 500:
-                raise ValueError(f"expected 500 answers in {path}, found {len(rows)}")
+            if len(rows) != expected_per_file:
+                raise ValueError(f"expected {expected_per_file} answers in {path}, found {len(rows)}")
             answers.extend(rows)
     ids = [str(row["request_id"]) for row in answers]
-    expected = 500 * len(conditions) * len(config["answer_models"])
+    expected = expected_per_file * len(conditions) * len(config["answer_models"])
     if len(ids) != expected or len(ids) != len(set(ids)):
         raise ValueError(f"answer set must contain {expected:,} unique request IDs")
     return answers
@@ -127,12 +188,22 @@ def prepare_judge_requests(
 ) -> dict[str, Any]:
     samples_by_id = {str(row["id"]): row for row in samples}
     seed = int(config["seed"])
-    secondary_ids = select_stratified_answer_ids(
-        answers, seed=seed, representative_per_cell=70, diagnostic_per_cell=30
-    )
-    human_random_ids = select_stratified_answer_ids(
-        answers, seed=seed + 1, representative_per_cell=4, diagnostic_per_cell=2
-    )
+    formal_sampling = config.get("secondary_judge_sampling") or {}
+    if formal_sampling:
+        secondary_ids = select_formal_secondary_answer_ids(
+            answers,
+            samples_by_id,
+            seed=seed,
+            per_model=int(formal_sampling["per_model"]),
+        )
+        human_random_ids: set[str] = set()
+    else:
+        secondary_ids = select_stratified_answer_ids(
+            answers, seed=seed, representative_per_cell=70, diagnostic_per_cell=30
+        )
+        human_random_ids = select_stratified_answer_ids(
+            answers, seed=seed + 1, representative_per_cell=4, diagnostic_per_cell=2
+        )
     primary_model = str(config["primary_judge"]["model"])
     default_secondary = str(config["secondary_judge"]["model"])
     deepseek_secondary = str(config["deepseek_secondary_judge"]["model"])
@@ -175,6 +246,7 @@ def prepare_judge_requests(
         "secondary_requests": len(secondary_default) + len(secondary_deepseek),
         "secondary_by_judge": {default_secondary: len(secondary_default), deepseek_secondary: len(secondary_deepseek)},
         "human_random_ids": len(human_random_ids),
+        "secondary_sampling": formal_sampling or {"representative_per_cell": 70, "diagnostic_per_cell": 30},
         "conditions": sorted({str(answer["user_defined_params"]["condition"]) for answer in answers}),
         "artifacts": artifacts,
     }
@@ -197,6 +269,7 @@ def main() -> None:
     samples = list(iter_jsonl(args.hidden))
     answers = load_answers(args.answers, config, conditions)
     manifest = prepare_judge_requests(samples, answers, config, prompt_path.read_text(encoding="utf-8"), args.output_dir)
+    expected_answer_rows = int(config.get("sample_count") or 500)
     manifest["inputs"] = {
         "config": {"path": display_path(args.config, ROOT), "sha256": sha256_file(args.config)},
         "hidden": {"path": display_path(args.hidden, ROOT), "sha256": sha256_file(args.hidden)},
@@ -205,7 +278,7 @@ def main() -> None:
             {
                 "path": display_path(args.answers / str(model["key"]) / f"{condition}.jsonl", ROOT),
                 "sha256": sha256_file(args.answers / str(model["key"]) / f"{condition}.jsonl"),
-                "rows": 500,
+                "rows": expected_answer_rows,
             }
             for model in config["answer_models"]
             for condition in conditions

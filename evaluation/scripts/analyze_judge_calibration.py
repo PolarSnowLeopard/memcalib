@@ -23,7 +23,9 @@ DEFAULT_REQUEST_MANIFEST = (
 )
 
 
-def ordered_protocol_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
+def ordered_protocol_summary(
+    rows: list[dict[str, Any]], expected_protocol: str = "ordered-usage-v2"
+) -> dict[str, Any]:
     atoms = [atom for row in rows for atom in row.get("atom_judgments") or []]
     scorable = [atom for atom in atoms if atom.get("scorable") is True]
     matrix = {gold: {predicted: 0 for predicted in ("A", "B", "C")} for gold in ("A", "B", "C")}
@@ -37,7 +39,7 @@ def ordered_protocol_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             complete = False
     return {
         "rows": len(rows),
-        "protocol_rows": sum(row.get("judge_protocol") == "ordered-usage-v2" for row in rows),
+        "protocol_rows": sum(row.get("judge_protocol") == expected_protocol for row in rows),
         "atoms": len(atoms),
         "scorable_atoms": len(scorable),
         "scorable_coverage": len(scorable) / len(atoms) if atoms else None,
@@ -48,16 +50,29 @@ def ordered_protocol_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         ),
         "confusion_matrix": matrix if complete else None,
         "contradiction_rate": sum(bool(atom.get("contradiction")) for atom in scorable) / len(scorable)
-        if scorable
+        if scorable and expected_protocol == "ordered-usage-v2"
+        else None,
+        "explicit_contradiction_rate": sum(bool(atom.get("explicit_contradiction")) for atom in scorable)
+        / len(scorable)
+        if scorable and expected_protocol == "ordered-usage-v2.1"
+        else None,
+        "constraint_violation_rate": sum(bool(atom.get("constraint_violation")) for atom in scorable)
+        / len(scorable)
+        if scorable and expected_protocol == "ordered-usage-v2.1"
         else None,
     }
 
 
 def summarize_calibration(
-    primary: list[dict[str, Any]], secondary: list[dict[str, Any]], *, expected_answers: int
+    primary: list[dict[str, Any]],
+    secondary: list[dict[str, Any]],
+    *,
+    expected_answers: int,
+    expected_protocol: str = "ordered-usage-v2",
+    human_review: str = "pending",
 ) -> dict[str, Any]:
-    primary_protocol = ordered_protocol_summary(primary)
-    secondary_protocol = ordered_protocol_summary(secondary)
+    primary_protocol = ordered_protocol_summary(primary, expected_protocol)
+    secondary_protocol = ordered_protocol_summary(secondary, expected_protocol)
     agreement = compute_judge_agreement(primary, secondary)
     ordered = agreement.get("ordered_usage") or {}
     checks = {
@@ -95,13 +110,14 @@ def summarize_calibration(
     else:
         status = "automatic_checks_passed"
     return {
-        "schema_version": "memcalib-ordered-judge-calibration-summary-v1",
+        "schema_version": "memcalib-ordered-judge-calibration-summary-v2",
+        "judge_protocol": expected_protocol,
         "status": status,
         "expected_answers": expected_answers,
         "checks": checks,
         "failed_checks": failed,
         "diagnostic_flags": diagnostic_flags,
-        "human_review": "pending",
+        "human_review": human_review,
         "primary_protocol": primary_protocol,
         "secondary_protocol": secondary_protocol,
         "agreement": agreement,
@@ -120,11 +136,16 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--request-manifest", type=Path, default=DEFAULT_REQUEST_MANIFEST)
     parser.add_argument("--expected-answers", type=int, default=100)
+    parser.add_argument("--protocol", default="ordered-usage-v2")
+    parser.add_argument("--human-review-status", default="pending")
+    parser.add_argument("--expert-anchor", type=Path)
     args = parser.parse_args()
     summary = summarize_calibration(
         list(iter_jsonl(args.primary)),
         list(iter_jsonl(args.secondary)),
         expected_answers=args.expected_answers,
+        expected_protocol=args.protocol,
+        human_review=args.human_review_status,
     )
     summary["inputs"] = {
         "request_manifest": {
@@ -140,15 +161,21 @@ def main() -> None:
             "sha256": sha256_file(args.secondary),
         },
     }
+    if args.expert_anchor:
+        summary["inputs"]["expert_anchor"] = {
+            "path": display_path(args.expert_anchor, ROOT),
+            "sha256": sha256_file(args.expert_anchor),
+        }
+    run_root = args.primary.parent.parent
     resolution = {"api_validation": {}, "postprocess_initial": {}, "targeted_retries": {}}
     for key in ("primary", "secondary-deepseek", "secondary-kimi"):
-        validation_path = RUN_ROOT / "api" / f"{key}.validation.json"
-        postprocess_path = RUN_ROOT / "judgments" / f"{key}.summary.json"
+        validation_path = run_root / "api" / f"{key}.validation.json"
+        postprocess_path = run_root / "judgments" / f"{key}.summary.json"
         if validation_path.exists():
             resolution["api_validation"][key] = json.loads(validation_path.read_text(encoding="utf-8"))
         if postprocess_path.exists():
             resolution["postprocess_initial"][key] = json.loads(postprocess_path.read_text(encoding="utf-8"))
-    for path in sorted((RUN_ROOT / "judgments").glob("*.retry*.summary.json")):
+    for path in sorted((run_root / "judgments").glob("*.retry*.summary.json")):
         resolution["targeted_retries"][path.name] = json.loads(path.read_text(encoding="utf-8"))
     summary["resolution"] = resolution
     write_json(args.output, summary)

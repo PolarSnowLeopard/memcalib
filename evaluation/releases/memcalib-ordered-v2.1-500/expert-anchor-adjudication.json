@@ -1,0 +1,15 @@
+{
+  "schema_version": "memcalib-expert-anchor-adjudication-v1",
+  "status": "qualitative_anchor_only",
+  "answer_request_id": "answer:deepseek-flash:full_memory:crk2_raw_c1250717e0d3f2b1",
+  "sample_id": "crk2_raw_c1250717e0d3f2b1",
+  "atom_id": "p3_a2",
+  "atomic_memory": "The user prefers using herbal supplements for liver detoxification.",
+  "u_star": "A",
+  "expert_predicted_usage_level": "B",
+  "derived_verdict": "over_use",
+  "explicit_contradiction": false,
+  "constraint_violation": false,
+  "rationale": "The response adds a memory-specific warning against herbal supplements. This creates a bounded local footprint, while the main differential diagnosis and care plan remain controlled by other clinical information.",
+  "scope_note": "This single adjudication anchors the A-to-B boundary and is not reported as a human agreement study."
+}

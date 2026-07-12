@@ -60,12 +60,12 @@ def prepare_answer_requests(
     *,
     conditions: tuple[str, ...] = CONDITIONS,
 ) -> dict[str, Any]:
-    if len(samples) != 500 or len({str(row["id"]) for row in samples}) != 500:
-        raise ValueError("answer request preparation requires exactly 500 unique samples")
+    if not samples or len({str(row["id"]) for row in samples}) != len(samples):
+        raise ValueError("answer request preparation requires a nonempty set of unique samples")
     if not conditions or len(set(conditions)) != len(conditions) or not set(conditions).issubset(CONDITIONS):
         raise ValueError(f"conditions must be a unique nonempty subset of {CONDITIONS}")
-    representative = next(row for row in samples if row["panel"] == "representative")
-    diagnostic = next(row for row in samples if row["panel"] == "diagnostic")
+    representative = next((row for row in samples if row.get("panel") == "representative"), samples[0])
+    diagnostic = next((row for row in samples if row.get("panel") == "diagnostic"), samples[-1])
     artifacts: dict[str, Any] = {}
     total = 0
     for model_entry in config["answer_models"]:

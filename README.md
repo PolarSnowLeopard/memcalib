@@ -81,9 +81,21 @@ docs/                     数据结构、方法、数据来源与归档设计文
 
 当前构建流程包括确定性源数据过滤、去重、候选样本分层选择、源问答语义质检、英文记忆构造、原子信息拆分、A/B/C 标注、原子级 rubric 生成和结构化质量检查。
 
-首轮回答级验证已经完成。实验锁定了 500 条分层样本，并在 Full-memory 与 No-memory 配对条件下评测五个代表性模型，共生成 5,000 条回答和 6,000 条自动 Judge 结果。双 Judge 在 5,062 个原子判定上的 exact agreement 为 0.876，Cohen κ 为 0.840。
+正式全量评测已经完成。最终评测集包含 15,526 条样本、56,031 条模型可见的非原子记忆和 78,726 条隐藏原子标注。五个代表性模型各回答全部样本，共得到 77,630 条回答；主 Judge 完成 77,630 条评审，两个复核 Judge 对分层抽取的 2,500 条回答进行复核。主评审共覆盖 393,630 个原子判定。
 
-当前协议以 OPB 错误率、UPB 错误率及两个方向抵抗能力的调和平均作为主指标。现有五模型结果的 OPB 为 0.215 至 0.277，UPB 为 0.187 至 0.245，调和总分为 0.753 至 0.770。Full/No-memory 配对结果表明，记忆能够缓解必要信息的使用不足，同时会引入额外的过度结合。现有结果由 v1 Judge 产生，完整 3×3 混淆矩阵需要使用 ordered-usage-v2 协议重新评分。实验说明见 [evaluation/README.md](evaluation/README.md)，协议定义见 [docs/evaluation_protocol_v2.md](docs/evaluation_protocol_v2.md)，可视化结果见 [500 条验证报告](evaluation/releases/memcalib-v0.1-500/report.html)。
+正式协议采用 `ordered-usage-v2.1`，以 OPB 错误率、UPB 错误率及两个方向抵抗能力的调和平均 H 作为主指标。全量结果如下：
+
+| 模型 | OPB↓ | UPB↓ | H↑ |
+|---|---:|---:|---:|
+| Kimi-K2.6 | 0.348 | 0.289 | 0.680 |
+| Qwen3.7-Max | 0.377 | 0.258 | 0.677 |
+| DeepSeek-V4-Pro | 0.394 | 0.254 | 0.669 |
+| Qwen3.6-Flash | 0.415 | 0.224 | 0.667 |
+| DeepSeek-V4-Flash | 0.396 | 0.290 | 0.653 |
+
+复核子集覆盖 12,665 个原子。有序 A/B/C 等级的 exact agreement 为 0.814，线性加权 Cohen κ 为 0.752；`scorable` 一致率为 1.000。五个模型的 H 分数分布较集中，但 A/B/C 标签正确率最大跨度达到 0.124，且模型间存在明显的 OPB/UPB 权衡。因此，当前结果支持 benchmark 对方向性记忆校准差异的测量能力，同时保留“单一总分区分度有限”和“人工验证仍待扩展”两项限制。
+
+实验说明见 [evaluation/README.md](evaluation/README.md)，正式协议见 [v2.1 评测协议](docs/evaluation_protocol_v2.1.md)，完整混淆矩阵、置信区间和分层结果见 [15,526 条全量评测报告](evaluation/releases/memcalib-ordered-v2.1-full-15526/report.html)。
 
 ## 发布与许可状态
 
