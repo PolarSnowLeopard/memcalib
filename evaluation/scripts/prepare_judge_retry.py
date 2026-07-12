@@ -10,10 +10,19 @@ from evaluation.common import iter_jsonl, write_jsonl
 
 
 def build_retry_request(original: dict[str, Any], errors: list[str], *, retry_round: int) -> dict[str, Any]:
+    protocol = str((original.get("user_defined_params") or {}).get("judge_protocol") or "verdict-v1")
+    if protocol == "ordered-usage-v2":
+        contract = (
+            "Preserve every requested atom exactly once, copy each u_star label, and return atom_judgments as an array. "
+            "For each atom provide predicted_usage_level, scorable, contradiction, evidence_quote, reason, and confidence. "
+            "When scorable=false, predicted_usage_level must be null."
+        )
+    else:
+        contract = "Preserve every requested atom exactly once, copy each u_star label, and use only the verdicts allowed for that label."
     feedback = (
         "Your previous output failed structural validation. Return a corrected JSON object only. "
-        "Preserve every requested atom exactly once, copy each u_star label, and use only the verdicts allowed for that label.\n\n"
-        "VALIDATION ERRORS\n- "
+        + contract
+        + "\n\nVALIDATION ERRORS\n- "
         + "\n- ".join(str(error) for error in errors)
     )
     return {

@@ -1,0 +1,31 @@
+{
+  "schema_version": "memcalib-ordered-calibration-human-review-v1",
+  "records": 30,
+  "strata": {
+    "diagnostic": 10,
+    "random": 20
+  },
+  "models": {
+    "deepseek": 6,
+    "deepseek-flash": 8,
+    "kimi": 5,
+    "qwen-flash": 5,
+    "qwen-max": 6
+  },
+  "conditions": {
+    "full_memory": 17,
+    "no_memory": 13
+  },
+  "panels": {
+    "diagnostic": 13,
+    "representative": 17
+  },
+  "artifacts": {
+    "calibration-human-review-30.jsonl": {
+      "sha256": "f8aba952f68fe2e18a007e4df4b97ca5ac4b1f66dda6a25ba1b8d9303a9045f6"
+    },
+    "calibration-human-review-30.html": {
+      "sha256": "f1c189ff975e2d72388ccee0d10caa4b696e3dec89bce70b306cbd9783e064ca"
+    }
+  }
+}

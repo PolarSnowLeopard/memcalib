@@ -15,6 +15,7 @@ from evaluation.scripts.prepare_judge_requests import (
     build_judge_request,
     select_stratified_answer_ids,
 )
+from evaluation.scripts.select_judge_calibration import select_paired_calibration_rows
 from evaluation.scripts.postprocess_judgments import (
     auxiliary_warnings,
     derive_ordered_usage_verdicts,
@@ -70,6 +71,46 @@ def answer_result() -> dict:
 
 
 class JudgingTest(unittest.TestCase):
+    def test_calibration_selection_pairs_conditions_within_model_and_panel(self) -> None:
+        primary = []
+        secondary = []
+        for model in ("m1", "m2"):
+            for panel, samples in (("representative", 4), ("diagnostic", 3)):
+                for sample_index in range(samples):
+                    sample_id = f"{panel}-{sample_index}"
+                    for condition in ("full_memory", "no_memory"):
+                        answer_id = f"answer:{model}:{condition}:{sample_id}"
+                        params = {
+                            "answer_request_id": answer_id,
+                            "sample_id": sample_id,
+                            "model_key": model,
+                            "condition": condition,
+                            "panel": panel,
+                            "judge_model": "secondary-model",
+                        }
+                        primary.append({"request_id": f"judge:primary:{answer_id}", "user_defined_params": params})
+                        secondary.append({"request_id": f"judge:secondary:{answer_id}", "user_defined_params": params})
+
+        selected_primary, selected_secondary = select_paired_calibration_rows(
+            primary,
+            secondary,
+            seed=9,
+            representative_samples=2,
+            diagnostic_samples=1,
+        )
+
+        self.assertEqual(12, len(selected_primary))
+        self.assertEqual(12, len(selected_secondary))
+        self.assertEqual(
+            {row["user_defined_params"]["answer_request_id"] for row in selected_primary},
+            {row["user_defined_params"]["answer_request_id"] for row in selected_secondary},
+        )
+        pairs = Counter(
+            (row["user_defined_params"]["model_key"], row["user_defined_params"]["sample_id"])
+            for row in selected_primary
+        )
+        self.assertTrue(all(count == 2 for count in pairs.values()))
+
     def test_v2_prompt_requests_ordered_level_without_model_generated_direction(self) -> None:
         prompt = (
             Path(__file__).resolve().parents[2] / "evaluation" / "prompts" / "judge-system-v2.txt"
@@ -240,6 +281,23 @@ class JudgingTest(unittest.TestCase):
         self.assertEqual(original["user_defined_params"], retry["user_defined_params"])
         self.assertIn("invalid_verdict:p1_a2", retry["prompt"][-1]["content"])
         self.assertEqual("user", retry["prompt"][-1]["role"])
+
+    def test_v2_retry_feedback_requests_ordered_usage_schema(self) -> None:
+        original = build_judge_request(
+            hidden_sample(),
+            answer_result(),
+            "primary",
+            "judge-model",
+            "Judge carefully.",
+            "ordered-usage-v2",
+        )
+
+        retry = build_retry_request(original, ["atom_judgments_not_list"], retry_round=1)
+
+        feedback = retry["prompt"][-1]["content"]
+        self.assertIn("predicted_usage_level", feedback)
+        self.assertIn("scorable", feedback)
+        self.assertNotIn("allowed for that label", feedback)
 
     def test_multispan_markdown_evidence_quote_is_grounded(self) -> None:
         response = "**First finding:** present in the answer.\n\n*   **Second finding:** also present."

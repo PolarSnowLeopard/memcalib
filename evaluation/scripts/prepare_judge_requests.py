@@ -201,6 +201,15 @@ def main() -> None:
         "config": {"path": display_path(args.config, ROOT), "sha256": sha256_file(args.config)},
         "hidden": {"path": display_path(args.hidden, ROOT), "sha256": sha256_file(args.hidden)},
         "prompt": {"path": display_path(prompt_path, ROOT), "sha256": sha256_file(prompt_path)},
+        "answers": [
+            {
+                "path": display_path(args.answers / str(model["key"]) / f"{condition}.jsonl", ROOT),
+                "sha256": sha256_file(args.answers / str(model["key"]) / f"{condition}.jsonl"),
+                "rows": 500,
+            }
+            for model in config["answer_models"]
+            for condition in conditions
+        ],
     }
     write_json(args.manifest, manifest)
     print(json.dumps(manifest, ensure_ascii=False, indent=2))

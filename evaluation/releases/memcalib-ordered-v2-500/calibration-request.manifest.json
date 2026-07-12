@@ -1,0 +1,66 @@
+{
+  "schema_version": "memcalib-ordered-judge-calibration-v1",
+  "seed": 20260714,
+  "paired_samples_per_model": 10,
+  "answer_requests": 100,
+  "primary_requests": 100,
+  "secondary_requests": 100,
+  "cells": {
+    "deepseek|full_memory|diagnostic": 3,
+    "deepseek|full_memory|representative": 7,
+    "deepseek|no_memory|diagnostic": 3,
+    "deepseek|no_memory|representative": 7,
+    "deepseek-flash|full_memory|diagnostic": 3,
+    "deepseek-flash|full_memory|representative": 7,
+    "deepseek-flash|no_memory|diagnostic": 3,
+    "deepseek-flash|no_memory|representative": 7,
+    "kimi|full_memory|diagnostic": 3,
+    "kimi|full_memory|representative": 7,
+    "kimi|no_memory|diagnostic": 3,
+    "kimi|no_memory|representative": 7,
+    "qwen-flash|full_memory|diagnostic": 3,
+    "qwen-flash|full_memory|representative": 7,
+    "qwen-flash|no_memory|diagnostic": 3,
+    "qwen-flash|no_memory|representative": 7,
+    "qwen-max|full_memory|diagnostic": 3,
+    "qwen-max|full_memory|representative": 7,
+    "qwen-max|no_memory|diagnostic": 3,
+    "qwen-max|no_memory|representative": 7
+  },
+  "inputs": {
+    "primary": {
+      "path": "evaluation/runs/memcalib-ordered-v2-500/requests/judges/primary.jsonl",
+      "sha256": "f8ff2f85a474cca5ae8376049aad6dcf72404246562154f0df4189c8d5324192"
+    },
+    "secondary": [
+      {
+        "path": "evaluation/runs/memcalib-ordered-v2-500/requests/judges/secondary-deepseek.jsonl",
+        "sha256": "909d5813d651be40eb3a71079a874b497aa877f45f9f4a9c5d7f35cf2b91e48b"
+      },
+      {
+        "path": "evaluation/runs/memcalib-ordered-v2-500/requests/judges/secondary-kimi.jsonl",
+        "sha256": "c24dca107fde47b156799752db30d415b6718e16a6d8db0052a6092dbcf0f7d9"
+      }
+    ]
+  },
+  "artifacts": {
+    "primary.jsonl": {
+      "rows": 100,
+      "sha256": "7e88a5fb8e64e61ce4f654f2c97b8e9abefff71b1eee9fd1007b394e03a0c8e4"
+    },
+    "secondary-deepseek-v4-pro.jsonl": {
+      "rows": 60,
+      "sha256": "bf734ef4b4e92ea07ca01b3df2efe40a280e8bce278378efbdcebb21e9aca996",
+      "judge_model": "deepseek-v4-pro"
+    },
+    "secondary-kimi-k2-6.jsonl": {
+      "rows": 40,
+      "sha256": "06fb73453a145234e8cdf9a2a457308e9e4d58099d1b77718030771ea4347d7b",
+      "judge_model": "kimi-k2.6"
+    },
+    "answer-ids.txt": {
+      "rows": 100,
+      "sha256": "4c05d05725811da78d8623e73f9b021e759ed415c2d416a11caaf95b9c69af7d"
+    }
+  }
+}

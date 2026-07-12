@@ -58,3 +58,12 @@ PYTHONPATH=. python3 evaluation/scripts/prepare_judge_requests.py \
 ```
 
 该命令仅生成请求，不调用 API。正式重评应把主 Judge、复核 Judge、归一化结果、指标和人工复核包全部写入 `memcalib-ordered-v2-500` 对应目录。
+
+## v2 校准状态
+
+ordered-usage-v2 已在 100 条配对回答上完成双 Judge 校准。主 Judge 和复核 Judge 均覆盖 516 个原子，全部原子可以构造完整混淆矩阵。有序等级 exact agreement 为 0.851，线性加权 Cohen κ 为 0.788，`scorable` 一致率为 1.000，整体自动门槛通过。
+
+按回答模型切片后，DeepSeek-V4-Flash 的 exact agreement 为 0.796、线性加权 κ 为 0.679，低于校准阈值，已标记为人工复核重点。主 Judge 的 contradiction 标记率为 3.88%，复核 Judge 为 0.78%，同样需要检查正例口径。正式 5,000+1,000 条 v2 重评应在 30 条人工校准复核完成后启动。
+
+- `releases/memcalib-ordered-v2-500/calibration-summary.json`：自动校准结果与分层一致性。
+- `releases/memcalib-ordered-v2-500/calibration-human-review-30.html`：逐条人工校准复核页面。

@@ -13,6 +13,7 @@ from evaluation.scripts.analyze_evaluation import (
     paired_bootstrap,
     render_report,
 )
+from evaluation.scripts.analyze_judge_calibration import summarize_calibration
 
 
 def judgment(sample: str, condition: str, verdicts: list[tuple[str, str, str]]) -> dict:
@@ -42,6 +43,24 @@ def judgment(sample: str, condition: str, verdicts: list[tuple[str, str, str]]) 
 
 
 class AnalysisTest(unittest.TestCase):
+    def test_calibration_summary_accepts_complete_agreeing_ordered_judgments(self) -> None:
+        primary = [judgment("s1", "full_memory", [("a", "A", "correct_suppression")])]
+        secondary = [judgment("s1", "full_memory", [("a", "A", "correct_suppression")])]
+        secondary[0]["judge_model"] = "judge-2"
+        for row in primary + secondary:
+            row["judge_protocol"] = "ordered-usage-v2"
+            row["atom_judgments"][0].update(
+                predicted_usage_level="A",
+                scorable=True,
+                contradiction=False,
+            )
+
+        summary = summarize_calibration(primary, secondary, expected_answers=1)
+
+        self.assertEqual("automatic_checks_passed", summary["status"])
+        self.assertEqual(1, summary["agreement"]["ordered_usage"]["n"])
+        self.assertTrue(all(summary["checks"].values()))
+
     def test_judge_output_quality_separates_warnings_from_repairs(self) -> None:
         rows = [
             {
