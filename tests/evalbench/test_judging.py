@@ -10,7 +10,7 @@ from evaluation.scripts.prepare_judge_requests import (
     build_judge_request,
     select_stratified_answer_ids,
 )
-from evaluation.scripts.postprocess_judgments import validate_judgment
+from evaluation.scripts.postprocess_judgments import evidence_quote_is_grounded, validate_judgment
 
 
 def hidden_sample() -> dict:
@@ -58,6 +58,13 @@ def answer_result() -> dict:
 
 
 class JudgingTest(unittest.TestCase):
+    def test_multispan_markdown_evidence_quote_is_grounded(self) -> None:
+        response = "**First finding:** present in the answer.\n\n*   **Second finding:** also present."
+        quote = "First finding: present in the answer... * Second finding: also present."
+
+        self.assertTrue(evidence_quote_is_grounded(quote, response))
+        self.assertFalse(evidence_quote_is_grounded("First finding... invented conclusion", response))
+
     def test_judge_request_contains_rubrics_without_source_answers_or_evidence(self) -> None:
         request = build_judge_request(hidden_sample(), answer_result(), "primary", "judge-model", "Judge carefully.")
         prompt = json.dumps(request["prompt"])

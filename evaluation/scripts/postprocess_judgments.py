@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,33 @@ VALID_VERDICTS = {
     "B": {"correct_bounded_use", "under_use", "over_use", "contradiction", "unscorable"},
     "C": {"correct_control", "under_use", "over_use", "contradiction", "unscorable"},
 }
+
+
+def _normalize_evidence_text(value: str) -> str:
+    value = re.sub(r"[*_`#>]", "", value.casefold())
+    return re.sub(r"\s+", " ", value).strip()
+
+
+def evidence_quote_is_grounded(quote: str, model_response: str) -> bool:
+    if not quote:
+        return True
+    if quote in model_response:
+        return True
+    normalized_response = _normalize_evidence_text(model_response)
+    segments = [
+        _normalize_evidence_text(segment).strip(" -–—")
+        for segment in re.split(r"(?:\.{3,}|…)", quote)
+    ]
+    segments = [segment for segment in segments if len(segment) >= 4]
+    if not segments:
+        return False
+    position = 0
+    for segment in segments:
+        found = normalized_response.find(segment, position)
+        if found < 0:
+            return False
+        position = found + len(segment)
+    return True
 
 
 def extract_json_object(text: str) -> dict[str, Any]:
@@ -65,7 +93,7 @@ def validate_judgment(
         quote = item.get("evidence_quote")
         if not isinstance(quote, str):
             errors.append(f"evidence_quote_not_string:{atom_id}")
-        elif quote and quote not in model_response:
+        elif not evidence_quote_is_grounded(quote, model_response):
             errors.append(f"ungrounded_evidence_quote:{atom_id}")
         if not isinstance(item.get("reason"), str) or not item["reason"].strip():
             errors.append(f"missing_reason:{atom_id}")
