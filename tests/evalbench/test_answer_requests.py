@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 
 from evaluation.common import request_fingerprint, write_jsonl
+from evaluation.scripts.finalize_answer_run import summarize_result_rows
 from evaluation.scripts.prepare_answer_requests import build_answer_messages, build_answer_request
 from evaluation.scripts.validate_api_results import validate_results
 
@@ -29,6 +30,24 @@ def sample() -> dict:
 
 
 class AnswerRequestTest(unittest.TestCase):
+    def test_result_summary_aggregates_models_finish_reasons_and_usage(self) -> None:
+        rows = [
+            {
+                "response": "Answer",
+                "raw_response": {
+                    "model": "model-a",
+                    "choices": [{"finish_reason": "stop"}],
+                    "usage": {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15},
+                },
+            }
+        ]
+
+        summary = summarize_result_rows(rows)
+
+        self.assertEqual({"model-a": 1}, summary["returned_models"])
+        self.assertEqual({"stop": 1}, summary["finish_reasons"])
+        self.assertEqual({"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15}, summary["usage"])
+
     def test_full_memory_preserves_parent_order(self) -> None:
         messages = build_answer_messages(sample(), "full_memory", SYSTEM)
 
