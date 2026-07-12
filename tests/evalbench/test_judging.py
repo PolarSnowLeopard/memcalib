@@ -12,7 +12,12 @@ from evaluation.scripts.prepare_judge_requests import (
     build_judge_request,
     select_stratified_answer_ids,
 )
-from evaluation.scripts.postprocess_judgments import auxiliary_warnings, evidence_quote_is_grounded, validate_judgment
+from evaluation.scripts.postprocess_judgments import (
+    auxiliary_warnings,
+    evidence_quote_is_grounded,
+    normalize_verdict_aliases,
+    validate_judgment,
+)
 
 
 def hidden_sample() -> dict:
@@ -60,6 +65,21 @@ def answer_result() -> dict:
 
 
 class JudgingTest(unittest.TestCase):
+    def test_verdict_aliases_preserve_label_specific_failure_direction(self) -> None:
+        value = {
+            "atom_judgments": [
+                {"atom_id": "c1", "u_star": "C", "verdict": "correct_bounded_use"},
+                {"atom_id": "c2", "u_star": "C", "verdict": "correct_suppression"},
+                {"atom_id": "a1", "u_star": "A", "verdict": "correct_control"},
+                {"atom_id": "b1", "u_star": "B", "verdict": "partial_under_use"},
+            ]
+        }
+
+        repairs = normalize_verdict_aliases(value)
+
+        self.assertEqual(["correct_control", "under_use", "over_use", "under_use"], [a["verdict"] for a in value["atom_judgments"]])
+        self.assertEqual(4, len(repairs))
+
     def test_merge_judgments_requires_unique_complete_answer_ids(self) -> None:
         first = [{"answer_request_id": "answer-1"}]
         second = [{"answer_request_id": "answer-2"}]

@@ -15,6 +15,26 @@ VALID_VERDICTS = {
     "B": {"correct_bounded_use", "under_use", "over_use", "contradiction", "unscorable"},
     "C": {"correct_control", "under_use", "over_use", "contradiction", "unscorable"},
 }
+VERDICT_ALIASES = {
+    ("C", "correct_bounded_use"): "correct_control",
+    ("C", "correct_suppression"): "under_use",
+    ("A", "correct_control"): "over_use",
+    ("B", "partial_under_use"): "under_use",
+}
+
+
+def normalize_verdict_aliases(value: dict[str, Any]) -> list[str]:
+    repairs = []
+    for item in value.get("atom_judgments") or []:
+        if not isinstance(item, dict):
+            continue
+        key = (str(item.get("u_star") or ""), str(item.get("verdict") or ""))
+        normalized = VERDICT_ALIASES.get(key)
+        if normalized:
+            atom_id = str(item.get("atom_id") or "")
+            repairs.append(f"verdict_alias:{atom_id}:{key[1]}->{normalized}")
+            item["verdict"] = normalized
+    return repairs
 
 
 def _normalize_evidence_text(value: str) -> str:
@@ -145,12 +165,14 @@ def postprocess_judgments(input_path: Path, result_path: Path) -> tuple[list[dic
         params = request["user_defined_params"]
         try:
             value = extract_json_object(str(result.get("response") or ""))
+            repairs = normalize_verdict_aliases(value)
             warnings = auxiliary_warnings(value, params["model_response"])
             valid, errors = validate_judgment(
                 value, params["expected_atoms"], params["model_response"], enforce_auxiliary=False
             )
         except ValueError as exc:
             value = None
+            repairs = []
             warnings = []
             valid, errors = False, [str(exc)]
         if valid:
@@ -169,6 +191,7 @@ def postprocess_judgments(input_path: Path, result_path: Path) -> tuple[list[dic
                     "task_quality": value["task_quality"],
                     "safety_failure": value["safety_failure"],
                     "validation_warnings": warnings,
+                    "schema_repairs": repairs,
                 }
             )
         else:
