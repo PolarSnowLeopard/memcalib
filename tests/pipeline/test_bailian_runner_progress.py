@@ -56,6 +56,20 @@ class BailianRunnerProgressTest(unittest.TestCase):
 
         self.assertEqual(300, cfg["api"]["timeout"])
 
+    def test_parse_extra_body_requires_json_object(self) -> None:
+        self.assertEqual(
+            {"enable_thinking": False},
+            self.runner.parse_extra_body('{"enable_thinking": false}'),
+        )
+        self.assertEqual({}, self.runner.parse_extra_body(""))
+
+        with self.assertRaisesRegex(ValueError, "JSON object"):
+            self.runner.parse_extra_body("[]")
+
+    def test_extra_body_cannot_override_core_request_fields(self) -> None:
+        with self.assertRaisesRegex(ValueError, "reserved fields"):
+            self.runner.validate_extra_body({"model": "other-model"})
+
     def test_resume_rejects_output_when_input_fingerprint_changes(self) -> None:
         current_input = {
             "request_id": "r1",

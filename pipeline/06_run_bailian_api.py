@@ -19,6 +19,7 @@ from utils import iter_jsonl, load_json, stable_id
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_CONFIG = SCRIPT_DIR / "config.json"
+RESERVED_EXTRA_BODY_FIELDS = {"model", "messages", "temperature", "max_tokens"}
 
 
 class LengthFinishError(RuntimeError):
@@ -39,6 +40,22 @@ class RateLimiter:
             if now < self.next_time:
                 time.sleep(self.next_time - now)
             self.next_time = max(now, self.next_time) + self.interval
+
+
+def validate_extra_body(value: dict[str, Any]) -> dict[str, Any]:
+    reserved = sorted(RESERVED_EXTRA_BODY_FIELDS.intersection(value))
+    if reserved:
+        raise ValueError(f"extra body contains reserved fields: {', '.join(reserved)}")
+    return value
+
+
+def parse_extra_body(value: str) -> dict[str, Any]:
+    if not value.strip():
+        return {}
+    parsed = json.loads(value)
+    if not isinstance(parsed, dict):
+        raise ValueError("extra body must be a JSON object")
+    return validate_extra_body(parsed)
 
 
 def request_id(row: dict[str, Any]) -> str:
@@ -166,6 +183,7 @@ def call_chat_completions(
     temperature: float,
     max_tokens: int,
     timeout: int,
+    extra_body: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     payload = {
         "model": model,
@@ -173,6 +191,7 @@ def call_chat_completions(
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
+    payload.update(validate_extra_body(extra_body or {}))
     data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     req = urllib.request.Request(
         base_url,
@@ -220,6 +239,7 @@ def run_one(row: dict[str, Any], args: argparse.Namespace, api_key: str, limiter
                 temperature=args.temperature,
                 max_tokens=args.max_tokens,
                 timeout=args.timeout,
+                extra_body=getattr(args, "extra_body", {}),
             )
             ensure_not_truncated(response)
             return {
@@ -304,6 +324,7 @@ def main() -> None:
     parser.add_argument("--max-workers", type=int, default=None)
     parser.add_argument("--max-retries", type=int, default=None)
     parser.add_argument("--timeout", type=int, default=None)
+    parser.add_argument("--extra-body-json", default="", help="JSON object merged into the provider request payload.")
     parser.add_argument("--retry-base-sleep", type=float, default=2.0)
     parser.add_argument("--retry-max-sleep", type=float, default=60.0)
     parser.add_argument("--limit", type=int, default=0)
@@ -323,6 +344,7 @@ def main() -> None:
     args.max_workers = args.max_workers if args.max_workers is not None else int(cfg.get("max_workers", 4))
     args.max_retries = args.max_retries if args.max_retries is not None else int(cfg.get("max_retries", 5))
     args.timeout = args.timeout if args.timeout is not None else int(cfg.get("timeout", 300))
+    args.extra_body = parse_extra_body(args.extra_body_json)
     args.failed = args.failed or args.output.with_suffix(".failed.jsonl")
 
     env_names = [args.api_key_env] if args.api_key_env else ["BAILIAN_API_KEY", "DASHSCOPE_API_KEY"]
