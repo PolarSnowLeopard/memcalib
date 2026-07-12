@@ -1,0 +1,32 @@
+{
+  "schema_version": "memcalib-judge-requests-v1",
+  "primary_requests": 5000,
+  "secondary_requests": 1000,
+  "secondary_by_judge": {
+    "deepseek-v4-pro": 600,
+    "kimi-k2.6": 400
+  },
+  "human_random_ids": 60,
+  "artifacts": {
+    "primary.jsonl": {
+      "rows": 5000,
+      "sha256": "d949f8e89c574f53dd984e9beb71a80413a227f2e662bf684e055dbcd1b89265"
+    },
+    "secondary-deepseek.jsonl": {
+      "rows": 600,
+      "sha256": "cc0505e5c19f1996723e7b6d428710a8320f030bd7d446da54647b21deeef580"
+    },
+    "secondary-kimi.jsonl": {
+      "rows": 400,
+      "sha256": "ef1c89110b6f1ab54458fa29b281f14f433007d79616a789eb374e2a4df3969f"
+    },
+    "secondary-answer-ids.txt": {
+      "rows": 1000,
+      "sha256": "d85a4deb8706632f512e9a8eaf89dc12d88c72c823384e91b852177004c42a8d"
+    },
+    "human-random-answer-ids.txt": {
+      "rows": 60,
+      "sha256": "56b288745cbb09ac1feedad5afe44cf344ee955c9eac96488a37d4cfbc67e7ae"
+    }
+  }
+}

@@ -245,6 +245,27 @@ def compute_judge_agreement(primary: list[dict[str, Any]], secondary: list[dict[
     return {"overall": overall, "by_label": by_label, "by_secondary_judge": by_pair}
 
 
+def compute_judge_output_quality(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    warning_counts: Counter[str] = Counter()
+    rows_with_warnings = 0
+    rows_with_repairs = 0
+    repair_count = 0
+    for row in rows:
+        warnings = row.get("validation_warnings") or []
+        repairs = row.get("schema_repairs") or []
+        rows_with_warnings += int(bool(warnings))
+        rows_with_repairs += int(bool(repairs))
+        repair_count += len(repairs)
+        warning_counts.update(str(warning).split(":", 1)[0] for warning in warnings)
+    return {
+        "rows": len(rows),
+        "rows_with_warnings": rows_with_warnings,
+        "warning_counts": dict(sorted(warning_counts.items())),
+        "rows_with_schema_repairs": rows_with_repairs,
+        "schema_repairs": repair_count,
+    }
+
+
 def _percentile(values: list[float], probability: float) -> float:
     ordered = sorted(values)
     position = (len(ordered) - 1) * probability
@@ -284,21 +305,42 @@ def assess_benchmark_validity(metrics: dict[str, Any]) -> dict[str, Any]:
         for values in models.values()
         if values.get("full_memory", {}).get("memcalib_score") is not None
     ]
+    label_spreads = {}
+    for label in ("A", "B", "C"):
+        values = [
+            float(model["full_memory"]["label_success"][label])
+            for model in models.values()
+            if model.get("full_memory", {}).get("label_success", {}).get(label) is not None
+        ]
+        if values:
+            label_spreads[label] = max(values) - min(values)
     positive_c = sum((values.get("paired", {}).get("delta_C") or 0) > 0 for values in models.values())
     agreement = metrics.get("judge_agreement", {}).get("overall", {})
+    model_score_spread = max(scores) - min(scores) if scores else None
     checks = {
         "five_models_complete": len(scores) == 5,
-        "model_score_spread_at_least_0.03": bool(scores) and max(scores) - min(scores) >= 0.03,
         "positive_C_delta_in_at_least_four_models": positive_c >= 4,
         "judge_exact_agreement_at_least_0.75": (agreement.get("exact_agreement") or 0) >= 0.75,
         "judge_kappa_at_least_0.60": (agreement.get("kappa") or 0) >= 0.60,
     }
     failed = [key for key, passed in checks.items() if not passed]
+    caveats = []
+    if model_score_spread is not None and model_score_spread < 0.03:
+        caveats.append("limited_single_score_discrimination")
+    if failed:
+        status = "needs_review"
+    elif caveats:
+        status = "provisionally_supported_with_caveat"
+    else:
+        status = "provisionally_supported"
     return {
-        "status": "provisionally_supported" if not failed else "needs_review",
+        "status": status,
         "checks": checks,
         "failed_checks": failed,
-        "model_score_spread": max(scores) - min(scores) if scores else None,
+        "caveats": caveats,
+        "model_score_spread": model_score_spread,
+        "label_profile_spreads": label_spreads,
+        "max_label_profile_spread": max(label_spreads.values()) if label_spreads else None,
         "models_with_positive_C_delta": positive_c,
         "human_validation": "pending",
     }
@@ -377,12 +419,20 @@ def render_report(metrics: dict[str, Any]) -> str:
     status = assessment.get("status", "pending")
     status_label = {
         "provisionally_supported": "初步支持",
+        "provisionally_supported_with_caveat": "初步支持（有限制）",
         "needs_review": "需要复核",
         "pending": "等待评分",
     }.get(status, status)
     failed_checks = assessment.get("failed_checks") or []
+    caveats = assessment.get("caveats") or []
+    caveat_labels = {
+        "limited_single_score_discrimination": "单一总分区分度有限",
+    }
     agreement = metrics.get("judge_agreement") or {}
     overall_agreement = agreement.get("overall") or {}
+    judge_quality = metrics.get("judge_output_quality") or {}
+    primary_quality = judge_quality.get("primary") or {}
+    secondary_quality = judge_quality.get("secondary") or {}
     agreement_rows = []
     for label, values in (agreement.get("by_label") or {}).items():
         agreement_rows.append(
@@ -399,12 +449,12 @@ main{{max-width:1180px;margin:0 auto;padding:26px 24px 64px}}h1{{font-size:32px;
 .panel{{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:16px;overflow:auto}}table{{width:100%;border-collapse:collapse;min-width:760px}}th,td{{padding:10px 11px;border-bottom:1px solid var(--line);text-align:right}}th:first-child,td:first-child{{text-align:left}}th{{color:var(--muted);font-size:12px}}tbody tr:last-child td{{border-bottom:0}}.effects{{display:grid;grid-template-columns:1fr 1fr;gap:10px}}.effect-group{{background:#fff;border:1px solid var(--line);border-radius:5px;padding:15px}}.effect-group h3{{font-size:14px;margin:0 0 10px}}.effect{{display:grid;grid-template-columns:82px 1fr 52px;gap:9px;align-items:center;margin:8px 0}}.effect-label{{font-size:12px;color:var(--muted)}}.rail{{height:10px;background:#e8ecf2;position:relative;border-radius:2px}}.rail:after{{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:#8793a5}}.marker{{position:absolute;top:-3px;width:5px;height:16px;transform:translateX(-50%);border-radius:1px}}.teal{{color:var(--teal)}}.blue{{color:var(--blue)}}.red{{color:var(--red)}}.marker.teal{{background:var(--teal)}}.marker.blue{{background:var(--blue)}}.marker.red{{background:var(--red)}}.effect strong{{font:650 12px ui-monospace,SFMono-Regular,Menlo,monospace;text-align:right}}.checks{{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}}.check{{font-size:12px;padding:4px 7px;background:#fff;border:1px solid var(--line);border-radius:4px}}.check.fail{{border-color:#f0b8b2;color:var(--red)}}details{{margin-top:34px}}pre{{white-space:pre-wrap;overflow-wrap:anywhere;background:#111827;color:#e5e7eb;padding:16px;border-radius:5px}}
 @media(max-width:820px){{.cards{{grid-template-columns:1fr 1fr}}.effects{{grid-template-columns:1fr}}header{{padding:30px 18px}}main{{padding:18px 14px}}}}
 </style></head><body><header><h1>MemCalib 500 验证报告</h1><p>五个代表性模型在 Full-memory 与 No-memory 配对条件下的记忆使用校准结果。正式结论需结合人工复核。</p><div class="status"><span>Benchmark 状态</span><b>{html.escape(status_label)}</b></div></header>
-<main><div class="checks">{''.join(f'<span class="check fail">{html.escape(item)}</span>' for item in failed_checks) if failed_checks else '<span class="check">全部预设自动检查通过</span>'}<span class="check">人工一致性：待完成</span></div>
-<h2>模型区分度</h2><p class="section-note">主指标使用 Full-memory 条件，A/B/C 三类等权宏平均。</p><section class="cards">{''.join(score_cards)}</section><section class="panel" style="margin-top:10px"><table><thead><tr><th>模型</th><th>总分</th><th>A 抑制</th><th>B 有限使用</th><th>C 控制</th><th>样本严格</th><th>混合父记忆严格</th></tr></thead><tbody>{''.join(core_rows)}</tbody></table></section>
+<main><div class="checks">{''.join(f'<span class="check fail">{html.escape(item)}</span>' for item in failed_checks) if failed_checks else '<span class="check">核心自动检查通过</span>'}{''.join(f'<span class="check fail">限制：{html.escape(caveat_labels.get(item, item))}</span>' for item in caveats)}<span class="check">人工一致性：待完成</span></div>
+<h2>模型区分度</h2><p class="section-note">主指标使用 Full-memory 条件，A/B/C 三类等权宏平均。当前五个模型总分极差为 {_format_metric(assessment.get('model_score_spread'))}，单一总分区分度有限；标签级最大极差为 {_format_metric(assessment.get('max_label_profile_spread'))}，更适合比较模型的记忆使用能力结构。</p><section class="cards">{''.join(score_cards)}</section><section class="panel" style="margin-top:10px"><table><thead><tr><th>模型</th><th>总分</th><th>A 抑制</th><th>B 有限使用</th><th>C 控制</th><th>样本严格</th><th>混合父记忆严格</th></tr></thead><tbody>{''.join(core_rows)}</tbody></table></section>
 <h2>配对效应</h2><p class="section-note">轨道中心为 0。B/C 向右表示记忆带来有效增益；A 污染向右表示加入记忆后错误增加。</p><section class="effects">{''.join(effect_rows)}</section>
 <h2>面板比较</h2><p class="section-note">Representative 贴近正式集分布；Diagnostic 定向覆盖混合标签、稀有 Hard-A、安全敏感和高原子数样本。</p><section class="panel"><table><thead><tr><th>模型</th><th>Representative</th><th>Diagnostic</th><th>Diagnostic 差值</th><th>Rep 混合严格</th><th>Diag 混合严格</th></tr></thead><tbody>{''.join(panel_rows)}</tbody></table></section>
 <h2>错误方向</h2><section class="panel"><table><thead><tr><th>模型</th><th>Under-use</th><th>Over-use</th><th>Contradiction</th><th>Unscorable</th><th>回答质量</th><th>安全失败</th></tr></thead><tbody>{''.join(error_rows)}</tbody></table></section>
-<h2>Judge 一致性</h2><p class="section-note">总体 n={overall_agreement.get('n', 0)}，exact={_format_metric(overall_agreement.get('exact_agreement'))}，κ={_format_metric(overall_agreement.get('kappa'))}。</p><section class="panel"><table><thead><tr><th>标签</th><th>原子数</th><th>Exact</th><th>Cohen κ</th></tr></thead><tbody>{''.join(agreement_rows) or '<tr><td colspan="4">复核评分尚未完成</td></tr>'}</tbody></table></section>
+<h2>Judge 一致性</h2><p class="section-note">总体 n={overall_agreement.get('n', 0)}，exact={_format_metric(overall_agreement.get('exact_agreement'))}，κ={_format_metric(overall_agreement.get('kappa'))}。主 Judge 共 {primary_quality.get('rows', 0)} 条有效判定，其中 {primary_quality.get('rows_with_warnings', 0)} 条带有不影响 verdict 有效性的证据引用或置信度警告，{primary_quality.get('schema_repairs', 0)} 个标签相关别名被确定性归一化；复核 Judge 共 {secondary_quality.get('rows', 0)} 条。</p><section class="panel"><table><thead><tr><th>标签</th><th>原子数</th><th>Exact</th><th>Cohen κ</th></tr></thead><tbody>{''.join(agreement_rows) or '<tr><td colspan="4">复核评分尚未完成</td></tr>'}</tbody></table></section>
 <details><summary>机器可读指标</summary><pre id="raw">{payload}</pre></details></main></body></html>"""
 
 
@@ -421,6 +471,10 @@ def main() -> None:
     samples = list(iter_jsonl(args.hidden))
     metrics = compute_metrics(primary, samples=samples, bootstrap_replicates=2000)
     metrics["judge_agreement"] = compute_judge_agreement(primary, secondary)
+    metrics["judge_output_quality"] = {
+        "primary": compute_judge_output_quality(primary),
+        "secondary": compute_judge_output_quality(secondary),
+    }
     metrics["validity_assessment"] = assess_benchmark_validity(metrics)
     write_json(args.metrics, metrics)
     args.report.parent.mkdir(parents=True, exist_ok=True)

@@ -6,6 +6,7 @@ import unittest
 from evaluation.scripts.analyze_evaluation import (
     assess_benchmark_validity,
     cohen_kappa,
+    compute_judge_output_quality,
     compute_metrics,
     paired_bootstrap,
     render_report,
@@ -39,6 +40,22 @@ def judgment(sample: str, condition: str, verdicts: list[tuple[str, str, str]]) 
 
 
 class AnalysisTest(unittest.TestCase):
+    def test_judge_output_quality_separates_warnings_from_repairs(self) -> None:
+        rows = [
+            {
+                "validation_warnings": ["invalid_confidence:a1", "ungrounded_evidence_quote:a2"],
+                "schema_repairs": ["a1:correct_bounded_use->correct_control"],
+            },
+            {"validation_warnings": ["invalid_confidence:a3"], "schema_repairs": []},
+        ]
+
+        quality = compute_judge_output_quality(rows)
+
+        self.assertEqual(2, quality["rows_with_warnings"])
+        self.assertEqual({"invalid_confidence": 2, "ungrounded_evidence_quote": 1}, quality["warning_counts"])
+        self.assertEqual(1, quality["rows_with_schema_repairs"])
+        self.assertEqual(1, quality["schema_repairs"])
+
     def test_compute_metrics_uses_label_macro_and_paired_effects(self) -> None:
         rows = [
             judgment(
@@ -141,6 +158,35 @@ class AnalysisTest(unittest.TestCase):
 
         self.assertEqual("provisionally_supported", assessment["status"])
         self.assertEqual([], assessment["failed_checks"])
+
+    def test_validity_assessment_keeps_narrow_macro_spread_as_a_caveat(self) -> None:
+        label_profiles = [
+            {"A": 0.46, "B": 0.75, "C": 0.83},
+            {"A": 0.57, "B": 0.68, "C": 0.80},
+            {"A": 0.51, "B": 0.69, "C": 0.78},
+            {"A": 0.54, "B": 0.70, "C": 0.83},
+            {"A": 0.48, "B": 0.71, "C": 0.80},
+        ]
+        metrics = {
+            "models": {
+                f"m{index}": {
+                    "full_memory": {
+                        "memcalib_score": 0.66 + index * 0.0065,
+                        "label_success": profile,
+                    },
+                    "paired": {"delta_C": 0.30},
+                }
+                for index, profile in enumerate(label_profiles)
+            },
+            "judge_agreement": {"overall": {"exact_agreement": 0.88, "kappa": 0.84}},
+        }
+
+        assessment = assess_benchmark_validity(metrics)
+
+        self.assertEqual("provisionally_supported_with_caveat", assessment["status"])
+        self.assertEqual([], assessment["failed_checks"])
+        self.assertIn("limited_single_score_discrimination", assessment["caveats"])
+        self.assertAlmostEqual(0.11, assessment["max_label_profile_spread"])
 
     def test_report_contains_paired_panel_and_judge_sections(self) -> None:
         rows = [

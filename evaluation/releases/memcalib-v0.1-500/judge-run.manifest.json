@@ -1,0 +1,97 @@
+{
+  "schema_version": "memcalib-judge-run-v1",
+  "status": "completed",
+  "completed_at": "2026-07-12T17:02:43+08:00",
+  "generation": {
+    "temperature": 0.0,
+    "max_tokens": 4096,
+    "enable_thinking": false
+  },
+  "primary_judge": {
+    "key": "qwen-judge",
+    "model": "qwen3.7-plus"
+  },
+  "secondary_judges": [
+    {
+      "key": "deepseek-judge",
+      "model": "deepseek-v4-pro"
+    },
+    {
+      "key": "kimi-judge",
+      "model": "kimi-k2.6"
+    }
+  ],
+  "request_manifest": {
+    "path": "evaluation/releases/memcalib-v0.1-500/judge-request.manifest.json",
+    "sha256": "2f47a9e9e6df95d3b83b8bf799833dba4fe71cc062d929f448d50da7400f6b82"
+  },
+  "normalized": {
+    "primary": {
+      "path": "evaluation/runs/memcalib-v0.1-500/judgments/primary.valid.jsonl",
+      "sha256": "9fc60cc938de3c47fd39c0c34e68d1f48c1f79468fc067dbe8b402799b9358d0",
+      "rows": 5000,
+      "summary": {
+        "rows": 5000,
+        "unique_answer_request_ids": 5000,
+        "atoms": 25480,
+        "judge_models": {
+          "qwen3.7-plus": 5000
+        },
+        "rows_with_warnings": 1012,
+        "warning_counts": {
+          "invalid_confidence": 1465,
+          "ungrounded_evidence_quote": 919
+        },
+        "rows_with_schema_repairs": 41,
+        "schema_repairs": 56
+      }
+    },
+    "secondary": {
+      "path": "evaluation/runs/memcalib-v0.1-500/judgments/secondary.valid.jsonl",
+      "sha256": "0bd5d396011fb65bfbdb94c31d5f9e520bfccc7520babbc3211a35f0337f641a",
+      "rows": 1000,
+      "summary": {
+        "rows": 1000,
+        "unique_answer_request_ids": 1000,
+        "atoms": 5062,
+        "judge_models": {
+          "deepseek-v4-pro": 600,
+          "kimi-k2.6": 400
+        },
+        "rows_with_warnings": 189,
+        "warning_counts": {
+          "ungrounded_evidence_quote": 300
+        },
+        "rows_with_schema_repairs": 1,
+        "schema_repairs": 1
+      }
+    }
+  },
+  "targeted_retry_outputs": {
+    "primary.retry1.jsonl": {
+      "path": "evaluation/runs/memcalib-v0.1-500/judges/primary.retry1.jsonl",
+      "sha256": "7d91bda884125566f911538a79a906d0514ab5e5a1879f3d904942e98fd8a26e",
+      "rows": 41
+    },
+    "primary.retry2.jsonl": {
+      "path": "evaluation/runs/memcalib-v0.1-500/judges/primary.retry2.jsonl",
+      "sha256": "1b492f6ac217a9c3e1226397378914f2e879d0db4356b0c04a4fd432f15969f8",
+      "rows": 9
+    },
+    "primary.retry3.jsonl": {
+      "path": "evaluation/runs/memcalib-v0.1-500/judges/primary.retry3.jsonl",
+      "sha256": "da337bdac9b264306e398d23fbdb576f3d15278deb885fe668c193054774d099",
+      "rows": 3
+    },
+    "secondary-deepseek.retry1.jsonl": {
+      "path": "evaluation/runs/memcalib-v0.1-500/judges/secondary-deepseek.retry1.jsonl",
+      "sha256": "ba6dc01178e2ffdade71de99b480cc42959df8e2d0408ab3113a0eb6b520a5d6",
+      "rows": 1
+    },
+    "secondary-kimi.retry1.jsonl": {
+      "path": "evaluation/runs/memcalib-v0.1-500/judges/secondary-kimi.retry1.jsonl",
+      "sha256": "67ee17b7f74c658b5ea619371687ae54a4dc15c7588e1fed0c009ad3a64311c0",
+      "rows": 2
+    }
+  }
+}

@@ -5,7 +5,8 @@ import json
 import unittest
 from collections import Counter
 
-from evaluation.scripts.build_human_review import select_human_review_ids
+from evaluation.scripts.build_human_review import render_review_html, select_human_review_ids
+from evaluation.scripts.finalize_judge_run import summarize_judgment_rows
 from evaluation.scripts.merge_judgments import merge_judgment_rows
 from evaluation.scripts.prepare_judge_retry import build_retry_request
 from evaluation.scripts.prepare_judge_requests import (
@@ -65,6 +66,34 @@ def answer_result() -> dict:
 
 
 class JudgingTest(unittest.TestCase):
+    def test_human_review_html_renders_one_record_with_keyboard_navigation(self) -> None:
+        html = render_review_html([{"answer_request_id": "answer-1"}, {"answer_request_id": "answer-2"}])
+
+        self.assertIn("const r=records[index]", html)
+        self.assertIn("if(e.key==='ArrowLeft')go(-1)", html)
+        self.assertIn("if(e.key==='ArrowRight')go(1)", html)
+        self.assertIn('<select id="decision">', html)
+        self.assertIn("localStorage.setItem", html)
+
+    def test_judge_run_summary_requires_unique_answer_ids(self) -> None:
+        rows = [
+            {
+                "answer_request_id": "answer-1",
+                "judge_model": "judge-1",
+                "atom_judgments": [{"atom_id": "a1"}],
+                "validation_warnings": ["invalid_confidence:a1"],
+                "schema_repairs": ["a1:alias"],
+            }
+        ]
+
+        summary = summarize_judgment_rows(rows)
+
+        self.assertEqual(1, summary["rows"])
+        self.assertEqual(1, summary["atoms"])
+        self.assertEqual({"invalid_confidence": 1}, summary["warning_counts"])
+        with self.assertRaisesRegex(ValueError, "duplicate"):
+            summarize_judgment_rows(rows + rows)
+
     def test_verdict_aliases_preserve_label_specific_failure_direction(self) -> None:
         value = {
             "atom_judgments": [

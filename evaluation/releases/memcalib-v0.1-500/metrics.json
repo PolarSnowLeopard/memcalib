@@ -1,0 +1,1417 @@
+{
+  "schema_version": "memcalib-evaluation-metrics-v1",
+  "models": {
+    "deepseek": {
+      "full_memory": {
+        "answers": 500,
+        "atoms": 2548,
+        "label_counts": {
+          "A": 729,
+          "B": 825,
+          "C": 994
+        },
+        "label_success": {
+          "A": 0.48010973936899864,
+          "B": 0.7127272727272728,
+          "C": 0.8048289738430584
+        },
+        "memcalib_score": 0.6658886619797766,
+        "strict_sample_accuracy": 0.208,
+        "mixed_parent_strict_accuracy": 0.4860050890585242,
+        "mixed_parent_count": 393,
+        "verdict_counts": {
+          "contradiction": 20,
+          "correct_bounded_use": 588,
+          "correct_control": 800,
+          "correct_suppression": 350,
+          "over_use": 389,
+          "under_use": 400,
+          "unscorable": 1
+        },
+        "mean_task_quality": 2.772,
+        "safety_failure_rate": 0.156
+      },
+      "no_memory": {
+        "answers": 500,
+        "atoms": 2548,
+        "label_counts": {
+          "A": 729,
+          "B": 825,
+          "C": 994
+        },
+        "label_success": {
+          "A": 0.9574759945130316,
+          "B": 0.27515151515151515,
+          "C": 0.4597585513078471
+        },
+        "memcalib_score": 0.5641286869907979,
+        "strict_sample_accuracy": 0.08,
+        "mixed_parent_strict_accuracy": 0.17302798982188294,
+        "mixed_parent_count": 393,
+        "verdict_counts": {
+          "contradiction": 29,
+          "correct_bounded_use": 227,
+          "correct_control": 457,
+          "correct_suppression": 698,
+          "over_use": 39,
+          "under_use": 1095,
+          "unscorable": 3
+        },
+        "mean_task_quality": 2.418,
+        "safety_failure_rate": 0.106
+      },
+      "paired": {
+        "delta_A": -0.4773662551440329,
+        "delta_B": 0.43757575757575756,
+        "delta_C": 0.34507042253521125,
+        "A_contamination_effect": 0.4773662551440329,
+        "paired_atom_counts": {
+          "A": 729,
+          "B": 825,
+          "C": 994
+        }
+      },
+      "panels": {
+        "representative": {
+          "full_memory": {
+            "answers": 350,
+            "atoms": 1504,
+            "label_counts": {
+              "A": 434,
+              "B": 493,
+              "C": 577
+            },
+            "label_success": {
+              "A": 0.45622119815668205,
+              "B": 0.718052738336714,
+              "C": 0.7937608318890814
+            },
+            "memcalib_score": 0.6560115894608258,
+            "strict_sample_accuracy": 0.22285714285714286,
+            "mixed_parent_strict_accuracy": 0.4530386740331492,
+            "mixed_parent_count": 181,
+            "verdict_counts": {
+              "contradiction": 6,
+              "correct_bounded_use": 354,
+              "correct_control": 458,
+              "correct_suppression": 198,
+              "over_use": 243,
+              "under_use": 245
+            },
+            "mean_task_quality": 2.7685714285714287,
+            "safety_failure_rate": 0.16
+          },
+          "no_memory": {
+            "answers": 350,
+            "atoms": 1504,
+            "label_counts": {
+              "A": 434,
+              "B": 493,
+              "C": 577
+            },
+            "label_success": {
+              "A": 0.9539170506912442,
+              "B": 0.26774847870182555,
+              "C": 0.43327556325823224
+            },
+            "memcalib_score": 0.5516470308837673,
+            "strict_sample_accuracy": 0.09428571428571429,
+            "mixed_parent_strict_accuracy": 0.143646408839779,
+            "mixed_parent_count": 181,
+            "verdict_counts": {
+              "contradiction": 12,
+              "correct_bounded_use": 132,
+              "correct_control": 250,
+              "correct_suppression": 414,
+              "over_use": 24,
+              "under_use": 669,
+              "unscorable": 3
+            },
+            "mean_task_quality": 2.422857142857143,
+            "safety_failure_rate": 0.1
+          },
+          "paired": {
+            "delta_A": -0.4976958525345622,
+            "delta_B": 0.45030425963488846,
+            "delta_C": 0.36048526863084923,
+            "A_contamination_effect": 0.4976958525345622,
+            "paired_atom_counts": {
+              "A": 434,
+              "B": 493,
+              "C": 577
+            }
+          }
+        },
+        "diagnostic": {
+          "full_memory": {
+            "answers": 150,
+            "atoms": 1044,
+            "label_counts": {
+              "A": 295,
+              "B": 332,
+              "C": 417
+            },
+            "label_success": {
+              "A": 0.5152542372881356,
+              "B": 0.7048192771084337,
+              "C": 0.8201438848920863
+            },
+            "memcalib_score": 0.6800724664295519,
+            "strict_sample_accuracy": 0.17333333333333334,
+            "mixed_parent_strict_accuracy": 0.5141509433962265,
+            "mixed_parent_count": 212,
+            "verdict_counts": {
+              "contradiction": 14,
+              "correct_bounded_use": 234,
+              "correct_control": 342,
+              "correct_suppression": 152,
+              "over_use": 146,
+              "under_use": 155,
+              "unscorable": 1
+            },
+            "mean_task_quality": 2.78,
+            "safety_failure_rate": 0.14666666666666667
+          },
+          "no_memory": {
+            "answers": 150,
+            "atoms": 1044,
+            "label_counts": {
+              "A": 295,
+              "B": 332,
+              "C": 417
+            },
+            "label_success": {
+              "A": 0.9627118644067797,
+              "B": 0.286144578313253,
+              "C": 0.49640287769784175
+            },
+            "memcalib_score": 0.5817531068059582,
+            "strict_sample_accuracy": 0.04666666666666667,
+            "mixed_parent_strict_accuracy": 0.19811320754716982,
+            "mixed_parent_count": 212,
+            "verdict_counts": {
+              "contradiction": 17,
+              "correct_bounded_use": 95,
+              "correct_control": 207,
+              "correct_suppression": 284,
+              "over_use": 15,
+              "under_use": 426
+            },
+            "mean_task_quality": 2.4066666666666667,
+            "safety_failure_rate": 0.12
+          },
+          "paired": {
+            "delta_A": -0.44745762711864406,
+            "delta_B": 0.4186746987951807,
+            "delta_C": 0.3237410071942446,
+            "A_contamination_effect": 0.44745762711864406,
+            "paired_atom_counts": {
+              "A": 295,
+              "B": 332,
+              "C": 417
+            }
+          }
+        }
+      },
+      "bootstrap": {
+        "full_memory_label_success": {
+          "A": {
+            "estimate": 0.48010973936899864,
+            "ci_low": 0.439770523594053,
+            "ci_high": 0.523746527104736,
+            "replicates": 2000,
+            "clusters": 500
+          },
+          "B": {
+            "estimate": 0.7127272727272728,
+            "ci_low": 0.6807389031964854,
+            "ci_high": 0.7449950808258157,
+            "replicates": 2000,
+            "clusters": 493
+          },
+          "C": {
+            "estimate": 0.8048289738430584,
+            "ci_low": 0.7772168920431867,
+            "ci_high": 0.8300974577526691,
+            "replicates": 2000,
+            "clusters": 492
+          }
+        },
+        "paired_delta": {
+          "A": {
+            "estimate": -0.4773662551440329,
+            "ci_low": -0.5202892561983471,
+            "ci_high": -0.4316865997664259,
+            "replicates": 2000,
+            "clusters": 500
+          },
+          "B": {
+            "estimate": 0.43757575757575756,
+            "ci_low": 0.39886250556207276,
+            "ci_high": 0.4757824671939467,
+            "replicates": 2000,
+            "clusters": 493
+          },
+          "C": {
+            "estimate": 0.34507042253521125,
+            "ci_low": 0.3059345662545529,
+            "ci_high": 0.38485341240491094,
+            "replicates": 2000,
+            "clusters": 492
+          }
+        },
+        "A_contamination_effect": {
+          "estimate": 0.4773662551440329,
+          "ci_low": 0.4316865997664259,
+          "ci_high": 0.5202892561983471,
+          "replicates": 2000,
+          "clusters": 500
+        }
+      }
+    },
+    "deepseek-flash": {
+      "full_memory": {
+        "answers": 500,
+        "atoms": 2548,
+        "label_counts": {
+          "A": 729,
+          "B": 825,
+          "C": 994
+        },
+        "label_success": {
+          "A": 0.5075445816186557,
+          "B": 0.6933333333333334,
+          "C": 0.7847082494969819
+        },
+        "memcalib_score": 0.6618620548163237,
+        "strict_sample_accuracy": 0.2,
+        "mixed_parent_strict_accuracy": 0.5114503816793893,
+        "mixed_parent_count": 393,
+        "verdict_counts": {
+          "contradiction": 21,
+          "correct_bounded_use": 572,
+          "correct_control": 780,
+          "correct_suppression": 370,
+          "over_use": 376,
+          "under_use": 429
+        },
+        "mean_task_quality": 2.772,
+        "safety_failure_rate": 0.14
+      },
+      "no_memory": {
+        "answers": 500,
+        "atoms": 2548,
+        "label_counts": {
+          "A": 729,
+          "B": 825,
+          "C": 994
+        },
+        "label_success": {
+          "A": 0.9465020576131687,
+          "B": 0.2872727272727273,
+          "C": 0.4597585513078471
+        },
+        "memcalib_score": 0.564511112064581,
+        "strict_sample_accuracy": 0.072,
+        "mixed_parent_strict_accuracy": 0.18575063613231552,
+        "mixed_parent_count": 393,
+        "verdict_counts": {
+          "contradiction": 27,
+          "correct_bounded_use": 237,
+          "correct_control": 457,
+          "correct_suppression": 690,
+          "over_use": 45,
+          "under_use": 1091,
+          "unscorable": 1
+        },
+        "mean_task_quality": 2.392,
+        "safety_failure_rate": 0.114
+      },
+      "paired": {
+        "delta_A": -0.438957475994513,
+        "delta_B": 0.40606060606060607,
+        "delta_C": 0.32494969818913483,
+        "A_contamination_effect": 0.438957475994513,
+        "paired_atom_counts": {
+          "A": 729,
+          "B": 825,
+          "C": 994
+        }
+      },
+      "panels": {
+        "representative": {
+          "full_memory": {
+            "answers": 350,
+            "atoms": 1504,
+            "label_counts": {
+              "A": 434,
+              "B": 493,
+              "C": 577
+            },
+            "label_success": {
+              "A": 0.4539170506912442,
+              "B": 0.6937119675456389,
+              "C": 0.7694974003466204
+            },
+            "memcalib_score": 0.6390421395278345,
+            "strict_sample_accuracy": 0.21428571428571427,
+            "mixed_parent_strict_accuracy": 0.47513812154696133,
+            "mixed_parent_count": 181,
+            "verdict_counts": {
+              "contradiction": 11,
+              "correct_bounded_use": 342,
+              "correct_control": 444,
+              "correct_suppression": 197,
+              "over_use": 246,
+              "under_use": 264
+            },
+            "mean_task_quality": 2.777142857142857,
+            "safety_failure_rate": 0.13142857142857142
+          },
+          "no_memory": {
+            "answers": 350,
+            "atoms": 1504,
+            "label_counts": {
+              "A": 434,
+              "B": 493,
+              "C": 577
+            },
+            "label_success": {
+              "A": 0.9423963133640553,
+              "B": 0.2718052738336714,
+              "C": 0.4072790294627383
+            },
+            "memcalib_score": 0.5404935388868216,
+            "strict_sample_accuracy": 0.07142857142857142,
+            "mixed_parent_strict_accuracy": 0.1270718232044199,
+            "mixed_parent_count": 181,
+            "verdict_counts": {
+              "contradiction": 12,
+              "correct_bounded_use": 134,
+              "correct_control": 235,
+              "correct_suppression": 409,
+              "over_use": 27,
+              "under_use": 686,
+              "unscorable": 1
+            },
+            "mean_task_quality": 2.36,
+            "safety_failure_rate": 0.11428571428571428
+          },
+          "paired": {
+            "delta_A": -0.48847926267281105,
+            "delta_B": 0.42190669371196754,
+            "delta_C": 0.36221837088388215,
+            "A_contamination_effect": 0.48847926267281105,
+            "paired_atom_counts": {
+              "A": 434,
+              "B": 493,
+              "C": 577
+            }
+          }
+        },
+        "diagnostic": {
+          "full_memory": {
+            "answers": 150,
+            "atoms": 1044,
+            "label_counts": {
+              "A": 295,
+              "B": 332,
+              "C": 417
+            },
+            "label_success": {
+              "A": 0.5864406779661017,
+              "B": 0.6927710843373494,
+              "C": 0.8057553956834532
+            },
+            "memcalib_score": 0.6949890526623014,
+            "strict_sample_accuracy": 0.16666666666666666,
+            "mixed_parent_strict_accuracy": 0.5424528301886793,
+            "mixed_parent_count": 212,
+            "verdict_counts": {
+              "contradiction": 10,
+              "correct_bounded_use": 230,
+              "correct_control": 336,
+              "correct_suppression": 173,
+              "over_use": 130,
+              "under_use": 165
+            },
+            "mean_task_quality": 2.76,
+            "safety_failure_rate": 0.16
+          },
+          "no_memory": {
+            "answers": 150,
+            "atoms": 1044,
+            "label_counts": {
+              "A": 295,
+              "B": 332,
+              "C": 417
+            },
+            "label_success": {
+              "A": 0.9525423728813559,
+              "B": 0.3102409638554217,
+              "C": 0.5323741007194245
+            },
+            "memcalib_score": 0.5983858124854007,
+            "strict_sample_accuracy": 0.07333333333333333,
+            "mixed_parent_strict_accuracy": 0.2358490566037736,
+            "mixed_parent_count": 212,
+            "verdict_counts": {
+              "contradiction": 15,
+              "correct_bounded_use": 103,
+              "correct_control": 222,
+              "correct_suppression": 281,
+              "over_use": 18,
+              "under_use": 405
+            },
+            "mean_task_quality": 2.466666666666667,
+            "safety_failure_rate": 0.11333333333333333
+          },
+          "paired": {
+            "delta_A": -0.36610169491525424,
+            "delta_B": 0.3825301204819277,
+            "delta_C": 0.2733812949640288,
+            "A_contamination_effect": 0.36610169491525424,
+            "paired_atom_counts": {
+              "A": 295,
+              "B": 332,
+              "C": 417
+            }
+          }
+        }
+      },
+      "bootstrap": {
+        "full_memory_label_success": {
+          "A": {
+            "estimate": 0.5075445816186557,
+            "ci_low": 0.4643849206349206,
+            "ci_high": 0.5493155251141553,
+            "replicates": 2000,
+            "clusters": 500
+          },
+          "B": {
+            "estimate": 0.6933333333333334,
+            "ci_low": 0.6589731338294285,
+            "ci_high": 0.7258511892379169,
+            "replicates": 2000,
+            "clusters": 493
+          },
+          "C": {
+            "estimate": 0.7847082494969819,
+            "ci_low": 0.7572009082169602,
+            "ci_high": 0.8116572810185468,
+            "replicates": 2000,
+            "clusters": 492
+          }
+        },
+        "paired_delta": {
+          "A": {
+            "estimate": -0.438957475994513,
+            "ci_low": -0.4802816901408451,
+            "ci_high": -0.39777951439371917,
+            "replicates": 2000,
+            "clusters": 500
+          },
+          "B": {
+            "estimate": 0.40606060606060607,
+            "ci_low": 0.368547418967587,
+            "ci_high": 0.44538142202988984,
+            "replicates": 2000,
+            "clusters": 493
+          },
+          "C": {
+            "estimate": 0.32494969818913483,
+            "ci_low": 0.28413737745936485,
+            "ci_high": 0.3657281498205207,
+            "replicates": 2000,
+            "clusters": 492
+          }
+        },
+        "A_contamination_effect": {
+          "estimate": 0.438957475994513,
+          "ci_low": 0.39777951439371917,
+          "ci_high": 0.4802816901408451,
+          "replicates": 2000,
+          "clusters": 500
+        }
+      }
+    },
+    "kimi": {
+      "full_memory": {
+        "answers": 500,
+        "atoms": 2548,
+        "label_counts": {
+          "A": 729,
+          "B": 825,
+          "C": 994
+        },
+        "label_success": {
+          "A": 0.5733882030178327,
+          "B": 0.6787878787878788,
+          "C": 0.8028169014084507
+        },
+        "memcalib_score": 0.6849976610713874,
+        "strict_sample_accuracy": 0.248,
+        "mixed_parent_strict_accuracy": 0.4860050890585242,
+        "mixed_parent_count": 393,
+        "verdict_counts": {
+          "contradiction": 20,
+          "correct_bounded_use": 560,
+          "correct_control": 798,
+          "correct_suppression": 418,
+          "over_use": 316,
+          "under_use": 434,
+          "unscorable": 2
+        },
+        "mean_task_quality": 2.924,
+        "safety_failure_rate": 0.106
+      },
+      "no_memory": {
+        "answers": 500,
+        "atoms": 2548,
+        "label_counts": {
+          "A": 729,
+          "B": 825,
+          "C": 994
+        },
+        "label_success": {
+          "A": 0.9519890260631001,
+          "B": 0.29333333333333333,
+          "C": 0.4346076458752515
+        },
+        "memcalib_score": 0.559976668423895,
+        "strict_sample_accuracy": 0.052,
+        "mixed_parent_strict_accuracy": 0.1806615776081425,
+        "mixed_parent_count": 393,
+        "verdict_counts": {
+          "contradiction": 29,
+          "correct_bounded_use": 242,
+          "correct_control": 432,
+          "correct_suppression": 694,
+          "over_use": 36,
+          "under_use": 1115
+        },
+        "mean_task_quality": 2.34,
+        "safety_failure_rate": 0.128
+      },
+      "paired": {
+        "delta_A": -0.3786008230452675,
+        "delta_B": 0.38545454545454544,
+        "delta_C": 0.3682092555331992,
+        "A_contamination_effect": 0.3786008230452675,
+        "paired_atom_counts": {
+          "A": 729,
+          "B": 825,
+          "C": 994
+        }
+      },
+      "panels": {
+        "representative": {
+          "full_memory": {
+            "answers": 350,
+            "atoms": 1504,
+            "label_counts": {
+              "A": 434,
+              "B": 493,
+              "C": 577
+            },
+            "label_success": {
+              "A": 0.5506912442396313,
+              "B": 0.6815415821501014,
+              "C": 0.7989601386481803
+            },
+            "memcalib_score": 0.6770643216793043,
+            "strict_sample_accuracy": 0.26285714285714284,
+            "mixed_parent_strict_accuracy": 0.47513812154696133,
+            "mixed_parent_count": 181,
+            "verdict_counts": {
+              "contradiction": 8,
+              "correct_bounded_use": 336,
+              "correct_control": 461,
+              "correct_suppression": 239,
+              "over_use": 196,
+              "under_use": 262,
+              "unscorable": 2
+            },
+            "mean_task_quality": 2.9514285714285715,
+            "safety_failure_rate": 0.10857142857142857
+          },
+          "no_memory": {
+            "answers": 350,
+            "atoms": 1504,
+            "label_counts": {
+              "A": 434,
+              "B": 493,
+              "C": 577
+            },
+            "label_success": {
+              "A": 0.9470046082949308,
+              "B": 0.2657200811359026,
+              "C": 0.3934142114384749
+            },
+            "memcalib_score": 0.5353796336231028,
+            "strict_sample_accuracy": 0.05714285714285714,
+            "mixed_parent_strict_accuracy": 0.12154696132596685,
+            "mixed_parent_count": 181,
+            "verdict_counts": {
+              "contradiction": 13,
+              "correct_bounded_use": 131,
+              "correct_control": 227,
+              "correct_suppression": 411,
+              "over_use": 23,
+              "under_use": 699
+            },
+            "mean_task_quality": 2.32,
+            "safety_failure_rate": 0.12571428571428572
+          },
+          "paired": {
+            "delta_A": -0.39631336405529954,
+            "delta_B": 0.4158215010141988,
+            "delta_C": 0.4055459272097054,
+            "A_contamination_effect": 0.39631336405529954,
+            "paired_atom_counts": {
+              "A": 434,
+              "B": 493,
+              "C": 577
+            }
+          }
+        },
+        "diagnostic": {
+          "full_memory": {
+            "answers": 150,
+            "atoms": 1044,
+            "label_counts": {
+              "A": 295,
+              "B": 332,
+              "C": 417
+            },
+            "label_success": {
+              "A": 0.6067796610169491,
+              "B": 0.6746987951807228,
+              "C": 0.8081534772182254
+            },
+            "memcalib_score": 0.6965439778052991,
+            "strict_sample_accuracy": 0.21333333333333335,
+            "mixed_parent_strict_accuracy": 0.49528301886792453,
+            "mixed_parent_count": 212,
+            "verdict_counts": {
+              "contradiction": 12,
+              "correct_bounded_use": 224,
+              "correct_control": 337,
+              "correct_suppression": 179,
+              "over_use": 120,
+              "under_use": 172
+            },
+            "mean_task_quality": 2.86,
+            "safety_failure_rate": 0.1
+          },
+          "no_memory": {
+            "answers": 150,
+            "atoms": 1044,
+            "label_counts": {
+              "A": 295,
+              "B": 332,
+              "C": 417
+            },
+            "label_success": {
+              "A": 0.9593220338983051,
+              "B": 0.33433734939759036,
+              "C": 0.49160671462829736
+            },
+            "memcalib_score": 0.5950886993080643,
+            "strict_sample_accuracy": 0.04,
+            "mixed_parent_strict_accuracy": 0.23113207547169812,
+            "mixed_parent_count": 212,
+            "verdict_counts": {
+              "contradiction": 16,
+              "correct_bounded_use": 111,
+              "correct_control": 205,
+              "correct_suppression": 283,
+              "over_use": 13,
+              "under_use": 416
+            },
+            "mean_task_quality": 2.3866666666666667,
+            "safety_failure_rate": 0.13333333333333333
+          },
+          "paired": {
+            "delta_A": -0.3525423728813559,
+            "delta_B": 0.34036144578313254,
+            "delta_C": 0.31654676258992803,
+            "A_contamination_effect": 0.3525423728813559,
+            "paired_atom_counts": {
+              "A": 295,
+              "B": 332,
+              "C": 417
+            }
+          }
+        }
+      },
+      "bootstrap": {
+        "full_memory_label_success": {
+          "A": {
+            "estimate": 0.5733882030178327,
+            "ci_low": 0.5349137696269899,
+            "ci_high": 0.6111111111111112,
+            "replicates": 2000,
+            "clusters": 500
+          },
+          "B": {
+            "estimate": 0.6787878787878788,
+            "ci_low": 0.6451184664286944,
+            "ci_high": 0.7126097680439422,
+            "replicates": 2000,
+            "clusters": 493
+          },
+          "C": {
+            "estimate": 0.8028169014084507,
+            "ci_low": 0.7757373902756562,
+            "ci_high": 0.8289205702647657,
+            "replicates": 2000,
+            "clusters": 492
+          }
+        },
+        "paired_delta": {
+          "A": {
+            "estimate": -0.3786008230452675,
+            "ci_low": -0.4208350988700565,
+            "ci_high": -0.336099299292434,
+            "replicates": 2000,
+            "clusters": 500
+          },
+          "B": {
+            "estimate": 0.38545454545454544,
+            "ci_low": 0.3442083922607047,
+            "ci_high": 0.4259515066736609,
+            "replicates": 2000,
+            "clusters": 493
+          },
+          "C": {
+            "estimate": 0.3682092555331992,
+            "ci_low": 0.3292981536761305,
+            "ci_high": 0.40763613365850104,
+            "replicates": 2000,
+            "clusters": 492
+          }
+        },
+        "A_contamination_effect": {
+          "estimate": 0.3786008230452675,
+          "ci_low": 0.336099299292434,
+          "ci_high": 0.4208350988700565,
+          "replicates": 2000,
+          "clusters": 500
+        }
+      }
+    },
+    "qwen-flash": {
+      "full_memory": {
+        "answers": 500,
+        "atoms": 2548,
+        "label_counts": {
+          "A": 729,
+          "B": 825,
+          "C": 994
+        },
+        "label_success": {
+          "A": 0.4663923182441701,
+          "B": 0.7551515151515151,
+          "C": 0.829979879275654
+        },
+        "memcalib_score": 0.6838412375571131,
+        "strict_sample_accuracy": 0.206,
+        "mixed_parent_strict_accuracy": 0.5139949109414759,
+        "mixed_parent_count": 393,
+        "verdict_counts": {
+          "contradiction": 20,
+          "correct_bounded_use": 623,
+          "correct_control": 825,
+          "correct_suppression": 340,
+          "over_use": 406,
+          "under_use": 334
+        },
+        "mean_task_quality": 2.878,
+        "safety_failure_rate": 0.09
+      },
+      "no_memory": {
+        "answers": 500,
+        "atoms": 2548,
+        "label_counts": {
+          "A": 729,
+          "B": 825,
+          "C": 994
+        },
+        "label_success": {
+          "A": 0.953360768175583,
+          "B": 0.2957575757575758,
+          "C": 0.46680080482897385
+        },
+        "memcalib_score": 0.5719730495873775,
+        "strict_sample_accuracy": 0.08,
+        "mixed_parent_strict_accuracy": 0.19592875318066158,
+        "mixed_parent_count": 393,
+        "verdict_counts": {
+          "contradiction": 31,
+          "correct_bounded_use": 244,
+          "correct_control": 464,
+          "correct_suppression": 695,
+          "over_use": 41,
+          "under_use": 1072,
+          "unscorable": 1
+        },
+        "mean_task_quality": 2.482,
+        "safety_failure_rate": 0.112
+      },
+      "paired": {
+        "delta_A": -0.4869684499314129,
+        "delta_B": 0.4593939393939394,
+        "delta_C": 0.3631790744466801,
+        "A_contamination_effect": 0.4869684499314129,
+        "paired_atom_counts": {
+          "A": 729,
+          "B": 825,
+          "C": 994
+        }
+      },
+      "panels": {
+        "representative": {
+          "full_memory": {
+            "answers": 350,
+            "atoms": 1504,
+            "label_counts": {
+              "A": 434,
+              "B": 493,
+              "C": 577
+            },
+            "label_success": {
+              "A": 0.43317972350230416,
+              "B": 0.7606490872210954,
+              "C": 0.8162911611785095
+            },
+            "memcalib_score": 0.6700399906339697,
+            "strict_sample_accuracy": 0.23714285714285716,
+            "mixed_parent_strict_accuracy": 0.49171270718232046,
+            "mixed_parent_count": 181,
+            "verdict_counts": {
+              "contradiction": 10,
+              "correct_bounded_use": 375,
+              "correct_control": 471,
+              "correct_suppression": 188,
+              "over_use": 259,
+              "under_use": 201
+            },
+            "mean_task_quality": 2.8771428571428572,
+            "safety_failure_rate": 0.08571428571428572
+          },
+          "no_memory": {
+            "answers": 350,
+            "atoms": 1504,
+            "label_counts": {
+              "A": 434,
+              "B": 493,
+              "C": 577
+            },
+            "label_success": {
+              "A": 0.9493087557603687,
+              "B": 0.2839756592292089,
+              "C": 0.42114384748700173
+            },
+            "memcalib_score": 0.5514760874921931,
+            "strict_sample_accuracy": 0.08571428571428572,
+            "mixed_parent_strict_accuracy": 0.143646408839779,
+            "mixed_parent_count": 181,
+            "verdict_counts": {
+              "contradiction": 13,
+              "correct_bounded_use": 140,
+              "correct_control": 243,
+              "correct_suppression": 412,
+              "over_use": 26,
+              "under_use": 669,
+              "unscorable": 1
+            },
+            "mean_task_quality": 2.4685714285714284,
+            "safety_failure_rate": 0.11142857142857143
+          },
+          "paired": {
+            "delta_A": -0.5161290322580645,
+            "delta_B": 0.4766734279918864,
+            "delta_C": 0.3951473136915078,
+            "A_contamination_effect": 0.5161290322580645,
+            "paired_atom_counts": {
+              "A": 434,
+              "B": 493,
+              "C": 577
+            }
+          }
+        },
+        "diagnostic": {
+          "full_memory": {
+            "answers": 150,
+            "atoms": 1044,
+            "label_counts": {
+              "A": 295,
+              "B": 332,
+              "C": 417
+            },
+            "label_success": {
+              "A": 0.5152542372881356,
+              "B": 0.7469879518072289,
+              "C": 0.8489208633093526
+            },
+            "memcalib_score": 0.703721017468239,
+            "strict_sample_accuracy": 0.13333333333333333,
+            "mixed_parent_strict_accuracy": 0.5330188679245284,
+            "mixed_parent_count": 212,
+            "verdict_counts": {
+              "contradiction": 10,
+              "correct_bounded_use": 248,
+              "correct_control": 354,
+              "correct_suppression": 152,
+              "over_use": 147,
+              "under_use": 133
+            },
+            "mean_task_quality": 2.88,
+            "safety_failure_rate": 0.1
+          },
+          "no_memory": {
+            "answers": 150,
+            "atoms": 1044,
+            "label_counts": {
+              "A": 295,
+              "B": 332,
+              "C": 417
+            },
+            "label_success": {
+              "A": 0.9593220338983051,
+              "B": 0.3132530120481928,
+              "C": 0.5299760191846523
+            },
+            "memcalib_score": 0.6008503550437166,
+            "strict_sample_accuracy": 0.06666666666666667,
+            "mixed_parent_strict_accuracy": 0.24056603773584906,
+            "mixed_parent_count": 212,
+            "verdict_counts": {
+              "contradiction": 18,
+              "correct_bounded_use": 104,
+              "correct_control": 221,
+              "correct_suppression": 283,
+              "over_use": 15,
+              "under_use": 403
+            },
+            "mean_task_quality": 2.513333333333333,
+            "safety_failure_rate": 0.11333333333333333
+          },
+          "paired": {
+            "delta_A": -0.4440677966101695,
+            "delta_B": 0.43373493975903615,
+            "delta_C": 0.31894484412470026,
+            "A_contamination_effect": 0.4440677966101695,
+            "paired_atom_counts": {
+              "A": 295,
+              "B": 332,
+              "C": 417
+            }
+          }
+        }
+      },
+      "bootstrap": {
+        "full_memory_label_success": {
+          "A": {
+            "estimate": 0.4663923182441701,
+            "ci_low": 0.42318167168027504,
+            "ci_high": 0.5047377540924877,
+            "replicates": 2000,
+            "clusters": 500
+          },
+          "B": {
+            "estimate": 0.7551515151515151,
+            "ci_low": 0.7269389355908122,
+            "ci_high": 0.7843373493975904,
+            "replicates": 2000,
+            "clusters": 493
+          },
+          "C": {
+            "estimate": 0.829979879275654,
+            "ci_low": 0.8042158195405877,
+            "ci_high": 0.8544562885081078,
+            "replicates": 2000,
+            "clusters": 492
+          }
+        },
+        "paired_delta": {
+          "A": {
+            "estimate": -0.4869684499314129,
+            "ci_low": -0.5272054416358335,
+            "ci_high": -0.4453740719588807,
+            "replicates": 2000,
+            "clusters": 500
+          },
+          "B": {
+            "estimate": 0.4593939393939394,
+            "ci_low": 0.4183062018363488,
+            "ci_high": 0.5,
+            "replicates": 2000,
+            "clusters": 493
+          },
+          "C": {
+            "estimate": 0.3631790744466801,
+            "ci_low": 0.32384479542164224,
+            "ci_high": 0.4009776745386502,
+            "replicates": 2000,
+            "clusters": 492
+          }
+        },
+        "A_contamination_effect": {
+          "estimate": 0.4869684499314129,
+          "ci_low": 0.4453740719588807,
+          "ci_high": 0.5272054416358335,
+          "replicates": 2000,
+          "clusters": 500
+        }
+      }
+    },
+    "qwen-max": {
+      "full_memory": {
+        "answers": 500,
+        "atoms": 2548,
+        "label_counts": {
+          "A": 729,
+          "B": 825,
+          "C": 994
+        },
+        "label_success": {
+          "A": 0.5377229080932785,
+          "B": 0.7006060606060606,
+          "C": 0.8279678068410463
+        },
+        "memcalib_score": 0.6887655918467951,
+        "strict_sample_accuracy": 0.236,
+        "mixed_parent_strict_accuracy": 0.5063613231552163,
+        "mixed_parent_count": 393,
+        "verdict_counts": {
+          "contradiction": 15,
+          "correct_bounded_use": 578,
+          "correct_control": 823,
+          "correct_suppression": 392,
+          "over_use": 356,
+          "under_use": 384
+        },
+        "mean_task_quality": 2.884,
+        "safety_failure_rate": 0.116
+      },
+      "no_memory": {
+        "answers": 500,
+        "atoms": 2548,
+        "label_counts": {
+          "A": 729,
+          "B": 825,
+          "C": 994
+        },
+        "label_success": {
+          "A": 0.9698216735253772,
+          "B": 0.3054545454545455,
+          "C": 0.5020120724346077
+        },
+        "memcalib_score": 0.5924294304715101,
+        "strict_sample_accuracy": 0.094,
+        "mixed_parent_strict_accuracy": 0.20865139949109415,
+        "mixed_parent_count": 393,
+        "verdict_counts": {
+          "contradiction": 26,
+          "correct_bounded_use": 252,
+          "correct_control": 499,
+          "correct_suppression": 707,
+          "over_use": 28,
+          "under_use": 1033,
+          "unscorable": 3
+        },
+        "mean_task_quality": 2.604,
+        "safety_failure_rate": 0.094
+      },
+      "paired": {
+        "delta_A": -0.43209876543209874,
+        "delta_B": 0.39515151515151514,
+        "delta_C": 0.32595573440643866,
+        "A_contamination_effect": 0.43209876543209874,
+        "paired_atom_counts": {
+          "A": 729,
+          "B": 825,
+          "C": 994
+        }
+      },
+      "panels": {
+        "representative": {
+          "full_memory": {
+            "answers": 350,
+            "atoms": 1504,
+            "label_counts": {
+              "A": 434,
+              "B": 493,
+              "C": 577
+            },
+            "label_success": {
+              "A": 0.5161290322580645,
+              "B": 0.6997971602434077,
+              "C": 0.7937608318890814
+            },
+            "memcalib_score": 0.6698956747968512,
+            "strict_sample_accuracy": 0.25142857142857145,
+            "mixed_parent_strict_accuracy": 0.46408839779005523,
+            "mixed_parent_count": 181,
+            "verdict_counts": {
+              "contradiction": 11,
+              "correct_bounded_use": 345,
+              "correct_control": 458,
+              "correct_suppression": 224,
+              "over_use": 222,
+              "under_use": 244
+            },
+            "mean_task_quality": 2.8685714285714288,
+            "safety_failure_rate": 0.12
+          },
+          "no_memory": {
+            "answers": 350,
+            "atoms": 1504,
+            "label_counts": {
+              "A": 434,
+              "B": 493,
+              "C": 577
+            },
+            "label_success": {
+              "A": 0.9631336405529954,
+              "B": 0.2799188640973631,
+              "C": 0.44540727902946275
+            },
+            "memcalib_score": 0.5628199278932738,
+            "strict_sample_accuracy": 0.09142857142857143,
+            "mixed_parent_strict_accuracy": 0.143646408839779,
+            "mixed_parent_count": 181,
+            "verdict_counts": {
+              "contradiction": 12,
+              "correct_bounded_use": 138,
+              "correct_control": 257,
+              "correct_suppression": 418,
+              "over_use": 19,
+              "under_use": 659,
+              "unscorable": 1
+            },
+            "mean_task_quality": 2.5628571428571427,
+            "safety_failure_rate": 0.09142857142857143
+          },
+          "paired": {
+            "delta_A": -0.4470046082949309,
+            "delta_B": 0.4198782961460446,
+            "delta_C": 0.3483535528596187,
+            "A_contamination_effect": 0.4470046082949309,
+            "paired_atom_counts": {
+              "A": 434,
+              "B": 493,
+              "C": 577
+            }
+          }
+        },
+        "diagnostic": {
+          "full_memory": {
+            "answers": 150,
+            "atoms": 1044,
+            "label_counts": {
+              "A": 295,
+              "B": 332,
+              "C": 417
+            },
+            "label_success": {
+              "A": 0.5694915254237288,
+              "B": 0.7018072289156626,
+              "C": 0.8752997601918465
+            },
+            "memcalib_score": 0.7155328381770794,
+            "strict_sample_accuracy": 0.2,
+            "mixed_parent_strict_accuracy": 0.5424528301886793,
+            "mixed_parent_count": 212,
+            "verdict_counts": {
+              "contradiction": 4,
+              "correct_bounded_use": 233,
+              "correct_control": 365,
+              "correct_suppression": 168,
+              "over_use": 134,
+              "under_use": 140
+            },
+            "mean_task_quality": 2.92,
+            "safety_failure_rate": 0.10666666666666667
+          },
+          "no_memory": {
+            "answers": 150,
+            "atoms": 1044,
+            "label_counts": {
+              "A": 295,
+              "B": 332,
+              "C": 417
+            },
+            "label_success": {
+              "A": 0.9796610169491525,
+              "B": 0.3433734939759036,
+              "C": 0.580335731414868
+            },
+            "memcalib_score": 0.6344567474466414,
+            "strict_sample_accuracy": 0.1,
+            "mixed_parent_strict_accuracy": 0.2641509433962264,
+            "mixed_parent_count": 212,
+            "verdict_counts": {
+              "contradiction": 14,
+              "correct_bounded_use": 114,
+              "correct_control": 242,
+              "correct_suppression": 289,
+              "over_use": 9,
+              "under_use": 374,
+              "unscorable": 2
+            },
+            "mean_task_quality": 2.7,
+            "safety_failure_rate": 0.1
+          },
+          "paired": {
+            "delta_A": -0.4101694915254237,
+            "delta_B": 0.35843373493975905,
+            "delta_C": 0.2949640287769784,
+            "A_contamination_effect": 0.4101694915254237,
+            "paired_atom_counts": {
+              "A": 295,
+              "B": 332,
+              "C": 417
+            }
+          }
+        }
+      },
+      "bootstrap": {
+        "full_memory_label_success": {
+          "A": {
+            "estimate": 0.5377229080932785,
+            "ci_low": 0.4945351448461711,
+            "ci_high": 0.580058086539177,
+            "replicates": 2000,
+            "clusters": 500
+          },
+          "B": {
+            "estimate": 0.7006060606060606,
+            "ci_low": 0.6694041873159521,
+            "ci_high": 0.732928901255032,
+            "replicates": 2000,
+            "clusters": 493
+          },
+          "C": {
+            "estimate": 0.8279678068410463,
+            "ci_low": 0.8033431661750245,
+            "ci_high": 0.8517812531103812,
+            "replicates": 2000,
+            "clusters": 492
+          }
+        },
+        "paired_delta": {
+          "A": {
+            "estimate": -0.43209876543209874,
+            "ci_low": -0.47541610615837115,
+            "ci_high": -0.38966480446927376,
+            "replicates": 2000,
+            "clusters": 500
+          },
+          "B": {
+            "estimate": 0.39515151515151514,
+            "ci_low": 0.35334556047335847,
+            "ci_high": 0.43581213471103436,
+            "replicates": 2000,
+            "clusters": 493
+          },
+          "C": {
+            "estimate": 0.32595573440643866,
+            "ci_low": 0.2903849227916493,
+            "ci_high": 0.3656501358882147,
+            "replicates": 2000,
+            "clusters": 492
+          }
+        },
+        "A_contamination_effect": {
+          "estimate": 0.43209876543209874,
+          "ci_low": 0.38966480446927376,
+          "ci_high": 0.47541610615837115,
+          "replicates": 2000,
+          "clusters": 500
+        }
+      }
+    }
+  },
+  "judge_agreement": {
+    "overall": {
+      "n": 5062,
+      "exact_agreement": 0.8761359146582378,
+      "kappa": 0.8396213782376266
+    },
+    "by_label": {
+      "A": {
+        "n": 1436,
+        "exact_agreement": 0.899025069637883,
+        "kappa": 0.71249861924224
+      },
+      "B": {
+        "n": 1669,
+        "exact_agreement": 0.8621929298981426,
+        "kappa": 0.7308594870155319
+      },
+      "C": {
+        "n": 1957,
+        "exact_agreement": 0.8712314767501278,
+        "kappa": 0.722286449889374
+      }
+    },
+    "by_secondary_judge": {
+      "deepseek-v4-pro": {
+        "n": 3018,
+        "exact_agreement": 0.8903247183565275,
+        "kappa": 0.8579916329530695
+      },
+      "kimi-k2.6": {
+        "n": 2044,
+        "exact_agreement": 0.8551859099804305,
+        "kappa": 0.8124290436368845
+      }
+    }
+  },
+  "judge_output_quality": {
+    "primary": {
+      "rows": 5000,
+      "rows_with_warnings": 1012,
+      "warning_counts": {
+        "invalid_confidence": 1465,
+        "ungrounded_evidence_quote": 919
+      },
+      "rows_with_schema_repairs": 41,
+      "schema_repairs": 56
+    },
+    "secondary": {
+      "rows": 1000,
+      "rows_with_warnings": 189,
+      "warning_counts": {
+        "ungrounded_evidence_quote": 300
+      },
+      "rows_with_schema_repairs": 1,
+      "schema_repairs": 1
+    }
+  },
+  "validity_assessment": {
+    "status": "provisionally_supported_with_caveat",
+    "checks": {
+      "five_models_complete": true,
+      "positive_C_delta_in_at_least_four_models": true,
+      "judge_exact_agreement_at_least_0.75": true,
+      "judge_kappa_at_least_0.60": true
+    },
+    "failed_checks": [],
+    "caveats": [
+      "limited_single_score_discrimination"
+    ],
+    "model_score_spread": 0.026903537030471436,
+    "label_profile_spreads": {
+      "A": 0.10699588477366256,
+      "B": 0.0763636363636363,
+      "C": 0.04527162977867205
+    },
+    "max_label_profile_spread": 0.10699588477366256,
+    "models_with_positive_C_delta": 5,
+    "human_validation": "pending"
+  }
+}
