@@ -1,0 +1,80 @@
+{
+  "schema_version": "memcalib-eval-selection-v1",
+  "seed": 20260712,
+  "counts": {
+    "total": 500,
+    "representative": 350,
+    "diagnostic": 150,
+    "unique_ids": 500
+  },
+  "distributions": {
+    "source": {
+      "OpenMed/MedDialog": 250,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 250
+    },
+    "topic": {
+      "acute_symptoms": 31,
+      "cardio": 10,
+      "chronic_disease": 52,
+      "digestive": 36,
+      "general_other": 21,
+      "medication_treatment": 82,
+      "mental_sleep": 18,
+      "neuro": 15,
+      "pediatrics": 74,
+      "pregnancy_reproductive": 64,
+      "respiratory_ent": 56,
+      "skin_allergy": 41
+    },
+    "complexity": {
+      "complex": 133,
+      "medium": 254,
+      "simple": 113
+    }
+  },
+  "artifacts": {
+    "hidden-evaluation.jsonl": "7a91f0c97db6476b1e97d9fc5a6d3e219d24ac6a6c7666419e1618f0f03b4522",
+    "model-facing.jsonl": "6e244fad76abc25a7841881ad7a8eb91ebdea00778d57e6e9003cff0a2f8395a",
+    "held-out-ids.txt": "d07b3d888678a49be9adf5f2ab5d125c6c67adcffc1791c72e3254c2995b6b80"
+  },
+  "source": {
+    "release": "/Users/zhaofanyu/Code/create_medpreferncedata_from_public_data/release/memcalib-v0.1",
+    "sha256": "1cfd0334255266e6b8d4c234c615ade42b40c91bb86cb7c061a285261c363cb4",
+    "records": 15528
+  },
+  "complexity_metadata": {
+    "path": "/Users/zhaofanyu/Code/create_medpreferncedata_from_public_data/evaluation/metadata/memcalib-v0.1-seed-complexity.jsonl",
+    "sha256": "52b39a87db9d06d35651d6110b6c013a25af8abda0959ffd85f6516d2a765f3b"
+  },
+  "diagnostic_coverage": {
+    "size": 150,
+    "sources": {
+      "OpenMed/MedDialog": 75,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 75
+    },
+    "topics": {
+      "acute_symptoms": 7,
+      "cardio": 5,
+      "chronic_disease": 16,
+      "digestive": 9,
+      "general_other": 7,
+      "medication_treatment": 25,
+      "mental_sleep": 9,
+      "neuro": 5,
+      "pediatrics": 28,
+      "pregnancy_reproductive": 15,
+      "respiratory_ent": 14,
+      "skin_allergy": 10
+    },
+    "mixed_parent_samples": 149,
+    "rare_hard_a_samples": {
+      "evidence_conflict": 23,
+      "profile_style_near_neighbor": 17,
+      "scope_overreach": 42
+    },
+    "rare_hard_a_union_samples": 65,
+    "safety_sensitive_samples": 64,
+    "high_atom_samples": 147,
+    "high_atom_threshold": 6
+  }
+}

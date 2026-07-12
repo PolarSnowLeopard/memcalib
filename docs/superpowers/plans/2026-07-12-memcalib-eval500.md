@@ -42,8 +42,8 @@
 - Create: `evaluation/common.py`
 - Create: `evaluation/configs/memcalib-v0.1-500.json`
 - Create: `evaluation/scripts/select_eval_subset.py`
-- Create: `tests/evaluation/__init__.py`
-- Create: `tests/evaluation/test_selection.py`
+- Create: `tests/evalbench/__init__.py`
+- Create: `tests/evalbench/test_selection.py`
 
 **Interfaces:**
 - `load_release_records(release_dir: Path) -> list[dict]` verifies and reconstructs shards.
@@ -52,7 +52,7 @@
 - `build_selection_artifacts(...)` writes hidden/model-facing JSONL, held-out IDs, and a manifest.
 
 - [ ] Write failing unit tests with a synthetic candidate pool for exact panel size, source quotas, deterministic IDs, no overlap, hidden/model-facing boundary, and fail-closed diagnostic quotas.
-- [ ] Run `PYTHONPATH=. $PY -m unittest tests.evaluation.test_selection -v` and confirm failures are caused by missing implementation.
+- [ ] Run `PYTHONPATH=. $PY -m unittest tests.evalbench.test_selection -v` and confirm failures are caused by missing implementation.
 - [ ] Implement release reconstruction, stable hash ordering, largest-remainder quotas, representative constrained selection, diagnostic marginal-gain selection, SHA-256 helpers, and manifests.
 - [ ] Run focused tests, then generate the real 500-sample artifacts under `evaluation/releases/memcalib-v0.1-500/`.
 - [ ] Verify 500 unique IDs, 350/150 panels, 250/250 total source balance, all hard diagnostic quotas, and absence of hidden fields from model-facing JSONL.
@@ -64,7 +64,7 @@
 - Create: `evaluation/prompts/answer-system.txt`
 - Create: `evaluation/scripts/prepare_answer_requests.py`
 - Create: `evaluation/scripts/validate_api_results.py`
-- Create: `tests/evaluation/test_answer_requests.py`
+- Create: `tests/evalbench/test_answer_requests.py`
 
 **Interfaces:**
 - `build_answer_messages(sample: dict, condition: str, system_prompt: str) -> list[dict[str, str]]`.
@@ -100,7 +100,7 @@
 - Create: `evaluation/scripts/prepare_judge_requests.py`
 - Create: `evaluation/scripts/postprocess_judgments.py`
 - Create: `evaluation/scripts/build_human_review.py`
-- Create: `tests/evaluation/test_judging.py`
+- Create: `tests/evalbench/test_judging.py`
 
 **Interfaces:**
 - `build_judge_request(sample: dict, answer: dict) -> dict` includes rubrics but excludes source answers and audit data.
@@ -119,7 +119,7 @@
 
 **Files:**
 - Create: `evaluation/scripts/analyze_evaluation.py`
-- Create: `tests/evaluation/test_analysis.py`
+- Create: `tests/evalbench/test_analysis.py`
 - Create: `evaluation/releases/memcalib-v0.1-500/metrics.json`
 - Create: `evaluation/releases/memcalib-v0.1-500/report.html`
 - Modify: `README.md`

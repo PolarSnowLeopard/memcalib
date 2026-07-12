@@ -72,3 +72,6 @@ pipeline/data/crawl_generation_result.jsonl
 pipeline/data/crawl_verify_input.jsonl
 pipeline/data/crawl_verify_result.jsonl
 pipeline/data/crawl_verify_retry_input.jsonl
+
+# Local evaluation API requests, responses, checkpoints, and logs
+evaluation/runs/

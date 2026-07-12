@@ -16,6 +16,8 @@ The experiment uses 500 permanently held-out samples from MemCalib v0.1. These s
 
 The selector must reconstruct and verify the release before sampling. It must fail if the source hash, record count, unique IDs, or schema invariants do not match the release manifest.
 
+The released benchmark records do not carry the source-selection complexity field used in the full statistical report. Evaluation therefore includes a locked metadata table containing only `sample_id` and `seed_complexity`, reconstructed from the admitted source records. Its SHA-256 is part of the evaluation configuration and selection manifest. The selector must verify complete one-to-one coverage before using it; no other construction-only field is imported.
+
 ## 3. Two-Panel Stratified Selection
 
 ### 3.1 Representative panel
@@ -188,7 +190,7 @@ evaluation/
   scripts/       selection, request preparation, validation, judging, and analysis
   runs/          ignored local API inputs, outputs, logs, and checkpoints
   releases/      compact reviewable manifests, metrics, and reports
-tests/evaluation/
+tests/evalbench/
 ```
 
 The generic Bailian HTTP runner may be reused after adding tested support for top-level provider parameters such as `enable_thinking`. Evaluation logic must not depend on construction-only paths or expose hidden fields to answer-model prompts.
