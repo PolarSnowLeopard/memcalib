@@ -46,6 +46,11 @@
   },
   "files": {
     "artifacts": {
+      "README.md": {
+        "bytes": 1535,
+        "path": "README.md",
+        "sha256": "f387537458876f886e75f56023b469d9ac5e4ac531f77e6d06f255ee00979b35"
+      },
       "provenance/generation-input.manifest.json": {
         "bytes": 3055,
         "path": "provenance/generation-input.manifest.json",
@@ -111,7 +116,7 @@
   "packaging": {
     "gzip_compresslevel": 9,
     "gzip_mtime": 0,
-    "packaging_script_sha256": "c4a09c0657d8f7591c8925f38d8ab31b2c58bd5d91220cfb2eb3c22751eda613",
+    "packaging_script_sha256": "3a236a991fbd0d2f478ea7f5eb78be13dceabe8a842ca042f586f4815197301e",
     "sample_size": 100,
     "shard_count": 2
   },

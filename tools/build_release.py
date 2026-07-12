@@ -251,9 +251,13 @@ def build_release(
     counts = count_release_records(source)
     review_rows = select_review_sample(source, min(sample_size, counts["samples"]))
 
-    if release_dir.exists():
-        shutil.rmtree(release_dir)
-    release_dir.mkdir(parents=True)
+    release_dir.mkdir(parents=True, exist_ok=True)
+    for generated_dir in (release_dir / "data", release_dir / "samples"):
+        if generated_dir.exists():
+            shutil.rmtree(generated_dir)
+    manifest_path = release_dir / "manifest.json"
+    if manifest_path.exists():
+        manifest_path.unlink()
     data_dir = release_dir / "data"
     shard_entries = write_shards(source, data_dir, shard_count, release_version=release_version)
     for entry in shard_entries:
@@ -268,7 +272,8 @@ def build_release(
             raise FileNotFoundError(input_path)
         target = release_dir / relative_path
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(input_path, target)
+        if input_path.resolve() != target.resolve():
+            shutil.copyfile(input_path, target)
         artifact_entries[relative_path] = file_entry(target, release_dir)
 
     manifest = {
@@ -310,8 +315,8 @@ def default_pipeline_data_dir() -> Path:
     return REPO_ROOT / "pipeline" / "data"
 
 
-def default_artifacts(data_dir: Path) -> dict[str, Path]:
-    return {
+def default_artifacts(data_dir: Path, release_dir: Path) -> dict[str, Path]:
+    pipeline_artifacts = {
         "review/memcalib-v0.1-audit-100.html": data_dir / "crk2_canonical_memory_benchmark_en_15528.audit_100.html",
         "reports/memcalib-v0.1-statistics.html": data_dir / "crk2_formal_benchmark_analysis_report.html",
         "statistics/benchmark-summary.json": data_dir / "crk2_canonical_memory_benchmark_en_15528.summary.json",
@@ -320,6 +325,11 @@ def default_artifacts(data_dir: Path) -> dict[str, Path]:
         "provenance/generation-input.manifest.json": data_dir / "crk2_canonical_generation_input_en_15577.manifest.json",
         "provenance/source-admission.manifest.json": data_dir / "crk2_source_semantic_admission_15577.manifest.json",
         "provenance/source-candidate-pool.manifest.json": data_dir / "crk2_source_candidate_pool_30000.manifest.json",
+    }
+    targets = {"README.md": release_dir / "README.md", **pipeline_artifacts}
+    return {
+        relative_path: source if source.exists() else release_dir / relative_path
+        for relative_path, source in targets.items()
     }
 
 
@@ -335,11 +345,17 @@ def main() -> None:
     parser.add_argument("--release-dir", type=Path, required=True)
     parser.add_argument("--shards", type=int, default=2)
     parser.add_argument("--sample-size", type=int, default=100)
-    parser.add_argument("--run-lock", type=Path, default=data_dir / "crk2_canonical_generation_run_en_15577.lock.json")
+    parser.add_argument("--run-lock", type=Path)
     args = parser.parse_args()
 
-    artifacts = default_artifacts(data_dir)
-    expected_sha256 = locked_benchmark_sha256(args.run_lock)
+    artifacts = default_artifacts(data_dir, args.release_dir)
+    pipeline_run_lock = data_dir / "crk2_canonical_generation_run_en_15577.lock.json"
+    run_lock = args.run_lock or (
+        pipeline_run_lock
+        if pipeline_run_lock.exists()
+        else args.release_dir / "provenance" / "generation-run.lock.json"
+    )
+    expected_sha256 = locked_benchmark_sha256(run_lock)
     manifest = build_release(
         args.source,
         args.release_dir,

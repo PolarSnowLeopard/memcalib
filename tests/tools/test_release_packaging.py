@@ -123,6 +123,24 @@ class ReleasePackagingTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "sha256"):
             verifier.verify_release(release_dir, expected=None)
 
+    def test_rebuild_preserves_in_place_release_artifact(self) -> None:
+        builder = load_script(BUILD_SCRIPT, "release_builder_in_place")
+        release_dir = self.work / "release"
+        release_dir.mkdir()
+        readme = release_dir / "README.md"
+        readme.write_text("# Review release\n", encoding="utf-8")
+
+        manifest = builder.build_release(
+            self.source,
+            release_dir,
+            shard_count=2,
+            sample_size=2,
+            artifacts={"README.md": readme},
+        )
+
+        self.assertEqual("# Review release\n", readme.read_text(encoding="utf-8"))
+        self.assertEqual("README.md", manifest["files"]["artifacts"]["README.md"]["path"])
+
 
 if __name__ == "__main__":
     unittest.main()
