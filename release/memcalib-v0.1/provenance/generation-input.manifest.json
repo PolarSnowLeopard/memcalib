@@ -1,0 +1,84 @@
+{
+  "schema_version": "crk2-generation-requests-v1",
+  "parent": {
+    "path": "med_rpeval_pipeline/data/crk2_source_semantic_admission_15577.manifest.json",
+    "sha256": "5da7027da5a1ed7a4c19f0f555552b08ce56b8ec224928da93299c63eccb496f",
+    "schema_version": "crk2-source-semantic-admission-v1"
+  },
+  "input": {
+    "path": "med_rpeval_pipeline/data/crk2_source_semantic_admitted_15577.jsonl",
+    "sha256": "2ece3e5b24cbfdf2b66180d9826cb5d0333e237676a2952caa76feba0f2a52c6",
+    "records": 15577
+  },
+  "implementation": {
+    "prepare": {
+      "path": "/Users/zhaofanyu/Code/create_medpreferncedata_from_public_data/med_rpeval_pipeline/10_prepare_crk2_generation.py",
+      "sha256": "a448861bc434eac49ced7048bd1ab978a84505f91ba5eaa2390d4e8d25663686"
+    },
+    "runner": {
+      "path": "/Users/zhaofanyu/Code/create_medpreferncedata_from_public_data/med_rpeval_pipeline/06_run_bailian_api.py",
+      "sha256": "a627fa7bdd63628b82cc11a2011a98965253c7a0324d68047adb9aca75237d36"
+    },
+    "postprocess": {
+      "path": "/Users/zhaofanyu/Code/create_medpreferncedata_from_public_data/med_rpeval_pipeline/11_post_crk2_generation.py",
+      "sha256": "89d84598d7d5f8b4f13e20ade6414f6505129b4cc981635de9bca501353f7e51"
+    },
+    "prompt": {
+      "path": "/Users/zhaofanyu/Code/create_medpreferncedata_from_public_data/med_rpeval_pipeline/prompts/generate_crk2_memory_benchmark_record.txt",
+      "sha256": "127819f164896fcfdd70f7eff1d83e81445fb42c1a7cc83ea967e53763928564"
+    },
+    "config": {
+      "path": "/Users/zhaofanyu/Code/create_medpreferncedata_from_public_data/med_rpeval_pipeline/config.json",
+      "sha256": "951bbf79f177faa538921ad1a26293866fd969a0cb01c22c450727f800e2216b"
+    }
+  },
+  "parameters": {
+    "limit": 15577,
+    "seed": 42,
+    "target_memory_count": "3-6",
+    "output_language": "en",
+    "primus_string_prompt": false,
+    "excluded": 0
+  },
+  "api": {
+    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+    "model": "qwen3.7-max",
+    "temperature": 0.2,
+    "max_tokens": 8192,
+    "timeout": 300
+  },
+  "distributions": {
+    "source_dataset": {
+      "OpenMed/MedDialog": 7789,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 7788
+    },
+    "topic": {
+      "acute_symptoms": 1060,
+      "cardio": 222,
+      "chronic_disease": 1612,
+      "digestive": 1206,
+      "general_other": 621,
+      "medication_treatment": 2544,
+      "mental_sleep": 372,
+      "neuro": 452,
+      "pediatrics": 2054,
+      "pregnancy_reproductive": 2197,
+      "respiratory_ent": 1844,
+      "skin_allergy": 1393
+    },
+    "seed_complexity": {
+      "complex": 3821,
+      "medium": 7992,
+      "simple": 3764
+    },
+    "semantic_qc_state": {
+      "strict_pass": 15577
+    }
+  },
+  "output": {
+    "path": "med_rpeval_pipeline/data/crk2_canonical_generation_input_en_15577.jsonl",
+    "sha256": "cbe7cbaa84096e4e05722363b924558bf651002f63fbf1addc9caa83057e12b0",
+    "requests": 15577,
+    "ordered_request_id_sha256": "87bc1a6fd903b01de5b912d0abbcbde93ad05092d03477e1c322a0e0157c556e"
+  }
+}

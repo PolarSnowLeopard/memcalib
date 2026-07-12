@@ -1,0 +1,129 @@
+{
+  "benchmark": "MemCalib",
+  "counts": {
+    "atomic_memories": 78734,
+    "hard_a_families": {
+      "evidence_conflict": 322,
+      "fact_judgment_pollution": 9733,
+      "profile_style_near_neighbor": 495,
+      "scope_overreach": 1095,
+      "untriggered_preference": 6708
+    },
+    "labels": {
+      "A": 22722,
+      "B": 25783,
+      "C": 30229
+    },
+    "memory_types": {
+      "case_fact": 40313,
+      "constraint": 2841,
+      "preference": 13408,
+      "profile_fact": 18784,
+      "safety_sensitive": 3388
+    },
+    "mixed_parents": 7963,
+    "parent_memories": 56044,
+    "samples": 15528,
+    "sources": {
+      "OpenMed/MedDialog": 7763,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 7765
+    },
+    "topics": {
+      "acute_symptoms": 1059,
+      "cardio": 219,
+      "chronic_disease": 1604,
+      "digestive": 1203,
+      "general_other": 621,
+      "medication_treatment": 2535,
+      "mental_sleep": 372,
+      "neuro": 451,
+      "pediatrics": 2048,
+      "pregnancy_reproductive": 2189,
+      "respiratory_ent": 1841,
+      "skin_allergy": 1386
+    },
+    "unique_sample_ids": 15528
+  },
+  "files": {
+    "artifacts": {
+      "provenance/generation-input.manifest.json": {
+        "bytes": 3055,
+        "path": "provenance/generation-input.manifest.json",
+        "sha256": "79e74e30e37a8f42aad9ed75112c6c7709f630a559b6c3c17ea82cf9b279f365"
+      },
+      "provenance/generation-run.lock.json": {
+        "bytes": 4017,
+        "path": "provenance/generation-run.lock.json",
+        "sha256": "549704ce11d121ad5dac33b179a2b619b1a36fce024ca1dae1563a46e14fb09d"
+      },
+      "provenance/source-admission.manifest.json": {
+        "bytes": 1848,
+        "path": "provenance/source-admission.manifest.json",
+        "sha256": "5da7027da5a1ed7a4c19f0f555552b08ce56b8ec224928da93299c63eccb496f"
+      },
+      "provenance/source-candidate-pool.manifest.json": {
+        "bytes": 3674,
+        "path": "provenance/source-candidate-pool.manifest.json",
+        "sha256": "d02c005e6d5a1f10824232ef8d81c80316c5968a4fb6dab1e14652374e2300f6"
+      },
+      "reports/memcalib-v0.1-statistics.html": {
+        "bytes": 1141315,
+        "path": "reports/memcalib-v0.1-statistics.html",
+        "sha256": "65c43289726bd296d3b1b66030c94499a8c57811f6ba7a0861f5fd321d094380"
+      },
+      "review/memcalib-v0.1-audit-100.html": {
+        "bytes": 1810582,
+        "path": "review/memcalib-v0.1-audit-100.html",
+        "sha256": "8743b86f05b41c42bcec7debfc29e9e948a8a51a931158e5870a8fd11b10f2f7"
+      },
+      "statistics/analysis-snapshot.json": {
+        "bytes": 43581,
+        "path": "statistics/analysis-snapshot.json",
+        "sha256": "f4cadf32a5d07a6d1818849d1d7b1ac2478331e57170831e20a791e5ce3f0d8d"
+      },
+      "statistics/benchmark-summary.json": {
+        "bytes": 399704,
+        "path": "statistics/benchmark-summary.json",
+        "sha256": "26a50dc847ee2f696dc0996dcaf589a2a0124097dd7f84a0fe5bc6d44ed1e503"
+      }
+    },
+    "data_shards": [
+      {
+        "bytes": 25743675,
+        "path": "data/memcalib-v0.1-00000-of-00002.jsonl.gz",
+        "rows": 7764,
+        "sha256": "74800b4f27fa7a856d77a8d1a4b31dbc5d44795b1d85283357f76a9c2c5ab2ae"
+      },
+      {
+        "bytes": 26212277,
+        "path": "data/memcalib-v0.1-00001-of-00002.jsonl.gz",
+        "rows": 7764,
+        "sha256": "9ad6e02eea94e4a7135af78bf7e65986dfe8ff8ff8a3706b026adc7ba5ffa31e"
+      }
+    ],
+    "review_sample": {
+      "bytes": 1856762,
+      "path": "samples/memcalib-v0.1-sample-100.jsonl",
+      "rows": 100,
+      "sha256": "c73da3db7e7f4be135e369b957b8bfdb5298034e17d4aa984ca461d6048a3eb3"
+    }
+  },
+  "packaging": {
+    "gzip_compresslevel": 9,
+    "gzip_mtime": 0,
+    "packaging_script_sha256": "c4a09c0657d8f7591c8925f38d8ab31b2c58bd5d91220cfb2eb3c22751eda613",
+    "sample_size": 100,
+    "shard_count": 2
+  },
+  "release_status": "private_coauthor_review",
+  "release_version": "v0.1",
+  "review_state": {
+    "chatdoctor_redistribution_rights": "unresolved",
+    "pii_and_sensitive_content_review": "required_before_public_release",
+    "public_redistribution": "not_cleared",
+    "response_level_human_validation": "pending"
+  },
+  "schema_version": "memcalib-release-manifest-v1",
+  "source_file": "crk2_canonical_memory_benchmark_en_15528.jsonl",
+  "source_sha256": "1cfd0334255266e6b8d4c234c615ade42b40c91bb86cb7c061a285261c363cb4"
+}
