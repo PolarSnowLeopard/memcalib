@@ -87,7 +87,7 @@
 - Consumes the ten answer request files and environment-only Bailian key.
 - Produces validated answer JSONL files with 5,000 unique request IDs total.
 
-- [ ] Run four requests per answer model as smoke tests using the exact model IDs and parameters in the design.
+- [ ] Run four requests per answer model as smoke tests using the exact model IDs and parameters in the design, recording any access-driven model amendment before formal execution.
 - [ ] Validate nonempty content, `finish_reason`, model identity, fingerprints, and zero final failures for all five models.
 - [ ] Launch formal runs with bounded concurrency, `--timeout 300`, `--max-retries 5`, `--extra-body-json '{"enable_thinking":false}'`, and live progress.
 - [ ] Monitor line growth, RPM, 429, 5xx, timeout, and connection errors; reduce concurrency/RPM on sustained failure or ten-minute stagnation.

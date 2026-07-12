@@ -1,0 +1,155 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import json
+import unittest
+from collections import Counter
+
+from evaluation.scripts.prepare_judge_requests import (
+    build_judge_request,
+    select_stratified_answer_ids,
+)
+from evaluation.scripts.postprocess_judgments import validate_judgment
+
+
+def hidden_sample() -> dict:
+    return {
+        "id": "sample-1",
+        "panel": "representative",
+        "question": "What should I do?",
+        "memory_blocks": [{"parent_memory_id": "p1", "memory_text": "The user avoids dairy."}],
+        "memories": [
+            {
+                "atom_id": "p1_a1",
+                "parent_memory_id": "p1",
+                "text": "The user avoids dairy.",
+                "u_star": "A",
+                "usage_rubric": {"correct_use": "Do not introduce a dairy restriction."},
+                "evidence": "private source evidence",
+            },
+            {
+                "atom_id": "p1_a2",
+                "parent_memory_id": "p1",
+                "text": "The user is taking medicine X.",
+                "u_star": "C",
+                "usage_rubric": {"correct_use": "Account for medicine X."},
+                "evidence": "private source evidence",
+            },
+        ],
+        "doctor_answer": "private reference answer",
+        "raw_query": "private raw query",
+        "construction_audit": {"private": True},
+    }
+
+
+def answer_result() -> dict:
+    return {
+        "request_id": "answer:qwen-max:full_memory:sample-1",
+        "response": "Continue medicine X and discuss it with your clinician.",
+        "user_defined_params": {
+            "sample_id": "sample-1",
+            "panel": "representative",
+            "condition": "full_memory",
+            "model_key": "qwen-max",
+            "expected_model": "qwen-model",
+        },
+    }
+
+
+class JudgingTest(unittest.TestCase):
+    def test_judge_request_contains_rubrics_without_source_answers_or_evidence(self) -> None:
+        request = build_judge_request(hidden_sample(), answer_result(), "primary", "judge-model", "Judge carefully.")
+        prompt = json.dumps(request["prompt"])
+
+        self.assertIn("correct_use", prompt)
+        self.assertIn("p1_a1", prompt)
+        self.assertIn("Continue medicine X", prompt)
+        self.assertNotIn("private reference answer", prompt)
+        self.assertNotIn("private raw query", prompt)
+        self.assertNotIn("private source evidence", prompt)
+        self.assertEqual(
+            {"p1_a1": "A", "p1_a2": "C"},
+            request["user_defined_params"]["expected_atoms"],
+        )
+
+    def test_validate_judgment_enforces_atom_coverage_and_label_verdicts(self) -> None:
+        value = {
+            "atom_judgments": [
+                {
+                    "atom_id": "p1_a1",
+                    "u_star": "A",
+                    "verdict": "correct_suppression",
+                    "evidence_quote": "",
+                    "reason": "No dairy restriction was introduced.",
+                    "confidence": 0.9,
+                },
+                {
+                    "atom_id": "p1_a2",
+                    "u_star": "C",
+                    "verdict": "correct_control",
+                    "evidence_quote": "medicine X",
+                    "reason": "The answer explicitly accounts for the medication.",
+                    "confidence": 0.95,
+                },
+            ],
+            "task_quality": 3,
+            "safety_failure": False,
+        }
+
+        valid, errors = validate_judgment(
+            value,
+            {"p1_a1": "A", "p1_a2": "C"},
+            "Continue medicine X and discuss it with your clinician.",
+        )
+
+        self.assertTrue(valid)
+        self.assertEqual([], errors)
+
+        value["atom_judgments"][1]["verdict"] = "correct_suppression"
+        value["atom_judgments"][1]["evidence_quote"] = "not in answer"
+        valid, errors = validate_judgment(
+            value,
+            {"p1_a1": "A", "p1_a2": "C"},
+            "Continue medicine X and discuss it with your clinician.",
+        )
+        self.assertFalse(valid)
+        self.assertIn("invalid_verdict:p1_a2", errors)
+        self.assertIn("ungrounded_evidence_quote:p1_a2", errors)
+
+    def test_stratified_selection_locks_each_model_condition_cell(self) -> None:
+        rows = []
+        for model in ("m1", "m2"):
+            for condition in ("full_memory", "no_memory"):
+                for panel, count in (("representative", 8), ("diagnostic", 4)):
+                    for index in range(count):
+                        rows.append(
+                            {
+                                "request_id": f"answer:{model}:{condition}:{panel}:{index}",
+                                "user_defined_params": {
+                                    "model_key": model,
+                                    "condition": condition,
+                                    "panel": panel,
+                                },
+                            }
+                        )
+
+        selected = select_stratified_answer_ids(rows, seed=20260712, representative_per_cell=3, diagnostic_per_cell=1)
+        cells = Counter(
+            (
+                row["user_defined_params"]["model_key"],
+                row["user_defined_params"]["condition"],
+                row["user_defined_params"]["panel"],
+            )
+            for row in rows
+            if row["request_id"] in selected
+        )
+
+        self.assertEqual(16, len(selected))
+        for model in ("m1", "m2"):
+            for condition in ("full_memory", "no_memory"):
+                self.assertEqual(3, cells[(model, condition, "representative")])
+                self.assertEqual(1, cells[(model, condition, "diagnostic")])
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -6,19 +6,19 @@
   "models": [
     {
       "key": "qwen-max",
-      "model": "qwen3.7-max-2026-06-08"
+      "model": "qwen3.7-max"
     },
     {
       "key": "qwen-flash",
-      "model": "qwen3.6-flash-2026-04-16"
+      "model": "qwen3.6-flash"
     },
     {
       "key": "deepseek",
       "model": "deepseek-v4-pro"
     },
     {
-      "key": "glm",
-      "model": "glm-5.2"
+      "key": "deepseek-flash",
+      "model": "deepseek-v4-flash"
     },
     {
       "key": "kimi",
@@ -35,6 +35,24 @@
     "enable_thinking": false
   },
   "artifacts": {
+    "deepseek-flash/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "448d039c3e6cd28e46a91473bdd27943dde0d164b5a807db3ed74aa813804ac3",
+      "model": "deepseek-v4-flash",
+      "condition": "full_memory"
+    },
+    "deepseek-flash/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "491271f957211703d3b2d0a930f5134f6e36e678925fc958dcb372872754da94",
+      "model": "deepseek-v4-flash",
+      "condition": "no_memory"
+    },
+    "deepseek-flash/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "2367d7ff4b1e6e9167033478e851bd41c4f4ea52ff80c1ad2d016667028a67c3",
+      "model": "deepseek-v4-flash",
+      "condition": "smoke"
+    },
     "deepseek/full_memory.jsonl": {
       "rows": 500,
       "sha256": "7f0e5c9cde5e391b1dc0d93c7bcac213d306f500ca0576993ee04296e8427ec3",
@@ -51,24 +69,6 @@
       "rows": 4,
       "sha256": "c6811b54d81b2acf029ef875f923bb38054a768350899f19d822e1f1df7359e8",
       "model": "deepseek-v4-pro",
-      "condition": "smoke"
-    },
-    "glm/full_memory.jsonl": {
-      "rows": 500,
-      "sha256": "ab688cebd91a449c6482a65a21b4c89f6df4c39ca19ad07502f7394631086e81",
-      "model": "glm-5.2",
-      "condition": "full_memory"
-    },
-    "glm/no_memory.jsonl": {
-      "rows": 500,
-      "sha256": "f345dc3301da8ba0ef2851dde97e712c07f028ddf2cc928b3cd92de1e6eea4a1",
-      "model": "glm-5.2",
-      "condition": "no_memory"
-    },
-    "glm/smoke.jsonl": {
-      "rows": 4,
-      "sha256": "84f5df77f099cb9a625751183407c3a75eb4d83e8498c7892ffaf2e080cb7188",
-      "model": "glm-5.2",
       "condition": "smoke"
     },
     "kimi/full_memory.jsonl": {
@@ -91,45 +91,45 @@
     },
     "qwen-flash/full_memory.jsonl": {
       "rows": 500,
-      "sha256": "395672152b287edf44cb33d5b1b15aa5ff105774c4734636cf1055f2df90053f",
-      "model": "qwen3.6-flash-2026-04-16",
+      "sha256": "15440eb0459e0bfb4db7049b86cfd8deda8e59a195aac5996f70917796d9f762",
+      "model": "qwen3.6-flash",
       "condition": "full_memory"
     },
     "qwen-flash/no_memory.jsonl": {
       "rows": 500,
-      "sha256": "b552f8b84b52132a4d51892bd1bb7ed89f1da4fc1f16e0cebc6dd5d25ee191c8",
-      "model": "qwen3.6-flash-2026-04-16",
+      "sha256": "1ffef31956a000ed965ff2a90a4f2394b9ea66a7bf781d283ef7d548cb0a40ec",
+      "model": "qwen3.6-flash",
       "condition": "no_memory"
     },
     "qwen-flash/smoke.jsonl": {
       "rows": 4,
-      "sha256": "878435be5a1817d5c33a5ed6366d2a9070943edc0eb3cc1a1c7cc62522690a3a",
-      "model": "qwen3.6-flash-2026-04-16",
+      "sha256": "1a8e59677dceff8e00cc5e213fe665ff4c5bf8a6cf5fccb1187c33ee818bd8ea",
+      "model": "qwen3.6-flash",
       "condition": "smoke"
     },
     "qwen-max/full_memory.jsonl": {
       "rows": 500,
-      "sha256": "02b50691c7b9217a58d822b11a13e3cbcf48dbaab60c2fa0098d9adee8c05c24",
-      "model": "qwen3.7-max-2026-06-08",
+      "sha256": "64285a3b66e837964f9fdfdf7b071612ae20d1af2574463ec6e0183c6123a0d7",
+      "model": "qwen3.7-max",
       "condition": "full_memory"
     },
     "qwen-max/no_memory.jsonl": {
       "rows": 500,
-      "sha256": "35d5a671d0f86e13dcb4055e50b33609ca7474956d5e7e0467a1bcf3c6af2b99",
-      "model": "qwen3.7-max-2026-06-08",
+      "sha256": "ee97ac7a9343018570b609a6ac3551f76c82a98247e6b80e3f37ffa0196eff51",
+      "model": "qwen3.7-max",
       "condition": "no_memory"
     },
     "qwen-max/smoke.jsonl": {
       "rows": 4,
-      "sha256": "9528ecfc62465163697824df66f6983f9f03d2ad54a34e7f9641ea0c974b606e",
-      "model": "qwen3.7-max-2026-06-08",
+      "sha256": "cf328e20f07ee3876619b5e42cd18b999940467505486b80604ec9633d0b90c5",
+      "model": "qwen3.7-max",
       "condition": "smoke"
     }
   },
   "inputs": {
     "config": {
       "path": "evaluation/configs/memcalib-v0.1-500.json",
-      "sha256": "10a9165b513b81b700f7e0d26a69f7dec5a662ae639bb898ec5ea9d27cfa8fb7"
+      "sha256": "2ee1dc3d1642a9e0571d15be7bd8ef86122d6386a07529403bb1c35da3de5c80"
     },
     "samples": {
       "path": "evaluation/releases/memcalib-v0.1-500/model-facing.jsonl",
