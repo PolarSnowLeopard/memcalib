@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -73,7 +74,40 @@ class Crk2LlmPipelineTest(unittest.TestCase):
         self.assertIn("All generated natural-language fields must be written in English", content)
         self.assertIn("raw_evidence and evidence fields preserve the original evidence language", content)
         self.assertNotIn("所有生成字段必须使用简体中文", content)
+        self.assertIsNone(re.search(r"[\u3400-\u4dbf\u4e00-\u9fff]", content))
+        self.assertIn('"contamination_signals": ["changes the conclusion"', content)
         self.assertEqual("en", request["user_defined_params"]["output_language"])
+
+    def test_english_language_gate_repairs_only_known_schema_literals(self) -> None:
+        raw = {
+            "question": "What should be done next?",
+            "memory_blocks": [
+                {
+                    "raw_evidence": "原始证据可以保留原语言",
+                    "memory_text": "The user has a relevant medical history.",
+                }
+            ],
+            "memories": [
+                {
+                    "evidence": "证据可以保留原语言",
+                    "text": "The user has a relevant medical history.",
+                    "usage_rubric": {
+                        "contamination_signals": ["影响结论", "改变排序", "污染证据权重"],
+                        "failure_direction": "Do not 顺从 an unsafe request.",
+                    },
+                }
+            ],
+        }
+
+        repairs = self.post.canonicalize_english_schema_literals(raw)
+        violations = self.post.english_language_violations(raw)
+
+        self.assertEqual(3, repairs)
+        self.assertEqual(
+            ["changes the conclusion", "changes prioritization", "distorts evidence weighting"],
+            raw["memories"][0]["usage_rubric"]["contamination_signals"],
+        )
+        self.assertEqual(["memories[0].usage_rubric.failure_direction"], violations)
 
     def test_select_balanced_records_round_robins_topics(self) -> None:
         rows = [
@@ -87,6 +121,55 @@ class Crk2LlmPipelineTest(unittest.TestCase):
 
         self.assertEqual(3, len(selected))
         self.assertEqual({"a", "b"}, {row["topic"] for row in selected})
+
+    def test_incremental_summary_counts_full_dataset(self) -> None:
+        sample = {
+            "source_topic": "digestive",
+            "split": "clean",
+            "memory_blocks": [
+                {"parent_label_mode": "mixed", "parent_label_set": ["B", "C"]},
+            ],
+            "qc": {
+                "atomicity_pass": True,
+                "duplicate_pass": True,
+                "question_memory_leakage_pass": True,
+                "hard_a_target_consistency_pass": True,
+                "rubric_objectivity_pass": True,
+                "overlap_groups": [],
+            },
+            "construction_audit": {"english_schema_literal_repairs": 3},
+            "memories": [
+                {
+                    "u_star": "B",
+                    "source": "from_question",
+                    "subtype": "bounded_context",
+                    "memory_type": "case_fact",
+                    "derivation": "explicit",
+                    "hard_a_family": None,
+                    "usage_rubric": {"memory_usage_weight": "supporting"},
+                },
+                {
+                    "u_star": "A",
+                    "source": "synthetic_hard_a",
+                    "subtype": "hard_a_evidence_conflict",
+                    "memory_type": "profile_fact",
+                    "derivation": "synthetic",
+                    "hard_a_family": "evidence_conflict",
+                    "usage_rubric": {"memory_usage_weight": "none"},
+                },
+            ],
+        }
+
+        state = self.post.new_summary_state()
+        self.post.update_summary_state(state, sample)
+        self.post.update_summary_state(state, sample)
+        summary = self.post.finalize_summary_state(state)
+
+        self.assertEqual(2, summary["total_samples"])
+        self.assertEqual(4, summary["total_memories"])
+        self.assertEqual({"A": 2, "B": 2}, summary["label_counts"])
+        self.assertEqual({"mixed": 2}, summary["parent_label_mode_counts"])
+        self.assertEqual(6, summary["english_schema_literal_repairs"])
 
     def test_verify_input_lineage_rejects_stale_admitted_file(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -410,6 +493,19 @@ class Crk2LlmPipelineTest(unittest.TestCase):
         errors = self.post.validate_model_record(rec)
 
         self.assertIn("missing_required_memories", errors)
+
+    def test_validate_memory_enums_rejects_out_of_schema_memory_type(self) -> None:
+        memory = {
+            "source": "from_question",
+            "memory_type": "clinical_fact",
+            "derivation": "explicit",
+            "u_star": "B",
+            "hard_a_family": None,
+        }
+
+        errors = self.post.validate_memory_enum_values(memory, 0)
+
+        self.assertEqual(["memory_0_bad_memory_type"], errors)
 
 
 if __name__ == "__main__":

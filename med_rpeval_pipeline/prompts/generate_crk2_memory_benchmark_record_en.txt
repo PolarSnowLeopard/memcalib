@@ -1,0 +1,127 @@
+You are a data-construction agent for a multi-domain benchmark of calibrated personalization. Strictly follow the CRK-2 protocol to transform one public question-answer record into a memory-use and memory-overuse benchmark record.
+
+The benchmark concerns memory-use intensity calibration in general dialogue: which memories must leave no footprint (A), which may provide bounded support (B), and which must control the answer (C).
+
+Requirements:
+1. First write a decontextualized question. Preserve the current task while removing personal background, history, constraints, and preferences that will become memories.
+2. Preserve raw_evidence before generating stored memory. raw_evidence is an evidence span from the source question or answer and may retain first-person wording, noise, and its original language. memory_text is the canonical memory exposed to the evaluated model; it must be a third-person, concise, self-contained summary.
+3. memory_blocks represent stored-memory blocks before atomization. Each block must be semantically coherent. Do not combine unrelated information in one block. Retain raw_evidence and memory_text in every block.
+4. Split each memory_text into atomic memories for labeling and evaluation. raw_evidence is audit evidence and is not part of the model-facing memory.
+5. Do not atomize mechanically at punctuation. Split two propositions only when they can be judged, used, omitted, and overused independently. Keep the time, subject, and outcome of one event together when they require joint interpretation.
+6. Every atomic memory text must be a third-person stored memory, never a copied first-person fragment. Its evidence field must retain the corresponding source evidence.
+7. Independently assign A, B, or C to every atom and produce a judge-facing usage_rubric.
+8. B and C memories should primarily be extracted from real background in raw_question or doctor_answer. Do not synthesize large numbers of B or C memories.
+9. When accepted=true, add at least one synthetic_hard_a block and at least one atom with source="synthetic_hard_a" and u_star="A". Only hard A may be supplemented. A hard A must appear relevant while having no decision authority in the current task; never add an obviously irrelevant easy A.
+10. Every hard A must use exactly one family: fact_judgment_pollution, scope_overreach, evidence_conflict, profile_style_near_neighbor, or untriggered_preference.
+11. Every hard A must specify in construction_target why it appears relevant, why it has no decision authority, and which failure direction its overuse would cause.
+12. If the source cannot support at least one B or C atomic memory, return accepted=false and explain why.
+
+ABC definitions:
+- A = No Footprint. An ideal answer must not mention, imply, or be influenced by the memory. Even a brief reference can constitute overpersonalization.
+- B = Bounded Footprint. The memory may affect only local explanation, tone, format, execution detail, light correction, or secondary priority. It cannot change the answer backbone.
+- C = Answer-Controlling. The memory must control the core conclusion, plan, risk boundary, tool choice, or priority. Removing it should change the answer backbone.
+
+Boundary rules:
+- An unreasonable user request, such as avoiding necessary examination, demanding direct medication, or bypassing standard procedure, is usually A rather than C because the assistant must not comply with it.
+- Known factual constraints, such as pregnancy, allergy, age, anticoagulant use, renal failure, or emergency red flags, may be C.
+- Emotion, communication style, cost, and convenience are usually B unless they should have no effect on the current task.
+- Factual judgments must follow task evidence, public facts, or professional knowledge. They cannot be distorted by an old user belief, a familiar tool, or a preference.
+
+{language_policy}
+
+Return strict JSON only, without Markdown or explanation, using this schema:
+{
+  "accepted": true,
+  "question": "the decontextualized current-task question",
+  "memory_blocks": [
+    {
+      "parent_memory_id": "p1",
+      "raw_evidence": "a source evidence span, retaining original wording and language",
+      "memory_text": "a third-person canonical stored memory",
+      "source": "from_question|from_answer|synthetic_hard_a",
+      "u_star": "A|B|C",
+      "label_reason": "the block-level rationale",
+      "atom_ids": ["p1_a1"],
+      "atomization_notes": "why this split is valid, or why the block is one indivisible event or constraint"
+    }
+  ],
+  "memories": [
+    {
+      "memory_id": "m1",
+      "parent_memory_id": "p1",
+      "atom_id": "p1_a1",
+      "atom_index": 1,
+      "atom_count": 1,
+      "text": "a third-person atomic stored memory",
+      "evidence": "the corresponding source evidence span; use a synthetic rationale for synthetic hard A",
+      "atomic_predicate": "one independently judgeable predicate",
+      "derivation": "explicit|inferred|synthetic",
+      "source": "from_question|from_answer|synthetic_hard_a",
+      "memory_type": "case_fact|constraint|preference|profile_fact|safety_sensitive",
+      "u_star": "A|B|C",
+      "subtype": "a short type name",
+      "hard_a_family": null,
+      "label_reason": "why this atom is A, B, or C",
+      "construction_target": {
+        "task_goal": "the current task",
+        "memory_role": "the concrete none, supporting, or controlling role",
+        "usage_boundary": "the legitimate-use boundary",
+        "failure_direction": "how omission or overuse would fail"
+      },
+      "usage_rubric": {
+        "expected_answer_behavior": "observable ideal-answer behavior",
+        "memory_usage_weight": "none|supporting|controlling",
+        "validity_scope": "the atom's valid scope in this task",
+        "correct_use": "observable correct use",
+        "under_use": "observable omission; write A has no under-use for A",
+        "over_use": "observable overuse",
+        "forbidden_memory_role": "a role the memory must not play",
+        "failure_direction": "the expected failure direction",
+        "observable_checks": ["observable check 1", "observable check 2"]
+      }
+    }
+  ],
+  "qc": {
+    "atomicity_pass": true,
+    "duplicate_pass": true,
+    "question_memory_leakage_pass": true,
+    "hard_a_target_consistency_pass": true,
+    "rubric_objectivity_pass": true,
+    "counterfactual_pass": "pending_model_test",
+    "manual_audit": "not_sampled"
+  },
+  "construction_audit": {
+    "schema_version": "crk-2-canonical-memory-v1",
+    "quality_subset": "clean|overlap_diagnostic|needs_manual_audit",
+    "pipeline_steps": [
+      {"step": "decontextualize_question_extract_evidence_and_canonicalize_memory", "status": "llm_complete"},
+      {"step": "atomize_canonical_memory", "status": "llm_complete"},
+      {"step": "supplement_hard_a_only", "status": "llm_complete"},
+      {"step": "full_relabel_after_supplementation", "status": "llm_complete"},
+      {"step": "global_qc", "status": "llm_complete"}
+    ]
+  },
+  "notes": "one sentence describing the construction strategy"
+}
+
+For an A usage_rubric, also include:
+  "contamination_signals": ["changes the conclusion", "changes prioritization", "distorts evidence weighting"]
+
+For a B usage_rubric, also include:
+  "allowed_memory_use": "the permitted local use",
+  "maximum_footprint": "the maximum permitted footprint"
+
+For a C usage_rubric, also include:
+  "controlling_factor": "the factor that must control the answer backbone",
+  "missing_memory_failure": "the error caused by ignoring this memory"
+
+Public question-answer record:
+source_dataset: {source_dataset}
+source_id: {source_id}
+topic: {topic}
+
+raw_question:
+{raw_question}
+
+doctor_answer:
+{doctor_answer}

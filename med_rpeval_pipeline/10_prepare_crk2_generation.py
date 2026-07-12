@@ -15,6 +15,8 @@ from utils import iter_jsonl, load_json, resolve_config_path, write_json, write_
 SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_CONFIG = SCRIPT_DIR / "config.json"
 DEFAULT_PROMPT = SCRIPT_DIR / "prompts" / "generate_crk2_memory_benchmark_record.txt"
+DEFAULT_EN_PROMPT = SCRIPT_DIR / "prompts" / "generate_crk2_memory_benchmark_record_en.txt"
+DEFAULT_PROMPTS = {"zh": DEFAULT_PROMPT, "en": DEFAULT_EN_PROMPT}
 DEFAULT_OUTPUT = SCRIPT_DIR / "data" / "crk2_generation_input_100.jsonl"
 RUNNER_PATH = SCRIPT_DIR / "06_run_bailian_api.py"
 POSTPROCESS_PATH = SCRIPT_DIR / "11_post_crk2_generation.py"
@@ -32,6 +34,10 @@ LANGUAGE_POLICIES = {
 - Schema keys, enum values, source, hard_a_family, memory_type, derivation, and other machine-readable fields must keep the exact English values defined by the schema.
 - Medical abbreviations, proper names, product names, place names, and terms that are conventionally written in another language may remain unchanged, but do not mix languages within generated prose unless the term itself requires it.
 - synthetic_hard_a fields must also be generated in English, except evidence fields that intentionally record a synthetic rationale.""",
+}
+TARGET_INSTRUCTIONS = {
+    "zh": "目标：优先构造 {target_memory_count} 个 memory block；最终 atomic memory 数量由语义拆分决定。只允许补充 hard A。",
+    "en": "Target: construct {target_memory_count} memory blocks when supported by the evidence; let semantic atomization determine the final number of atomic memories. Only hard A memories may be supplemented.",
 }
 
 
@@ -118,7 +124,7 @@ def build_request(
         raise ValueError(f"Unsupported output_language={output_language!r}; expected one of {sorted(LANGUAGE_POLICIES)}")
     template = prompt_template
     if template is None:
-        template = DEFAULT_PROMPT.read_text(encoding="utf-8")
+        template = DEFAULT_PROMPTS[output_language].read_text(encoding="utf-8")
     language_policy = LANGUAGE_POLICIES[output_language]
     if "{language_policy}" not in template:
         template = f"{template.rstrip()}\n\n{language_policy}\n"
@@ -131,7 +137,7 @@ def build_request(
         .replace("{doctor_answer}", str(row.get("doctor_answer", "")))
         .replace("{language_policy}", language_policy)
     )
-    content += f"\n\n目标：优先构造 {target_memory_count} 个 memory block；最终 atomic memory 数量由语义拆分决定。只允许补充 hard A。"
+    content += "\n\n" + TARGET_INSTRUCTIONS[output_language].format(target_memory_count=target_memory_count)
     params = dict(row)
     params["crk2_request_index"] = request_index
     params["target_memory_count"] = target_memory_count
@@ -163,7 +169,7 @@ def main() -> None:
     parser.add_argument("--manifest", type=Path)
     parser.add_argument("--limit", type=int, default=100)
     parser.add_argument("--seed", type=int)
-    parser.add_argument("--prompt-template", type=Path, default=DEFAULT_PROMPT)
+    parser.add_argument("--prompt-template", type=Path)
     parser.add_argument("--target-memory-count", default="3-6")
     parser.add_argument("--output-language", choices=sorted(LANGUAGE_POLICIES), default="zh")
     parser.add_argument("--primus-string-prompt", action="store_true")
@@ -180,7 +186,8 @@ def main() -> None:
     if excluded_ids:
         rows = [row for row in rows if str(row.get("id")) not in excluded_ids]
     selected = select_balanced_records(rows, args.limit, seed)
-    template = args.prompt_template.read_text(encoding="utf-8")
+    prompt_path = args.prompt_template or DEFAULT_PROMPTS[args.output_language]
+    template = prompt_path.read_text(encoding="utf-8")
     requests = []
     for index, row in enumerate(selected, start=1):
         request = build_request(row, index, args.target_memory_count, template, args.output_language)
@@ -211,7 +218,7 @@ def main() -> None:
                 "prepare": {"path": str(Path(__file__).resolve()), "sha256": file_sha256(Path(__file__).resolve())},
                 "runner": {"path": str(RUNNER_PATH), "sha256": file_sha256(RUNNER_PATH)},
                 "postprocess": {"path": str(POSTPROCESS_PATH), "sha256": file_sha256(POSTPROCESS_PATH)},
-                "prompt": {"path": str(args.prompt_template), "sha256": file_sha256(args.prompt_template)},
+                "prompt": {"path": str(prompt_path), "sha256": file_sha256(prompt_path)},
                 "config": {"path": str(args.config), "sha256": file_sha256(args.config)},
             },
             "parameters": {

@@ -1,6 +1,8 @@
 {
   "schema_version": "crk2-canonical-generation-run-lock-v1",
-  "status": "locked_not_started",
+  "status": "completed",
+  "execution_started_at": "2026-07-10T19:53:12+08:00",
+  "execution_completed_at": "2026-07-12T11:18:33+08:00",
   "parent_admission": {
     "records": 15577,
     "manifest_path": "med_rpeval_pipeline/data/crk2_source_semantic_admission_15577.manifest.json",
@@ -26,8 +28,8 @@
     "max_retries": 5
   },
   "operational_defaults": {
-    "max_workers": 96,
-    "rpm": 120,
+    "max_workers": 200,
+    "rpm": 200,
     "progress_every": 25,
     "resume": true
   },
@@ -38,11 +40,46 @@
     "prompt": "127819f164896fcfdd70f7eff1d83e81445fb42c1a7cc83ea967e53763928564",
     "config": "951bbf79f177faa538921ad1a26293866fd969a0cb01c22c450727f800e2216b"
   },
+  "completion": {
+    "primary_api": {
+      "requested": 15577,
+      "initial_success": 15570,
+      "length_retry_success": 7,
+      "final_api_success": 15577,
+      "api_failures": 0
+    },
+    "quality_retry": {
+      "requested": 220,
+      "api_success": 220,
+      "accepted_replacements": 212,
+      "residual_invalid": 8,
+      "resolved_generation_records": 15569,
+      "resolved_manifest": "med_rpeval_pipeline/data/crk2_canonical_generation_resolved_en_15569.manifest.json",
+      "resolved_manifest_sha256": "04c09a5032955551820f5e3d705123d4bcda76d8f8114a41af8e1955605e1751"
+    },
+    "final_construction_qc": {
+      "input": 15569,
+      "accepted": 15528,
+      "rejected": 41,
+      "rejection_rule": "memory_type outside the fixed schema enum",
+      "english_schema_literal_repairs": 25524
+    },
+    "finalization_implementation_sha256": {
+      "prepare": "96e8cb7b7abd2a608e4c40ecac9529eb004682c3e7e85c843743cb1e2f0b4b49",
+      "postprocess": "44f78a13f590895732ac085842faf7683b88e7062ec314dbbb7205079ba1b697",
+      "english_prompt": "f7d4a33e538f1ddb9ebeb63d88d5bd4adad0307acdd9aace2d811916a3081f86"
+    }
+  },
   "expected_outputs": {
     "api_result": "med_rpeval_pipeline/data/crk2_canonical_generation_result_en_15577.jsonl",
     "api_failed": "med_rpeval_pipeline/data/crk2_canonical_generation_failed_en_15577.jsonl",
-    "benchmark": "med_rpeval_pipeline/data/crk2_canonical_memory_benchmark_en_15577.jsonl",
-    "construction_rejected": "med_rpeval_pipeline/data/crk2_canonical_memory_benchmark_en_15577.rejected.jsonl",
-    "summary": "med_rpeval_pipeline/data/crk2_canonical_memory_benchmark_en_15577.summary.json"
+    "benchmark": "med_rpeval_pipeline/data/crk2_canonical_memory_benchmark_en_15528.jsonl",
+    "benchmark_sha256": "1cfd0334255266e6b8d4c234c615ade42b40c91bb86cb7c061a285261c363cb4",
+    "construction_rejected": "med_rpeval_pipeline/data/crk2_canonical_memory_benchmark_en_15528.rejected.jsonl",
+    "construction_rejected_sha256": "32aa7bc0030fdb1e72e7166355eb3d4b814f0731690b39b2b9a62b2bef1413c7",
+    "summary": "med_rpeval_pipeline/data/crk2_canonical_memory_benchmark_en_15528.summary.json",
+    "summary_sha256": "26a50dc847ee2f696dc0996dcaf589a2a0124097dd7f84a0fe5bc6d44ed1e503",
+    "audit_html": "med_rpeval_pipeline/data/crk2_canonical_memory_benchmark_en_15528.audit_100.html",
+    "audit_html_sha256": "8743b86f05b41c42bcec7debfc29e9e948a8a51a931158e5870a8fd11b10f2f7"
   }
 }

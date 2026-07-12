@@ -56,7 +56,23 @@ BLOCK_REQUIRED_KEYS = {"parent_memory_id", "raw_evidence", "memory_text", "sourc
 TARGET_REQUIRED_KEYS = {"task_goal", "memory_role", "usage_boundary", "failure_direction"}
 FIRST_PERSON_EN = re.compile(r"^\s*(?:i|i'm|i’ve|i've|i am|my|me|mine|we|we're|we are|our)\b", re.IGNORECASE)
 FIRST_PERSON_CN_PREFIXES = ("我", "我的", "本人", "我们", "咱们")
+CJK_RE = re.compile(r"[\u3400-\u4dbf\u4e00-\u9fff]")
+ENGLISH_SCHEMA_LITERAL_REPLACEMENTS = {
+    "影响结论": "changes the conclusion",
+    "改变排序": "changes prioritization",
+    "污染证据权重": "distorts evidence weighting",
+}
 LABEL_ORDER = ("A", "B", "C")
+ALLOWED_SOURCES = {"from_question", "from_answer", "synthetic_hard_a"}
+ALLOWED_MEMORY_TYPES = {"case_fact", "constraint", "preference", "profile_fact", "safety_sensitive"}
+ALLOWED_DERIVATIONS = {"explicit", "inferred", "synthetic"}
+ALLOWED_HARD_A_FAMILIES = {
+    "fact_judgment_pollution",
+    "scope_overreach",
+    "evidence_conflict",
+    "profile_style_near_neighbor",
+    "untriggered_preference",
+}
 
 
 def effective_usage_rubric(memory: dict[str, Any]) -> dict[str, Any]:
@@ -75,6 +91,59 @@ def is_first_person_stored_memory(text: Any) -> bool:
     if not normalized:
         return False
     return normalized.startswith(FIRST_PERSON_CN_PREFIXES) or bool(FIRST_PERSON_EN.match(normalized))
+
+
+def canonicalize_english_schema_literals(value: Any) -> int:
+    """Replace only fixed Chinese literals copied from the former English schema example."""
+    repairs = 0
+    if isinstance(value, dict):
+        for key, child in value.items():
+            if isinstance(child, str) and child in ENGLISH_SCHEMA_LITERAL_REPLACEMENTS:
+                value[key] = ENGLISH_SCHEMA_LITERAL_REPLACEMENTS[child]
+                repairs += 1
+            else:
+                repairs += canonicalize_english_schema_literals(child)
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            if isinstance(child, str) and child in ENGLISH_SCHEMA_LITERAL_REPLACEMENTS:
+                value[index] = ENGLISH_SCHEMA_LITERAL_REPLACEMENTS[child]
+                repairs += 1
+            else:
+                repairs += canonicalize_english_schema_literals(child)
+    return repairs
+
+
+def english_language_violations(value: Any, path: str = "") -> list[str]:
+    """Return generated-field paths containing CJK, excluding retained source evidence."""
+    violations: list[str] = []
+    if isinstance(value, dict):
+        for key, child in value.items():
+            child_path = f"{path}.{key}" if path else str(key)
+            if key in {"raw_evidence", "evidence"}:
+                continue
+            violations.extend(english_language_violations(child, child_path))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            violations.extend(english_language_violations(child, f"{path}[{index}]"))
+    elif isinstance(value, str) and CJK_RE.search(value):
+        violations.append(path)
+    return violations
+
+
+def validate_memory_enum_values(memory: dict[str, Any], memory_index: int) -> list[str]:
+    errors: list[str] = []
+    if memory.get("source") not in ALLOWED_SOURCES:
+        errors.append(f"memory_{memory_index}_bad_source")
+    if memory.get("memory_type") not in ALLOWED_MEMORY_TYPES:
+        errors.append(f"memory_{memory_index}_bad_memory_type")
+    if memory.get("derivation") not in ALLOWED_DERIVATIONS:
+        errors.append(f"memory_{memory_index}_bad_derivation")
+    if str(memory.get("u_star", "")).strip().upper() not in set(LABEL_ORDER):
+        errors.append(f"memory_{memory_index}_bad_label")
+    hard_a_family = memory.get("hard_a_family")
+    if hard_a_family is not None and hard_a_family not in ALLOWED_HARD_A_FAMILIES:
+        errors.append(f"memory_{memory_index}_bad_hard_a_family")
+    return errors
 
 
 def ordered_label_set(labels: list[str]) -> list[str]:
@@ -216,6 +285,10 @@ def validate_model_record(rec: dict[str, Any]) -> list[str]:
         missing = BLOCK_REQUIRED_KEYS - set(block)
         if missing:
             errors.append(f"block_{block_index}_missing_{','.join(sorted(missing))}")
+        if block.get("source") not in ALLOWED_SOURCES:
+            errors.append(f"block_{block_index}_bad_source")
+        if str(block.get("u_star", "")).strip().upper() not in set(LABEL_ORDER):
+            errors.append(f"block_{block_index}_bad_label")
         if is_first_person_stored_memory(block.get("memory_text")):
             errors.append(f"block_{block_index}_first_person_memory_text")
 
@@ -234,13 +307,12 @@ def validate_model_record(rec: dict[str, Any]) -> list[str]:
         missing = MEMORY_REQUIRED_KEYS - set(memory)
         if missing:
             errors.append(f"memory_{memory_index}_missing_{','.join(sorted(missing))}")
+        errors.extend(validate_memory_enum_values(memory, memory_index))
         label = str(memory.get("u_star", "")).strip().upper()
         labels.append(label)
         atom_id = str(memory.get("atom_id", ""))
         if atom_id:
             memory_atom_ids.add(atom_id)
-        if label not in {"A", "B", "C"}:
-            errors.append(f"memory_{memory_index}_bad_label")
         if is_first_person_stored_memory(memory.get("text")):
             errors.append(f"memory_{memory_index}_first_person_text")
         target = memory.get("construction_target") if isinstance(memory.get("construction_target"), dict) else {}
@@ -319,23 +391,109 @@ def normalize_model_record(raw: dict[str, Any], params: dict[str, Any]) -> dict[
     }
 
 
-def summarize_and_render(samples: list[dict[str, Any]], summary_path: Path, html_path: Path) -> dict[str, Any]:
+def new_summary_state() -> dict[str, Any]:
+    return {
+        "total_samples": 0,
+        "total_memories": 0,
+        "total_parent_memories": 0,
+        "samples_with_overlap_groups": 0,
+        "english_schema_literal_repairs": 0,
+        "label_counts": Counter(),
+        "memory_source_counts": Counter(),
+        "topic_counts": Counter(),
+        "subtype_counts": Counter(),
+        "memory_type_counts": Counter(),
+        "hard_a_family_counts": Counter(),
+        "rubric_weight_counts": Counter(),
+        "derivation_counts": Counter(),
+        "quality_subset_counts": Counter(),
+        "qc_pass_counts": Counter(),
+        "parent_label_mode_counts": Counter(),
+        "parent_label_set_counts": Counter(),
+    }
+
+
+def update_summary_state(state: dict[str, Any], sample: dict[str, Any]) -> None:
+    state["total_samples"] += 1
+    state["topic_counts"][sample.get("source_topic", "unknown")] += 1
+    state["quality_subset_counts"][sample.get("split", "unknown")] += 1
+    blocks = sample.get("memory_blocks", [])
+    state["total_parent_memories"] += len(blocks)
+    state["samples_with_overlap_groups"] += int(bool(sample.get("qc", {}).get("overlap_groups")))
+    state["english_schema_literal_repairs"] += int(
+        (sample.get("construction_audit") or {}).get("english_schema_literal_repairs") or 0
+    )
+    for qc_key in (
+        "atomicity_pass",
+        "duplicate_pass",
+        "question_memory_leakage_pass",
+        "hard_a_target_consistency_pass",
+        "rubric_objectivity_pass",
+    ):
+        if sample.get("qc", {}).get(qc_key) is True:
+            state["qc_pass_counts"][qc_key] += 1
+    for block in blocks:
+        mode = block.get("parent_label_mode", "unknown")
+        labels = block.get("parent_label_set", [])
+        label_set = "+".join(labels) if isinstance(labels, list) else str(labels or "unknown")
+        state["parent_label_mode_counts"][mode] += 1
+        state["parent_label_set_counts"][label_set or "none"] += 1
+    for memory in sample.get("memories", []):
+        state["total_memories"] += 1
+        state["label_counts"][memory["u_star"]] += 1
+        state["memory_source_counts"][memory["source"]] += 1
+        state["subtype_counts"][memory["subtype"]] += 1
+        state["memory_type_counts"][memory["memory_type"]] += 1
+        state["derivation_counts"][memory.get("derivation", "unknown")] += 1
+        if memory.get("hard_a_family"):
+            state["hard_a_family_counts"][memory["hard_a_family"]] += 1
+        state["rubric_weight_counts"][memory["usage_rubric"]["memory_usage_weight"]] += 1
+
+
+def finalize_summary_state(state: dict[str, Any]) -> dict[str, Any]:
+    total_samples = state["total_samples"]
+    total_memories = state["total_memories"]
+    total_parent = state["total_parent_memories"]
+    parent_modes = state["parent_label_mode_counts"]
+    return {
+        "total_samples": total_samples,
+        "total_memories": total_memories,
+        "total_parent_memories": total_parent,
+        "avg_memories_per_sample": total_memories / total_samples if total_samples else 0,
+        "avg_atoms_per_parent_memory": total_memories / total_parent if total_parent else 0,
+        "label_counts": dict(sorted(state["label_counts"].items())),
+        "memory_source_counts": dict(sorted(state["memory_source_counts"].items())),
+        "subtype_counts": dict(sorted(state["subtype_counts"].items())),
+        "memory_type_counts": dict(sorted(state["memory_type_counts"].items())),
+        "hard_a_family_counts": dict(sorted(state["hard_a_family_counts"].items())),
+        "rubric_weight_counts": dict(sorted(state["rubric_weight_counts"].items())),
+        "derivation_counts": dict(sorted(state["derivation_counts"].items())),
+        "quality_subset_counts": dict(sorted(state["quality_subset_counts"].items())),
+        "qc_pass_counts": dict(sorted(state["qc_pass_counts"].items())),
+        "samples_with_overlap_groups": state["samples_with_overlap_groups"],
+        "topic_counts": dict(sorted(state["topic_counts"].items())),
+        "parent_label_mode_counts": dict(sorted(parent_modes.items())),
+        "parent_label_set_counts": dict(sorted(state["parent_label_set_counts"].items())),
+        "mixed_parent_count": parent_modes.get("mixed", 0),
+        "mixed_parent_rate": parent_modes.get("mixed", 0) / total_parent if total_parent else 0,
+        "english_schema_literal_repairs": state["english_schema_literal_repairs"],
+        "pipeline": "crk2_llm_generation",
+    }
+
+
+def summarize_and_render(
+    samples: list[dict[str, Any]],
+    summary_path: Path,
+    html_path: Path,
+    summary: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     builder = load_rubric_builder()
-    summary = builder.summarize(samples)
-    summary["pipeline"] = "crk2_llm_generation"
-    parent_modes = Counter()
-    parent_label_sets = Counter()
-    for sample in samples:
-        for block in sample.get("memory_blocks", []):
-            mode = block.get("parent_label_mode", "unknown")
-            label_set = "+".join(block.get("parent_label_set", [])) if isinstance(block.get("parent_label_set"), list) else str(block.get("parent_label_set", "unknown"))
-            parent_modes[mode] += 1
-            parent_label_sets[label_set or "none"] += 1
-    summary["parent_label_mode_counts"] = dict(parent_modes)
-    summary["parent_label_set_counts"] = dict(parent_label_sets)
-    total_parent = sum(parent_modes.values())
-    summary["mixed_parent_count"] = parent_modes.get("mixed", 0)
-    summary["mixed_parent_rate"] = parent_modes.get("mixed", 0) / total_parent if total_parent else 0
+    if summary is None:
+        state = new_summary_state()
+        for sample in samples:
+            update_summary_state(state, sample)
+        summary = finalize_summary_state(state)
+    summary["html_preview_samples"] = len(samples)
     summary["prototype_limitations"] = [
         "This preview is generated by the CRK-2 canonical-memory prompt from normalized public QA seed records.",
         "Raw evidence is retained for audit, while stored memories are third-person canonical summaries used for A/B/C labeling and judge rubrics.",
@@ -357,36 +515,71 @@ def main() -> None:
     parser.add_argument("--html", type=Path, default=DEFAULT_HTML)
     parser.add_argument("--rejected", type=Path)
     parser.add_argument("--target", type=int, default=100)
+    parser.add_argument("--html-limit", type=int, default=100)
     args = parser.parse_args()
 
     rejected_path = args.rejected or args.output.with_name(args.output.stem + ".rejected.jsonl")
-    kept = []
-    rejected = []
-    for input_path in args.input:
-        for row_index, line in enumerate(input_path.read_text(encoding="utf-8").splitlines()):
-            if not line.strip():
-                continue
-            row = json.loads(line)
-            params = get_params(row)
-            try:
-                raw = extract_json_object(get_text(row))
-                errors = validate_model_record(raw)
-                if errors:
-                    rejected.append(
-                        {"input": str(input_path), "row_index": row_index, "errors": errors, "params": params, "raw": raw}
-                    )
-                    continue
-                kept.append(normalize_model_record(raw, params))
-                if args.target and len(kept) >= args.target:
-                    break
-            except Exception as exc:  # noqa: BLE001
-                rejected.append({"input": str(input_path), "row_index": row_index, "errors": [type(exc).__name__, str(exc)], "params": params})
-        if args.target and len(kept) >= args.target:
-            break
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    rejected_path.parent.mkdir(parents=True, exist_ok=True)
+    preview: list[dict[str, Any]] = []
+    summary_state = new_summary_state()
+    rejected_count = 0
+    stop = False
+    with args.output.open("w", encoding="utf-8") as output_handle, rejected_path.open("w", encoding="utf-8") as rejected_handle:
+        for input_path in args.input:
+            with input_path.open(encoding="utf-8") as input_handle:
+                for row_index, line in enumerate(input_handle):
+                    if not line.strip():
+                        continue
+                    row = json.loads(line)
+                    params = get_params(row)
+                    try:
+                        raw = extract_json_object(get_text(row))
+                        output_language = str(params.get("output_language") or "")
+                        literal_repairs = canonicalize_english_schema_literals(raw) if output_language == "en" else 0
+                        errors = validate_model_record(raw)
+                        language_violations = english_language_violations(raw) if output_language == "en" else []
+                        if language_violations:
+                            errors.append("english_language_violation")
+                        if errors:
+                            rejected = {
+                                "input": str(input_path),
+                                "row_index": row_index,
+                                "errors": errors,
+                                "language_violations": language_violations,
+                                "params": params,
+                                "raw": raw,
+                            }
+                            rejected_handle.write(json.dumps(rejected, ensure_ascii=False) + "\n")
+                            rejected_count += 1
+                            continue
+                        normalized = normalize_model_record(raw, params)
+                        if literal_repairs:
+                            normalized["construction_audit"]["english_schema_literal_repairs"] = literal_repairs
+                        output_handle.write(json.dumps(normalized, ensure_ascii=False) + "\n")
+                        update_summary_state(summary_state, normalized)
+                        if args.html_limit <= 0 or len(preview) < args.html_limit:
+                            preview.append(normalized)
+                        if args.target and summary_state["total_samples"] >= args.target:
+                            stop = True
+                            break
+                    except Exception as exc:  # noqa: BLE001
+                        rejected = {
+                            "input": str(input_path),
+                            "row_index": row_index,
+                            "errors": [type(exc).__name__, str(exc)],
+                            "params": params,
+                        }
+                        rejected_handle.write(json.dumps(rejected, ensure_ascii=False) + "\n")
+                        rejected_count += 1
+            if stop:
+                break
 
-    write_jsonl(args.output, kept)
-    write_jsonl(rejected_path, rejected)
-    summary = summarize_and_render(kept, args.summary, args.html) if kept else {"total_samples": 0}
+    summary = finalize_summary_state(summary_state)
+    if summary["total_samples"]:
+        summary = summarize_and_render(preview, args.summary, args.html, summary)
+    else:
+        write_json(args.summary, summary)
     print(
         json.dumps(
             {
@@ -395,8 +588,8 @@ def main() -> None:
                 "summary": str(args.summary),
                 "html": str(args.html),
                 "rejected": str(rejected_path),
-                "kept": len(kept),
-                "rejected_count": len(rejected),
+                "kept": summary["total_samples"],
+                "rejected_count": rejected_count,
                 **summary,
             },
             ensure_ascii=False,
