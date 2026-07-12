@@ -5,6 +5,7 @@ import json
 import unittest
 from collections import Counter
 
+from evaluation.scripts.build_human_review import select_human_review_ids
 from evaluation.scripts.prepare_judge_requests import (
     build_judge_request,
     select_stratified_answer_ids,
@@ -149,6 +150,51 @@ class JudgingTest(unittest.TestCase):
             for condition in ("full_memory", "no_memory"):
                 self.assertEqual(3, cells[(model, condition, "representative")])
                 self.assertEqual(1, cells[(model, condition, "diagnostic")])
+
+    def test_human_review_keeps_random_and_disagreement_strata_separate(self) -> None:
+        answers = [
+            {
+                "request_id": f"answer-{index}",
+                "user_defined_params": {"model_key": "m1", "condition": "full_memory", "panel": "representative"},
+            }
+            for index in range(6)
+        ]
+        primary = [
+            {
+                "answer_request_id": f"answer-{index}",
+                "atom_judgments": [
+                    {"atom_id": "a1", "verdict": "correct_control", "confidence": 0.9 - index * 0.1}
+                ],
+            }
+            for index in range(6)
+        ]
+        secondary = [
+            {
+                "answer_request_id": f"answer-{index}",
+                "atom_judgments": [
+                    {
+                        "atom_id": "a1",
+                        "verdict": "under_use" if index >= 2 else "correct_control",
+                        "confidence": 0.8,
+                    }
+                ],
+            }
+            for index in range(6)
+        ]
+
+        selected = select_human_review_ids(
+            answers,
+            primary,
+            secondary,
+            random_ids={"answer-0", "answer-1"},
+            diagnostic_count=2,
+            seed=20260712,
+        )
+
+        self.assertEqual(["answer-0", "answer-1"], selected["random"])
+        self.assertEqual(2, len(selected["diagnostic"]))
+        self.assertTrue(set(selected["random"]).isdisjoint(selected["diagnostic"]))
+        self.assertTrue(set(selected["diagnostic"]).issubset({"answer-2", "answer-3", "answer-4", "answer-5"}))
 
 
 if __name__ == "__main__":
