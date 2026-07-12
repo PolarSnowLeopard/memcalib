@@ -38,12 +38,12 @@
     "held-out-ids.txt": "d07b3d888678a49be9adf5f2ab5d125c6c67adcffc1791c72e3254c2995b6b80"
   },
   "source": {
-    "release": "/Users/zhaofanyu/Code/create_medpreferncedata_from_public_data/release/memcalib-v0.1",
+    "release": "release/memcalib-v0.1",
     "sha256": "1cfd0334255266e6b8d4c234c615ade42b40c91bb86cb7c061a285261c363cb4",
     "records": 15528
   },
   "complexity_metadata": {
-    "path": "/Users/zhaofanyu/Code/create_medpreferncedata_from_public_data/evaluation/metadata/memcalib-v0.1-seed-complexity.jsonl",
+    "path": "evaluation/metadata/memcalib-v0.1-seed-complexity.jsonl",
     "sha256": "52b39a87db9d06d35651d6110b6c013a25af8abda0959ffd85f6516d2a765f3b"
   },
   "diagnostic_coverage": {

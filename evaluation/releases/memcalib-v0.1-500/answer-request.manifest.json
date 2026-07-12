@@ -1,0 +1,143 @@
+{
+  "schema_version": "memcalib-answer-requests-v1",
+  "samples": 500,
+  "formal_requests": 5000,
+  "smoke_requests": 20,
+  "models": [
+    {
+      "key": "qwen-max",
+      "model": "qwen3.7-max-2026-06-08"
+    },
+    {
+      "key": "qwen-flash",
+      "model": "qwen3.6-flash-2026-04-16"
+    },
+    {
+      "key": "deepseek",
+      "model": "deepseek-v4-pro"
+    },
+    {
+      "key": "glm",
+      "model": "glm-5.2"
+    },
+    {
+      "key": "kimi",
+      "model": "kimi-k2.6"
+    }
+  ],
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "generation": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "enable_thinking": false
+  },
+  "artifacts": {
+    "deepseek/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "7f0e5c9cde5e391b1dc0d93c7bcac213d306f500ca0576993ee04296e8427ec3",
+      "model": "deepseek-v4-pro",
+      "condition": "full_memory"
+    },
+    "deepseek/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "7aa3d8dd0fafd61e4f190f8bb5ed0a2b8ab839d77daaceca2edeb9f885956606",
+      "model": "deepseek-v4-pro",
+      "condition": "no_memory"
+    },
+    "deepseek/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "c6811b54d81b2acf029ef875f923bb38054a768350899f19d822e1f1df7359e8",
+      "model": "deepseek-v4-pro",
+      "condition": "smoke"
+    },
+    "glm/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "ab688cebd91a449c6482a65a21b4c89f6df4c39ca19ad07502f7394631086e81",
+      "model": "glm-5.2",
+      "condition": "full_memory"
+    },
+    "glm/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "f345dc3301da8ba0ef2851dde97e712c07f028ddf2cc928b3cd92de1e6eea4a1",
+      "model": "glm-5.2",
+      "condition": "no_memory"
+    },
+    "glm/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "84f5df77f099cb9a625751183407c3a75eb4d83e8498c7892ffaf2e080cb7188",
+      "model": "glm-5.2",
+      "condition": "smoke"
+    },
+    "kimi/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "182c58df30a34b4d044e7b8f364535b40359046f37e5775aa7df054fc0b7350d",
+      "model": "kimi-k2.6",
+      "condition": "full_memory"
+    },
+    "kimi/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "74e4d1ac1268f5f0bee65ce4889efca947b7576656b67e4e4bc4d49007a5515a",
+      "model": "kimi-k2.6",
+      "condition": "no_memory"
+    },
+    "kimi/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "228f27720b40b47bf7b4b5008a9f6a64914b77defd6d0732529282ee46e8cce4",
+      "model": "kimi-k2.6",
+      "condition": "smoke"
+    },
+    "qwen-flash/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "395672152b287edf44cb33d5b1b15aa5ff105774c4734636cf1055f2df90053f",
+      "model": "qwen3.6-flash-2026-04-16",
+      "condition": "full_memory"
+    },
+    "qwen-flash/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "b552f8b84b52132a4d51892bd1bb7ed89f1da4fc1f16e0cebc6dd5d25ee191c8",
+      "model": "qwen3.6-flash-2026-04-16",
+      "condition": "no_memory"
+    },
+    "qwen-flash/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "878435be5a1817d5c33a5ed6366d2a9070943edc0eb3cc1a1c7cc62522690a3a",
+      "model": "qwen3.6-flash-2026-04-16",
+      "condition": "smoke"
+    },
+    "qwen-max/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "02b50691c7b9217a58d822b11a13e3cbcf48dbaab60c2fa0098d9adee8c05c24",
+      "model": "qwen3.7-max-2026-06-08",
+      "condition": "full_memory"
+    },
+    "qwen-max/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "35d5a671d0f86e13dcb4055e50b33609ca7474956d5e7e0467a1bcf3c6af2b99",
+      "model": "qwen3.7-max-2026-06-08",
+      "condition": "no_memory"
+    },
+    "qwen-max/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "9528ecfc62465163697824df66f6983f9f03d2ad54a34e7f9641ea0c974b606e",
+      "model": "qwen3.7-max-2026-06-08",
+      "condition": "smoke"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/configs/memcalib-v0.1-500.json",
+      "sha256": "10a9165b513b81b700f7e0d26a69f7dec5a662ae639bb898ec5ea9d27cfa8fb7"
+    },
+    "samples": {
+      "path": "evaluation/releases/memcalib-v0.1-500/model-facing.jsonl",
+      "sha256": "6e244fad76abc25a7841881ad7a8eb91ebdea00778d57e6e9003cff0a2f8395a"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/answer-system.txt",
+      "sha256": "f52011f3a95e3be3a5692a128911c6eb3792c9aa4639af603613f859e516311f"
+    }
+  }
+}

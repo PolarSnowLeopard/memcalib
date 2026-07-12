@@ -8,7 +8,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-from evaluation.common import load_release_records, sha256_file, stable_hash, write_json, write_jsonl
+from evaluation.common import display_path, load_release_records, sha256_file, stable_hash, write_json, write_jsonl
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -426,8 +426,8 @@ def main() -> None:
     representative_ids = {str(row["id"]) for row in representative}
     diagnostic = select_diagnostic(records, representative_ids, config)
     manifest = build_selection_artifacts(representative, diagnostic, args.output_dir, config)
-    manifest["source"] = {"release": str(args.release_dir), "sha256": source_sha, "records": len(records)}
-    manifest["complexity_metadata"] = {"path": str(args.metadata), "sha256": sha256_file(args.metadata)}
+    manifest["source"] = {"release": display_path(args.release_dir, ROOT), "sha256": source_sha, "records": len(records)}
+    manifest["complexity_metadata"] = {"path": display_path(args.metadata, ROOT), "sha256": sha256_file(args.metadata)}
     manifest["diagnostic_coverage"] = _validate_diagnostic(
         diagnostic,
         config["diagnostic"],

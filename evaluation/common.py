@@ -19,6 +19,24 @@ def stable_hash(seed: int, value: str) -> str:
     return hashlib.sha256(f"{seed}:{value}".encode("utf-8")).hexdigest()
 
 
+def request_fingerprint(row: dict[str, Any]) -> str:
+    payload = {
+        "request_id": str(row["request_id"]),
+        "prompt": row["prompt"],
+        "user_defined_params": row.get("user_defined_params") or {},
+    }
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def display_path(path: Path, root: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return str(resolved.relative_to(root.resolve()))
+    except ValueError:
+        return str(resolved)
+
+
 def iter_jsonl(path: Path) -> Iterable[dict[str, Any]]:
     opener = gzip.open if path.suffix == ".gz" else Path.open
     kwargs = {"mode": "rt", "encoding": "utf-8"} if path.suffix == ".gz" else {"mode": "r", "encoding": "utf-8"}
