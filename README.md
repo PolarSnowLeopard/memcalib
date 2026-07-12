@@ -83,7 +83,7 @@ docs/                     数据结构、方法、数据来源与归档设计文
 
 首轮回答级验证已经完成。实验锁定了 500 条分层样本，并在 Full-memory 与 No-memory 配对条件下评测五个代表性模型，共生成 5,000 条回答和 6,000 条自动 Judge 结果。双 Judge 在 5,062 个原子判定上的 exact agreement 为 0.876，Cohen κ 为 0.840。
 
-当前证据初步支持 benchmark 的诊断能力：五个模型在 B/C 标签上均表现出正向记忆增益，同时均存在 A 类过度结合；标签级能力差异明显。五个模型的综合分差仅为 0.027，因此当前版本更适合比较细粒度错误结构，单一总分的模型区分度有限。完成 100 条人工复核后再形成最终有效性结论。实验说明见 [evaluation/README.md](evaluation/README.md)，可视化结果见 [500 条验证报告](evaluation/releases/memcalib-v0.1-500/report.html)。
+当前协议以 OPB 错误率、UPB 错误率及两个方向抵抗能力的调和平均作为主指标。现有五模型结果的 OPB 为 0.215 至 0.277，UPB 为 0.187 至 0.245，调和总分为 0.753 至 0.770。Full/No-memory 配对结果表明，记忆能够缓解必要信息的使用不足，同时会引入额外的过度结合。现有结果由 v1 Judge 产生，完整 3×3 混淆矩阵需要使用 ordered-usage-v2 协议重新评分。实验说明见 [evaluation/README.md](evaluation/README.md)，协议定义见 [docs/evaluation_protocol_v2.md](docs/evaluation_protocol_v2.md)，可视化结果见 [500 条验证报告](evaluation/releases/memcalib-v0.1-500/report.html)。
 
 ## 发布与许可状态
 

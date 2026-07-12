@@ -8,7 +8,11 @@ from pathlib import Path
 
 from evaluation.common import request_fingerprint, write_jsonl
 from evaluation.scripts.finalize_answer_run import summarize_result_rows
-from evaluation.scripts.prepare_answer_requests import build_answer_messages, build_answer_request
+from evaluation.scripts.prepare_answer_requests import (
+    build_answer_messages,
+    build_answer_request,
+    prepare_answer_requests,
+)
 from evaluation.scripts.validate_api_results import validate_results
 
 
@@ -30,6 +34,29 @@ def sample() -> dict:
 
 
 class AnswerRequestTest(unittest.TestCase):
+    def test_leaderboard_mode_can_prepare_full_memory_only(self) -> None:
+        samples = []
+        for index in range(500):
+            row = sample()
+            row["id"] = f"sample-{index}"
+            row["panel"] = "diagnostic" if index == 499 else "representative"
+            samples.append(row)
+        config = {"answer_models": [{"key": "m1", "model": "model-1"}], "answer_generation": {}}
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = prepare_answer_requests(
+                samples,
+                config,
+                SYSTEM,
+                Path(tmp),
+                conditions=("full_memory",),
+            )
+
+            self.assertTrue((Path(tmp) / "m1" / "full_memory.jsonl").exists())
+            self.assertFalse((Path(tmp) / "m1" / "no_memory.jsonl").exists())
+
+        self.assertEqual(500, manifest["formal_requests"])
+        self.assertEqual(["full_memory"], manifest["conditions"])
+
     def test_result_summary_aggregates_models_finish_reasons_and_usage(self) -> None:
         rows = [
             {

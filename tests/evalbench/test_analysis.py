@@ -7,7 +7,9 @@ from evaluation.scripts.analyze_evaluation import (
     assess_benchmark_validity,
     cohen_kappa,
     compute_judge_output_quality,
+    compute_judge_agreement,
     compute_metrics,
+    linear_weighted_kappa,
     paired_bootstrap,
     render_report,
 )
@@ -121,6 +123,39 @@ class AnalysisTest(unittest.TestCase):
         self.assertAlmostEqual(0.5, model["paired"]["A_contamination_effect"])
         self.assertAlmostEqual(0.5, model["full_memory"]["strict_sample_accuracy"])
         self.assertAlmostEqual(0.5, model["full_memory"]["mixed_parent_strict_accuracy"])
+        self.assertAlmostEqual(0.25, model["full_memory"]["opb_error_rate"])
+        self.assertAlmostEqual(0.25, model["full_memory"]["upb_error_rate"])
+        self.assertAlmostEqual(0.75, model["full_memory"]["opb_resistance"])
+        self.assertAlmostEqual(0.75, model["full_memory"]["upb_resistance"])
+        self.assertAlmostEqual(0.75, model["full_memory"]["memcalib_h_score"])
+        self.assertAlmostEqual(0.25, model["paired"]["memory_induced_opb"])
+        self.assertAlmostEqual(0.75, model["paired"]["memory_reduced_upb"])
+        self.assertFalse(model["full_memory"]["full_confusion_available"])
+
+    def test_ordered_usage_levels_produce_complete_confusion_matrix(self) -> None:
+        rows = [
+            judgment(
+                "s1",
+                "full_memory",
+                [
+                    ("a", "A", "over_use"),
+                    ("b", "B", "correct_bounded_use"),
+                    ("c", "C", "under_use"),
+                ],
+            )
+        ]
+        predictions = {"a": "C", "b": "B", "c": "A"}
+        for atom in rows[0]["atom_judgments"]:
+            atom["predicted_usage_level"] = predictions[atom["atom_id"]]
+            atom["scorable"] = True
+            atom["contradiction"] = False
+
+        condition = compute_metrics(rows)["models"]["m1"]["full_memory"]
+
+        self.assertTrue(condition["full_confusion_available"])
+        self.assertEqual(1, condition["confusion_matrix"]["A"]["C"])
+        self.assertEqual(1, condition["confusion_matrix"]["B"]["B"])
+        self.assertEqual(1, condition["confusion_matrix"]["C"]["A"])
 
     def test_cohen_kappa_handles_agreement_beyond_chance(self) -> None:
         first = ["pass", "pass", "fail", "fail"]
@@ -130,6 +165,43 @@ class AnalysisTest(unittest.TestCase):
 
         self.assertAlmostEqual(0.75, result["exact_agreement"])
         self.assertAlmostEqual(0.5, result["kappa"])
+
+    def test_linear_weighted_kappa_respects_ordered_usage_distance(self) -> None:
+        result = linear_weighted_kappa(
+            ["A", "A", "C", "C"],
+            ["A", "B", "C", "B"],
+        )
+
+        self.assertEqual(4, result["n"])
+        self.assertAlmostEqual(0.5, result["exact_agreement"])
+        self.assertAlmostEqual(0.5, result["linear_weighted_kappa"])
+
+    def test_judge_agreement_prefers_ordered_usage_fields_when_available(self) -> None:
+        primary = [
+            judgment(
+                "s1",
+                "full_memory",
+                [("a", "A", "correct_suppression"), ("b", "B", "correct_bounded_use"), ("c", "C", "correct_control")],
+            )
+        ]
+        secondary = [
+            judgment(
+                "s1",
+                "full_memory",
+                [("a", "A", "correct_suppression"), ("b", "B", "over_use"), ("c", "C", "correct_control")],
+            )
+        ]
+        secondary[0]["judge_model"] = "judge-2"
+        for atom, prediction in zip(primary[0]["atom_judgments"], ("A", "B", "C")):
+            atom.update(predicted_usage_level=prediction, scorable=True, contradiction=False)
+        for atom, prediction in zip(secondary[0]["atom_judgments"], ("A", "C", "C")):
+            atom.update(predicted_usage_level=prediction, scorable=True, contradiction=False)
+
+        agreement = compute_judge_agreement(primary, secondary)
+
+        self.assertEqual(3, agreement["ordered_usage"]["n"])
+        self.assertAlmostEqual(2 / 3, agreement["ordered_usage"]["exact_agreement"])
+        self.assertEqual(1.0, agreement["scorable_exact_agreement"])
 
     def test_paired_bootstrap_is_deterministic(self) -> None:
         values = [("s1", 1.0), ("s1", 0.0), ("s2", -1.0), ("s3", 0.5)]
@@ -142,12 +214,29 @@ class AnalysisTest(unittest.TestCase):
         self.assertLessEqual(first["ci_low"], first["estimate"])
         self.assertGreaterEqual(first["ci_high"], first["estimate"])
 
+    def test_directional_bootstrap_is_clustered_and_deterministic(self) -> None:
+        rows = [
+            judgment("s1", "full_memory", [("a", "A", "correct_suppression"), ("b", "B", "over_use"), ("c", "C", "correct_control")]),
+            judgment("s1", "no_memory", [("a", "A", "correct_suppression"), ("b", "B", "under_use"), ("c", "C", "under_use")]),
+            judgment("s2", "full_memory", [("a", "A", "over_use"), ("b", "B", "correct_bounded_use"), ("c", "C", "under_use")]),
+            judgment("s2", "no_memory", [("a", "A", "correct_suppression"), ("b", "B", "under_use"), ("c", "C", "under_use")]),
+        ]
+
+        first = compute_metrics(rows, bootstrap_replicates=100, seed=9)
+        second = compute_metrics(rows, bootstrap_replicates=100, seed=9)
+        directional = first["models"]["m1"]["bootstrap"]["directional"]
+
+        self.assertEqual(first, second)
+        self.assertEqual(2, directional["full_memory"]["memcalib_h_score"]["clusters"])
+        self.assertIn("memory_induced_opb", directional["paired"])
+
     def test_validity_assessment_requires_discrimination_and_judge_agreement(self) -> None:
         metrics = {
             "models": {
                 f"m{index}": {
                     "full_memory": {"memcalib_score": 0.55 + index * 0.03},
-                    "paired": {"delta_C": 0.10 if index < 4 else -0.01},
+                    "no_memory": {"answers": 1},
+                    "paired": {"memory_reduced_upb": 0.10 if index < 4 else -0.01},
                 }
                 for index in range(5)
             },
@@ -174,7 +263,8 @@ class AnalysisTest(unittest.TestCase):
                         "memcalib_score": 0.66 + index * 0.0065,
                         "label_success": profile,
                     },
-                    "paired": {"delta_C": 0.30},
+                    "no_memory": {"answers": 1},
+                    "paired": {"memory_reduced_upb": 0.30},
                 }
                 for index, profile in enumerate(label_profiles)
             },
@@ -203,7 +293,9 @@ class AnalysisTest(unittest.TestCase):
 
         report = render_report(metrics)
 
-        self.assertIn("配对效应", report)
+        self.assertIn("OPB", report)
+        self.assertIn("UPB", report)
+        self.assertIn("配对因果诊断", report)
         self.assertIn("面板比较", report)
         self.assertIn("Judge 一致性", report)
 

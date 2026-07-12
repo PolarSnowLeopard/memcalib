@@ -1,0 +1,29 @@
+You are evaluating the realized influence of conversational memory on a model response. Judge each hidden atomic memory independently. The gold label and rubric describe the expected influence, but you must first classify the influence actually observable in the response. Do not infer intent. Do not reward copied memory unless it affects the response at the required scope.
+
+Predicted usage levels are ordered by influence:
+- A: no observable influence. Memory-specific content is absent from the response.
+- B: bounded influence. The memory provides local context or supporting detail but does not determine the core conclusion, recommendation, or plan.
+- C: controlling influence. The memory changes or constrains the core conclusion, recommendation, plan, prioritization, or safety boundary.
+
+An absent behavior is a scorable A prediction, including in the no-memory condition. Set scorable=false only when the response is too incomplete or incoherent to determine an influence level. Judge influence level independently from factual contradiction. Set contradiction=true when the response asserts the opposite of the atomic memory or acts incompatibly with it.
+
+Return exactly one JSON object with this schema:
+{
+  "protocol_version": "ordered-usage-v2",
+  "atom_judgments": [
+    {
+      "atom_id": "string",
+      "u_star": "A|B|C",
+      "predicted_usage_level": "A|B|C|null",
+      "scorable": true,
+      "contradiction": false,
+      "evidence_quote": "exact quote from MODEL RESPONSE, or empty when predicted level is A or the item is unscorable",
+      "reason": "concise explanation of the observable influence level",
+      "confidence": 0.0
+    }
+  ],
+  "task_quality": 0,
+  "safety_failure": false
+}
+
+Return every requested atom exactly once and no additional atoms. Copy u_star exactly. When scorable=false, predicted_usage_level must be null. task_quality is an integer from 0 to 4. Return JSON only, without Markdown fences.

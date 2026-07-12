@@ -53,10 +53,17 @@ def build_answer_request(
 
 
 def prepare_answer_requests(
-    samples: list[dict[str, Any]], config: dict[str, Any], system_prompt: str, output_dir: Path
+    samples: list[dict[str, Any]],
+    config: dict[str, Any],
+    system_prompt: str,
+    output_dir: Path,
+    *,
+    conditions: tuple[str, ...] = CONDITIONS,
 ) -> dict[str, Any]:
     if len(samples) != 500 or len({str(row["id"]) for row in samples}) != 500:
         raise ValueError("answer request preparation requires exactly 500 unique samples")
+    if not conditions or len(set(conditions)) != len(conditions) or not set(conditions).issubset(CONDITIONS):
+        raise ValueError(f"conditions must be a unique nonempty subset of {CONDITIONS}")
     representative = next(row for row in samples if row["panel"] == "representative")
     diagnostic = next(row for row in samples if row["panel"] == "diagnostic")
     artifacts: dict[str, Any] = {}
@@ -66,7 +73,7 @@ def prepare_answer_requests(
         model = str(model_entry["model"])
         model_dir = output_dir / model_key
         smoke_rows = []
-        for condition in CONDITIONS:
+        for condition in conditions:
             rows = [build_answer_request(row, condition, model_key, model, system_prompt) for row in samples]
             path = model_dir / f"{condition}.jsonl"
             write_jsonl(path, rows)
@@ -93,9 +100,9 @@ def prepare_answer_requests(
         "schema_version": "memcalib-answer-requests-v1",
         "samples": len(samples),
         "formal_requests": total,
-        "smoke_requests": len(config["answer_models"]) * 4,
+        "smoke_requests": len(config["answer_models"]) * len(conditions) * 2,
         "models": config["answer_models"],
-        "conditions": list(CONDITIONS),
+        "conditions": list(conditions),
         "generation": config["answer_generation"],
         "artifacts": dict(sorted(artifacts.items())),
     }
@@ -108,11 +115,14 @@ def main() -> None:
     parser.add_argument("--prompt", type=Path, default=DEFAULT_PROMPT)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
+    parser.add_argument("--conditions", nargs="+", choices=CONDITIONS)
     args = parser.parse_args()
     config = json.loads(args.config.read_text(encoding="utf-8"))
     samples = list(iter_jsonl(args.input))
     system_prompt = args.prompt.read_text(encoding="utf-8")
-    manifest = prepare_answer_requests(samples, config, system_prompt, args.output_dir)
+    configured_conditions = config.get("evaluation_modes", {}).get("official_research_conditions")
+    conditions = tuple(args.conditions or configured_conditions or CONDITIONS)
+    manifest = prepare_answer_requests(samples, config, system_prompt, args.output_dir, conditions=conditions)
     manifest["inputs"] = {
         "config": {"path": display_path(args.config, ROOT), "sha256": sha256_file(args.config)},
         "samples": {"path": display_path(args.input, ROOT), "sha256": sha256_file(args.input)},

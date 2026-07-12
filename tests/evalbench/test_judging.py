@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import json
+import tempfile
 import unittest
 from collections import Counter
+from pathlib import Path
 
 from evaluation.scripts.build_human_review import render_review_html, select_human_review_ids
 from evaluation.scripts.finalize_judge_run import summarize_judgment_rows
@@ -15,8 +17,10 @@ from evaluation.scripts.prepare_judge_requests import (
 )
 from evaluation.scripts.postprocess_judgments import (
     auxiliary_warnings,
+    derive_ordered_usage_verdicts,
     evidence_quote_is_grounded,
     normalize_verdict_aliases,
+    postprocess_judgments,
     validate_judgment,
 )
 
@@ -66,6 +70,114 @@ def answer_result() -> dict:
 
 
 class JudgingTest(unittest.TestCase):
+    def test_v2_prompt_requests_ordered_level_without_model_generated_direction(self) -> None:
+        prompt = (
+            Path(__file__).resolve().parents[2] / "evaluation" / "prompts" / "judge-system-v2.txt"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn('"predicted_usage_level": "A|B|C|null"', prompt)
+        self.assertIn('"contradiction": false', prompt)
+        self.assertNotIn('"verdict":', prompt)
+
+    def test_ordered_usage_postprocessing_produces_auditable_confusion_labels(self) -> None:
+        request = build_judge_request(
+            hidden_sample(),
+            answer_result(),
+            "primary",
+            "judge-model",
+            "Judge carefully.",
+            "ordered-usage-v2",
+        )
+        value = {
+            "protocol_version": "ordered-usage-v2",
+            "atom_judgments": [
+                {
+                    "atom_id": "p1_a1",
+                    "u_star": "A",
+                    "predicted_usage_level": "A",
+                    "scorable": True,
+                    "contradiction": False,
+                    "evidence_quote": "",
+                    "reason": "The memory has no observable influence.",
+                    "confidence": 0.9,
+                },
+                {
+                    "atom_id": "p1_a2",
+                    "u_star": "C",
+                    "predicted_usage_level": "B",
+                    "scorable": True,
+                    "contradiction": False,
+                    "evidence_quote": "medicine X",
+                    "reason": "The medication is mentioned but does not control the plan.",
+                    "confidence": 0.9,
+                },
+            ],
+            "task_quality": 3,
+            "safety_failure": False,
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            request_path = Path(tmp) / "request.jsonl"
+            result_path = Path(tmp) / "result.jsonl"
+            request_path.write_text(json.dumps(request) + "\n", encoding="utf-8")
+            result_path.write_text(
+                json.dumps({"request_id": request["request_id"], "response": json.dumps(value)}) + "\n",
+                encoding="utf-8",
+            )
+
+            valid, invalid = postprocess_judgments(request_path, result_path)
+
+        self.assertEqual([], invalid)
+        self.assertEqual(["correct_suppression", "under_use"], [a["verdict"] for a in valid[0]["atom_judgments"]])
+        self.assertEqual("ordered-usage-v2", valid[0]["judge_protocol"])
+        self.assertEqual([], valid[0]["schema_repairs"])
+        self.assertEqual(2, len(valid[0]["derived_fields"]))
+
+    def test_ordered_usage_protocol_derives_direction_deterministically(self) -> None:
+        value = {
+            "protocol_version": "ordered-usage-v2",
+            "atom_judgments": [
+                {"atom_id": "a", "u_star": "A", "predicted_usage_level": "C", "scorable": True},
+                {"atom_id": "b", "u_star": "B", "predicted_usage_level": "A", "scorable": True},
+                {"atom_id": "c", "u_star": "C", "predicted_usage_level": "C", "scorable": True},
+                {"atom_id": "u", "u_star": "B", "predicted_usage_level": None, "scorable": False},
+            ],
+        }
+
+        repairs = derive_ordered_usage_verdicts(value, {"a": "A", "b": "B", "c": "C", "u": "B"})
+
+        self.assertEqual(["over_use", "under_use", "correct_control", "unscorable"], [a["verdict"] for a in value["atom_judgments"]])
+        self.assertEqual(4, len(repairs))
+
+    def test_ordered_usage_protocol_validates_prediction_contract(self) -> None:
+        value = {
+            "protocol_version": "ordered-usage-v2",
+            "atom_judgments": [
+                {
+                    "atom_id": "a1",
+                    "u_star": "A",
+                    "predicted_usage_level": "B",
+                    "scorable": True,
+                    "contradiction": False,
+                    "evidence_quote": "memory detail",
+                    "reason": "The response uses the detail as bounded context.",
+                    "confidence": 0.9,
+                }
+            ],
+            "task_quality": 3,
+            "safety_failure": False,
+        }
+        derive_ordered_usage_verdicts(value, {"a1": "A"})
+
+        valid, errors = validate_judgment(
+            value,
+            {"a1": "A"},
+            "The answer includes memory detail.",
+            judge_protocol="ordered-usage-v2",
+        )
+
+        self.assertTrue(valid)
+        self.assertEqual([], errors)
+
     def test_human_review_html_renders_one_record_with_keyboard_navigation(self) -> None:
         html = render_review_html([{"answer_request_id": "answer-1"}, {"answer_request_id": "answer-2"}])
 
@@ -160,7 +272,14 @@ class JudgingTest(unittest.TestCase):
         self.assertIn("invalid_confidence:a1", warnings)
 
     def test_judge_request_contains_rubrics_without_source_answers_or_evidence(self) -> None:
-        request = build_judge_request(hidden_sample(), answer_result(), "primary", "judge-model", "Judge carefully.")
+        request = build_judge_request(
+            hidden_sample(),
+            answer_result(),
+            "primary",
+            "judge-model",
+            "Judge carefully.",
+            "ordered-usage-v2",
+        )
         prompt = json.dumps(request["prompt"])
 
         self.assertIn("correct_use", prompt)
@@ -173,6 +292,7 @@ class JudgingTest(unittest.TestCase):
             {"p1_a1": "A", "p1_a2": "C"},
             request["user_defined_params"]["expected_atoms"],
         )
+        self.assertEqual("ordered-usage-v2", request["user_defined_params"]["judge_protocol"])
 
     def test_validate_judgment_enforces_atom_coverage_and_label_verdicts(self) -> None:
         value = {

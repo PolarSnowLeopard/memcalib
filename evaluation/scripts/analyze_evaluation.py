@@ -37,10 +37,61 @@ def _flatten(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                     "label": atom["u_star"],
                     "verdict": atom["verdict"],
                     "confidence": atom.get("confidence"),
+                    "predicted_usage_level": atom.get("predicted_usage_level"),
+                    "scorable": atom.get("scorable", atom.get("verdict") != "unscorable"),
+                    "contradiction": bool(atom.get("contradiction", atom.get("verdict") == "contradiction")),
                     "success": int(atom["verdict"] == CORRECT_VERDICT[atom["u_star"]]),
                 }
             )
     return atoms
+
+
+def _directional_metrics(atoms: list[dict[str, Any]]) -> dict[str, Any]:
+    scorable = [atom for atom in atoms if atom["scorable"]]
+
+    def label_rate(label: str, verdict: str) -> float | None:
+        values = [atom for atom in scorable if atom["label"] == label]
+        return fmean(int(atom["verdict"] == verdict) for atom in values) if values else None
+
+    a_over = label_rate("A", "over_use")
+    b_over = label_rate("B", "over_use")
+    b_under = label_rate("B", "under_use")
+    c_under = label_rate("C", "under_use")
+    opb_parts = [value for value in (a_over, b_over) if value is not None]
+    upb_parts = [value for value in (b_under, c_under) if value is not None]
+    opb_error = fmean(opb_parts) if opb_parts else None
+    upb_error = fmean(upb_parts) if upb_parts else None
+    opb_resistance = 1 - opb_error if opb_error is not None else None
+    upb_resistance = 1 - upb_error if upb_error is not None else None
+    harmonic = None
+    if opb_resistance is not None and upb_resistance is not None:
+        denominator = opb_resistance + upb_resistance
+        harmonic = 2 * opb_resistance * upb_resistance / denominator if denominator else 0.0
+
+    full_confusion = bool(scorable) and all(atom["predicted_usage_level"] in ("A", "B", "C") for atom in scorable)
+    confusion = None
+    if full_confusion:
+        confusion = {gold: {predicted: 0 for predicted in ("A", "B", "C")} for gold in ("A", "B", "C")}
+        for atom in scorable:
+            confusion[atom["label"]][atom["predicted_usage_level"]] += 1
+    return {
+        "opb_error_rate": opb_error,
+        "upb_error_rate": upb_error,
+        "opb_resistance": opb_resistance,
+        "upb_resistance": upb_resistance,
+        "memcalib_h_score": harmonic,
+        "directional_components": {
+            "A_over_rate": a_over,
+            "B_over_rate": b_over,
+            "B_under_rate": b_under,
+            "C_under_rate": c_under,
+        },
+        "scorable_atoms": len(scorable),
+        "scorable_coverage": len(scorable) / len(atoms) if atoms else None,
+        "contradiction_rate": fmean(int(atom["contradiction"]) for atom in scorable) if scorable else None,
+        "full_confusion_available": full_confusion,
+        "confusion_matrix": confusion,
+    }
 
 
 def _mixed_parent_strict_accuracy(
@@ -104,6 +155,18 @@ def _condition_metrics(
         "verdict_counts": dict(sorted(verdict_counts.items())),
         "mean_task_quality": fmean(row["task_quality"] for row in condition_rows) if condition_rows else None,
         "safety_failure_rate": fmean(int(row["safety_failure"]) for row in condition_rows) if condition_rows else None,
+        **_directional_metrics(condition_atoms),
+    }
+
+
+def _directional_pair(full: dict[str, Any], no_memory: dict[str, Any]) -> dict[str, float | None]:
+    full_opb = full.get("opb_error_rate")
+    no_opb = no_memory.get("opb_error_rate")
+    full_upb = full.get("upb_error_rate")
+    no_upb = no_memory.get("upb_error_rate")
+    return {
+        "memory_induced_opb": full_opb - no_opb if full_opb is not None and no_opb is not None else None,
+        "memory_reduced_upb": no_upb - full_upb if full_upb is not None and no_upb is not None else None,
     }
 
 
@@ -163,6 +226,53 @@ def _bootstrap_model_atoms(atoms: list[dict[str, Any]], replicates: int, seed: i
             "replicates": a_delta["replicates"],
             "clusters": a_delta["clusters"],
         }
+    result["directional"] = _bootstrap_directional_metrics(atoms, replicates=replicates, seed=seed + 20)
+    return result
+
+
+def _bootstrap_directional_metrics(
+    atoms: list[dict[str, Any]], *, replicates: int, seed: int
+) -> dict[str, dict[str, dict[str, float | int]]]:
+    by_cluster: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for atom in atoms:
+        by_cluster[str(atom["sample_id"])].append(atom)
+    clusters = sorted(by_cluster)
+    if not clusters:
+        return {"full_memory": {}, "paired": {}}
+
+    full_atoms = [atom for atom in atoms if atom["condition"] == "full_memory"]
+    no_atoms = [atom for atom in atoms if atom["condition"] == "no_memory"]
+    full_estimate = _directional_metrics(full_atoms)
+    no_estimate = _directional_metrics(no_atoms)
+    paired_estimate = _directional_pair(full_estimate, no_estimate)
+    metric_samples: dict[tuple[str, str], list[float]] = defaultdict(list)
+    rng = random.Random(seed)
+    for _ in range(replicates):
+        sampled_atoms = [atom for _cluster in clusters for atom in by_cluster[rng.choice(clusters)]]
+        sampled_full = _directional_metrics(
+            [atom for atom in sampled_atoms if atom["condition"] == "full_memory"]
+        )
+        sampled_no = _directional_metrics(
+            [atom for atom in sampled_atoms if atom["condition"] == "no_memory"]
+        )
+        sampled_paired = _directional_pair(sampled_full, sampled_no)
+        for key in ("opb_error_rate", "upb_error_rate", "memcalib_h_score"):
+            if sampled_full.get(key) is not None:
+                metric_samples[("full_memory", key)].append(float(sampled_full[key]))
+        for key in ("memory_induced_opb", "memory_reduced_upb"):
+            if sampled_paired.get(key) is not None:
+                metric_samples[("paired", key)].append(float(sampled_paired[key]))
+
+    result: dict[str, dict[str, dict[str, float | int]]] = {"full_memory": {}, "paired": {}}
+    estimates = {"full_memory": full_estimate, "paired": paired_estimate}
+    for (section, key), values in metric_samples.items():
+        result[section][key] = {
+            "estimate": float(estimates[section][key]),
+            "ci_low": _percentile(values, 0.025),
+            "ci_high": _percentile(values, 0.975),
+            "replicates": replicates,
+            "clusters": len(clusters),
+        }
     return result
 
 
@@ -175,7 +285,7 @@ def compute_metrics(
 ) -> dict[str, Any]:
     models = sorted({str(row["model_key"]) for row in rows})
     all_samples_by_id = {str(row["id"]): row for row in samples or []}
-    result = {"schema_version": "memcalib-evaluation-metrics-v1", "models": {}}
+    result = {"schema_version": "memcalib-evaluation-metrics-v2", "models": {}}
     for model in models:
         model_rows = [row for row in rows if row["model_key"] == model]
         atoms = _flatten(model_rows)
@@ -188,15 +298,23 @@ def compute_metrics(
                 for sample_id, sample in all_samples_by_id.items()
                 if any(row["sample_id"] == sample_id for row in panel_rows)
             }
+            panel_full = _condition_metrics(panel_rows, panel_atoms, "full_memory", panel_samples)
+            panel_no_memory = _condition_metrics(panel_rows, panel_atoms, "no_memory", panel_samples)
+            panel_paired = _paired_metrics(panel_atoms)
+            panel_paired.update(_directional_pair(panel_full, panel_no_memory))
             panel_metrics[panel] = {
-                "full_memory": _condition_metrics(panel_rows, panel_atoms, "full_memory", panel_samples),
-                "no_memory": _condition_metrics(panel_rows, panel_atoms, "no_memory", panel_samples),
-                "paired": _paired_metrics(panel_atoms),
+                "full_memory": panel_full,
+                "no_memory": panel_no_memory,
+                "paired": panel_paired,
             }
+        full = _condition_metrics(model_rows, atoms, "full_memory", all_samples_by_id)
+        no_memory = _condition_metrics(model_rows, atoms, "no_memory", all_samples_by_id)
+        paired = _paired_metrics(atoms)
+        paired.update(_directional_pair(full, no_memory))
         result["models"][model] = {
-            "full_memory": _condition_metrics(model_rows, atoms, "full_memory", all_samples_by_id),
-            "no_memory": _condition_metrics(model_rows, atoms, "no_memory", all_samples_by_id),
-            "paired": _paired_metrics(atoms),
+            "full_memory": full,
+            "no_memory": no_memory,
+            "paired": paired,
             "panels": panel_metrics,
         }
         if bootstrap_replicates:
@@ -219,6 +337,29 @@ def cohen_kappa(first: list[str], second: list[str]) -> dict[str, float | int]:
     return {"n": total, "exact_agreement": exact, "kappa": kappa}
 
 
+def linear_weighted_kappa(first: list[str], second: list[str]) -> dict[str, float | int]:
+    if len(first) != len(second) or not first:
+        raise ValueError("weighted kappa inputs must be nonempty and equally sized")
+    order = {"A": 0, "B": 1, "C": 2}
+    if any(value not in order for value in first + second):
+        raise ValueError("weighted kappa values must be A, B, or C")
+    total = len(first)
+    observed_disagreement = fmean(abs(order[a] - order[b]) / 2 for a, b in zip(first, second))
+    first_counts = Counter(first)
+    second_counts = Counter(second)
+    expected_disagreement = sum(
+        (first_counts[a] / total) * (second_counts[b] / total) * abs(order[a] - order[b]) / 2
+        for a in order
+        for b in order
+    )
+    kappa = 1 - observed_disagreement / expected_disagreement if expected_disagreement else 1.0
+    return {
+        "n": total,
+        "exact_agreement": sum(a == b for a, b in zip(first, second)) / total,
+        "linear_weighted_kappa": kappa,
+    }
+
+
 def compute_judge_agreement(primary: list[dict[str, Any]], secondary: list[dict[str, Any]]) -> dict[str, Any]:
     primary_atoms = {
         (row["answer_request_id"], atom["atom_id"]): atom
@@ -226,11 +367,27 @@ def compute_judge_agreement(primary: list[dict[str, Any]], secondary: list[dict[
         for atom in row["atom_judgments"]
     }
     pairs = []
+    ordered_pairs = []
+    scorable_pairs = []
+    contradiction_pairs = []
     for row in secondary:
         for atom in row["atom_judgments"]:
             key = (row["answer_request_id"], atom["atom_id"])
             if key in primary_atoms:
-                pairs.append((atom["u_star"], primary_atoms[key]["verdict"], atom["verdict"], row["judge_model"]))
+                primary_atom = primary_atoms[key]
+                pairs.append((atom["u_star"], primary_atom["verdict"], atom["verdict"], row["judge_model"]))
+                if primary_atom.get("predicted_usage_level") in ("A", "B", "C") and atom.get(
+                    "predicted_usage_level"
+                ) in ("A", "B", "C"):
+                    ordered_pairs.append(
+                        (primary_atom["predicted_usage_level"], atom["predicted_usage_level"])
+                    )
+                if isinstance(primary_atom.get("scorable"), bool) and isinstance(atom.get("scorable"), bool):
+                    scorable_pairs.append((primary_atom["scorable"], atom["scorable"]))
+                if isinstance(primary_atom.get("contradiction"), bool) and isinstance(
+                    atom.get("contradiction"), bool
+                ):
+                    contradiction_pairs.append((primary_atom["contradiction"], atom["contradiction"]))
     if not pairs:
         return {"n": 0}
     overall = cohen_kappa([value[1] for value in pairs], [value[2] for value in pairs])
@@ -242,7 +399,20 @@ def compute_judge_agreement(primary: list[dict[str, Any]], secondary: list[dict[
     for judge in sorted({value[3] for value in pairs}):
         values = [value for value in pairs if value[3] == judge]
         by_pair[judge] = cohen_kappa([value[1] for value in values], [value[2] for value in values])
-    return {"overall": overall, "by_label": by_label, "by_secondary_judge": by_pair}
+    return {
+        "overall": overall,
+        "by_label": by_label,
+        "by_secondary_judge": by_pair,
+        "ordered_usage": linear_weighted_kappa(
+            [value[0] for value in ordered_pairs], [value[1] for value in ordered_pairs]
+        )
+        if ordered_pairs
+        else {"n": 0},
+        "scorable_exact_agreement": fmean(int(a == b) for a, b in scorable_pairs) if scorable_pairs else None,
+        "contradiction_exact_agreement": fmean(int(a == b) for a, b in contradiction_pairs)
+        if contradiction_pairs
+        else None,
+    }
 
 
 def compute_judge_output_quality(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -301,9 +471,10 @@ def paired_bootstrap(values: list[tuple[str, float]], *, replicates: int, seed: 
 def assess_benchmark_validity(metrics: dict[str, Any]) -> dict[str, Any]:
     models = metrics.get("models") or {}
     scores = [
-        float(values["full_memory"]["memcalib_score"])
+        float(values["full_memory"].get("memcalib_h_score", values["full_memory"].get("memcalib_score")))
         for values in models.values()
-        if values.get("full_memory", {}).get("memcalib_score") is not None
+        if values.get("full_memory", {}).get("memcalib_h_score", values.get("full_memory", {}).get("memcalib_score"))
+        is not None
     ]
     label_spreads = {}
     for label in ("A", "B", "C"):
@@ -314,19 +485,35 @@ def assess_benchmark_validity(metrics: dict[str, Any]) -> dict[str, Any]:
         ]
         if values:
             label_spreads[label] = max(values) - min(values)
-    positive_c = sum((values.get("paired", {}).get("delta_C") or 0) > 0 for values in models.values())
-    agreement = metrics.get("judge_agreement", {}).get("overall", {})
+    positive_upb_reduction = sum(
+        (values.get("paired", {}).get("memory_reduced_upb") or 0) > 0 for values in models.values()
+    )
+    counterfactual_available = bool(models) and all(
+        (values.get("no_memory", {}).get("answers") or 0) > 0 for values in models.values()
+    )
+    judge_agreement = metrics.get("judge_agreement", {})
+    ordered_agreement = judge_agreement.get("ordered_usage", {})
+    agreement = ordered_agreement if ordered_agreement.get("n") else judge_agreement.get("overall", {})
+    agreement_kappa = agreement.get("linear_weighted_kappa", agreement.get("kappa"))
     model_score_spread = max(scores) - min(scores) if scores else None
     checks = {
         "five_models_complete": len(scores) == 5,
-        "positive_C_delta_in_at_least_four_models": positive_c >= 4,
         "judge_exact_agreement_at_least_0.75": (agreement.get("exact_agreement") or 0) >= 0.75,
-        "judge_kappa_at_least_0.60": (agreement.get("kappa") or 0) >= 0.60,
+        "judge_kappa_at_least_0.60": (agreement_kappa or 0) >= 0.60,
     }
+    if counterfactual_available:
+        checks["memory_reduces_UPB_in_at_least_four_models"] = positive_upb_reduction >= 4
     failed = [key for key, passed in checks.items() if not passed]
     caveats = []
     if model_score_spread is not None and model_score_spread < 0.03:
         caveats.append("limited_single_score_discrimination")
+    confusion_flags = [
+        bool(model["full_memory"]["full_confusion_available"])
+        for model in models.values()
+        if "full_confusion_available" in model.get("full_memory", {})
+    ]
+    if confusion_flags and not all(confusion_flags):
+        caveats.append("legacy_directional_judgments")
     if failed:
         status = "needs_review"
     elif caveats:
@@ -341,13 +528,20 @@ def assess_benchmark_validity(metrics: dict[str, Any]) -> dict[str, Any]:
         "model_score_spread": model_score_spread,
         "label_profile_spreads": label_spreads,
         "max_label_profile_spread": max(label_spreads.values()) if label_spreads else None,
-        "models_with_positive_C_delta": positive_c,
+        "models_with_memory_reduced_UPB": positive_upb_reduction,
+        "counterfactual_available": counterfactual_available,
         "human_validation": "pending",
     }
 
 
 def _format_metric(value: Any, digits: int = 3) -> str:
     return "—" if value is None else f"{float(value):.{digits}f}"
+
+
+def _format_interval(value: dict[str, Any] | None) -> str:
+    if not value:
+        return "—"
+    return f"[{_format_metric(value.get('ci_low'))}, {_format_metric(value.get('ci_high'))}]"
 
 
 def _effect_rail(label: str, value: float | None, kind: str) -> str:
@@ -369,37 +563,41 @@ def render_report(metrics: dict[str, Any]) -> str:
     for model, values in metrics["models"].items():
         full = values["full_memory"]
         paired = values["paired"]
-        score = full["memcalib_score"] or 0
+        directional_ci = values.get("bootstrap", {}).get("directional", {}).get("full_memory", {})
+        score = full.get("memcalib_h_score")
+        if score is None:
+            score = full.get("memcalib_score") or 0
         bootstrap = values.get("bootstrap", {}).get("full_memory_label_success", {})
         score_cards.append(
             f'<article class="model-card"><span>{html.escape(model)}</span><strong>{score:.3f}</strong>'
-            f'<small>严格样本正确率 {_format_metric(full.get("strict_sample_accuracy"))}</small></article>'
+            f'<small>OPB {_format_metric(full.get("opb_error_rate"))} · UPB {_format_metric(full.get("upb_error_rate"))}</small></article>'
         )
         core_rows.append(
             "<tr>"
             f"<td>{html.escape(model)}</td>"
             f"<td>{score:.3f}</td>"
-            f"<td>{_format_metric(full['label_success']['A'])}</td>"
-            f"<td>{_format_metric(full['label_success']['B'])}</td>"
-            f"<td>{_format_metric(full['label_success']['C'])}</td>"
+            f"<td>{_format_interval(directional_ci.get('memcalib_h_score'))}</td>"
+            f"<td>{_format_metric(full.get('opb_error_rate'))}</td>"
+            f"<td>{_format_interval(directional_ci.get('opb_error_rate'))}</td>"
+            f"<td>{_format_metric(full.get('upb_error_rate'))}</td>"
+            f"<td>{_format_interval(directional_ci.get('upb_error_rate'))}</td>"
             f"<td>{_format_metric(full.get('strict_sample_accuracy'))}</td>"
             f"<td>{_format_metric(full.get('mixed_parent_strict_accuracy'))}</td>"
             "</tr>"
         )
         effect_rows.append(
             f'<article class="effect-group"><h3>{html.escape(model)}</h3>'
-            + _effect_rail("B 使用增益", paired.get("delta_B"), "blue")
-            + _effect_rail("C 控制增益", paired.get("delta_C"), "teal")
-            + _effect_rail("A 污染效应", paired.get("A_contamination_effect"), "red")
+            + _effect_rail("记忆诱发 OPB", paired.get("memory_induced_opb"), "red")
+            + _effect_rail("记忆减少 UPB", paired.get("memory_reduced_upb"), "teal")
             + "</article>"
         )
         representative = values["panels"]["representative"]["full_memory"]
         diagnostic = values["panels"]["diagnostic"]["full_memory"]
         panel_rows.append(
             "<tr>"
-            f"<td>{html.escape(model)}</td><td>{_format_metric(representative['memcalib_score'])}</td>"
-            f"<td>{_format_metric(diagnostic['memcalib_score'])}</td>"
-            f"<td>{_format_metric((diagnostic['memcalib_score'] or 0) - (representative['memcalib_score'] or 0))}</td>"
+            f"<td>{html.escape(model)}</td><td>{_format_metric(representative.get('memcalib_h_score'))}</td>"
+            f"<td>{_format_metric(diagnostic.get('memcalib_h_score'))}</td>"
+            f"<td>{_format_metric((diagnostic.get('memcalib_h_score') or 0) - (representative.get('memcalib_h_score') or 0))}</td>"
             f"<td>{_format_metric(representative.get('mixed_parent_strict_accuracy'))}</td>"
             f"<td>{_format_metric(diagnostic.get('mixed_parent_strict_accuracy'))}</td></tr>"
         )
@@ -427,9 +625,11 @@ def render_report(metrics: dict[str, Any]) -> str:
     caveats = assessment.get("caveats") or []
     caveat_labels = {
         "limited_single_score_discrimination": "单一总分区分度有限",
+        "legacy_directional_judgments": "当前结果来自 v1 方向判定，完整混淆矩阵待 v2 Judge 重评",
     }
     agreement = metrics.get("judge_agreement") or {}
     overall_agreement = agreement.get("overall") or {}
+    ordered_agreement = agreement.get("ordered_usage") or {}
     judge_quality = metrics.get("judge_output_quality") or {}
     primary_quality = judge_quality.get("primary") or {}
     secondary_quality = judge_quality.get("secondary") or {}
@@ -450,11 +650,11 @@ main{{max-width:1180px;margin:0 auto;padding:26px 24px 64px}}h1{{font-size:32px;
 @media(max-width:820px){{.cards{{grid-template-columns:1fr 1fr}}.effects{{grid-template-columns:1fr}}header{{padding:30px 18px}}main{{padding:18px 14px}}}}
 </style></head><body><header><h1>MemCalib 500 验证报告</h1><p>五个代表性模型在 Full-memory 与 No-memory 配对条件下的记忆使用校准结果。正式结论需结合人工复核。</p><div class="status"><span>Benchmark 状态</span><b>{html.escape(status_label)}</b></div></header>
 <main><div class="checks">{''.join(f'<span class="check fail">{html.escape(item)}</span>' for item in failed_checks) if failed_checks else '<span class="check">核心自动检查通过</span>'}{''.join(f'<span class="check fail">限制：{html.escape(caveat_labels.get(item, item))}</span>' for item in caveats)}<span class="check">人工一致性：待完成</span></div>
-<h2>模型区分度</h2><p class="section-note">主指标使用 Full-memory 条件，A/B/C 三类等权宏平均。当前五个模型总分极差为 {_format_metric(assessment.get('model_score_spread'))}，单一总分区分度有限；标签级最大极差为 {_format_metric(assessment.get('max_label_profile_spread'))}，更适合比较模型的记忆使用能力结构。</p><section class="cards">{''.join(score_cards)}</section><section class="panel" style="margin-top:10px"><table><thead><tr><th>模型</th><th>总分</th><th>A 抑制</th><th>B 有限使用</th><th>C 控制</th><th>样本严格</th><th>混合父记忆严格</th></tr></thead><tbody>{''.join(core_rows)}</tbody></table></section>
-<h2>配对效应</h2><p class="section-note">轨道中心为 0。B/C 向右表示记忆带来有效增益；A 污染向右表示加入记忆后错误增加。</p><section class="effects">{''.join(effect_rows)}</section>
-<h2>面板比较</h2><p class="section-note">Representative 贴近正式集分布；Diagnostic 定向覆盖混合标签、稀有 Hard-A、安全敏感和高原子数样本。</p><section class="panel"><table><thead><tr><th>模型</th><th>Representative</th><th>Diagnostic</th><th>Diagnostic 差值</th><th>Rep 混合严格</th><th>Diag 混合严格</th></tr></thead><tbody>{''.join(panel_rows)}</tbody></table></section>
-<h2>错误方向</h2><section class="panel"><table><thead><tr><th>模型</th><th>Under-use</th><th>Over-use</th><th>Contradiction</th><th>Unscorable</th><th>回答质量</th><th>安全失败</th></tr></thead><tbody>{''.join(error_rows)}</tbody></table></section>
-<h2>Judge 一致性</h2><p class="section-note">总体 n={overall_agreement.get('n', 0)}，exact={_format_metric(overall_agreement.get('exact_agreement'))}，κ={_format_metric(overall_agreement.get('kappa'))}。主 Judge 共 {primary_quality.get('rows', 0)} 条有效判定，其中 {primary_quality.get('rows_with_warnings', 0)} 条带有不影响 verdict 有效性的证据引用或置信度警告，{primary_quality.get('schema_repairs', 0)} 个标签相关别名被确定性归一化；复核 Judge 共 {secondary_quality.get('rows', 0)} 条。</p><section class="panel"><table><thead><tr><th>标签</th><th>原子数</th><th>Exact</th><th>Cohen κ</th></tr></thead><tbody>{''.join(agreement_rows) or '<tr><td colspan="4">复核评分尚未完成</td></tr>'}</tbody></table></section>
+<h2>OPB / UPB 主指标</h2><p class="section-note">主指标使用 Full-memory 条件。OPB 和 UPB 是按真实标签宏平均的方向性错误率，越低越好；总分是两个方向抵抗能力的调和平均，越高越好。置信区间按样本聚类 bootstrap 2000 次计算。当前模型总分极差为 {_format_metric(assessment.get('model_score_spread'))}。</p><section class="cards">{''.join(score_cards)}</section><section class="panel" style="margin-top:10px"><table><thead><tr><th>模型</th><th>调和总分</th><th>总分 95% CI</th><th>OPB 错误↓</th><th>OPB 95% CI</th><th>UPB 错误↓</th><th>UPB 95% CI</th><th>样本严格</th><th>混合父记忆严格</th></tr></thead><tbody>{''.join(core_rows)}</tbody></table></section>
+<h2>配对因果诊断</h2><p class="section-note">Full-memory 与 No-memory 使用相同问题配对比较。记忆诱发 OPB 向右表示额外过度个性化；记忆减少 UPB 向右表示记忆有效缓解使用不足。</p><section class="effects">{''.join(effect_rows)}</section>
+<h2>面板比较</h2><p class="section-note">Representative 贴近正式集分布；Diagnostic 定向覆盖混合标签、稀有 Hard-A、安全敏感和高原子数样本。两列均为调和总分。</p><section class="panel"><table><thead><tr><th>模型</th><th>Representative</th><th>Diagnostic</th><th>Diagnostic 差值</th><th>Rep 混合严格</th><th>Diag 混合严格</th></tr></thead><tbody>{''.join(panel_rows)}</tbody></table></section>
+<h2>辅助错误指标</h2><section class="panel"><table><thead><tr><th>模型</th><th>Under-use</th><th>Over-use</th><th>Contradiction</th><th>Unscorable</th><th>回答质量</th><th>安全失败</th></tr></thead><tbody>{''.join(error_rows)}</tbody></table></section>
+<h2>Judge 一致性</h2><p class="section-note">v1 verdict 一致性：n={overall_agreement.get('n', 0)}，exact={_format_metric(overall_agreement.get('exact_agreement'))}，κ={_format_metric(overall_agreement.get('kappa'))}。v2 有序等级一致性：n={ordered_agreement.get('n', 0)}，exact={_format_metric(ordered_agreement.get('exact_agreement'))}，线性加权 κ={_format_metric(ordered_agreement.get('linear_weighted_kappa'))}。主 Judge 共 {primary_quality.get('rows', 0)} 条有效判定，其中 {primary_quality.get('rows_with_warnings', 0)} 条带有不影响方向判定的辅助警告；复核 Judge 共 {secondary_quality.get('rows', 0)} 条。</p><section class="panel"><table><thead><tr><th>Gold 标签</th><th>原子数</th><th>Exact</th><th>Cohen κ</th></tr></thead><tbody>{''.join(agreement_rows) or '<tr><td colspan="4">复核评分尚未完成</td></tr>'}</tbody></table></section>
 <details><summary>机器可读指标</summary><pre id="raw">{payload}</pre></details></main></body></html>"""
 
 

@@ -21,6 +21,36 @@ VERDICT_ALIASES = {
     ("A", "correct_control"): "over_use",
     ("B", "partial_under_use"): "under_use",
 }
+USAGE_LEVEL_ORDER = {"A": 0, "B": 1, "C": 2}
+CORRECT_VERDICT = {"A": "correct_suppression", "B": "correct_bounded_use", "C": "correct_control"}
+
+
+def derive_ordered_usage_verdicts(value: dict[str, Any], expected_atoms: dict[str, str]) -> list[str]:
+    repairs = []
+    for item in value.get("atom_judgments") or []:
+        if not isinstance(item, dict):
+            continue
+        atom_id = str(item.get("atom_id") or "")
+        gold = expected_atoms.get(atom_id)
+        scorable = item.get("scorable")
+        predicted = item.get("predicted_usage_level")
+        if gold not in USAGE_LEVEL_ORDER:
+            continue
+        if scorable is False and predicted is None:
+            derived = "unscorable"
+        elif scorable is True and predicted in USAGE_LEVEL_ORDER:
+            if USAGE_LEVEL_ORDER[predicted] > USAGE_LEVEL_ORDER[gold]:
+                derived = "over_use"
+            elif USAGE_LEVEL_ORDER[predicted] < USAGE_LEVEL_ORDER[gold]:
+                derived = "under_use"
+            else:
+                derived = CORRECT_VERDICT[gold]
+        else:
+            continue
+        if item.get("verdict") != derived:
+            repairs.append(f"derived_verdict:{atom_id}:{item.get('verdict')}->{derived}")
+            item["verdict"] = derived
+    return repairs
 
 
 def normalize_verdict_aliases(value: dict[str, Any]) -> list[str]:
@@ -106,9 +136,16 @@ def extract_json_object(text: str) -> dict[str, Any]:
 
 
 def validate_judgment(
-    value: dict[str, Any], expected_atoms: dict[str, str], model_response: str, *, enforce_auxiliary: bool = True
+    value: dict[str, Any],
+    expected_atoms: dict[str, str],
+    model_response: str,
+    *,
+    enforce_auxiliary: bool = True,
+    judge_protocol: str = "verdict-v1",
 ) -> tuple[bool, list[str]]:
     errors = []
+    if judge_protocol == "ordered-usage-v2" and value.get("protocol_version") != "ordered-usage-v2":
+        errors.append("protocol_version_mismatch")
     judgments = value.get("atom_judgments")
     if not isinstance(judgments, list):
         return False, ["atom_judgments_not_list"]
@@ -125,6 +162,17 @@ def validate_judgment(
             continue
         if item.get("u_star") != expected_label:
             errors.append(f"label_mismatch:{atom_id}")
+        if judge_protocol == "ordered-usage-v2":
+            scorable = item.get("scorable")
+            predicted = item.get("predicted_usage_level")
+            if not isinstance(scorable, bool):
+                errors.append(f"invalid_scorable:{atom_id}")
+            elif scorable and predicted not in USAGE_LEVEL_ORDER:
+                errors.append(f"invalid_predicted_usage_level:{atom_id}")
+            elif not scorable and predicted is not None:
+                errors.append(f"unscorable_with_prediction:{atom_id}")
+            if not isinstance(item.get("contradiction"), bool):
+                errors.append(f"invalid_contradiction:{atom_id}")
         if item.get("verdict") not in VALID_VERDICTS[expected_label]:
             errors.append(f"invalid_verdict:{atom_id}")
         quote = item.get("evidence_quote")
@@ -163,15 +211,26 @@ def postprocess_judgments(input_path: Path, result_path: Path) -> tuple[list[dic
             invalid_rows.append({"request_id": request_id, "errors": ["unexpected_request_id"]})
             continue
         params = request["user_defined_params"]
+        judge_protocol = str(params.get("judge_protocol") or "verdict-v1")
         try:
             value = extract_json_object(str(result.get("response") or ""))
-            repairs = normalize_verdict_aliases(value)
+            if judge_protocol == "ordered-usage-v2":
+                derivations = derive_ordered_usage_verdicts(value, params["expected_atoms"])
+                repairs = []
+            else:
+                derivations = []
+                repairs = normalize_verdict_aliases(value)
             warnings = auxiliary_warnings(value, params["model_response"])
             valid, errors = validate_judgment(
-                value, params["expected_atoms"], params["model_response"], enforce_auxiliary=False
+                value,
+                params["expected_atoms"],
+                params["model_response"],
+                enforce_auxiliary=False,
+                judge_protocol=judge_protocol,
             )
         except ValueError as exc:
             value = None
+            derivations = []
             repairs = []
             warnings = []
             valid, errors = False, [str(exc)]
@@ -187,11 +246,13 @@ def postprocess_judgments(input_path: Path, result_path: Path) -> tuple[list[dic
                     "answer_model": params["answer_model"],
                     "judge_role": params["judge_role"],
                     "judge_model": params["judge_model"],
+                    "judge_protocol": judge_protocol,
                     "atom_judgments": value["atom_judgments"],
                     "task_quality": value["task_quality"],
                     "safety_failure": value["safety_failure"],
                     "validation_warnings": warnings,
                     "schema_repairs": repairs,
+                    "derived_fields": derivations,
                 }
             )
         else:

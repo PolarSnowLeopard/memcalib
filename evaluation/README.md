@@ -12,11 +12,13 @@
 
 模型接收非原子 `memory_blocks`。Judge 使用隐藏的原子记忆、A/B/C 标签和逐原子 rubric，分别判断应抑制的信息、可有限使用的信息以及控制回答的信息。
 
+当前评测协议采用有序使用等级 v2。主指标为 Full-memory 条件下的 OPB 错误率、UPB 错误率及二者抵抗能力的调和平均。No-memory 条件作为反事实诊断，用于估计记忆诱发的 OPB 和记忆减少的 UPB。完整定义见 [有序记忆使用评测协议](../docs/evaluation_protocol_v2.md)。
+
 ## 当前结论
 
-五个模型的 Full-memory 宏平均分为 0.662 至 0.689，单一总分的模型区分度有限。A/B/C 标签级最大分差为 0.107，能够揭示不同的记忆使用能力结构。五个模型在 B、C 标签上均获得正向配对增益，同时均出现明显的 A 类污染效应。
+按 v2 指标向后计算，五个模型的 OPB 错误率为 0.215 至 0.277，UPB 错误率为 0.187 至 0.245，调和总分为 0.753 至 0.770。模型呈现出不同的方向性权衡：部分模型更容易过度结合记忆，另一些模型更容易忽略必要记忆。五个模型在加入记忆后均显著降低 UPB，同时也产生额外 OPB。
 
-双 Judge 在 5,062 个原子判定上的 exact agreement 为 0.876，Cohen κ 为 0.840。自动检查因此给出“初步支持（有限制）”：benchmark 能稳定诊断记忆使用不足与过度使用，但不应仅依赖一个总分排列当前强模型。100 条人工复核完成前，不将该结果表述为最终有效性结论。
+双 Judge 在 5,062 个 v1 原子 verdict 上的 exact agreement 为 0.876，Cohen κ 为 0.840。现有模型回答无需重跑，但 v1 Judge 没有输出精确的预测使用等级，因此当前 OPB/UPB 可以作为上、下三角聚合基线，无法恢复完整 3×3 混淆矩阵。正式 v2 结果需要使用 ordered-usage-v2 Judge 对现有回答重新评分。100 条人工复核完成前，不将该结果表述为最终有效性结论。
 
 ## 关键文件
 
@@ -42,3 +44,17 @@ PYTHONPATH=. python3 evaluation/scripts/build_human_review.py
 ```
 
 上述命令需要本地 `evaluation/runs/` 中已有完整 API 输出。重新发起 API 请求时，密钥通过被 Git 忽略的 `.env.local` 注入，不写入配置、脚本或运行清单。
+
+## v2 Judge 重评
+
+现有 5,000 条模型回答可以直接复用。生成 v2 Judge 请求时必须使用独立运行目录，避免覆盖 v1 审计记录：
+
+```bash
+PYTHONPATH=. python3 evaluation/scripts/prepare_judge_requests.py \
+  --config evaluation/configs/memcalib-ordered-v2-500.json \
+  --answers evaluation/runs/memcalib-v0.1-500/answers \
+  --output-dir evaluation/runs/memcalib-ordered-v2-500/requests/judges \
+  --manifest evaluation/releases/memcalib-ordered-v2-500/judge-request.manifest.json
+```
+
+该命令仅生成请求，不调用 API。正式重评应把主 Judge、复核 Judge、归一化结果、指标和人工复核包全部写入 `memcalib-ordered-v2-500` 对应目录。

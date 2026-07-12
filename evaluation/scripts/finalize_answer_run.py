@@ -17,6 +17,7 @@ DEFAULT_CONFIG = ROOT / "evaluation" / "configs" / "memcalib-v0.1-500.json"
 DEFAULT_REQUESTS = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "requests" / "answers"
 DEFAULT_RESULTS = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "answers"
 DEFAULT_MANIFEST = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "answer-run.manifest.json"
+CONDITIONS = ("full_memory", "no_memory")
 
 
 def summarize_result_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -51,8 +52,11 @@ def main() -> None:
     parser.add_argument("--requests", type=Path, default=DEFAULT_REQUESTS)
     parser.add_argument("--results", type=Path, default=DEFAULT_RESULTS)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
+    parser.add_argument("--conditions", nargs="+", choices=CONDITIONS)
     args = parser.parse_args()
     config = json.loads(args.config.read_text(encoding="utf-8"))
+    configured_conditions = config.get("evaluation_modes", {}).get("official_research_conditions")
+    conditions = tuple(args.conditions or configured_conditions or CONDITIONS)
     cells = {}
     errors = {}
     aggregate_usage: Counter[str] = Counter()
@@ -60,7 +64,7 @@ def main() -> None:
     for model_entry in config["answer_models"]:
         model_key = str(model_entry["key"])
         model = str(model_entry["model"])
-        for condition in ("full_memory", "no_memory"):
+        for condition in conditions:
             input_path = args.requests / model_key / f"{condition}.jsonl"
             output_path = args.results / model_key / f"{condition}.jsonl"
             validation = validate_results(input_path, output_path, model)
@@ -89,7 +93,7 @@ def main() -> None:
         "completed_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "formal_answers": total,
         "models": config["answer_models"],
-        "conditions": ["full_memory", "no_memory"],
+        "conditions": list(conditions),
         "generation": config["answer_generation"],
         "aggregate_usage": dict(aggregate_usage),
         "cells": dict(sorted(cells.items())),

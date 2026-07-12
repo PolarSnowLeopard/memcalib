@@ -1,0 +1,65 @@
+{
+  "schema_version": "memcalib-eval500-config-v2",
+  "seed": 20260712,
+  "source_sha256": "1cfd0334255266e6b8d4c234c615ade42b40c91bb86cb7c061a285261c363cb4",
+  "complexity_metadata_sha256": "52b39a87db9d06d35651d6110b6c013a25af8abda0959ffd85f6516d2a765f3b",
+  "representative": {
+    "size": 350,
+    "source_quotas": {
+      "OpenMed/MedDialog": 175,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 175
+    },
+    "complexity_quotas": {
+      "simple": 85,
+      "medium": 180,
+      "complex": 85
+    }
+  },
+  "diagnostic": {
+    "size": 150,
+    "source_quotas": {
+      "OpenMed/MedDialog": 75,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 75
+    },
+    "topic_minimum": 5,
+    "mixed_parent_minimum": 90,
+    "rare_hard_a_families": [
+      "evidence_conflict",
+      "profile_style_near_neighbor",
+      "scope_overreach"
+    ],
+    "rare_hard_a_each_minimum": 15,
+    "rare_hard_a_union_minimum": 60,
+    "safety_sensitive_minimum": 35,
+    "high_atom_minimum": 50,
+    "high_atom_threshold": 6
+  },
+  "evaluation_modes": {
+    "leaderboard_required_conditions": ["full_memory"],
+    "official_research_conditions": ["full_memory", "no_memory"],
+    "primary_metrics_condition": "full_memory",
+    "counterfactual_condition": "no_memory"
+  },
+  "answer_models": [
+    {"key": "qwen-max", "model": "qwen3.7-max"},
+    {"key": "qwen-flash", "model": "qwen3.6-flash"},
+    {"key": "deepseek", "model": "deepseek-v4-pro"},
+    {"key": "deepseek-flash", "model": "deepseek-v4-flash"},
+    {"key": "kimi", "model": "kimi-k2.6"}
+  ],
+  "answer_generation": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "enable_thinking": false
+  },
+  "judge_protocol": "ordered-usage-v2",
+  "judge_prompt": "evaluation/prompts/judge-system-v2.txt",
+  "primary_judge": {"key": "qwen-judge", "model": "qwen3.7-plus"},
+  "secondary_judge": {"key": "deepseek-judge", "model": "deepseek-v4-pro"},
+  "deepseek_secondary_judge": {"key": "kimi-judge", "model": "kimi-k2.6"},
+  "judge_generation": {
+    "temperature": 0.0,
+    "max_tokens": 4096,
+    "enable_thinking": false
+  }
+}

@@ -7,7 +7,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from evaluation.common import iter_jsonl, sha256_file, stable_hash, write_json, write_jsonl
+from evaluation.common import display_path, iter_jsonl, sha256_file, stable_hash, write_json, write_jsonl
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -17,10 +17,16 @@ DEFAULT_ANSWERS = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "answers"
 DEFAULT_PROMPT = ROOT / "evaluation" / "prompts" / "judge-system.txt"
 DEFAULT_OUTPUT = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "requests" / "judges"
 DEFAULT_MANIFEST = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "judge-request.manifest.json"
+CONDITIONS = ("full_memory", "no_memory")
 
 
 def build_judge_request(
-    sample: dict[str, Any], answer: dict[str, Any], judge_role: str, judge_model: str, system_prompt: str
+    sample: dict[str, Any],
+    answer: dict[str, Any],
+    judge_role: str,
+    judge_model: str,
+    system_prompt: str,
+    judge_protocol: str = "verdict-v1",
 ) -> dict[str, Any]:
     answer_params = answer.get("user_defined_params") or {}
     atoms = [
@@ -57,6 +63,7 @@ def build_judge_request(
             "stage": "judge",
             "judge_role": judge_role,
             "judge_model": judge_model,
+            "judge_protocol": judge_protocol,
             "answer_request_id": answer_request_id,
             "sample_id": str(sample["id"]),
             "panel": str(answer_params["panel"]),
@@ -93,23 +100,30 @@ def select_stratified_answer_ids(
     return selected
 
 
-def load_answers(answer_root: Path, config: dict[str, Any]) -> list[dict[str, Any]]:
+def load_answers(
+    answer_root: Path, config: dict[str, Any], conditions: tuple[str, ...] = CONDITIONS
+) -> list[dict[str, Any]]:
     answers = []
     for model in config["answer_models"]:
-        for condition in ("full_memory", "no_memory"):
+        for condition in conditions:
             path = answer_root / str(model["key"]) / f"{condition}.jsonl"
             rows = list(iter_jsonl(path))
             if len(rows) != 500:
                 raise ValueError(f"expected 500 answers in {path}, found {len(rows)}")
             answers.extend(rows)
     ids = [str(row["request_id"]) for row in answers]
-    if len(ids) != 5000 or len(ids) != len(set(ids)):
-        raise ValueError("answer set must contain 5,000 unique request IDs")
+    expected = 500 * len(conditions) * len(config["answer_models"])
+    if len(ids) != expected or len(ids) != len(set(ids)):
+        raise ValueError(f"answer set must contain {expected:,} unique request IDs")
     return answers
 
 
 def prepare_judge_requests(
-    samples: list[dict[str, Any]], answers: list[dict[str, Any]], config: dict[str, Any], system_prompt: str, output_dir: Path
+    samples: list[dict[str, Any]],
+    answers: list[dict[str, Any]],
+    config: dict[str, Any],
+    system_prompt: str,
+    output_dir: Path,
 ) -> dict[str, Any]:
     samples_by_id = {str(row["id"]): row for row in samples}
     seed = int(config["seed"])
@@ -122,18 +136,23 @@ def prepare_judge_requests(
     primary_model = str(config["primary_judge"]["model"])
     default_secondary = str(config["secondary_judge"]["model"])
     deepseek_secondary = str(config["deepseek_secondary_judge"]["model"])
+    judge_protocol = str(config.get("judge_protocol") or "verdict-v1")
     primary = []
     secondary_default = []
     secondary_deepseek = []
     for answer in answers:
         params = answer["user_defined_params"]
         sample = samples_by_id[str(params["sample_id"])]
-        primary.append(build_judge_request(sample, answer, "primary", primary_model, system_prompt))
+        primary.append(build_judge_request(sample, answer, "primary", primary_model, system_prompt, judge_protocol))
         if str(answer["request_id"]) in secondary_ids:
             if str(params["model_key"]).startswith("deepseek"):
-                secondary_deepseek.append(build_judge_request(sample, answer, "secondary", deepseek_secondary, system_prompt))
+                secondary_deepseek.append(
+                    build_judge_request(sample, answer, "secondary", deepseek_secondary, system_prompt, judge_protocol)
+                )
             else:
-                secondary_default.append(build_judge_request(sample, answer, "secondary", default_secondary, system_prompt))
+                secondary_default.append(
+                    build_judge_request(sample, answer, "secondary", default_secondary, system_prompt, judge_protocol)
+                )
     artifacts = {}
     for name, rows in (
         ("primary.jsonl", primary),
@@ -151,11 +170,12 @@ def prepare_judge_requests(
     artifacts[secondary_path.name] = {"rows": len(secondary_ids), "sha256": sha256_file(secondary_path)}
     artifacts[human_path.name] = {"rows": len(human_random_ids), "sha256": sha256_file(human_path)}
     return {
-        "schema_version": "memcalib-judge-requests-v1",
+        "schema_version": f"memcalib-judge-requests-{judge_protocol}",
         "primary_requests": len(primary),
         "secondary_requests": len(secondary_default) + len(secondary_deepseek),
         "secondary_by_judge": {default_secondary: len(secondary_default), deepseek_secondary: len(secondary_deepseek)},
         "human_random_ids": len(human_random_ids),
+        "conditions": sorted({str(answer["user_defined_params"]["condition"]) for answer in answers}),
         "artifacts": artifacts,
     }
 
@@ -165,14 +185,23 @@ def main() -> None:
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--hidden", type=Path, default=DEFAULT_HIDDEN)
     parser.add_argument("--answers", type=Path, default=DEFAULT_ANSWERS)
-    parser.add_argument("--prompt", type=Path, default=DEFAULT_PROMPT)
+    parser.add_argument("--prompt", type=Path)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
+    parser.add_argument("--conditions", nargs="+", choices=CONDITIONS)
     args = parser.parse_args()
     config = json.loads(args.config.read_text(encoding="utf-8"))
+    prompt_path = args.prompt or ROOT / str(config.get("judge_prompt") or display_path(DEFAULT_PROMPT, ROOT))
+    configured_conditions = config.get("evaluation_modes", {}).get("official_research_conditions")
+    conditions = tuple(args.conditions or configured_conditions or CONDITIONS)
     samples = list(iter_jsonl(args.hidden))
-    answers = load_answers(args.answers, config)
-    manifest = prepare_judge_requests(samples, answers, config, args.prompt.read_text(encoding="utf-8"), args.output_dir)
+    answers = load_answers(args.answers, config, conditions)
+    manifest = prepare_judge_requests(samples, answers, config, prompt_path.read_text(encoding="utf-8"), args.output_dir)
+    manifest["inputs"] = {
+        "config": {"path": display_path(args.config, ROOT), "sha256": sha256_file(args.config)},
+        "hidden": {"path": display_path(args.hidden, ROOT), "sha256": sha256_file(args.hidden)},
+        "prompt": {"path": display_path(prompt_path, ROOT), "sha256": sha256_file(prompt_path)},
+    }
     write_json(args.manifest, manifest)
     print(json.dumps(manifest, ensure_ascii=False, indent=2))
 
