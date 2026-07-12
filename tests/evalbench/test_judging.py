@@ -6,6 +6,8 @@ import unittest
 from collections import Counter
 
 from evaluation.scripts.build_human_review import select_human_review_ids
+from evaluation.scripts.merge_judgments import merge_judgment_rows
+from evaluation.scripts.prepare_judge_retry import build_retry_request
 from evaluation.scripts.prepare_judge_requests import (
     build_judge_request,
     select_stratified_answer_ids,
@@ -58,6 +60,26 @@ def answer_result() -> dict:
 
 
 class JudgingTest(unittest.TestCase):
+    def test_merge_judgments_requires_unique_complete_answer_ids(self) -> None:
+        first = [{"answer_request_id": "answer-1"}]
+        second = [{"answer_request_id": "answer-2"}]
+
+        merged = merge_judgment_rows([first, second], expected=2)
+
+        self.assertEqual(["answer-1", "answer-2"], [row["answer_request_id"] for row in merged])
+        with self.assertRaisesRegex(ValueError, "duplicate"):
+            merge_judgment_rows([first, first], expected=1)
+
+    def test_retry_request_preserves_contract_and_adds_validation_feedback(self) -> None:
+        original = build_judge_request(hidden_sample(), answer_result(), "primary", "judge-model", "Judge carefully.")
+
+        retry = build_retry_request(original, ["invalid_verdict:p1_a2"], retry_round=1)
+
+        self.assertEqual(original["request_id"] + ":retry1", retry["request_id"])
+        self.assertEqual(original["user_defined_params"], retry["user_defined_params"])
+        self.assertIn("invalid_verdict:p1_a2", retry["prompt"][-1]["content"])
+        self.assertEqual("user", retry["prompt"][-1]["role"])
+
     def test_multispan_markdown_evidence_quote_is_grounded(self) -> None:
         response = "**First finding:** present in the answer.\n\n*   **Second finding:** also present."
         quote = "First finding: present in the answer... * Second finding: also present."
