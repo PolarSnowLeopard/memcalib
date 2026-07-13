@@ -1,0 +1,83 @@
+{
+  "schema_version": "memcalib-multidomain-pilot-release-v1",
+  "release": "memcalib-multidomain-pilot-v0.2",
+  "scope": {
+    "general_dialogue_samples": 100,
+    "coding_samples": 100,
+    "status": "internal_research_pilot"
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 3261,
+      "sha256": "3fb130d16f36afe9524710266549a034a2869a0860d319c9c90101c86fda3d0a"
+    },
+    {
+      "path": "data/coding-hidden-construction-100.jsonl",
+      "bytes": 1916509,
+      "sha256": "aa9b87f389c250af6f211b166970b1943a488ec13ccff48a292a0afaf6710da2",
+      "rows": 100
+    },
+    {
+      "path": "data/general-hidden-construction-100.jsonl",
+      "bytes": 2054886,
+      "sha256": "68ce4458c579319af18e793869c004bfb0097f49f948f6df090e94de40f8bc61",
+      "rows": 100
+    },
+    {
+      "path": "metadata/coding-admission.json",
+      "bytes": 1609,
+      "sha256": "76fa31ef03bf1cc30ee4ff84402c783dc26b50c11db47702198176e147c075b3"
+    },
+    {
+      "path": "metadata/coding-construction-summary.json",
+      "bytes": 7662,
+      "sha256": "762b09995aa585ed68d656ef1d22a2f62f7216421b0772421bce8204e4e8999e"
+    },
+    {
+      "path": "metadata/coding-semantic-qc.json",
+      "bytes": 1525,
+      "sha256": "0ea45a6c373782e75e823e4db023bd82671fb8d69af6e9c815e51e3b84d6f206"
+    },
+    {
+      "path": "metadata/coding-source-selection.json",
+      "bytes": 4696,
+      "sha256": "5e8068d7e4df14c006269d5923f9c236937c9aa7bc42c4d88ca8732640a78ab2"
+    },
+    {
+      "path": "metadata/general-admission.json",
+      "bytes": 1643,
+      "sha256": "376b34857240a1ed881bbf50c7e8f72f87660c85c3c0218f205c4670dffefe33"
+    },
+    {
+      "path": "metadata/general-construction-summary.json",
+      "bytes": 9758,
+      "sha256": "2d3b5d16142c98269bc85c8651f7941132a265a196b74cdb9b4b9bad8d55f3e7"
+    },
+    {
+      "path": "metadata/general-semantic-qc.json",
+      "bytes": 1578,
+      "sha256": "9eee73ae468526477973f0fc2a061a310d3db0a97504dcae3c80528298176824"
+    },
+    {
+      "path": "metadata/general-source-selection.json",
+      "bytes": 5008,
+      "sha256": "051aef3109cabc4bc6bccc2edbad151b490db5360ef0b703e832c2c49adcdfa0"
+    },
+    {
+      "path": "metadata/validation.json",
+      "bytes": 2089,
+      "sha256": "638728be3446822a5346aec61ee730e94711e73aea15588645e0dbdbb5051f0b"
+    },
+    {
+      "path": "review/coding-audit-100.html",
+      "bytes": 4293637,
+      "sha256": "c3cc3baa7a05d69a34cbc76cc8c1e4d4f57e8ad090da0818ed916aea46febc26"
+    },
+    {
+      "path": "review/general-audit-100.html",
+      "bytes": 4143803,
+      "sha256": "f3f2a0986799ba7219c60b5a6a4db7ef2356efc691f0317fdad00d832c9b1787"
+    }
+  ]
+}

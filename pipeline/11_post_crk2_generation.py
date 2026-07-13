@@ -57,13 +57,14 @@ TARGET_REQUIRED_KEYS = {"task_goal", "memory_role", "usage_boundary", "failure_d
 FIRST_PERSON_EN = re.compile(r"^\s*(?:i|i'm|i’ve|i've|i am|my|me|mine|we|we're|we are|our)\b", re.IGNORECASE)
 FIRST_PERSON_CN_PREFIXES = ("我", "我的", "本人", "我们", "咱们")
 CJK_RE = re.compile(r"[\u3400-\u4dbf\u4e00-\u9fff]")
+CODE_TOKEN_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*|\d+|[^\s\w]")
 ENGLISH_SCHEMA_LITERAL_REPLACEMENTS = {
     "影响结论": "changes the conclusion",
     "改变排序": "changes prioritization",
     "污染证据权重": "distorts evidence weighting",
 }
 LABEL_ORDER = ("A", "B", "C")
-ALLOWED_SOURCES = {"from_question", "from_answer", "synthetic_hard_a"}
+ALLOWED_SOURCES = {"from_context", "from_question", "from_answer", "synthetic_hard_a"}
 ALLOWED_MEMORY_TYPES = {"case_fact", "constraint", "preference", "profile_fact", "safety_sensitive"}
 ALLOWED_DERIVATIONS = {"explicit", "inferred", "synthetic"}
 ALLOWED_HARD_A_FAMILIES = {
@@ -262,7 +263,77 @@ def normalize_memory(memory: dict[str, Any], index: int) -> dict[str, Any]:
     return normalized
 
 
-def validate_model_record(rec: dict[str, Any]) -> list[str]:
+def _evidence_is_grounded(evidence: Any, source_text: Any) -> bool:
+    evidence_text = norm_text(str(evidence or ""))
+    source = norm_text(str(source_text or ""))
+    return bool(evidence_text and source and evidence_text.casefold() in source.casefold())
+
+
+def _answer_ngram_containment(question: str, answer: str, width: int = 10) -> float:
+    question_tokens = CODE_TOKEN_RE.findall((question or "").casefold())
+    answer_tokens = CODE_TOKEN_RE.findall((answer or "").casefold())
+    if len(answer_tokens) < width:
+        return 0.0
+    question_ngrams = {
+        tuple(question_tokens[index : index + width])
+        for index in range(max(0, len(question_tokens) - width + 1))
+    }
+    answer_ngrams = {
+        tuple(answer_tokens[index : index + width])
+        for index in range(len(answer_tokens) - width + 1)
+    }
+    return len(question_ngrams & answer_ngrams) / len(answer_ngrams) if answer_ngrams else 0.0
+
+
+def validate_evidence_grounding(rec: dict[str, Any], params: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    source_fields = {
+        "from_question": params.get("raw_question", ""),
+        "from_context": params.get("source_context", ""),
+        "from_answer": params.get("source_answer") or params.get("doctor_answer") or "",
+    }
+    domain = str(params.get("domain") or "health_seed")
+    if domain == "coding":
+        containment = _answer_ngram_containment(
+            str(params.get("raw_question") or ""),
+            str(params.get("source_answer") or params.get("doctor_answer") or ""),
+        )
+        if containment >= 0.8:
+            errors.append("coding_question_contains_reference_solution")
+    blocks = rec.get("memory_blocks") if isinstance(rec.get("memory_blocks"), list) else []
+    block_sources: dict[str, str] = {}
+    for index, block in enumerate(blocks):
+        if not isinstance(block, dict):
+            continue
+        source = str(block.get("source") or "")
+        parent_id = str(block.get("parent_memory_id") or "")
+        block_sources[parent_id] = source
+        if domain != "health_seed" and source == "from_answer":
+            errors.append(f"block_{index}_reference_answer_source_forbidden")
+        if source in source_fields and not _evidence_is_grounded(block.get("raw_evidence"), source_fields[source]):
+            errors.append(f"block_{index}_ungrounded_raw_evidence")
+
+    memories = rec.get("memories") if isinstance(rec.get("memories"), list) else []
+    for index, memory in enumerate(memories):
+        if not isinstance(memory, dict):
+            continue
+        source = str(memory.get("source") or "")
+        if domain != "health_seed" and source == "from_answer":
+            errors.append(f"memory_{index}_reference_answer_source_forbidden")
+        if source in source_fields and not _evidence_is_grounded(memory.get("evidence"), source_fields[source]):
+            errors.append(f"memory_{index}_ungrounded_evidence")
+        parent_source = block_sources.get(str(memory.get("parent_memory_id") or ""))
+        if parent_source and source != parent_source:
+            errors.append(f"memory_{index}_parent_source_mismatch")
+        if source == "synthetic_hard_a":
+            if str(memory.get("u_star") or "").upper() != "A":
+                errors.append(f"memory_{index}_synthetic_non_a")
+            if str(memory.get("derivation") or "") != "synthetic":
+                errors.append(f"memory_{index}_synthetic_bad_derivation")
+    return errors
+
+
+def validate_model_record(rec: dict[str, Any], params: dict[str, Any] | None = None) -> list[str]:
     errors: list[str] = []
     if rec.get("accepted") is False:
         errors.append("model_rejected_record")
@@ -338,11 +409,14 @@ def validate_model_record(rec: dict[str, Any]) -> list[str]:
         if isinstance(memory, dict)
     ):
         errors.append("missing_synthetic_hard_a")
+    if params is not None:
+        errors.extend(validate_evidence_grounding(rec, params))
     return errors
 
 
 def normalize_model_record(raw: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:
     source_id = str(params.get("id") or params.get("source_raw_id") or "")
+    source_answer = params.get("source_answer") or params.get("doctor_answer") or ""
     blocks = [normalize_block(block, index + 1) for index, block in enumerate(raw.get("memory_blocks", []))]
     memories = [normalize_memory(memory, index + 1) for index, memory in enumerate(raw.get("memories", []))]
     parent_label_metadata = add_parent_label_metadata(blocks, memories)
@@ -351,15 +425,19 @@ def normalize_model_record(raw: dict[str, Any], params: dict[str, Any]) -> dict[
     split = str(audit.get("quality_subset") or "clean")
     return {
         "id": f"crk2_{source_id}",
-        "domain": "health_seed",
+        "domain": params.get("domain") or "health_seed",
         "source_dataset": params.get("source_dataset", ""),
         "source_id": source_id,
         "source_record_id": source_id,
         "source_split": params.get("source_split", ""),
         "source_index": params.get("source_index", ""),
         "source_topic": params.get("topic", ""),
+        "source_license": params.get("source_license", ""),
+        "source_metadata": params.get("source_metadata", {}),
+        "source_context": params.get("source_context", ""),
         "raw_query": params.get("raw_question", ""),
-        "doctor_answer": params.get("doctor_answer", ""),
+        "source_answer": source_answer,
+        "doctor_answer": params.get("doctor_answer", source_answer),
         "question": norm_text(str(raw.get("question", ""))),
         "memory_blocks": blocks,
         "memories": memories,
@@ -380,6 +458,7 @@ def normalize_model_record(raw: dict[str, Any], params: dict[str, Any]) -> dict[
             "question_memory_leakage_pass": normalize_bool(qc.get("question_memory_leakage_pass")),
             "hard_a_target_consistency_pass": normalize_bool(qc.get("hard_a_target_consistency_pass")),
             "rubric_objectivity_pass": normalize_bool(qc.get("rubric_objectivity_pass")),
+            "evidence_grounding_pass": True,
             "counterfactual_pass": qc.get("counterfactual_pass", "pending_model_test"),
             "manual_audit": qc.get("manual_audit", "not_sampled"),
             "overlap_groups": qc.get("overlap_groups", []),
@@ -388,6 +467,13 @@ def normalize_model_record(raw: dict[str, Any], params: dict[str, Any]) -> dict[
         "construction_audit": audit or {"schema_version": "crk-2-canonical-memory-v1", "quality_subset": split, "pipeline_steps": []},
         "split": split,
         "prototype_notes": norm_text(str(raw.get("notes", ""))),
+        "lineage": {
+            "raw_selection": params.get("raw_selection", {}),
+            "semantic_qc": params.get("semantic_qc", {}),
+            "semantic_admission": params.get("semantic_admission", {}),
+            "generation_repair_round": int(params.get("generation_repair_round") or 0),
+            "generation_repair_errors": list(params.get("generation_repair_errors") or []),
+        },
     }
 
 
@@ -410,6 +496,7 @@ def new_summary_state() -> dict[str, Any]:
         "qc_pass_counts": Counter(),
         "parent_label_mode_counts": Counter(),
         "parent_label_set_counts": Counter(),
+        "generation_repair_round_counts": Counter(),
     }
 
 
@@ -417,6 +504,7 @@ def update_summary_state(state: dict[str, Any], sample: dict[str, Any]) -> None:
     state["total_samples"] += 1
     state["topic_counts"][sample.get("source_topic", "unknown")] += 1
     state["quality_subset_counts"][sample.get("split", "unknown")] += 1
+    state["generation_repair_round_counts"][str((sample.get("lineage") or {}).get("generation_repair_round", 0))] += 1
     blocks = sample.get("memory_blocks", [])
     state["total_parent_memories"] += len(blocks)
     state["samples_with_overlap_groups"] += int(bool(sample.get("qc", {}).get("overlap_groups")))
@@ -429,6 +517,7 @@ def update_summary_state(state: dict[str, Any], sample: dict[str, Any]) -> None:
         "question_memory_leakage_pass",
         "hard_a_target_consistency_pass",
         "rubric_objectivity_pass",
+        "evidence_grounding_pass",
     ):
         if sample.get("qc", {}).get(qc_key) is True:
             state["qc_pass_counts"][qc_key] += 1
@@ -477,6 +566,7 @@ def finalize_summary_state(state: dict[str, Any]) -> dict[str, Any]:
         "mixed_parent_count": parent_modes.get("mixed", 0),
         "mixed_parent_rate": parent_modes.get("mixed", 0) / total_parent if total_parent else 0,
         "english_schema_literal_repairs": state["english_schema_literal_repairs"],
+        "generation_repair_round_counts": dict(sorted(state["generation_repair_round_counts"].items())),
         "pipeline": "crk2_llm_generation",
     }
 
@@ -497,7 +587,7 @@ def summarize_and_render(
     summary["prototype_limitations"] = [
         "This preview is generated by the CRK-2 canonical-memory prompt from normalized public QA seed records.",
         "Raw evidence is retained for audit, while stored memories are third-person canonical summaries used for A/B/C labeling and judge rubrics.",
-        "Current seed source is still medical-heavy; later benchmark iterations should add broader general-dialogue sources.",
+        "Domain coverage remains limited to the currently configured source datasets and should be expanded before the final release.",
         "Counterfactual answer tests, cross-model judge calibration, and manual audit sampling are not run yet.",
     ]
     write_json(summary_path, summary)
@@ -537,7 +627,7 @@ def main() -> None:
                         raw = extract_json_object(get_text(row))
                         output_language = str(params.get("output_language") or "")
                         literal_repairs = canonicalize_english_schema_literals(raw) if output_language == "en" else 0
-                        errors = validate_model_record(raw)
+                        errors = validate_model_record(raw, params)
                         language_violations = english_language_violations(raw) if output_language == "en" else []
                         if language_violations:
                             errors.append("english_language_violation")

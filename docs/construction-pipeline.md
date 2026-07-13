@@ -60,3 +60,19 @@ Deterministic stages can be reproduced from the same source snapshots and config
 
 Full local intermediates remain excluded from Git. The private release contains the final data, summaries, audit pages, and sufficient provenance manifests to verify lineage without distributing API responses.
 
+## Multi-domain Pilot Extension
+
+The v0.2 internal pilot applies the same separation between source admission and benchmark annotation to OpenAssistant OASST1 and Magicoder OSS-Instruct. It adds the following reusable stages:
+
+| Stage | Script | Purpose |
+|---|---|---|
+| Domain normalization | `pipeline/25_normalize_domain_sources.py` | normalize general-dialogue and coding sources while preserving license and source metadata |
+| Semantic retry merge | `pipeline/26_merge_source_semantic_qc.py` | resolve evidence-grounding retries without admitting residual invalid rows |
+| Construction repair | `pipeline/27_prepare_crk2_generation_repair.py` | repair only failed construction records while preserving successful API outputs |
+| Pilot validation | `pipeline/28_validate_multidomain_benchmark.py` | verify row counts, IDs, domains, licenses, schema, rubric completeness, and evidence grounding |
+
+The multi-domain construction prompt keeps the model-facing memory block non-atomic and applies A/B/C labels only to hidden atoms. Real memories must be grounded in source context or the current question. The reference answer is retained for task-coherence validation but is forbidden as a memory source. Every retained `raw_evidence` and atomic `evidence` value must be a contiguous source substring after whitespace normalization. Coding records whose question contains the reference solution at a near-complete level are rejected as trivialized tasks.
+
+The pilot first selected 300 quality-controlled candidates per domain. After semantic-QC retry resolution, general dialogue contained 162 strict passes, 3 review records, and 135 rejects; coding contained 130 strict passes, 9 review records, 160 rejects, and 1 residual invalid record. Adaptive strict-only admission selected 122 records per domain to produce a final 100+100 review set. No review or invalid record entered construction.
+
+The current pilot is an internal quality study rather than a locked benchmark expansion. Its release package records the generated artifacts and their hashes. A future large-scale run should freeze the source snapshots, prompt, model identifier, filter thresholds, and all implementation hashes before API execution.

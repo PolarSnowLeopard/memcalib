@@ -29,6 +29,8 @@ ChatDoctor-HealthCareMagic-100k/data/
 MedDialog/train.json
 MedDialog/validation.json
 MedDialog/test.json
+pipeline/data/raw_sources/
+pipeline/data/multidomain/
 *.parquet
 
 # Large early-stage pipeline intermediates

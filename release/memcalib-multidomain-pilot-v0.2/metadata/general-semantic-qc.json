@@ -1,0 +1,49 @@
+{
+  "schema_version": "memcalib-source-semantic-qc-resolution-v1",
+  "counts": {
+    "original_valid": 277,
+    "original_invalid": 23,
+    "retry_valid": 23,
+    "residual_invalid": 0,
+    "resolved": 300,
+    "strict_pass": 162,
+    "review": 3,
+    "reject": 135
+  },
+  "distributions": {
+    "domain": {
+      "general": 300
+    },
+    "topic": {
+      "career_productivity": 21,
+      "general_other": 50,
+      "learning_explanation": 62,
+      "planning_advice": 52,
+      "relationships_communication": 27,
+      "travel_shopping_household": 28,
+      "writing_creative": 60
+    }
+  },
+  "inputs": {
+    "original_valid": {
+      "path": "pipeline/data/multidomain/general_semantic_qc_valid_300.jsonl",
+      "sha256": "ac5277588cd9518bb95f2a27765e0066b3860a8c67b111d15fa853ab1b6c9da8"
+    },
+    "original_invalid": {
+      "path": "pipeline/data/multidomain/general_semantic_qc_invalid_300.jsonl",
+      "sha256": "340afbe15f853711bca04715901b0d792fb79761ba493ebb1743d13e7116ecb8"
+    },
+    "retry_valid": {
+      "path": "pipeline/data/multidomain/general_semantic_qc_retry1_valid_23.jsonl",
+      "sha256": "4218732c7680acf3af5d46a3aa590033adc93cc72f0a3e1b572300133c021a7e"
+    },
+    "retry_invalid": {
+      "path": "pipeline/data/multidomain/general_semantic_qc_retry1_invalid_23.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "output": {
+    "path": "pipeline/data/multidomain/general_semantic_qc_resolved_300.jsonl",
+    "sha256": "282e59b622908b612d81a1ea216802ab12d70f90e21e9cdad0a855a36b17900b"
+  }
+}

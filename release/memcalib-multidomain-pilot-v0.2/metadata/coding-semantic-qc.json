@@ -1,0 +1,49 @@
+{
+  "schema_version": "memcalib-source-semantic-qc-resolution-v1",
+  "counts": {
+    "original_valid": 280,
+    "original_invalid": 20,
+    "retry_valid": 19,
+    "residual_invalid": 1,
+    "resolved": 299,
+    "strict_pass": 130,
+    "review": 9,
+    "reject": 160
+  },
+  "distributions": {
+    "domain": {
+      "coding": 299
+    },
+    "topic": {
+      "api_library": 61,
+      "coding_other": 4,
+      "data_algorithm": 58,
+      "debugging": 47,
+      "implementation": 53,
+      "systems_devops": 30,
+      "testing_quality": 46
+    }
+  },
+  "inputs": {
+    "original_valid": {
+      "path": "pipeline/data/multidomain/coding_semantic_qc_valid_300.jsonl",
+      "sha256": "55adad2d686a3198a7145bb1ec799580a9e0f334e83b3d1166ade7cd24b8e350"
+    },
+    "original_invalid": {
+      "path": "pipeline/data/multidomain/coding_semantic_qc_invalid_300.jsonl",
+      "sha256": "43e5b96185bbc6b187ebc28a908d735a23253633c1b0c8bbb04d488b0e0c12bd"
+    },
+    "retry_valid": {
+      "path": "pipeline/data/multidomain/coding_semantic_qc_retry1_valid_20.jsonl",
+      "sha256": "162fc4ab5b08871a406d02d2b52d5809f56638b09e7a88a29581b69d4df0edde"
+    },
+    "retry_invalid": {
+      "path": "pipeline/data/multidomain/coding_semantic_qc_retry1_invalid_20.jsonl",
+      "sha256": "888d0b3cc8385db3a4fad0ecfef90c7a72281c3f6278376eb143c38ea7e09448"
+    }
+  },
+  "output": {
+    "path": "pipeline/data/multidomain/coding_semantic_qc_resolved_300.jsonl",
+    "sha256": "6d9a934ca625d895a51b99ed026cada488b4ce73b6c5f824ccaf1748844c6389"
+  }
+}

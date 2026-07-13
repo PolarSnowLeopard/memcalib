@@ -15,7 +15,7 @@ SCHEMA_VERSION = "crk2-source-semantic-qc-retry-v1"
 RETRY_INSTRUCTION = """
 
 RETRY CORRECTION
-The previous judgment failed evidence grounding only. Keep the same schema and evaluate the source again. Every evidence value must be one contiguous exact substring copied character-for-character from its required SOURCE QUESTION or SOURCE ANSWER field. Do not paraphrase, summarize, normalize spelling, omit list markers, or join non-contiguous spans with ellipses.
+The previous judgment failed evidence grounding only. Keep the same schema and evaluate the source again. Every evidence value must be one contiguous exact substring copied character-for-character from an allowed displayed field. For memory_extractability, use SOURCE CONTEXT or CURRENT QUESTION. For answer relevance, answer substantiveness, and safety/plausibility, use REFERENCE ANSWER. For question completeness, use CURRENT QUESTION. For text integrity, use SOURCE CONTEXT, CURRENT QUESTION, or REFERENCE ANSWER. Do not paraphrase, summarize, normalize spelling, omit list markers, or join non-contiguous spans with ellipses.
 """.rstrip()
 
 

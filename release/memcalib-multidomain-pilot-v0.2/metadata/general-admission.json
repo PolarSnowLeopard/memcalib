@@ -1,0 +1,62 @@
+{
+  "schema_version": "crk2-source-semantic-admission-v1",
+  "status": "strict_sufficient",
+  "final_target": 100,
+  "admission_target": 122,
+  "generation_pilot": {
+    "successes": 90,
+    "total": 100,
+    "wilson_lower_95": 0.8256343384950866
+  },
+  "counts": {
+    "input": 300,
+    "strict_pass": 162,
+    "review": 3,
+    "reject": 135,
+    "admitted": 122,
+    "secondary_review_candidates": 0
+  },
+  "parameters": {
+    "seed": 20260713
+  },
+  "input": {
+    "path": "pipeline/data/multidomain/general_semantic_qc_resolved_300.jsonl",
+    "sha256": "282e59b622908b612d81a1ea216802ab12d70f90e21e9cdad0a855a36b17900b"
+  },
+  "distributions": {
+    "admitted": {
+      "source_dataset": {
+        "OpenAssistant/oasst1": 122
+      },
+      "topic": {
+        "career_productivity": 12,
+        "general_other": 18,
+        "learning_explanation": 20,
+        "planning_advice": 21,
+        "relationships_communication": 14,
+        "travel_shopping_household": 16,
+        "writing_creative": 21
+      },
+      "seed_complexity": {
+        "complex": 7,
+        "medium": 73,
+        "simple": 42
+      }
+    },
+    "secondary_review_candidates": {
+      "source_dataset": {},
+      "topic": {},
+      "seed_complexity": {}
+    }
+  },
+  "outputs": {
+    "admitted": {
+      "path": "pipeline/data/multidomain/general_semantic_admitted.jsonl",
+      "sha256": "f38457987e5aa4fbe30b677ecc53ff27f4813c4b0e92fa27c7f9548de6bba2a4"
+    },
+    "secondary_review": {
+      "path": "pipeline/data/multidomain/general_semantic_secondary_review.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

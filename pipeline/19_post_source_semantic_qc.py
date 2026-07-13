@@ -33,8 +33,9 @@ REJECT_REASONS = {
     "no_extractable_memory",
     "corrupted_text",
     "medical_safety_concern",
+    "domain_safety_or_correctness_concern",
 }
-QUESTION_EVIDENCE_DIMENSIONS = {"question_completeness", "memory_extractability"}
+QUESTION_EVIDENCE_DIMENSIONS = {"question_completeness"}
 ANSWER_EVIDENCE_DIMENSIONS = {"answer_relevance", "answer_substantiveness", "safety_plausibility"}
 ELLIPSIS_RE = re.compile(r"(?:\.{3,}|…+)")
 LITERAL_UNICODE_ESCAPE_RE = re.compile(r"\\u([0-9a-fA-F]{4})")
@@ -122,7 +123,9 @@ def validate_judgment(judgment: dict[str, Any], params: dict[str, Any]) -> list[
     if set(dimensions) != set(DIMENSION_NAMES):
         errors.append("dimension_set_mismatch")
     question = str(params.get("raw_question") or "")
-    answer = str(params.get("doctor_answer") or "")
+    context = str(params.get("source_context") or "")
+    memory_source = f"{context}\n{question}" if context else question
+    answer = str(params.get("source_answer") or params.get("doctor_answer") or "")
     for name in DIMENSION_NAMES:
         item = dimensions.get(name)
         if not isinstance(item, dict):
@@ -137,9 +140,13 @@ def validate_judgment(judgment: dict[str, Any], params: dict[str, Any]) -> list[
             errors.append(f"missing_reason_{name}")
         if name in QUESTION_EVIDENCE_DIMENSIONS and not grounded(evidence, question):
             errors.append(f"ungrounded_evidence_{name}")
+        elif name == "memory_extractability" and not grounded(evidence, memory_source):
+            errors.append(f"ungrounded_evidence_{name}")
         elif name in ANSWER_EVIDENCE_DIMENSIONS and not grounded(evidence, answer):
             errors.append(f"ungrounded_evidence_{name}")
-        elif name == "text_integrity" and not (grounded(evidence, question) or grounded(evidence, answer)):
+        elif name == "text_integrity" and not (
+            grounded(evidence, memory_source) or grounded(evidence, answer)
+        ):
             errors.append(f"ungrounded_evidence_{name}")
 
     verdict = judgment.get("overall_verdict")

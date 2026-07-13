@@ -5,6 +5,11 @@ This directory contains the reproducible construction stages for MemCalib v0.1. 
 - `OpenMed/MedDialog`
 - `lavita/ChatDoctor-HealthCareMagic-100k`
 
+The v0.2 internal multi-domain pilot additionally uses:
+
+- `OpenAssistant/oasst1`
+- `ise-uiuc/Magicoder-OSS-Instruct-75K`
+
 Raw source files, API requests and responses, logs, and large intermediates stay under `pipeline/data/` and are excluded from Git. The locked review release is under `release/memcalib-v0.1/`.
 
 ## Environment
@@ -32,6 +37,10 @@ All configured paths are resolved relative to `pipeline/config.json`.
 11 validate, normalize, and write benchmark records
 12 build manual audit materials
 24 compute full-release statistics
+25 normalize general-dialogue and coding sources
+26 merge grounded semantic-QC retries
+27 prepare targeted construction repairs
+28 validate the grounded multi-domain pilot
 ```
 
 Scripts 01-09 and 13-14 are retained as prototype and calibration lineage. They are not the final v0.1 construction path.
@@ -75,3 +84,5 @@ Do not commit credentials or API outputs.
 The completed v0.1 construction run admitted 15,577 strict-pass source records and accepted 15,528 final benchmark records. Prompt, configuration, implementation, input, output, and lineage hashes are stored in `release/memcalib-v0.1/provenance/`.
 
 See [construction-pipeline.md](../docs/construction-pipeline.md) for the research-method summary and [the release guide](../release/memcalib-v0.1/README.md) for the review package.
+
+The multi-domain pilot and its one-sample-per-page review interfaces are under [`release/memcalib-multidomain-pilot-v0.2/`](../release/memcalib-multidomain-pilot-v0.2/README.md).

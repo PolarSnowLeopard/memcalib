@@ -1,0 +1,179 @@
+{
+  "schema_version": "memcalib-multidomain-raw-selection-v1",
+  "scoring_version": "memcalib-multidomain-seed-quality-v1",
+  "input": {
+    "path": "pipeline/data/multidomain/general_normalized.jsonl",
+    "sha256": "dd494ea1f4608fce1408aaf2c94a0c11d682cae07386a8b4b1c72568f65c8a0f",
+    "rows": 17632
+  },
+  "implementation": {
+    "selector_path": "/Users/zhaofanyu/Code/create_medpreferncedata_from_public_data/pipeline/15_select_crk2_raw_seeds.py",
+    "selector_sha256": "8fd53a6f24899e7da56f8d28d191d766276a4000332baaa04d0665d4d701774d",
+    "config_path": "pipeline/config.multidomain-pilot.json",
+    "config_sha256": "ac26febb720927a6dceb1ee6c541ec1d0f16b683d50dad62d0abd6afd7c16c0d"
+  },
+  "parameters": {
+    "target": 300,
+    "seed": 20260713,
+    "min_question_chars": 20,
+    "max_question_chars": 6000,
+    "min_answer_chars": 30,
+    "max_answer_chars": 10000,
+    "min_question_tokens": 5,
+    "min_answer_tokens": 5,
+    "min_english_letter_ratio": 0.75,
+    "max_boilerplate_ratio": 0.65,
+    "min_quality_score": 60,
+    "near_duplicate_jaccard": 0.88,
+    "topic_alpha": 0.5,
+    "quality_weight_beta": 2.0,
+    "complexity_targets": {
+      "simple": 0.25,
+      "medium": 0.5,
+      "complex": 0.25
+    }
+  },
+  "selection_algorithm": {
+    "source_allocation": "equal_with_capacity_aware_largest_remainder",
+    "topic_allocation": "eligible_count_power_alpha",
+    "complexity_allocation": "configured_proportions_with_capacity_aware_largest_remainder",
+    "within_stratum": "seeded_exponential_quality_weighting",
+    "near_duplicate_assignment": "greedy_best_representative_no_transitive_chain"
+  },
+  "counts": {
+    "assessed": 17632,
+    "hard_filter_pass": 8043,
+    "score_pass": 6037,
+    "eligible_after_dedup": 2334,
+    "selected": 300
+  },
+  "rejection_reasons": {
+    "answer_boilerplate_dominated": 15,
+    "answer_language_mismatch": 56,
+    "answer_too_few_tokens": 417,
+    "answer_too_short": 555,
+    "duplicate": 2338,
+    "missing_question_intent": 3906,
+    "no_memory_signal": 6237,
+    "quality_score_below_threshold": 3371,
+    "question_language_mismatch": 16,
+    "question_too_few_tokens": 1265,
+    "question_too_long": 2,
+    "question_too_short": 876,
+    "text_noise": 488
+  },
+  "dedup_status": {
+    "duplicate": 2338,
+    "ineligible": 12960,
+    "representative": 1522,
+    "unique": 812
+  },
+  "duplicates": {
+    "clusters": 1522,
+    "records_marked_duplicate": 2338,
+    "cross_source_clusters": 0,
+    "max_cluster_size": 7,
+    "match_type_counts": {
+      "exact": 2338
+    }
+  },
+  "score_summary": {
+    "assessed": {
+      "min": 0,
+      "p25": 37,
+      "median": 55,
+      "p75": 65,
+      "max": 100,
+      "mean": 51.643
+    },
+    "eligible": {
+      "min": 60,
+      "p25": 65,
+      "median": 68,
+      "p75": 74,
+      "max": 100,
+      "mean": 70.271
+    },
+    "selected": {
+      "min": 60,
+      "p25": 71,
+      "median": 79,
+      "p75": 85,
+      "max": 100,
+      "mean": 78.193
+    }
+  },
+  "distributions": {
+    "assessed": {
+      "source_dataset": {
+        "OpenAssistant/oasst1": 17632
+      },
+      "topic": {
+        "career_productivity": 615,
+        "general_other": 5928,
+        "learning_explanation": 3720,
+        "planning_advice": 2011,
+        "relationships_communication": 782,
+        "travel_shopping_household": 790,
+        "writing_creative": 3786
+      },
+      "seed_complexity": {
+        "complex": 65,
+        "medium": 929,
+        "simple": 16638
+      }
+    },
+    "eligible": {
+      "source_dataset": {
+        "OpenAssistant/oasst1": 2334
+      },
+      "topic": {
+        "career_productivity": 74,
+        "general_other": 395,
+        "learning_explanation": 618,
+        "planning_advice": 429,
+        "relationships_communication": 116,
+        "travel_shopping_household": 123,
+        "writing_creative": 579
+      },
+      "seed_complexity": {
+        "complex": 18,
+        "medium": 297,
+        "simple": 2019
+      }
+    },
+    "selected": {
+      "source_dataset": {
+        "OpenAssistant/oasst1": 300
+      },
+      "topic": {
+        "career_productivity": 21,
+        "general_other": 50,
+        "learning_explanation": 62,
+        "planning_advice": 52,
+        "relationships_communication": 27,
+        "travel_shopping_household": 28,
+        "writing_creative": 60
+      },
+      "seed_complexity": {
+        "complex": 18,
+        "medium": 173,
+        "simple": 109
+      }
+    }
+  },
+  "outputs": {
+    "quality_audit": {
+      "path": "pipeline/data/multidomain/general_quality_audit.jsonl",
+      "sha256": "2e8f8c2e865584dff8e7734d569206a24f59dfd9c5bd9ec71eed3d25d6e6cfe5"
+    },
+    "eligible_pool": {
+      "path": "pipeline/data/multidomain/general_eligible.jsonl",
+      "sha256": "d3c223f8dbbfe75e8d68f3008edf09d4a647bfb845826b6f647eda859bca6dce"
+    },
+    "selected_seeds": {
+      "path": "pipeline/data/multidomain/general_selected_300.jsonl",
+      "sha256": "fb5c16fce775cac86d30c76c72562a75d1b731b4714a52cee72e805678bf6b2f"
+    }
+  }
+}

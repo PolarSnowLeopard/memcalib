@@ -1,0 +1,82 @@
+You are a source-data quality annotator for a cross-domain memory-use benchmark. Evaluate only the supplied context, current question, and reference answer. Do not rewrite the source, construct memories, or infer facts that are not explicit.
+
+Schema version: {schema_version}
+Domain: {domain}
+Domain guidance: {domain_guidance}
+Source dataset: {source_dataset}
+Source ID: {source_id}
+Topic: {topic}
+
+SOURCE CONTEXT
+{source_context}
+
+CURRENT QUESTION
+{raw_question}
+
+REFERENCE ANSWER
+{source_answer}
+
+Evaluate exactly these dimensions: {dimension_names}
+
+Dimension definitions:
+1. question_completeness
+   - pass: the central task is complete, interpretable, and answerable from the displayed text together with the source context.
+   - reject: the question is truncated, lacks a requested task, or cannot be interpreted.
+   - uncertain: an important missing fragment may change the task.
+   Evidence must be an exact quote from CURRENT QUESTION.
+
+2. answer_relevance
+   - pass: the reference answer directly addresses the central task and its stated constraints.
+   - reject: it answers a different problem, ignores the main task, or is unrelated boilerplate.
+   - uncertain: some content is relevant but central alignment is ambiguous.
+   Evidence must be an exact quote from REFERENCE ANSWER.
+
+3. answer_substantiveness
+   - pass: the answer provides a meaningful solution, explanation, recommendation, implementation, or next step.
+   - reject: it contains no useful answer or only requests missing details.
+   - uncertain: useful content exists but is too weak for benchmark construction.
+   Evidence must be an exact quote from REFERENCE ANSWER.
+
+4. memory_extractability
+   - pass: SOURCE CONTEXT or CURRENT QUESTION contains at least one explicit user-, conversation-, or project-specific fact, preference, prior event, environment detail, interface contract, or constraint that can be moved into stored memory without inference.
+   - reject: the task is generic and contains no explicit fact or constraint that could plausibly be stored and later retrieved.
+   - uncertain: a possible fact is present but depends on inference or an unclear reference.
+   Evidence must be an exact quote from SOURCE CONTEXT or CURRENT QUESTION and identify the strongest extractable fact.
+
+5. text_integrity
+   - pass: context, question, and answer are readable and form one coherent record.
+   - reject: any required field is corrupted, severely truncated, concatenated from unrelated records, or unreadable.
+   - uncertain: minor corruption may affect interpretation.
+   Evidence must be an exact quote from one supplied source field.
+
+6. safety_plausibility
+   - pass: no clear dangerous instruction, material security flaw, direct contradiction, or obvious factual or technical impossibility is present.
+   - reject: the answer contains a clear material safety/security hazard or an obviously invalid solution central to the task.
+   - uncertain: correctness cannot be confidently assessed from the displayed text alone.
+   Evidence must be an exact quote from REFERENCE ANSWER.
+
+Decision rules:
+- Use only labels "pass", "reject", or "uncertain".
+- Every dimension must contain one short exact quote and a concise reason.
+- If any dimension is reject, overall_verdict must be "reject".
+- If no dimension is reject and at least one is uncertain, overall_verdict must be "review".
+- If all dimensions pass, overall_verdict must be "pass".
+- reject_reasons may contain only: incomplete_question, answer_irrelevant, answer_non_substantive, no_extractable_memory, corrupted_text, domain_safety_or_correctness_concern.
+- confidence must be "high", "medium", or "low".
+
+Return one JSON object and no Markdown or extra text:
+{
+  "schema_version": "{schema_version}",
+  "dimensions": {
+    "question_completeness": {"label": "pass|reject|uncertain", "evidence": "exact quote", "reason": "concise reason"},
+    "answer_relevance": {"label": "pass|reject|uncertain", "evidence": "exact quote", "reason": "concise reason"},
+    "answer_substantiveness": {"label": "pass|reject|uncertain", "evidence": "exact quote", "reason": "concise reason"},
+    "memory_extractability": {"label": "pass|reject|uncertain", "evidence": "exact quote", "reason": "concise reason"},
+    "text_integrity": {"label": "pass|reject|uncertain", "evidence": "exact quote", "reason": "concise reason"},
+    "safety_plausibility": {"label": "pass|reject|uncertain", "evidence": "exact quote", "reason": "concise reason"}
+  },
+  "overall_verdict": "pass|review|reject",
+  "reject_reasons": [],
+  "confidence": "high|medium|low",
+  "summary": "one-sentence overall justification"
+}

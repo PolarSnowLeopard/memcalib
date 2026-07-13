@@ -1,6 +1,6 @@
 # Attribution And Rights Notice
 
-MemCalib v0.1 is derived from the following upstream datasets.
+MemCalib internal research releases are derived from the following upstream datasets.
 
 ## OpenMed/MedDialog
 
@@ -20,6 +20,24 @@ The MemCalib repository does not imply endorsement by OpenMed or the upstream au
 
 The absence of a stated license is unresolved. Nothing in this repository grants permission to publicly redistribute this source or its derivatives.
 
+## OpenAssistant OASST1
+
+- Upstream identifier: `OpenAssistant/oasst1`
+- Upstream page: https://huggingface.co/datasets/OpenAssistant/oasst1
+- Declared license in the upstream dataset card: Apache-2.0
+- Use in MemCalib: 100-record general-dialogue internal pilot
+
+The pilot retains source identifiers, source split, and license metadata for attribution and audit.
+
+## Magicoder OSS-Instruct 75K
+
+- Upstream identifier: `ise-uiuc/Magicoder-OSS-Instruct-75K`
+- Upstream page: https://huggingface.co/datasets/ise-uiuc/Magicoder-OSS-Instruct-75K
+- Declared license in the upstream dataset card: MIT
+- Use in MemCalib: 100-record coding internal pilot
+
+Magicoder instructions were synthesized from open-source code seeds. The dataset-card license is recorded, but public redistribution of MemCalib derivatives still requires a separate provenance and license audit of the upstream code-derived material.
+
 ## MemCalib Review Release
 
 This repository is a private co-author research review package. No repository-wide code license or data license is granted. Public release is blocked pending:
@@ -29,4 +47,3 @@ This repository is a private co-author research review package. No repository-wi
 3. final author approval of code and data licensing.
 
 All trademarks, dataset names, and source content remain subject to their respective owners and upstream terms.
-

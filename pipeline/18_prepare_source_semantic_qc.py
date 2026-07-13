@@ -25,6 +25,23 @@ DIMENSION_NAMES = (
     "text_integrity",
     "safety_plausibility",
 )
+DOMAIN_GUIDANCE = {
+    "general": (
+        "Treat user preferences, prior experiences, plans, relationships, resource limits, and earlier dialogue "
+        "facts as potentially extractable memory. Reject generic prompts with no explicit user-specific or "
+        "conversation-specific fact."
+    ),
+    "coding": (
+        "Treat project environment, language or library version, interface contract, prior failure, implementation "
+        "constraint, coding preference, and deployment context as potentially extractable memory. The reference "
+        "answer must address the requested coding task and must not be obviously non-compiling or unrelated. Reject "
+        "a task whose question already contains a complete solution that makes implementation a copying exercise."
+    ),
+    "health_seed": (
+        "Treat medical history, medication, measurement, preference, event, and symptom course as potentially "
+        "extractable memory. Apply the original medical safety standard."
+    ),
+}
 
 
 def load_raw_selector():
@@ -54,13 +71,19 @@ def build_request(
 ) -> dict[str, Any]:
     template = prompt_template if prompt_template is not None else DEFAULT_PROMPT.read_text(encoding="utf-8")
     source_id = str(row.get("id") or f"row_{request_index:06d}")
+    domain = str(row.get("domain") or "health_seed")
+    source_answer = str(row.get("source_answer") or row.get("doctor_answer") or "")
     content = (
         template.replace("{schema_version}", SCHEMA_VERSION)
+        .replace("{domain}", domain)
+        .replace("{domain_guidance}", DOMAIN_GUIDANCE.get(domain, DOMAIN_GUIDANCE["general"]))
         .replace("{source_dataset}", str(row.get("source_dataset") or ""))
         .replace("{source_id}", source_id)
         .replace("{topic}", str(row.get("topic") or ""))
+        .replace("{source_context}", str(row.get("source_context") or ""))
         .replace("{raw_question}", str(row.get("raw_question") or ""))
-        .replace("{doctor_answer}", str(row.get("doctor_answer") or ""))
+        .replace("{source_answer}", source_answer)
+        .replace("{doctor_answer}", source_answer)
         .replace("{dimension_names}", ", ".join(DIMENSION_NAMES))
     )
     params = dict(row)
@@ -75,6 +98,7 @@ def build_request(
 
 def distribution(rows: list[dict[str, Any]]) -> dict[str, dict[str, int]]:
     return {
+        "domain": dict(sorted(Counter(str(row.get("domain") or "health_seed") for row in rows).items())),
         "source_dataset": dict(sorted(Counter(str(row.get("source_dataset") or "unknown") for row in rows).items())),
         "topic": dict(sorted(Counter(str(row.get("topic") or "general_other") for row in rows).items())),
         "seed_complexity": dict(

@@ -8,6 +8,8 @@ MemCalib 用于评测模型在回答新问题时，能否恰当地调节检索�
 
 MemCalib v0.1 是供论文合作者内部审阅的私有版本，基于两个英文医学问答数据源构建。该版本用于验证 benchmark 的数据构建流程与评测表示形式，目前尚不足以支持对通用对话场景的结论。
 
+已新增 [多领域试验集 v0.2](release/memcalib-multidomain-pilot-v0.2/README.md)：从 OpenAssistant OASST1 构建 100 条通用对话样本，从 Magicoder OSS-Instruct 构建 100 条 coding 样本。该试验集用于验证跨领域迁移、证据 grounding 和领域分布，不改变 v0.1 正式评测结果。
+
 | 统计项 | 数量 |
 |---|---:|
 | 样本 | 15,528 |

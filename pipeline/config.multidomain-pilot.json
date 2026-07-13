@@ -1,0 +1,38 @@
+{
+  "source_root": "data/raw_sources",
+  "output_dir": "data/multidomain",
+  "sampling": {
+    "seed": 20260713
+  },
+  "api": {
+    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+    "model": "qwen3.7-max",
+    "temperature": 0.2,
+    "max_tokens": 8192,
+    "rpm": 1800,
+    "max_workers": 200,
+    "max_retries": 5,
+    "timeout": 300
+  },
+  "raw_selection": {
+    "schema_version": "memcalib-multidomain-raw-selection-v1",
+    "scoring_version": "memcalib-multidomain-seed-quality-v1",
+    "min_question_chars": 20,
+    "max_question_chars": 6000,
+    "min_answer_chars": 30,
+    "max_answer_chars": 10000,
+    "min_question_tokens": 5,
+    "min_answer_tokens": 5,
+    "min_english_letter_ratio": 0.75,
+    "max_boilerplate_ratio": 0.65,
+    "min_quality_score": 60,
+    "near_duplicate_jaccard": 0.88,
+    "topic_alpha": 0.5,
+    "quality_weight_beta": 2.0,
+    "complexity_targets": {
+      "simple": 0.25,
+      "medium": 0.5,
+      "complex": 0.25
+    }
+  }
+}

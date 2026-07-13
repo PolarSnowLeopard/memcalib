@@ -22,6 +22,7 @@ SCORING_VERSION = "crk2-seed-quality-v1"
 COMPLEXITY_ORDER = ("simple", "medium", "complex")
 
 WORD_RE = re.compile(r"[a-z]+(?:'[a-z]+)?|\d+(?:\.\d+)?", re.I)
+CODE_TOKEN_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*|\d+|[^\s\w]")
 SENTENCE_RE = re.compile(r"[.!?]+")
 REPEATED_NOISE_RE = re.compile(r"(.)\1{5,}", re.I)
 RELATION_RE = re.compile(
@@ -30,18 +31,20 @@ RELATION_RE = re.compile(
 )
 ANSWER_SUBSTANCE_RE = re.compile(
     r"\b(advise|recommend|should|need|because|suggest|likely|may|consider|review|evaluate|test|"
-    r"discuss|monitor|diagnos|treat|avoid|continue|seek|consult|refer)\w*\b",
+    r"discuss|monitor|diagnos|treat|avoid|continue|seek|consult|refer|implement|return|create|"
+    r"explain|use|write|fix|validate|handle|configure)\w*\b",
     re.I,
 )
 QUESTION_INTENT_RE = re.compile(
     r"(?:^|[.!]\s+)(?:what|why|how|when|where|which|who|can|could|should|would|is|are|do|does|did|will)\b|"
+    r"(?:^|[.!]\s+)(?:implement|write|create|build|fix|explain|design|provide|generate|refactor|debug|convert|complete|develop)\b|"
     r"\b(?:what should i|is it|do i|can i|could you|would you|any advice|need advice|want to know|"
     r"suggest (?:a )?remedy|please (?:advise|help|tell|suggest|recommend)|kindly (?:advise|help|tell)|"
     r"reason for|cause of)\b",
     re.I,
 )
 
-SIGNAL_PATTERNS: dict[str, re.Pattern[str]] = {
+HEALTH_SIGNAL_PATTERNS: dict[str, re.Pattern[str]] = {
     "personal_entity": re.compile(
         r"\b(i|i'm|i've|i'd|me|my|mine|we|our|husband|wife|partner|son|daughter|mother|father|"
         r"sister|brother|child|baby|infant)\b",
@@ -80,6 +83,72 @@ SIGNAL_PATTERNS: dict[str, re.Pattern[str]] = {
     "symptom_course": re.compile(
         r"\b(started|began|worsen(?:ed|ing|s)?|improv(?:ed|ing|es)?|persistent|persisting|constant|"
         r"intermittent|comes and goes|returned|resolved|relieved|risen|increased|decreased|progressive)\b",
+        re.I,
+    ),
+}
+
+GENERAL_SIGNAL_PATTERNS: dict[str, re.Pattern[str]] = {
+    "personal_entity": HEALTH_SIGNAL_PATTERNS["personal_entity"],
+    "temporal_history": HEALTH_SIGNAL_PATTERNS["temporal_history"],
+    "preference_constraint": HEALTH_SIGNAL_PATTERNS["preference_constraint"],
+    "goal_plan": re.compile(
+        r"\b(my goal|i am planning|i'm planning|i plan to|i need to|i have to|i am trying|i'm trying|"
+        r"working toward|deadline|upcoming|next week|next month)\b",
+        re.I,
+    ),
+    "experience_history": re.compile(
+        r"\b(i tried|i have tried|i've tried|previous attempt|in the past|my experience|i learned|"
+        r"i have been|i've been|recently|last time|used to)\b",
+        re.I,
+    ),
+    "resource_constraint": re.compile(
+        r"\b(my budget|within budget|cannot afford|can't afford|limited time|only have|available to me|"
+        r"my schedule|work schedule|live in|located in|access to|without access)\b",
+        re.I,
+    ),
+    "relationship_context": re.compile(
+        r"\b(my partner|my spouse|my friend|my family|my child|my manager|my colleague|my team|"
+        r"our household|our relationship)\b",
+        re.I,
+    ),
+}
+
+CODING_SIGNAL_PATTERNS: dict[str, re.Pattern[str]] = {
+    "project_environment": re.compile(
+        r"\b(project|repository|repo|codebase|application|service|runtime|operating system|linux|windows|macos)\b",
+        re.I,
+    ),
+    "language_version": re.compile(
+        r"\b(python|javascript|typescript|java|c\+\+|c#|rust|go|ruby|php|swift|kotlin|node(?:\.js)?)"
+        r"(?:\s*(?:version\s*)?\d+(?:\.\d+)*)?\b",
+        re.I,
+    ),
+    "dependency_framework": re.compile(
+        r"\b(library|package|dependency|framework|sdk|django|flask|fastapi|react|vue|angular|spring|"
+        r"pandas|numpy|pytest|express)\b",
+        re.I,
+    ),
+    "interface_contract": re.compile(
+        r"\b(function signature|method signature|input|output|return type|schema|endpoint|api|interface|"
+        r"class|method|function|parameter|argument)\b",
+        re.I,
+    ),
+    "failure_history": re.compile(
+        r"\b(error|exception|traceback|failing|failed|does not work|doesn't work|bug|incorrect|"
+        r"previous attempt|tried|currently returns)\b",
+        re.I,
+    ),
+    "implementation_constraint": re.compile(
+        r"\b(must|must not|cannot|can't|without using|do not use|don't use|required|constraint|"
+        r"time complexity|space complexity|thread-safe|backward compatible)\b",
+        re.I,
+    ),
+    "style_preference": re.compile(
+        r"\b(prefer|style|type hints|docstring|format|naming convention|functional style|object-oriented)\b",
+        re.I,
+    ),
+    "deployment_context": re.compile(
+        r"\b(docker|kubernetes|lambda|aws|azure|gcp|deployment|production|ci/cd|github actions|container)\b",
         re.I,
     ),
 }
@@ -126,18 +195,42 @@ def boilerplate_ratio(text: str) -> tuple[float, int]:
     return max(0.0, min(1.0, ratio)), len(content_tokens)
 
 
-def has_text_noise(text: str) -> bool:
+def has_text_noise(text: str, *, punctuation_threshold: float = 0.18) -> bool:
     if REPEATED_NOISE_RE.search(text or ""):
         return True
     compact = re.sub(r"\s+", "", text or "")
     if not compact:
         return True
     punctuation = sum(not char.isalnum() for char in compact)
-    return punctuation / len(compact) > 0.18
+    return punctuation / len(compact) > punctuation_threshold
 
 
-def matched_signal_families(question: str) -> list[str]:
-    return [name for name, pattern in SIGNAL_PATTERNS.items() if pattern.search(question or "")]
+def answer_ngram_containment(question: str, answer: str, width: int = 10) -> float:
+    question_tokens = CODE_TOKEN_RE.findall((question or "").casefold())
+    answer_tokens = CODE_TOKEN_RE.findall((answer or "").casefold())
+    if len(answer_tokens) < width:
+        return 0.0
+    question_ngrams = {
+        tuple(question_tokens[index : index + width])
+        for index in range(max(0, len(question_tokens) - width + 1))
+    }
+    answer_ngrams = {
+        tuple(answer_tokens[index : index + width])
+        for index in range(len(answer_tokens) - width + 1)
+    }
+    return len(question_ngrams & answer_ngrams) / len(answer_ngrams) if answer_ngrams else 0.0
+
+
+def signal_patterns_for_domain(domain: str) -> dict[str, re.Pattern[str]]:
+    if domain == "general":
+        return GENERAL_SIGNAL_PATTERNS
+    if domain == "coding":
+        return CODING_SIGNAL_PATTERNS
+    return HEALTH_SIGNAL_PATTERNS
+
+
+def matched_signal_families(question: str, domain: str = "health_seed") -> list[str]:
+    return [name for name, pattern in signal_patterns_for_domain(domain).items() if pattern.search(question or "")]
 
 
 def has_question_intent(question: str) -> bool:
@@ -186,23 +279,32 @@ def classify_seed_complexity(
 def assess_record(row: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]:
     result = dict(row)
     question = str(row.get("raw_question") or "").strip()
-    answer = str(row.get("doctor_answer") or "").strip()
+    answer = str(row.get("source_answer") or row.get("doctor_answer") or "").strip()
+    source_context = str(row.get("source_context") or "").strip()
+    domain = str(row.get("domain") or "health_seed")
     question_tokens = words(question)
     answer_tokens = words(answer)
     question_sentences = max(1, len([part for part in SENTENCE_RE.split(question) if part.strip()]))
     answer_sentences = max(1, len([part for part in SENTENCE_RE.split(answer) if part.strip()]))
     relation_count = len(RELATION_RE.findall(question))
-    signal_families = matched_signal_families(question)
+    signal_families = matched_signal_families(f"{source_context}\n{question}", domain)
     question_intent = has_question_intent(question)
     answer_boilerplate_ratio, answer_content_tokens = boilerplate_ratio(answer)
     question_english_ratio = english_letter_ratio(question)
     answer_english_ratio = english_letter_ratio(answer)
-    noisy = has_text_noise(question) or has_text_noise(answer)
+    punctuation_threshold = 0.45 if domain == "coding" else 0.18
+    noisy = has_text_noise(question, punctuation_threshold=punctuation_threshold) or has_text_noise(
+        answer,
+        punctuation_threshold=punctuation_threshold,
+    )
+    reference_answer_containment = answer_ngram_containment(question, answer) if domain == "coding" else 0.0
 
     hard_reasons: list[str] = []
-    for field in ("id", "source_dataset", "raw_question", "doctor_answer"):
+    for field in ("id", "source_dataset", "raw_question"):
         if not str(row.get(field) or "").strip():
             hard_reasons.append(f"missing_{field}")
+    if not answer:
+        hard_reasons.append("missing_source_answer")
     if len(question) < int(config["min_question_chars"]):
         hard_reasons.append("question_too_short")
     if len(question) > int(config["max_question_chars"]):
@@ -228,6 +330,8 @@ def assess_record(row: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]
         hard_reasons.append("no_memory_signal")
     if not question_intent:
         hard_reasons.append("missing_question_intent")
+    if domain == "coding" and reference_answer_containment >= 0.8:
+        hard_reasons.append("reference_answer_in_question")
 
     question_score = _score_question(len(question_tokens), question_sentences, relation_count)
     answer_score = _score_answer(answer_content_tokens, answer_sentences, answer)
@@ -288,6 +392,9 @@ def assess_record(row: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]
             "answer_english_letter_ratio": round(answer_english_ratio, 4),
             "answer_boilerplate_ratio": round(answer_boilerplate_ratio, 4),
             "text_noise": noisy,
+            "domain": domain,
+            "source_context_chars": len(source_context),
+            "reference_answer_ngram_containment": round(reference_answer_containment, 4),
         },
         "dedup_status": "not_evaluated" if eligible else "ineligible",
         "duplicate_cluster_id": None,

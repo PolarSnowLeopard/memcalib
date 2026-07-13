@@ -32,8 +32,24 @@ LANGUAGE_POLICIES = {
 - All generated natural-language fields must be written in English, including question, memory_text, atomic memory text, atomic_predicate, label_reason, construction_target, usage_rubric, qc explanations, and notes.
 - raw_evidence and evidence fields preserve the original evidence language for auditability and reproducibility.
 - Schema keys, enum values, source, hard_a_family, memory_type, derivation, and other machine-readable fields must keep the exact English values defined by the schema.
-- Medical abbreviations, proper names, product names, place names, and terms that are conventionally written in another language may remain unchanged, but do not mix languages within generated prose unless the term itself requires it.
+- Domain abbreviations, code identifiers, proper names, product names, place names, and terms that are conventionally written in another language may remain unchanged, but do not mix languages within generated prose unless the term itself requires it.
 - synthetic_hard_a fields must also be generated in English, except evidence fields that intentionally record a synthetic rationale.""",
+}
+DOMAIN_CONSTRUCTION_GUIDANCE = {
+    "general": """General-dialogue boundary guidance:
+- C memories are explicit facts or hard constraints whose omission would make the answer materially wrong for this user or current situation.
+- B memories may adapt tone, format, examples, prioritization, or implementation while preserving the answer backbone.
+- A memories include semantically related but inapplicable, stale, over-specific, or untriggered preferences that should leave no footprint.
+- Preserve a coherent user or conversation history. Do not combine unrelated profile facts merely to increase atom count.""",
+    "coding": """Coding boundary guidance:
+- C memories include applicable runtime or language versions, interface contracts, forbidden dependencies, compatibility requirements, security constraints, and test-defining behavior.
+- B memories include code style, naming, explanation depth, secondary implementation preferences, and non-controlling tooling choices.
+- A memories include another repository's stack, stale versions, previously failed approaches, and preferences that conflict with the current project or specification.
+- Do not turn the reference solution into memory or leak its implementation. Extract real B/C constraints only from source context and the current question.
+- Keep one project event or configuration coherent when atomizing it. A version and the library it qualifies normally form one atomic proposition.""",
+    "health_seed": """Medical boundary guidance:
+- Apply the locked v0.1 medical A/B/C boundary standard.
+- Safety-critical facts may control the answer; unsafe preferences must not control it.""",
 }
 TARGET_INSTRUCTIONS = {
     "zh": "目标：优先构造 {target_memory_count} 个 memory block；最终 atomic memory 数量由语义拆分决定。只允许补充 hard A。",
@@ -70,6 +86,7 @@ def ordered_request_id_sha256(requests: list[dict[str, Any]]) -> str:
 
 def request_distribution(rows: list[dict[str, Any]]) -> dict[str, dict[str, int]]:
     return {
+        "domain": dict(sorted(Counter(str(row.get("domain") or "health_seed") for row in rows).items())),
         "source_dataset": dict(sorted(Counter(str(row.get("source_dataset") or "unknown") for row in rows).items())),
         "topic": dict(sorted(Counter(str(row.get("topic") or "unknown") for row in rows).items())),
         "seed_complexity": dict(
@@ -129,12 +146,18 @@ def build_request(
     if "{language_policy}" not in template:
         template = f"{template.rstrip()}\n\n{language_policy}\n"
     source_id = str(row.get("id") or f"row_{request_index:06d}")
+    domain = str(row.get("domain") or "health_seed")
+    source_answer = str(row.get("source_answer") or row.get("doctor_answer") or "")
     content = (
-        template.replace("{source_dataset}", str(row.get("source_dataset", "")))
+        template.replace("{domain}", domain)
+        .replace("{domain_guidance}", DOMAIN_CONSTRUCTION_GUIDANCE.get(domain, DOMAIN_CONSTRUCTION_GUIDANCE["general"]))
+        .replace("{source_dataset}", str(row.get("source_dataset", "")))
         .replace("{source_id}", source_id)
         .replace("{topic}", str(row.get("topic", "")))
+        .replace("{source_context}", str(row.get("source_context", "")))
         .replace("{raw_question}", str(row.get("raw_question", "")))
-        .replace("{doctor_answer}", str(row.get("doctor_answer", "")))
+        .replace("{source_answer}", source_answer)
+        .replace("{doctor_answer}", source_answer)
         .replace("{language_policy}", language_policy)
     )
     content += "\n\n" + TARGET_INSTRUCTIONS[output_language].format(target_memory_count=target_memory_count)

@@ -1,0 +1,173 @@
+{
+  "schema_version": "memcalib-multidomain-raw-selection-v1",
+  "scoring_version": "memcalib-multidomain-seed-quality-v1",
+  "input": {
+    "path": "pipeline/data/multidomain/coding_normalized.jsonl",
+    "sha256": "ca5f8b8eb27147b1e1983e57306d515c6f3dcb947cf1311d23a9819c5240b1bb",
+    "rows": 75197
+  },
+  "implementation": {
+    "selector_path": "/Users/zhaofanyu/Code/create_medpreferncedata_from_public_data/pipeline/15_select_crk2_raw_seeds.py",
+    "selector_sha256": "8fd53a6f24899e7da56f8d28d191d766276a4000332baaa04d0665d4d701774d",
+    "config_path": "pipeline/config.multidomain-pilot.json",
+    "config_sha256": "ac26febb720927a6dceb1ee6c541ec1d0f16b683d50dad62d0abd6afd7c16c0d"
+  },
+  "parameters": {
+    "target": 300,
+    "seed": 20260714,
+    "min_question_chars": 20,
+    "max_question_chars": 6000,
+    "min_answer_chars": 30,
+    "max_answer_chars": 10000,
+    "min_question_tokens": 5,
+    "min_answer_tokens": 5,
+    "min_english_letter_ratio": 0.75,
+    "max_boilerplate_ratio": 0.65,
+    "min_quality_score": 60,
+    "near_duplicate_jaccard": 0.88,
+    "topic_alpha": 0.5,
+    "quality_weight_beta": 2.0,
+    "complexity_targets": {
+      "simple": 0.25,
+      "medium": 0.5,
+      "complex": 0.25
+    }
+  },
+  "selection_algorithm": {
+    "source_allocation": "equal_with_capacity_aware_largest_remainder",
+    "topic_allocation": "eligible_count_power_alpha",
+    "complexity_allocation": "configured_proportions_with_capacity_aware_largest_remainder",
+    "within_stratum": "seeded_exponential_quality_weighting",
+    "near_duplicate_assignment": "greedy_best_representative_no_transitive_chain"
+  },
+  "counts": {
+    "assessed": 75197,
+    "hard_filter_pass": 7242,
+    "score_pass": 74686,
+    "eligible_after_dedup": 7234,
+    "selected": 300
+  },
+  "rejection_reasons": {
+    "answer_language_mismatch": 2,
+    "duplicate": 4,
+    "missing_question_intent": 40245,
+    "no_memory_signal": 568,
+    "quality_score_below_threshold": 4,
+    "question_too_long": 3,
+    "text_noise": 61146
+  },
+  "dedup_status": {
+    "duplicate": 4,
+    "ineligible": 67959,
+    "representative": 2,
+    "unique": 7232
+  },
+  "duplicates": {
+    "clusters": 2,
+    "records_marked_duplicate": 4,
+    "cross_source_clusters": 0,
+    "max_cluster_size": 4,
+    "match_type_counts": {
+      "near": 4
+    }
+  },
+  "score_summary": {
+    "assessed": {
+      "min": 31,
+      "p25": 82,
+      "median": 87,
+      "p75": 90,
+      "max": 100,
+      "mean": 85.073
+    },
+    "eligible": {
+      "min": 60,
+      "p25": 85,
+      "median": 90,
+      "p75": 90,
+      "max": 100,
+      "mean": 86.985
+    },
+    "selected": {
+      "min": 60,
+      "p25": 80,
+      "median": 85,
+      "p75": 90,
+      "max": 100,
+      "mean": 85.763
+    }
+  },
+  "distributions": {
+    "assessed": {
+      "source_dataset": {
+        "ise-uiuc/Magicoder-OSS-Instruct-75K": 75197
+      },
+      "topic": {
+        "api_library": 12904,
+        "coding_other": 36,
+        "data_algorithm": 23014,
+        "debugging": 14145,
+        "implementation": 14935,
+        "systems_devops": 2392,
+        "testing_quality": 7771
+      },
+      "seed_complexity": {
+        "complex": 18530,
+        "medium": 55683,
+        "simple": 984
+      }
+    },
+    "eligible": {
+      "source_dataset": {
+        "ise-uiuc/Magicoder-OSS-Instruct-75K": 7234
+      },
+      "topic": {
+        "api_library": 1754,
+        "coding_other": 7,
+        "data_algorithm": 1671,
+        "debugging": 1048,
+        "implementation": 1321,
+        "systems_devops": 415,
+        "testing_quality": 1018
+      },
+      "seed_complexity": {
+        "complex": 1754,
+        "medium": 5374,
+        "simple": 106
+      }
+    },
+    "selected": {
+      "source_dataset": {
+        "ise-uiuc/Magicoder-OSS-Instruct-75K": 300
+      },
+      "topic": {
+        "api_library": 61,
+        "coding_other": 4,
+        "data_algorithm": 59,
+        "debugging": 47,
+        "implementation": 53,
+        "systems_devops": 30,
+        "testing_quality": 46
+      },
+      "seed_complexity": {
+        "complex": 80,
+        "medium": 155,
+        "simple": 65
+      }
+    }
+  },
+  "outputs": {
+    "quality_audit": {
+      "path": "pipeline/data/multidomain/coding_quality_audit.jsonl",
+      "sha256": "496f0b8b129863c69eec1ef5251286cde4f25cf8a95ffd9b29a2a8fd1931155b"
+    },
+    "eligible_pool": {
+      "path": "pipeline/data/multidomain/coding_eligible.jsonl",
+      "sha256": "c5b3191b2bf9cb33d6f5fbac9edb1864daee990e7d14478a3fde807fd74a1e46"
+    },
+    "selected_seeds": {
+      "path": "pipeline/data/multidomain/coding_selected_300.jsonl",
+      "sha256": "88eb2c10e766b001772c7920182ddec697faf4d4ac6885712180b5fa04f0e025"
+    }
+  }
+}

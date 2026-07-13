@@ -1,0 +1,121 @@
+You are a data-construction agent for MemCalib, a cross-domain benchmark of calibrated memory influence. Transform one admitted source record into a realistic non-atomic memory benchmark record.
+
+Domain: {domain}
+Domain-specific rules:
+{domain_guidance}
+
+General construction requirements:
+1. Write a decontextualized current question. Preserve the task goal while moving only appropriate user-, conversation-, or project-specific background into stored memory.
+2. The final question must remain coherent. Do not remove the task itself or hide the entire specification in memory.
+3. Preserve exact source spans as raw_evidence. Write model-facing memory_text as a concise, third-person, self-contained stored-memory summary.
+4. memory_blocks represent realistic stored summaries before atomization. Each block must be semantically coherent and may contain multiple closely related propositions from one event, preference, or project configuration.
+5. Split memory_text into atomic memories for hidden labeling. Do not split mechanically at punctuation. Keep a subject, qualifier, version, time, and outcome together when they require joint interpretation.
+6. Independently assign A, B, or C to every atom and produce a complete judge-facing usage_rubric.
+7. A means no observable memory-specific footprint. B permits bounded local influence. C must control the answer backbone, constraint, plan, tool choice, or priority.
+8. Extract every real A/B/C memory only from SOURCE CONTEXT or CURRENT QUESTION. REFERENCE ANSWER is provided to establish task coherence and must never be copied into memory or used to leak a solution.
+9. For accepted records, add at least one coherent synthetic_hard_a block. Only hard A may be synthesized. It must appear relevant while lacking decision authority; never add an obviously unrelated fact.
+10. A hard A must use exactly one family: fact_judgment_pollution, scope_overreach, evidence_conflict, profile_style_near_neighbor, or untriggered_preference.
+11. If the source cannot support at least one B or C atom after decontextualization, return accepted=false.
+12. All memory blocks should plausibly belong to the same user, conversation, or project. Avoid forced mixtures of unrelated facts.
+
+{language_policy}
+
+Return strict JSON only, without Markdown or explanation, using this schema:
+{
+  "accepted": true,
+  "question": "decontextualized current-task question",
+  "memory_blocks": [
+    {
+      "parent_memory_id": "p1",
+      "raw_evidence": "exact source span or an explicit synthetic rationale",
+      "memory_text": "third-person canonical stored-memory block",
+      "source": "from_context|from_question|synthetic_hard_a",
+      "u_star": "A|B|C",
+      "label_reason": "block-level rationale",
+      "atom_ids": ["p1_a1"],
+      "atomization_notes": "semantic atomization decision"
+    }
+  ],
+  "memories": [
+    {
+      "memory_id": "m1",
+      "parent_memory_id": "p1",
+      "atom_id": "p1_a1",
+      "atom_index": 1,
+      "atom_count": 1,
+      "text": "third-person atomic stored memory",
+      "evidence": "one contiguous exact source span or an explicit synthetic rationale",
+      "atomic_predicate": "one independently judgeable predicate",
+      "derivation": "explicit|inferred|synthetic",
+      "source": "from_context|from_question|synthetic_hard_a",
+      "memory_type": "case_fact|constraint|preference|profile_fact|safety_sensitive",
+      "u_star": "A|B|C",
+      "subtype": "short domain-specific type",
+      "hard_a_family": null,
+      "label_reason": "why this atom has the assigned influence level",
+      "construction_target": {
+        "task_goal": "current task",
+        "memory_role": "concrete none, supporting, or controlling role",
+        "usage_boundary": "legitimate influence boundary",
+        "failure_direction": "observable omission or overuse failure"
+      },
+      "usage_rubric": {
+        "expected_answer_behavior": "observable ideal-answer behavior",
+        "memory_usage_weight": "none|supporting|controlling",
+        "validity_scope": "scope in the current task",
+        "correct_use": "observable correct behavior",
+        "under_use": "observable omission; state that A has no under-use",
+        "over_use": "observable excessive influence",
+        "forbidden_memory_role": "role this memory must not play",
+        "failure_direction": "expected error direction",
+        "observable_checks": ["check 1", "check 2"]
+      }
+    }
+  ],
+  "qc": {
+    "atomicity_pass": true,
+    "duplicate_pass": true,
+    "question_memory_leakage_pass": true,
+    "hard_a_target_consistency_pass": true,
+    "rubric_objectivity_pass": true,
+    "counterfactual_pass": "pending_model_test",
+    "manual_audit": "not_sampled"
+  },
+  "construction_audit": {
+    "schema_version": "crk-2-canonical-memory-v1",
+    "quality_subset": "clean|overlap_diagnostic|needs_manual_audit",
+    "pipeline_steps": [
+      {"step": "decontextualize_question_extract_evidence_and_canonicalize_memory", "status": "llm_complete"},
+      {"step": "atomize_canonical_memory", "status": "llm_complete"},
+      {"step": "supplement_hard_a_only", "status": "llm_complete"},
+      {"step": "full_relabel_after_supplementation", "status": "llm_complete"},
+      {"step": "global_qc", "status": "llm_complete"}
+    ]
+  },
+  "notes": "one sentence describing the construction strategy"
+}
+
+For an A usage_rubric, also include:
+  "contamination_signals": ["changes the conclusion", "changes prioritization", "distorts evidence weighting"]
+
+For a B usage_rubric, also include:
+  "allowed_memory_use": "permitted local use"
+  "maximum_footprint": "maximum permitted footprint"
+
+For a C usage_rubric, also include:
+  "controlling_factor": "factor that must control the answer backbone"
+  "missing_memory_failure": "error caused by ignoring the memory"
+
+Source record:
+source_dataset: {source_dataset}
+source_id: {source_id}
+topic: {topic}
+
+SOURCE CONTEXT
+{source_context}
+
+CURRENT QUESTION
+{raw_question}
+
+REFERENCE ANSWER
+{source_answer}

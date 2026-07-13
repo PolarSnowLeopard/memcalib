@@ -1,0 +1,62 @@
+{
+  "schema_version": "crk2-source-semantic-admission-v1",
+  "status": "strict_sufficient",
+  "final_target": 100,
+  "admission_target": 122,
+  "generation_pilot": {
+    "successes": 90,
+    "total": 100,
+    "wilson_lower_95": 0.8256343384950866
+  },
+  "counts": {
+    "input": 299,
+    "strict_pass": 130,
+    "review": 9,
+    "reject": 160,
+    "admitted": 122,
+    "secondary_review_candidates": 0
+  },
+  "parameters": {
+    "seed": 20260714
+  },
+  "input": {
+    "path": "pipeline/data/multidomain/coding_semantic_qc_resolved_300.jsonl",
+    "sha256": "6d9a934ca625d895a51b99ed026cada488b4ce73b6c5f824ccaf1748844c6389"
+  },
+  "distributions": {
+    "admitted": {
+      "source_dataset": {
+        "ise-uiuc/Magicoder-OSS-Instruct-75K": 122
+      },
+      "topic": {
+        "api_library": 26,
+        "coding_other": 3,
+        "data_algorithm": 25,
+        "debugging": 18,
+        "implementation": 14,
+        "systems_devops": 21,
+        "testing_quality": 15
+      },
+      "seed_complexity": {
+        "complex": 40,
+        "medium": 68,
+        "simple": 14
+      }
+    },
+    "secondary_review_candidates": {
+      "source_dataset": {},
+      "topic": {},
+      "seed_complexity": {}
+    }
+  },
+  "outputs": {
+    "admitted": {
+      "path": "pipeline/data/multidomain/coding_semantic_admitted.jsonl",
+      "sha256": "c086374dc0c63be2f2ba22776f0961e2e95c8ba1feab21ca5cd3c63b5cff5782"
+    },
+    "secondary_review": {
+      "path": "pipeline/data/multidomain/coding_semantic_secondary_review.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "schema_version": "memcalib-multidomain-pilot-validation-v1",
+  "status": "pass",
+  "expected_rows_per_file": 100,
+  "files": [
+    {
+      "path": "pipeline/data/multidomain/general_benchmark_100.jsonl",
+      "sha256": "68ce4458c579319af18e793869c004bfb0097f49f948f6df090e94de40f8bc61",
+      "rows": 100,
+      "unique_ids": 100,
+      "domains": {
+        "general": 100
+      },
+      "source_licenses": {
+        "Apache-2.0": 100
+      },
+      "generation_repair_rounds": {
+        "0": 88,
+        "1": 12
+      },
+      "label_counts": {
+        "A": 131,
+        "B": 130,
+        "C": 132
+      },
+      "parent_memory_structure": {
+        "parent_blocks": 316,
+        "non_atomic_parent_blocks": 71,
+        "non_atomic_parent_rate": 0.224684,
+        "samples_with_non_atomic_parent": 55
+      },
+      "validation_error_counts": {},
+      "reference_answer_overlap_audit": {
+        "method": "six-token answer-only shingle overlap; audit signal, not an automatic rejection",
+        "records_flagged": 3,
+        "atoms_flagged": 3
+      },
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "path": "pipeline/data/multidomain/coding_benchmark_100.jsonl",
+      "sha256": "aa9b87f389c250af6f211b166970b1943a488ec13ccff48a292a0afaf6710da2",
+      "rows": 100,
+      "unique_ids": 100,
+      "domains": {
+        "coding": 100
+      },
+      "source_licenses": {
+        "MIT": 100
+      },
+      "generation_repair_rounds": {
+        "0": 48,
+        "1": 52
+      },
+      "label_counts": {
+        "A": 109,
+        "B": 53,
+        "C": 210
+      },
+      "parent_memory_structure": {
+        "parent_blocks": 344,
+        "non_atomic_parent_blocks": 28,
+        "non_atomic_parent_rate": 0.081395,
+        "samples_with_non_atomic_parent": 23
+      },
+      "validation_error_counts": {},
+      "reference_answer_overlap_audit": {
+        "method": "six-token answer-only shingle overlap; audit signal, not an automatic rejection",
+        "records_flagged": 8,
+        "atoms_flagged": 10
+      },
+      "status": "pass",
+      "errors": []
+    }
+  ]
+}
