@@ -23,6 +23,8 @@ AUDIT_COLUMNS = [
     "source_topic",
     "source_dataset",
     "question",
+    "audit_selection_reasons",
+    "audit_selection_json",
     "parent_memory_id",
     "parent_source",
     "parent_block_label",
@@ -177,6 +179,14 @@ RUBRIC_FIELD_ORDER = [
     "observable_checks",
 ]
 
+SELECTION_REASON_LABELS = {
+    "generation_repair": "构建修复",
+    "non_atomic_parent": "非原子 parent memory",
+    "reference_answer_overlap": "答案重叠预警",
+    "mixed_parent_label": "parent 内标签混合",
+    "stratified_fill": "分层补样",
+}
+
 
 def label_set(labels: list[str]) -> str:
     ordered = [label for label in ("A", "B", "C") if label in labels]
@@ -254,6 +264,10 @@ def build_rubric_details(memories: list[dict[str, Any]]) -> list[dict[str, Any]]
 def build_parent_audit_rows(samples: list[dict[str, Any]]) -> list[dict[str, str]]:
     rows = []
     for sample in samples:
+        audit_selection = sample.get("audit_selection") if isinstance(sample.get("audit_selection"), dict) else {}
+        selection_reasons = audit_selection.get("selection_reasons")
+        if not isinstance(selection_reasons, list):
+            selection_reasons = []
         memories_by_parent: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for memory in sample.get("memories", []):
             memories_by_parent[str(memory.get("parent_memory_id", ""))].append(memory)
@@ -276,6 +290,8 @@ def build_parent_audit_rows(samples: list[dict[str, Any]]) -> list[dict[str, str
                 "source_topic": str(sample.get("source_topic", "")),
                 "source_dataset": str(sample.get("source_dataset", "")),
                 "question": norm_text(str(sample.get("question", ""))),
+                "audit_selection_reasons": "+".join(str(item) for item in selection_reasons),
+                "audit_selection_json": json.dumps(compact_value(audit_selection), ensure_ascii=False),
                 "parent_memory_id": parent_id,
                 "parent_source": str(block.get("source", "")),
                 "parent_block_label": str(block.get("u_star", "")),
@@ -354,6 +370,14 @@ def parse_json_list(value: str) -> list[dict[str, Any]]:
     if not isinstance(parsed, list):
         return []
     return [item for item in parsed if isinstance(item, dict)]
+
+
+def parse_json_object(value: str) -> dict[str, Any]:
+    try:
+        parsed = json.loads(value or "{}")
+    except json.JSONDecodeError:
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
 
 
 def render_value(value: Any) -> str:
@@ -448,6 +472,7 @@ def render_rubric_cards(row: dict[str, str]) -> str:
 
 
 def render_review_controls(row: dict[str, str]) -> str:
+    sample_id = row["sample_id"]
     parent_id = row["parent_memory_id"]
     control_suffix = f"{html_id_part(row['sample_id'])}-{html_id_part(parent_id)}"
     controls = []
@@ -463,7 +488,7 @@ def render_review_controls(row: dict[str, str]) -> str:
             f"""
             <label class="review-field" for="{attr(control_id)}">
               <span class="field-label">{cell(field_def['label'])}</span>
-              <select name="{attr(field)}" id="{attr(control_id)}" data-parent-id="{attr(parent_id)}" aria-describedby="{attr(help_id)}">
+              <select name="{attr(field)}" id="{attr(control_id)}" data-sample-id="{attr(sample_id)}" data-parent-id="{attr(parent_id)}" data-audit-field="{attr(field)}" aria-describedby="{attr(help_id)}">
                 {options}
               </select>
               <small id="{attr(help_id)}" class="field-help">{cell(field_def['help'])}</small>
@@ -475,7 +500,7 @@ def render_review_controls(row: dict[str, str]) -> str:
         f"""
         <label class="review-field notes" for="{attr(notes_id)}">
           <span class="field-label">备注</span>
-          <textarea id="{attr(notes_id)}" name="reviewer_notes" data-parent-id="{attr(parent_id)}" aria-describedby="{attr(notes_id)}-help"></textarea>
+          <textarea id="{attr(notes_id)}" name="reviewer_notes" data-sample-id="{attr(sample_id)}" data-parent-id="{attr(parent_id)}" data-audit-field="reviewer_notes" aria-describedby="{attr(notes_id)}-help"></textarea>
           <small id="{attr(notes_id)}-help" class="field-help">只记录无法用选择框表达的问题，例如建议合并哪些 atom、哪条 rubric 需要重写、是否应整条剔除。</small>
         </label>
         """
@@ -538,6 +563,13 @@ def render_memory_card(row: dict[str, str]) -> str:
 def write_audit_html(path: Path, rows: list[dict[str, str]], summary: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     grouped_samples = group_rows_by_sample(rows)
+    audit_title = str(summary.get("audit_title") or "CRK-2 Canonical Memory 人工审查")
+    audit_intro = str(
+        summary.get("audit_intro")
+        or "每页对应一个样本，样本内展示所有 model-facing parent memory block。审查重点是记忆条目、原子拆分、A/B/C 标签和 judge rubric 是否可辩护。"
+    )
+    storage_key = str(summary.get("storage_key") or f"crk2-canonical-audit:{path.stem}")
+    export_filename = str(summary.get("export_filename") or f"{path.stem}-annotations.json")
     display_summary = {
         "total_samples": summary.get("total_samples", 0),
         "total_parent_rows": summary.get("total_parent_rows", len(rows)),
@@ -547,6 +579,25 @@ def write_audit_html(path: Path, rows: list[dict[str, str]], summary: dict[str, 
     sample_pages = []
     for index, (sample_id, sample_rows) in enumerate(grouped_samples):
         first = sample_rows[0]
+        audit_selection = parse_json_object(first.get("audit_selection_json", "{}"))
+        selection_reasons = audit_selection.get("selection_reasons")
+        if not isinstance(selection_reasons, list):
+            selection_reasons = []
+        signal_details = audit_selection.get("signals") if isinstance(audit_selection.get("signals"), dict) else {}
+        reason_chips = "".join(
+            f'<span class="reason-chip reason-{attr(html_id_part(reason).lower())}">{cell(SELECTION_REASON_LABELS.get(str(reason), str(reason)))}</span>'
+            for reason in selection_reasons
+        )
+        signal_items = []
+        if signal_details.get("seed_complexity"):
+            signal_items.append(f"难度 {signal_details['seed_complexity']}")
+        if signal_details.get("generation_repair_round"):
+            signal_items.append(f"修复轮次 {signal_details['generation_repair_round']}")
+        if signal_details.get("non_atomic_parent_count"):
+            signal_items.append(f"非原子 parent {signal_details['non_atomic_parent_count']}")
+        if signal_details.get("answer_overlap_atom_count"):
+            signal_items.append(f"重叠预警 atom {signal_details['answer_overlap_atom_count']}")
+        signal_text = " · ".join(str(item) for item in signal_items)
         mixed_count = sum(1 for row in sample_rows if row["parent_label_mode"] == "mixed")
         label_sets = label_set([label for row in sample_rows for label in row["parent_label_set"].split("+") if label])
         active_class = " active" if index == 0 else ""
@@ -555,6 +606,11 @@ def write_audit_html(path: Path, rows: list[dict[str, str]], summary: dict[str, 
             f"""
       <section class="sample-page{active_class}" data-sample-index="{index}" data-sample-id="{attr(sample_id)}">
         <section class="sample-brief">
+          <div class="selection-context">
+            <span class="selection-label">入队依据</span>
+            <div class="reason-list">{reason_chips or '<span class="reason-chip">常规分层样本</span>'}</div>
+            <span class="signal-line">{cell(signal_text)}</span>
+          </div>
           <div>
             <p class="eyebrow">sample</p>
             <h2>{cell(sample_id)}</h2>
@@ -579,7 +635,7 @@ def write_audit_html(path: Path, rows: list[dict[str, str]], summary: dict[str, 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CRK-2 Canonical Memory 人工审查</title>
+  <title>{cell(audit_title)}</title>
   <style>
     :root {{
       --paper: #ffffff;
@@ -602,16 +658,33 @@ def write_audit_html(path: Path, rows: list[dict[str, str]], summary: dict[str, 
       line-height: 1.55;
       letter-spacing: 0;
     }}
-    header {{
+    .page-header {{
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
       padding: 24px min(5vw, 58px) 18px;
       background: var(--paper);
       border-bottom: 1px solid var(--line);
     }}
     h1 {{ margin: 0; font-size: 28px; line-height: 1.15; letter-spacing: 0; }}
-    header p {{ margin: 9px 0 0; color: #3d4858; max-width: 1060px; font-size: 15px; }}
+    .page-header p {{ margin: 9px 0 0; color: #3d4858; max-width: 1060px; font-size: 15px; }}
+    .header-actions {{ display: flex; align-items: center; gap: 10px; }}
+    .export-button {{
+      min-height: 38px;
+      border: 1px solid #283750;
+      border-radius: 7px;
+      background: #fff;
+      color: #223047;
+      padding: 0 14px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 780;
+      cursor: pointer;
+    }}
     .metrics {{
       display: grid;
-      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      grid-template-columns: repeat(5, minmax(140px, 1fr));
       gap: 10px;
       padding: 14px min(5vw, 58px) 10px;
     }}
@@ -688,6 +761,35 @@ def write_audit_html(path: Path, rows: list[dict[str, str]], summary: dict[str, 
       line-height: 1.25;
       overflow-wrap: anywhere;
     }}
+    .selection-context {{
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: auto minmax(0, auto) minmax(160px, 1fr);
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-left: 4px solid #4f5b93;
+      background: #f4f4fb;
+    }}
+    .selection-label {{ color: #3f486f; font-size: 12px; font-weight: 820; }}
+    .reason-list {{ display: flex; flex-wrap: wrap; gap: 6px; }}
+    .reason-chip {{
+      display: inline-flex;
+      align-items: center;
+      min-height: 25px;
+      border: 1px solid #ccd3e4;
+      border-radius: 999px;
+      background: #fff;
+      color: #39435d;
+      padding: 2px 9px;
+      font-size: 11px;
+      font-weight: 760;
+    }}
+    .reason-generation_repair {{ border-color: #c8b9dc; background: #f6f0fb; color: #65487c; }}
+    .reason-non_atomic_parent {{ border-color: #9bcfc7; background: #edf8f6; color: #12675f; }}
+    .reason-reference_answer_overlap {{ border-color: #e2bc83; background: #fff8eb; color: #81550d; }}
+    .reason-mixed_parent_label {{ border-color: #d6a3a3; background: #fff2f2; color: #853d3d; }}
+    .signal-line {{ color: #667085; font-size: 12px; text-align: right; }}
     .meta-line {{ margin-top: 5px; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }}
     .question {{
       color: #2f3a4c;
@@ -954,7 +1056,7 @@ def write_audit_html(path: Path, rows: list[dict[str, str]], summary: dict[str, 
       margin-top: 3px;
     }}
     select {{ min-height: 32px; }}
-    select:focus-visible, textarea:focus-visible, .nav-button:focus-visible {{
+    select:focus-visible, textarea:focus-visible, .nav-button:focus-visible, .export-button:focus-visible {{
       outline: 3px solid rgba(91, 95, 151, 0.24);
       outline-offset: 2px;
     }}
@@ -973,7 +1075,8 @@ def write_audit_html(path: Path, rows: list[dict[str, str]], summary: dict[str, 
       }}
     }}
     @media (max-width: 760px) {{
-      header, .metrics, .sample-nav, main {{ padding-left: 14px; padding-right: 14px; }}
+      .page-header, .metrics, .sample-nav, main {{ padding-left: 14px; padding-right: 14px; }}
+      .page-header {{ grid-template-columns: 1fr; }}
       .metrics {{ grid-template-columns: 1fr 1fr; }}
       .sample-nav {{ grid-template-columns: 1fr; }}
       .sample-position {{ order: -1; }}
@@ -983,19 +1086,27 @@ def write_audit_html(path: Path, rows: list[dict[str, str]], summary: dict[str, 
       .memory-facts, .sample-stats {{ grid-template-columns: 1fr; }}
       .detail-list, .nested-detail-list {{ grid-template-columns: 1fr; }}
       .review-grid {{ grid-template-columns: 1fr; }}
+      .selection-context {{ grid-template-columns: 1fr; }}
+      .signal-line {{ text-align: left; }}
     }}
   </style>
 </head>
 <body>
-  <header>
-    <h1>CRK-2 Canonical Memory 人工审查</h1>
-    <p>每页对应一个样本，样本内展示所有 model-facing parent memory block。审查重点是记忆条目、原子拆分、A/B/C 标签和 judge rubric 是否可辩护。</p>
+  <header class="page-header">
+    <div>
+      <h1>{cell(audit_title)}</h1>
+      <p>{cell(audit_intro)}</p>
+    </div>
+    <div class="header-actions">
+      <button class="export-button" id="export-annotations" type="button">导出 JSON</button>
+    </div>
   </header>
   <section class="metrics">
     <div class="metric"><strong>{html.escape(str(display_summary.get('total_samples', 0)))}</strong><span>samples</span></div>
     <div class="metric"><strong>{html.escape(str(display_summary.get('total_parent_rows', len(rows))))}</strong><span>parent rows</span></div>
     <div class="metric"><strong>{html.escape(str(display_summary.get('mixed_parent_rows', 0)))}</strong><span>mixed-label rows</span></div>
     <div class="metric"><strong>{html.escape(str(display_summary.get('homogeneous_parent_rows', 0)))}</strong><span>homogeneous rows</span></div>
+    <div class="metric"><strong id="reviewed-count">0 / {len(grouped_samples)}</strong><span>reviewed samples</span></div>
   </section>
   <nav class="sample-nav" aria-label="Sample navigation">
     <button class="nav-button" id="prev-sample" type="button">上一条</button>
@@ -1010,11 +1121,94 @@ def write_audit_html(path: Path, rows: list[dict[str, str]], summary: dict[str, 
   </main>
   <script>
     const pages = Array.from(document.querySelectorAll(".sample-page"));
+    const auditControls = Array.from(document.querySelectorAll("[data-audit-field]"));
     const counter = document.getElementById("sample-counter");
     const title = document.getElementById("sample-title");
+    const reviewedCount = document.getElementById("reviewed-count");
     const prevButton = document.getElementById("prev-sample");
     const nextButton = document.getElementById("next-sample");
+    const exportButton = document.getElementById("export-annotations");
+    const storageKey = {json.dumps(storage_key, ensure_ascii=False)};
+    const exportFilename = {json.dumps(export_filename, ensure_ascii=False)};
+    let annotations = {{}};
     let currentIndex = 0;
+
+    try {{
+      annotations = JSON.parse(localStorage.getItem(storageKey) || "{{}}") || {{}};
+    }} catch (error) {{
+      annotations = {{}};
+    }}
+
+    function rowKey(control) {{
+      return `${{control.dataset.sampleId}}::${{control.dataset.parentId}}`;
+    }}
+
+    function restoreAnnotations() {{
+      auditControls.forEach((control) => {{
+        const saved = annotations[rowKey(control)] || {{}};
+        const value = saved[control.dataset.auditField];
+        if (typeof value === "string") control.value = value;
+      }});
+    }}
+
+    function persistControl(control) {{
+      const key = rowKey(control);
+      annotations[key] ||= {{
+        sample_id: control.dataset.sampleId,
+        parent_memory_id: control.dataset.parentId,
+      }};
+      annotations[key][control.dataset.auditField] = control.value;
+      annotations[key].updated_at = new Date().toISOString();
+      localStorage.setItem(storageKey, JSON.stringify(annotations));
+      updateProgress();
+    }}
+
+    function updateProgress() {{
+      const reviewed = pages.filter((page) => {{
+        const statuses = Array.from(page.querySelectorAll('[data-audit-field="review_status"]'));
+        return statuses.length > 0 && statuses.every((control) => control.value !== "");
+      }}).length;
+      reviewedCount.textContent = `${{reviewed}} / ${{pages.length}}`;
+    }}
+
+    function collectRows() {{
+      const rows = {{}};
+      auditControls.forEach((control) => {{
+        const key = rowKey(control);
+        rows[key] ||= {{
+          sample_id: control.dataset.sampleId,
+          parent_memory_id: control.dataset.parentId,
+        }};
+        rows[key][control.dataset.auditField] = control.value;
+      }});
+      return Object.values(rows).sort((left, right) =>
+        `${{left.sample_id}}::${{left.parent_memory_id}}`.localeCompare(
+          `${{right.sample_id}}::${{right.parent_memory_id}}`
+        )
+      );
+    }}
+
+    function exportAnnotations() {{
+      const payload = {{
+        schema_version: "memcalib-parent-memory-human-audit-v1",
+        audit_title: {json.dumps(audit_title, ensure_ascii=False)},
+        exported_at: new Date().toISOString(),
+        samples: pages.length,
+        parent_annotations: collectRows(),
+      }};
+      const blob = new Blob([JSON.stringify(payload, null, 2) + "\\n"], {{ type: "application/json" }});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = exportFilename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      const original = exportButton.textContent;
+      exportButton.textContent = "已导出";
+      window.setTimeout(() => {{ exportButton.textContent = original; }}, 1400);
+    }}
 
     function showSample(index) {{
       if (!pages.length) return;
@@ -1031,6 +1225,10 @@ def write_audit_html(path: Path, rows: list[dict[str, str]], summary: dict[str, 
 
     prevButton.addEventListener("click", () => showSample(currentIndex - 1));
     nextButton.addEventListener("click", () => showSample(currentIndex + 1));
+    exportButton.addEventListener("click", exportAnnotations);
+    auditControls.forEach((control) => {{
+      control.addEventListener(control.tagName === "TEXTAREA" ? "input" : "change", () => persistControl(control));
+    }});
     document.addEventListener("keydown", (event) => {{
       const target = event.target;
       if (target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
@@ -1044,6 +1242,8 @@ def write_audit_html(path: Path, rows: list[dict[str, str]], summary: dict[str, 
         showSample(currentIndex - 1);
       }}
     }});
+    restoreAnnotations();
+    updateProgress();
     showSample(0);
   </script>
 </body>

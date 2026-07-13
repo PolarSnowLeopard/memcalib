@@ -13,12 +13,15 @@
 
 ## 审阅入口
 
+- [通用对话分层审查队列（35 条）](review/general-review-queue-35.html)
+- [Coding 分层审查队列（50 条）](review/coding-review-queue-50.html)
 - [通用对话 100 条审阅页](review/general-audit-100.html)
 - [Coding 100 条审阅页](review/coding-audit-100.html)
+- [分层审查队列清单](metadata/review-queue-manifest.json)
 - [最终机器验证结果](metadata/validation.json)
 - [发布文件哈希](release-manifest.json)
 
-两个审阅页均按“一页一个样本”展示。使用 `←/→` 或 `K/J` 切换样本。每条样本同时展示原始问题、去背景化后的当前问题、模型可见的非原子记忆块、隐藏原子记忆、A/B/C 标签与完整 judge rubric。
+优先审阅两份分层队列。页面按“一页一个样本”展示，使用 `←/→` 或 `K/J` 切换样本。每条样本同时展示入队依据、原始问题、去背景化后的当前问题、模型可见的非原子记忆块、隐藏原子记忆、A/B/C 标签与完整 judge rubric。选择结果会自动保存在当前浏览器，并可通过“导出 JSON”生成结构化标注文件。
 
 ## 试验结果
 
@@ -39,11 +42,14 @@ Coding 的 B 标签比例、非原子父记忆比例与混合标签父记忆比�
 
 - `data/*-hidden-construction-100.jsonl`：内部构造审计数据，包含参考答案、隐藏原子标签和 rubric，不可直接作为模型输入发布。
 - `review/*.html`：人工质量审阅页面。
+- `review/*-review-queue-*.jsonl`：分层人工审查队列及其入队信号。
+- `review/*-review-queue-*.csv`：可离线填写或复核的 parent-memory 级标注表。
 - `metadata/*-source-selection.json`：确定性筛选、去重和分层采样统计。
 - `metadata/*-semantic-qc.json`：语义质检及重试后的分布。
 - `metadata/*-admission.json`：strict-only 自适应准入记录。
 - `metadata/*-construction-summary.json`：最终构造统计。
 - `metadata/validation.json`：样本数、唯一 ID、许可证、结构、证据 grounding 和参考答案重合审计结果。
+- `metadata/review-queue-manifest.json`：分层审查规则、随机种子、覆盖分布及输出哈希。
 
 ## 当前限制
 

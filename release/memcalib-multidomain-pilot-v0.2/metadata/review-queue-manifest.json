@@ -1,0 +1,125 @@
+{
+  "schema_version": "memcalib-multidomain-human-review-queue-v1",
+  "seed": 20260713,
+  "selection_policy": {
+    "general_mandatory": [
+      "generation_repair",
+      "reference_answer_overlap"
+    ],
+    "coding_mandatory": [
+      "non_atomic_parent",
+      "reference_answer_overlap"
+    ],
+    "fill": "deterministic greedy balancing over topic, seed complexity, parent atomicity, label signature, and repair status"
+  },
+  "domains": [
+    {
+      "domain": "general",
+      "target": 35,
+      "source": {
+        "path": "release/memcalib-multidomain-pilot-v0.2/data/general-hidden-construction-100.jsonl",
+        "rows": 100,
+        "sha256": "68ce4458c579319af18e793869c004bfb0097f49f948f6df090e94de40f8bc61"
+      },
+      "selection": {
+        "samples": 35,
+        "mandatory_samples": 15,
+        "selection_reason_counts": {
+          "generation_repair": 12,
+          "mixed_parent_label": 6,
+          "non_atomic_parent": 18,
+          "reference_answer_overlap": 3,
+          "stratified_fill": 20
+        },
+        "seed_complexity_counts": {
+          "complex": 5,
+          "medium": 15,
+          "simple": 15
+        },
+        "source_topic_counts": {
+          "career_productivity": 4,
+          "general_other": 5,
+          "learning_explanation": 5,
+          "planning_advice": 5,
+          "relationships_communication": 5,
+          "travel_shopping_household": 5,
+          "writing_creative": 6
+        },
+        "atom_label_counts": {
+          "A": 51,
+          "B": 39,
+          "C": 44
+        }
+      },
+      "selected_id_sha256": "5d32b3bf59b6e6000467132d3d8cd7063ba182f76bb0a29789a3ea0a660cf6ad",
+      "outputs": {
+        "jsonl": {
+          "path": "release/memcalib-multidomain-pilot-v0.2/review/general-review-queue-35.jsonl",
+          "sha256": "2a61d0e8ec9390b003a3fb4851a7e5eac23ac4c1da49f871c073ee6fd7383bd2"
+        },
+        "csv": {
+          "path": "release/memcalib-multidomain-pilot-v0.2/review/general-review-queue-35.csv",
+          "sha256": "3218e1c92213b1518629e369732ea4376b25cd6c4fd6e3caf949bbd14a4bdd80"
+        },
+        "html": {
+          "path": "release/memcalib-multidomain-pilot-v0.2/review/general-review-queue-35.html",
+          "sha256": "301fec8a7f6cb4f27dd51ecb5b9f98513c64074a30069fb88f6150823f1e9154"
+        }
+      }
+    },
+    {
+      "domain": "coding",
+      "target": 50,
+      "source": {
+        "path": "release/memcalib-multidomain-pilot-v0.2/data/coding-hidden-construction-100.jsonl",
+        "rows": 100,
+        "sha256": "aa9b87f389c250af6f211b166970b1943a488ec13ccff48a292a0afaf6710da2"
+      },
+      "selection": {
+        "samples": 50,
+        "mandatory_samples": 28,
+        "selection_reason_counts": {
+          "generation_repair": 24,
+          "mixed_parent_label": 1,
+          "non_atomic_parent": 23,
+          "reference_answer_overlap": 8,
+          "stratified_fill": 22
+        },
+        "seed_complexity_counts": {
+          "complex": 19,
+          "medium": 19,
+          "simple": 12
+        },
+        "source_topic_counts": {
+          "api_library": 9,
+          "coding_other": 2,
+          "data_algorithm": 9,
+          "debugging": 8,
+          "implementation": 6,
+          "systems_devops": 10,
+          "testing_quality": 6
+        },
+        "atom_label_counts": {
+          "A": 56,
+          "B": 29,
+          "C": 111
+        }
+      },
+      "selected_id_sha256": "228f9ee1958fff461177b03e714d11e8b053986074e8d2d6cb36cb45990de874",
+      "outputs": {
+        "jsonl": {
+          "path": "release/memcalib-multidomain-pilot-v0.2/review/coding-review-queue-50.jsonl",
+          "sha256": "58b31c1fd48bf9ab6f7c78a753d92a3f88cf96668232fd4a4a609879985e9711"
+        },
+        "csv": {
+          "path": "release/memcalib-multidomain-pilot-v0.2/review/coding-review-queue-50.csv",
+          "sha256": "cd3d5d232493df1f2243c59f55a774c14ffcfed9a217482a1a5678e56e58b86b"
+        },
+        "html": {
+          "path": "release/memcalib-multidomain-pilot-v0.2/review/coding-review-queue-50.html",
+          "sha256": "ec28301b3ea42fae7aeaf9b8993e71235771cea48e6ed2af508175ae8b4bde22"
+        }
+      }
+    }
+  ]
+}
