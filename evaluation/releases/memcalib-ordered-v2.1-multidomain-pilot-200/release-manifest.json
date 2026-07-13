@@ -1,0 +1,76 @@
+{
+  "schema_version": "memcalib-multidomain-evaluation-release-v1",
+  "release": "memcalib-ordered-v2.1-multidomain-pilot-200",
+  "status": "internal_diagnostic",
+  "samples": 200,
+  "domains": {
+    "coding": 100,
+    "general": 100
+  },
+  "ordered_id_sha256": "9084672df06698a6d39c87034bf00b555bace739592c22ae421e8956f5fd6ebf",
+  "sources": [
+    {
+      "path": "release/memcalib-multidomain-pilot-v0.2/data/general-hidden-construction-100.jsonl",
+      "sha256": "68ce4458c579319af18e793869c004bfb0097f49f948f6df090e94de40f8bc61",
+      "rows": 100
+    },
+    {
+      "path": "release/memcalib-multidomain-pilot-v0.2/data/coding-hidden-construction-100.jsonl",
+      "sha256": "aa9b87f389c250af6f211b166970b1943a488ec13ccff48a292a0afaf6710da2",
+      "rows": 100
+    }
+  ],
+  "artifacts": {
+    "hidden": {
+      "path": "evaluation/releases/memcalib-ordered-v2.1-multidomain-pilot-200/hidden-evaluation.jsonl",
+      "bytes": 3975295,
+      "sha256": "ffe87cffa24aae36dc7974444bdb74593fbf6804c4eae64c7dc87b8157d22e44",
+      "rows": 200
+    },
+    "hidden_gzip": {
+      "path": "evaluation/releases/memcalib-ordered-v2.1-multidomain-pilot-200/hidden-evaluation.jsonl.gz",
+      "bytes": 601510,
+      "sha256": "0e92675c0d2d2214c32b51ac4672f890835a746628086e6d92b1f400987764a2"
+    },
+    "model_facing": {
+      "path": "evaluation/releases/memcalib-ordered-v2.1-multidomain-pilot-200/model-facing.jsonl",
+      "bytes": 218539,
+      "sha256": "478a25168e51f9d92be192909d8a30abb57093a6b9da3fe889ab746772f69fa9",
+      "rows": 200
+    },
+    "model_facing_gzip": {
+      "path": "evaluation/releases/memcalib-ordered-v2.1-multidomain-pilot-200/model-facing.jsonl.gz",
+      "bytes": 56668,
+      "sha256": "0d5c98ced69a6dc97d0859735429d31f2dc3d96a50661f5cb244560d41bf0b77"
+    },
+    "sample_ids": {
+      "path": "evaluation/releases/memcalib-ordered-v2.1-multidomain-pilot-200/sample-ids.txt",
+      "bytes": 6700,
+      "sha256": "5a91bb44e309bb63eff2dc0b4a87a0f012744d0d83077b4eeb959a402ba11141",
+      "rows": 200
+    }
+  },
+  "privacy_contract": {
+    "model_facing_fields": [
+      "id",
+      "domain",
+      "panel",
+      "source_dataset",
+      "source_topic",
+      "question",
+      "memory_blocks.parent_memory_id",
+      "memory_blocks.memory_text"
+    ],
+    "hidden_only": [
+      "source_answer",
+      "memories",
+      "usage_rubric",
+      "lineage",
+      "qc"
+    ]
+  },
+  "config": {
+    "path": "evaluation/configs/memcalib-ordered-v2.1-multidomain-pilot-200.json",
+    "sha256": "bdad928ef671da19d053036cface95da9d99a0856d8fc1c4b4d15e447796512f"
+  }
+}

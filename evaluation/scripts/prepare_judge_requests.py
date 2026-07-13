@@ -49,9 +49,12 @@ def select_formal_secondary_answer_ids(
     samples_by_id: dict[str, dict[str, Any]],
     *,
     seed: int,
-    per_model: int,
+    per_model: int | None = None,
+    per_model_condition: int | None = None,
 ) -> set[str]:
-    by_model_cell: dict[str, dict[tuple[str, str, str], list[dict[str, Any]]]] = defaultdict(
+    if (per_model is None) == (per_model_condition is None):
+        raise ValueError("set exactly one of per_model or per_model_condition")
+    by_group_cell: dict[tuple[str, str | None], dict[tuple[str, str, str], list[dict[str, Any]]]] = defaultdict(
         lambda: defaultdict(list)
     )
     for answer in answers:
@@ -62,21 +65,24 @@ def select_formal_secondary_answer_ids(
             str(sample["source_topic"]),
             atom_count_bucket(len(sample.get("memories") or [])),
         )
-        by_model_cell[str(params["model_key"])][cell].append(answer)
+        condition = str(params["condition"]) if per_model_condition is not None else None
+        by_group_cell[(str(params["model_key"]), condition)][cell].append(answer)
     selected: set[str] = set()
-    for model_key, cells in sorted(by_model_cell.items()):
+    target = int(per_model_condition if per_model_condition is not None else per_model)
+    for (model_key, condition), cells in sorted(by_group_cell.items()):
         counts = Counter({cell: len(rows) for cell, rows in cells.items()})
-        quotas = _proportional_quotas(counts, per_model)
+        quotas = _proportional_quotas(counts, target)
         for cell, rows in sorted(cells.items()):
             ordered = sorted(rows, key=lambda row: stable_hash(seed, str(row["request_id"])))
             selected.update(str(row["request_id"]) for row in ordered[: quotas[cell]])
-        model_selected = sum(
+        group_selected = sum(
             str(answer["request_id"]) in selected
             for model_rows in cells.values()
             for answer in model_rows
         )
-        if model_selected != per_model:
-            raise ValueError(f"formal secondary selection mismatch for {model_key}: {model_selected} != {per_model}")
+        if group_selected != target:
+            group_name = f"{model_key}:{condition}" if condition is not None else model_key
+            raise ValueError(f"formal secondary selection mismatch for {group_name}: {group_selected} != {target}")
     return selected
 
 
@@ -190,11 +196,13 @@ def prepare_judge_requests(
     seed = int(config["seed"])
     formal_sampling = config.get("secondary_judge_sampling") or {}
     if formal_sampling:
+        per_model_condition = formal_sampling.get("per_model_per_condition")
         secondary_ids = select_formal_secondary_answer_ids(
             answers,
             samples_by_id,
             seed=seed,
-            per_model=int(formal_sampling["per_model"]),
+            per_model=int(formal_sampling["per_model"]) if per_model_condition is None else None,
+            per_model_condition=int(per_model_condition) if per_model_condition is not None else None,
         )
         human_random_ids: set[str] = set()
     else:

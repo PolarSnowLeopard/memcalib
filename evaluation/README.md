@@ -85,3 +85,16 @@ ordered-usage-v2 已在 100 条配对回答上完成双 Judge 校准。主 Judge
 - `configs/memcalib-ordered-v2.1-full-15526.json`：模型、条件、Judge 和复核抽样配置。
 
 当前有效性状态为 `provisionally_supported_with_caveat`。五模型 H 分数跨度为 0.0275，单一总分区分度有限；标签正确率最大跨度为 0.124，OPB 与 UPB 的模型排序也明显不同。后续论文实验应同时报告 H、OPB、UPB、完整混淆矩阵和置信区间，并补充人工 Judge 验证。
+
+## 多领域试点评测
+
+`memcalib-ordered-v2.1-multidomain-pilot-200` 用于检验同一套原子记忆标注与有序使用评测协议能否迁移到通用对话和 Coding 场景。该内部诊断集固定包含 100 条通用对话样本和 100 条 Coding 样本。五个回答模型均运行 `full_memory` 与 `no_memory` 条件，共 2,000 条回答；主 Judge 评审全部回答，两个复核 Judge 按模型、条件、领域、主题和原子数分层复核 500 条回答。
+
+完整流程包含回答生成、缺失与截断重试、Judge 结构化输出修复、原子级 OPB/UPB/H 聚合和 HTML 报告生成。使用非 Conda Python 启动：
+
+```bash
+PYTHON_BIN=/path/to/python3 \
+  zsh evaluation/scripts/run_multidomain_pilot_200.sh
+```
+
+锁定输入位于 `releases/memcalib-ordered-v2.1-multidomain-pilot-200/`，API 原始输出和日志位于被 Git 忽略的 `runs/memcalib-ordered-v2.1-multidomain-pilot-200/`。该试验用于协议和数据质量诊断，不替代正式排行榜结果。

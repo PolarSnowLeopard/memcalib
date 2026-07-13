@@ -21,12 +21,15 @@ def output_is_complete(row: dict[str, Any], expected_fingerprint: str) -> bool:
     )
 
 
-def missing_requests(input_path: Path, result_path: Path) -> list[dict[str, Any]]:
+def missing_requests(input_path: Path, result_path: Path | list[Path]) -> list[dict[str, Any]]:
     requests = list(iter_jsonl(input_path))
     expected = {str(row["request_id"]): request_fingerprint(row) for row in requests}
+    result_paths = result_path if isinstance(result_path, list) else [result_path]
     done = {
         str(row.get("request_id") or "")
-        for row in iter_jsonl(result_path)
+        for path in result_paths
+        if path.exists()
+        for row in iter_jsonl(path)
         if str(row.get("request_id") or "") in expected
         and output_is_complete(row, expected[str(row["request_id"])])
     }
@@ -36,12 +39,12 @@ def missing_requests(input_path: Path, result_path: Path) -> list[dict[str, Any]
 def main() -> None:
     parser = argparse.ArgumentParser(description="Prepare only missing or truncated resumable API requests.")
     parser.add_argument("--input", type=Path, required=True)
-    parser.add_argument("--result", type=Path, required=True)
+    parser.add_argument("--result", type=Path, action="append", required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     rows = missing_requests(args.input, args.result)
     write_jsonl(args.output, rows)
-    print(json.dumps({"input": str(args.input), "result": str(args.result), "missing": len(rows), "output": str(args.output)}, indent=2))
+    print(json.dumps({"input": str(args.input), "results": [str(path) for path in args.result], "missing": len(rows), "output": str(args.output)}, indent=2))
 
 
 if __name__ == "__main__":

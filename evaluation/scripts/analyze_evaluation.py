@@ -752,7 +752,12 @@ def render_report(metrics: dict[str, Any]) -> str:
         (values.get("no_memory", {}).get("answers") or 0) > 0 for values in metrics["models"].values()
     )
     full_release = sample_count > 500 and not paired_available
-    report_title = f"MemCalib {sample_count:,} 全量评测报告" if full_release else "MemCalib 500 验证报告"
+    if full_release:
+        report_title = f"MemCalib {sample_count:,} 全量评测报告"
+    elif sample_count == 500:
+        report_title = "MemCalib 500 验证报告"
+    else:
+        report_title = f"MemCalib {sample_count:,} 试点评测报告"
     report_subtitle = (
         "五个代表性模型在完整 Full-memory benchmark 上的原子级记忆使用校准结果。"
         if full_release

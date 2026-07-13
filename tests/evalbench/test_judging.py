@@ -118,6 +118,43 @@ class JudgingTest(unittest.TestCase):
         self.assertEqual(5, sum(value.startswith("answer:m1:") for value in selected))
         self.assertEqual(5, sum(value.startswith("answer:m2:") for value in selected))
 
+    def test_formal_secondary_selection_can_balance_each_model_condition(self) -> None:
+        samples = {}
+        answers = []
+        for index in range(10):
+            sample_id = f"paired-{index}"
+            samples[sample_id] = {
+                "id": sample_id,
+                "source_dataset": "source-a" if index < 5 else "source-b",
+                "source_topic": f"topic-{index % 2}",
+                "memories": [{}] * (3 if index < 6 else 6),
+            }
+            for model in ("m1", "m2"):
+                for condition in ("full_memory", "no_memory"):
+                    answers.append(
+                        {
+                            "request_id": f"answer:{model}:{condition}:{sample_id}",
+                            "user_defined_params": {
+                                "sample_id": sample_id,
+                                "model_key": model,
+                                "condition": condition,
+                            },
+                        }
+                    )
+
+        selected = select_formal_secondary_answer_ids(
+            answers,
+            samples,
+            seed=11,
+            per_model_condition=4,
+        )
+
+        self.assertEqual(16, len(selected))
+        for model in ("m1", "m2"):
+            for condition in ("full_memory", "no_memory"):
+                prefix = f"answer:{model}:{condition}:"
+                self.assertEqual(4, sum(value.startswith(prefix) for value in selected))
+
     def test_calibration_selection_pairs_conditions_within_model_and_panel(self) -> None:
         primary = []
         secondary = []
