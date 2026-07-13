@@ -52,7 +52,7 @@ run_api_complete() {
   local result_paths=("$canonical_output")
   local round=1
   local missing=0
-  while [[ "$round" -le 2 ]]; do
+  while [[ "$round" -le 3 ]]; do
     local missing_request="$base.retry-api${round}.requests.jsonl"
     local missing_args=()
     local result_path
@@ -67,12 +67,13 @@ run_api_complete() {
       break
     fi
     local retry_output="$base.retry-api${round}.jsonl"
+    local retry_max_tokens=$((max_tokens * (1 << round)))
     set +e
     PYTHONPATH=pipeline "$PYTHON_BIN" pipeline/06_run_bailian_api.py \
       --input "$missing_request" --output "$retry_output" \
       --failed "$base.retry-api${round}.failed.jsonl" \
       --invalid-output "$base.retry-api${round}.api-invalid.jsonl" \
-      --model "$model" --temperature 0 --max-tokens $((max_tokens * 2)) \
+      --model "$model" --temperature 0 --max-tokens "$retry_max_tokens" \
       --extra-body-json '{"enable_thinking":false}' --timeout 300 --max-retries 5 \
       --max-workers "$workers" --rpm "$rpm" --progress-every 10 \
       >> "$base.log" 2>&1
