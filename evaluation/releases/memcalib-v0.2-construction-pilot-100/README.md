@@ -6,6 +6,10 @@ This directory contains the protocol, provenance, result summary, and human-revi
 - [`review.html`](review.html): one-sample-per-page review interface with full atoms, counterfactual contracts, rubrics, independent-QC reasons, and local annotations.
 - [`result-summary.json`](result-summary.json): final counts and output lineage hashes.
 - [`qc-reject-preaudit.md`](qc-reject-preaudit.md): preliminary consistency audit of the nine independent-QC rejects.
+- [`expert-audit-30.html`](expert-audit-30.html): one-sample-per-page expert protocol stress audit covering all QC rejects, all correct-action records, and all strict-pass records with multi-atom parents.
+- [`expert-audit-30.annotations.json`](expert-audit-30.annotations.json): machine-readable accept/revise/reject decisions and atom-level revision instructions.
+- [`expert-audit-30.summary.json`](expert-audit-30.summary.json): reproducible audit counts, coverage, failure dimensions, and explicitly qualified rates.
+- [`expert-audit-30.md`](expert-audit-30.md): compact findings table for code review.
 - `benchmark-resolved.jsonl.gz`: all 100 records after deterministic validation and targeted repair.
 - `strict-pass.jsonl.gz`: the 91 records admitted by independent QC.
 - `qc-reject.jsonl.gz`: the 9 records retained for human adjudication.
@@ -21,3 +25,11 @@ $PY pipeline/29_prepare_crk2_v2_generation.py \
 ```
 
 The locked pilot contains 50 records from each existing medical source. Construction produced 74 deterministic passes and 26 repair candidates; all 26 passed one targeted repair. Independent Kimi QC produced 91 strict passes and 9 rejects after one structural retry. The 9 rejects are intentionally retained at the front of the review interface for human adjudication.
+
+The subsequent 30-record protocol stress audit is risk-enriched rather than a random quality estimate. It found 2 records directly acceptable and 28 locally repairable records; no record required irreversible source rejection. Among the 21 audited strict-pass records, 19 still required revision, primarily for atomicity, causal label strength, domain validity, and hard-A validity. Therefore this v0.2 pilot is retained as an auditable development artifact and must not be treated as a locked benchmark release.
+
+Rebuild the expert-audit artifacts from the annotations and resolved QC files with:
+
+```bash
+$PY pipeline/36_build_crk2_v2_expert_audit.py
+```

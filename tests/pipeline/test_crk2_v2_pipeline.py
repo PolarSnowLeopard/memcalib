@@ -158,6 +158,7 @@ class Crk2V2PipelineTest(unittest.TestCase):
         cls.qc_post = load_script(SCRIPT_DIR / "32_post_crk2_v2_independent_qc.py", "post_crk2_v2_qc")
         cls.repair = load_script(SCRIPT_DIR / "33_prepare_crk2_v2_repair.py", "repair_crk2_v2")
         cls.review = load_script(SCRIPT_DIR / "35_build_crk2_v2_review.py", "review_crk2_v2")
+        cls.expert_audit = load_script(SCRIPT_DIR / "36_build_crk2_v2_expert_audit.py", "expert_audit_crk2_v2")
 
     def test_prompt_formalizes_correction_as_observable_use(self) -> None:
         prompt = (SCRIPT_DIR / "prompts" / "generate_crk2_memory_benchmark_record_v2_en.txt").read_text()
@@ -280,6 +281,53 @@ class Crk2V2PipelineTest(unittest.TestCase):
         self.assertIn("问题—记忆隔离", page)
         self.assertIn("ArrowRight", page)
         self.assertIn("导出标注", page)
+
+    def test_expert_audit_summary_marks_stress_sample_as_non_random(self) -> None:
+        accepted, _ = valid_record()
+        revised, _ = valid_record()
+        accepted.update(
+            {
+                "id": "accepted",
+                "source_dataset": "source-a",
+                "source_topic": "topic-a",
+                "prior_qc_decision": "strict_pass",
+                "expert_audit": {
+                    "decision": "accept",
+                    "failed_dimensions": [],
+                    "selection_strata": ["multi_atom_parent"],
+                    "findings": [],
+                    "qc_rationale_assessment": "not_applicable",
+                },
+            }
+        )
+        revised.update(
+            {
+                "id": "revised",
+                "source_dataset": "source-b",
+                "source_topic": "topic-b",
+                "prior_qc_decision": "strict_pass",
+                "expert_audit": {
+                    "decision": "revise",
+                    "failed_dimensions": ["atomicity"],
+                    "selection_strata": ["strict_stratified"],
+                    "findings": [{"type": "atomicity"}],
+                    "qc_rationale_assessment": "not_applicable",
+                },
+            }
+        )
+        summary = self.expert_audit.build_summary(
+            [accepted, revised],
+            {
+                "audit_scope": "protocol_acceptance_stress_audit",
+                "selection_note_cn": "风险富集压力审查",
+            },
+        )
+        self.assertEqual(50.0, summary["rates"]["strict_stress_non_accept"]["percent"])
+        self.assertIn("不能外推", summary["rates"]["strict_stress_non_accept"]["interpretation_cn"])
+        page = self.expert_audit.render_html([accepted, revised], summary)
+        self.assertIn("Expert decision", page)
+        self.assertIn("ArrowRight", page)
+        self.assertIn("protocol_acceptance_stress_audit", page)
 
 
 if __name__ == "__main__":

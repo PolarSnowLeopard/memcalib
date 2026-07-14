@@ -1,0 +1,743 @@
+{
+  "schema_version": "memcalib-v0.2-expert-audit-v1",
+  "audit_scope": "protocol_acceptance_stress_audit",
+  "selection_note_cn": "该样本是风险富集压力审查，不是对 100 条总体缺陷率的简单随机估计。样本覆盖全部 9 条 QC reject、全部 4 个 correct-action 原子所在记录、全部 13 条含多原子 parent 的 strict-pass 记录，并按数据源、主题与标签组合补足 6 条 strict-pass 记录。",
+  "review_policy_cn": {
+    "accept": "当前记录可直接用于基准评测。",
+    "revise": "源任务仍可保留，但至少一个原子、标签、反事实契约、rubric 或问题隔离需要重写。",
+    "reject": "记录的核心任务或证据无法通过局部重写修复，应从候选池排除。",
+    "unlisted_atoms": "findings 中未列出的原子在本轮审查中未发现阻断性问题。"
+  },
+  "records": [
+    {
+      "id": "crk2_v2_raw_75fde6e8a080b15a",
+      "prior_qc_decision": "reject",
+      "selection_strata": ["qc_reject", "correct_action"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["atomicity", "domain_validity"],
+      "summary_cn": "QC 对 B/correct 的形式判定自相矛盾，但记录仍不能直接验收：一条原子同时编码了两种可独立发生、需要不同纠正的急救行为。",
+      "findings": [
+        {
+          "atoms": ["p3_a1"],
+          "type": "atomicity",
+          "finding_cn": "“挤压伤口”和“使用清洁剂冲洗”可分别为真，且对应不同纠正信号，不应合并为一个原子。",
+          "action_cn": "拆成两个 B/correct 原子，分别定义禁止挤压与改用温和肥皂清水的最小证据。"
+        },
+        {
+          "atoms": ["p2_a1"],
+          "type": "domain_validity",
+          "finding_cn": "风险差异主要来自已使用的采血针类型与暴露方式，来源患者患糖尿病本身不改变血源性病原体风险。",
+          "action_cn": "将原子改写为“被另一位患者使用过的采血针刺伤”，并从 label reason 中移除糖尿病状态的因果作用。"
+        }
+      ],
+      "qc_rationale_assessment": "incorrect",
+      "qc_rationale_note_cn": "QC 文本已承认 B/correct 合法且有可观察增量，却仍把 label_action_validity 置为 fail；拒绝结论只能由人工发现的原子性问题支持。"
+    },
+    {
+      "id": "crk2_v2_raw_61d6eb00fc3ead91",
+      "prior_qc_decision": "reject",
+      "selection_strata": ["qc_reject"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["atomicity"],
+      "summary_cn": "影像结果和症状群均被压缩成不可独立判定的大原子。问题中的“影像结果”和“当前症状”只是指针，并未泄露具体内容。",
+      "findings": [
+        {
+          "atoms": ["p1_a1"],
+          "type": "atomicity",
+          "finding_cn": "T12 血管瘤、峡部缺损和椎间盘膨出具有不同临床意义，可独立存在并分别改变回答。",
+          "action_cn": "拆成三个影像原子，分别建立因果边界与可观察 rubric。"
+        },
+        {
+          "atoms": ["p2_a1"],
+          "type": "atomicity",
+          "finding_cn": "双侧大腿痛、左足麻木和左腿无力是不同定位价值的症状。",
+          "action_cn": "按症状与侧别拆分，避免 judge 只命中其中一项却被判为完整使用。"
+        }
+      ],
+      "qc_rationale_assessment": "partial",
+      "qc_rationale_note_cn": "QC 对原子性判断正确；把问题中的泛化指针视为具体记忆泄漏则过严，因为具体影像和症状内容仍不可从问题恢复。"
+    },
+    {
+      "id": "crk2_v2_raw_c8cb3196613c5f4a",
+      "prior_qc_decision": "reject",
+      "selection_strata": ["qc_reject"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["query_isolation", "counterfactual"],
+      "summary_cn": "阿司匹林使用已经出现在当前问题中，记忆仅增加每周三次的频率，无法形成可信的独立反事实。",
+      "findings": [
+        {
+          "atoms": ["p3_a1"],
+          "type": "query_isolation",
+          "finding_cn": "问题明确写出服用阿司匹林用于抗凝，原子核心命题已泄漏。",
+          "action_cn": "从问题删除阿司匹林信息，或移除该原子；不能只靠频率差异维持 B 标签。"
+        }
+      ],
+      "qc_rationale_assessment": "exact",
+      "qc_rationale_note_cn": "QC 正确识别了核心命题重叠及其对反事实增量的破坏。"
+    },
+    {
+      "id": "crk2_v2_raw_c40752621dc51bdd",
+      "prior_qc_decision": "reject",
+      "selection_strata": ["qc_reject", "correct_action"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["domain_validity", "rubric_objectivity"],
+      "summary_cn": "B/correct 的形式完全合法，QC 因此属于误判；但纠正内容把 Lisfranc 损伤描述成“不是韧带损伤”过于绝对，仍需重写。",
+      "findings": [
+        {
+          "atoms": ["p4_a1"],
+          "type": "domain_validity",
+          "finding_cn": "Lisfranc 损伤可涉及跖跗关节的骨性和韧带性结构，不能仅凭该片段断言不是韧带问题。",
+          "action_cn": "保留 B/correct，但改为澄清其可同时涉及韧带和骨/关节稳定性，具体类型应由影像与术者确认。"
+        }
+      ],
+      "qc_rationale_assessment": "incorrect",
+      "qc_rationale_note_cn": "QC 的 reason 反复确认 B/correct 合法、有可观察增量，最终状态却仍为 fail。"
+    },
+    {
+      "id": "crk2_v2_raw_7d9177752d7618aa",
+      "prior_qc_decision": "reject",
+      "selection_strata": ["qc_reject"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["atomicity", "label_action", "domain_validity"],
+      "summary_cn": "骨质疏松用药到继发性高血压的因果链缺乏足够证据，年龄与血压被错误合并，正常 ECG 的解释也过度。",
+      "findings": [
+        {
+          "atoms": ["p1_a1"],
+          "type": "domain_validity",
+          "finding_cn": "记录把未知的“骨病用药”推断为钙/维生素 D，并进一步要求按高钙血症和肾损害处理，C/apply 不可辩护。",
+          "action_cn": "降为带不确定性的 B 背景，先要求核对具体药物；不得把肾脏检查唯一归因于该用药。"
+        },
+        {
+          "atoms": ["p2_a1"],
+          "type": "atomicity",
+          "finding_cn": "55 岁和 165/90 是可独立变化的两个事实，分别影响基础风险与严重度判断。",
+          "action_cn": "拆分年龄和血压读数，并分别标注影响强度。"
+        },
+        {
+          "atoms": ["p3_a1"],
+          "type": "domain_validity",
+          "finding_cn": "一次正常 ECG 不能排除所有心血管原因或风险。",
+          "action_cn": "把 rubric 改为“避免无理由重复同一检查，同时不能据此排除全部心血管问题”。"
+        }
+      ],
+      "qc_rationale_assessment": "exact",
+      "qc_rationale_note_cn": "QC 正确指出 p1 的医学因果和 C 标签不稳。"
+    },
+    {
+      "id": "crk2_v2_raw_5d038a548ddf8731",
+      "prior_qc_decision": "reject",
+      "selection_strata": ["qc_reject"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["atomicity", "label_action"],
+      "summary_cn": "皮肤、耳部和口腔黏膜表现被塞入同一原子，原证据中的大腿症状还被遗漏；部分标签又把可疑临床解释提升为控制性结论。",
+      "findings": [
+        {
+          "atoms": ["p2_a1"],
+          "type": "atomicity",
+          "finding_cn": "前臂皮损、外耳小疮与牙龈/嘴唇烧灼感可独立发生并指向不同病因。",
+          "action_cn": "至少拆成皮肤、耳部、口腔黏膜三个原子；另行处理证据中的大腿痛，不能静默丢失。"
+        },
+        {
+          "atoms": ["p1_a1"],
+          "type": "label_action",
+          "finding_cn": "淡黄色、坚硬粪便可支持鉴别，但不足以强制胆道/肝脏方向成为回答主干。",
+          "action_cn": "将 C 下调为 B，并把 rubric 改为保留多种可能、避免把“淡黄色”直接等同于陶土色便。"
+        }
+      ],
+      "qc_rationale_assessment": "exact",
+      "qc_rationale_note_cn": "QC 正确识别了 p2 的非原子性和 rubric 部分不可判定。"
+    },
+    {
+      "id": "crk2_v2_raw_a4e55eeb7d269253",
+      "prior_qc_decision": "reject",
+      "selection_strata": ["qc_reject"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["query_isolation", "counterfactual", "domain_validity"],
+      "summary_cn": "当前问题已经说明病灶反复出现，精确次数和位置并不足以独立触发全身检查；CT 颈部等要求也缺少可靠因果依据。",
+      "findings": [
+        {
+          "atoms": ["p3_a1"],
+          "type": "query_isolation",
+          "finding_cn": "“keeps coming back”已经泄露复发这一核心命题，三次与耳上方位置没有形成稳定的额外决策增量。",
+          "action_cn": "从问题移除复发描述，或删除该原子并仅保留不重复的信息。"
+        },
+        {
+          "atoms": ["p2_a1"],
+          "type": "domain_validity",
+          "finding_cn": "耳颈疼痛可提示区域受累，但不能机械要求未缓解时做 CT 颈部。",
+          "action_cn": "改为 B 级红旗与复诊边界，影像是否需要由查体和病情进展决定。"
+        }
+      ],
+      "qc_rationale_assessment": "exact",
+      "qc_rationale_note_cn": "QC 正确指出复发事实已在问题中以及反事实不可信。"
+    },
+    {
+      "id": "crk2_v2_raw_9461d255ce2a44ec",
+      "prior_qc_decision": "reject",
+      "selection_strata": ["qc_reject"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["query_isolation", "atomicity", "rubric_objectivity"],
+      "summary_cn": "语言/国籍记忆直接出现在问题中，并且把国籍与英语能力混为一体；年龄和性别也被合并为一个影响原子。",
+      "findings": [
+        {
+          "atoms": ["p3_a1"],
+          "type": "query_isolation",
+          "finding_cn": "问题明确写出用户为 Maltese 且为英语道歉，记忆不再是隐藏变量。",
+          "action_cn": "删除问题中的该句，并把国籍与语言需求拆分；语言 rubric 应使用词汇/解释清晰度的可操作标准，避免主观句长判断。"
+        },
+        {
+          "atoms": ["p1_a1"],
+          "type": "atomicity",
+          "finding_cn": "年龄和性别可以独立改变，当前 atomization note 不能证明二者不可分。",
+          "action_cn": "拆分，并重新证明每个事实是否真的产生 B 级可观察增量。"
+        }
+      ],
+      "qc_rationale_assessment": "exact",
+      "qc_rationale_note_cn": "QC 对 p3 的泄漏、非原子性和主观 rubric 判断正确。"
+    },
+    {
+      "id": "crk2_v2_raw_26c6fbefc9522523",
+      "prior_qc_decision": "reject",
+      "selection_strata": ["qc_reject"],
+      "decision": "revise",
+      "severity": "critical",
+      "failed_dimensions": ["evidence_grounding", "label_action"],
+      "summary_cn": "把检验报告中的一般干扰说明改写成用户接受过鼠单抗治疗的个人病史，属于无证据生成。",
+      "findings": [
+        {
+          "atoms": ["p2_a1"],
+          "type": "evidence_grounding",
+          "finding_cn": "证据仅说明含某些抗体的标本可能干扰检测，并未陈述用户有相关治疗史。",
+          "action_cn": "删除该原子；若要保留实验室说明，应放在当前问题或任务上下文中，不能伪装成长期记忆。"
+        }
+      ],
+      "qc_rationale_assessment": "exact",
+      "qc_rationale_note_cn": "QC 正确识别了从一般说明到个人病史的无依据推断。"
+    },
+    {
+      "id": "crk2_v2_raw_2cdd1fd7311f47f1",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["correct_action", "strict_risk"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["atomicity", "domain_validity", "label_action"],
+      "summary_cn": "correct-action 方向可观察，但“必须停止疝气带”的绝对要求缺少边界；“初期+可复性”和“立即+腹腔镜”也各自合并了独立事实。",
+      "findings": [
+        {
+          "atoms": ["p2_a1"],
+          "type": "atomicity",
+          "finding_cn": "“初期”是模糊分期，“可复性”是可观察状态，二者并不等价。",
+          "action_cn": "删除模糊的初期表述，保留可复性作为独立 B 原子。"
+        },
+        {
+          "atoms": ["p3_a1"],
+          "type": "domain_validity",
+          "finding_cn": "疝气带可能在特定患者中作为短期症状支持使用，不能仅凭该片段要求所有回答无条件命令停用。",
+          "action_cn": "降为带边界的 B/correct 或 B/apply，要求说明不能治愈、需专业评估和警示不当使用风险。"
+        },
+        {
+          "atoms": ["p4_a1"],
+          "type": "atomicity",
+          "finding_cn": "手术紧迫性与腹腔镜术式选择可独立变化。",
+          "action_cn": "拆成时机与术式两个原子，分别建立 rubric。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 未识别这些边界。"
+    },
+    {
+      "id": "crk2_v2_raw_b9734bd71ff351b9",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["correct_action", "strict_risk"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["atomicity", "domain_validity"],
+      "summary_cn": "把冷水泼胸与口头自我安抚合成同一纠正对象，且 rubric 鼓励在未明确心律失常类型时自行进行潜水反射操作，安全边界不足。",
+      "findings": [
+        {
+          "atoms": ["p3_a1"],
+          "type": "atomicity",
+          "finding_cn": "冷水泼胸与出声让自己慢下来是两种独立行为，只有前者被构造为技术纠正。",
+          "action_cn": "拆分行为；correct rubric 以停止不可靠自救、优先按红旗就医和在专业指导下讨论迷走神经动作作为边界。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 只检查了 correct 形式合法性，没有审查纠正内容的安全性。"
+    },
+    {
+      "id": "crk2_v2_raw_8df210a8dc7022be",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["multi_atom_parent"],
+      "decision": "accept",
+      "severity": "none",
+      "failed_dimensions": [],
+      "summary_cn": "症状表现、无外伤史和血栓担忧形成独立且可观察的影响；多原子 parent 的拆分符合反事实独立性。",
+      "findings": [],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "本轮与独立 QC 一致。"
+    },
+    {
+      "id": "crk2_v2_raw_bff211b8a4c49473",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["multi_atom_parent"],
+      "decision": "accept",
+      "severity": "none",
+      "failed_dimensions": [],
+      "summary_cn": "居家办公环境、家庭打断和被打断后的愤怒机制彼此可区分，rubric 能观察到边界设置与注意切换解释。",
+      "findings": [],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "本轮与独立 QC 一致。"
+    },
+    {
+      "id": "crk2_v2_raw_f1454195874f9b4d",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["multi_atom_parent"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["atomicity", "label_action", "domain_validity"],
+      "summary_cn": "年龄和体重拆分正确，但“刚发生+当前无症状”仍被合并，年龄的 C 强度偏高，毒物暴露 rubric 需要固定 Poison Control 安全边界。",
+      "findings": [
+        {
+          "atoms": ["p2_a1"],
+          "type": "atomicity",
+          "finding_cn": "暴露时间和当前症状状态可以独立变化，分别影响处置窗口与严重程度。",
+          "action_cn": "拆成 recency 与 asymptomatic 两个原子。"
+        },
+        {
+          "atoms": ["p1_a1"],
+          "type": "label_action",
+          "finding_cn": "体重决定 mg/kg 暴露，年龄主要提供婴儿背景，二者不应都自动标为 C。",
+          "action_cn": "年龄下调为 B，体重保留 C。"
+        },
+        {
+          "atoms": ["p2_a1"],
+          "type": "domain_validity",
+          "finding_cn": "“当前无症状”不能成为不联系专业毒物咨询的理由。",
+          "action_cn": "rubric 必须把联系 Poison Control/当地毒物中心作为固定安全动作，并按症状定义急诊升级条件。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 未检查复合状态和毒理安全边界。"
+    },
+    {
+      "id": "crk2_v2_raw_38852650a3c9c7e2",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["multi_atom_parent"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["atomicity", "domain_validity", "rubric_objectivity"],
+      "summary_cn": "多种反射/运动表现仍被合并，且 rubric 把这些表现直接解释为“恢复机会较好”，超出了仅凭文本可支持的预后判断。",
+      "findings": [
+        {
+          "atoms": ["p2_a1"],
+          "type": "atomicity",
+          "finding_cn": "疼痛/搔痒反应、打哈欠、足部运动和手部颤抖的神经学意义并不相同。",
+          "action_cn": "拆分，或严格概括为“存在若干非目的性反射/运动”，不得逐项强制命中。"
+        },
+        {
+          "atoms": ["p2_a1", "p2_a2"],
+          "type": "domain_validity",
+          "finding_cn": "单凭这些动作和一次无癫痫 EEG 不能给出“fair chance”或把昏迷完全归因于缺氧损伤。",
+          "action_cn": "rubric 改为要求谨慎解释、承认预后依赖正式神经评估与时间因素，避免确定性恢复概率。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 只验证了文本信号，未验证预后推断是否成立。"
+    },
+    {
+      "id": "crk2_v2_raw_892d28bf65cd4adc",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["multi_atom_parent"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["label_action", "domain_validity"],
+      "summary_cn": "红、亮、干燥的龟头皮肤表现并不能控制性地推出真菌感染并强制外用抗真菌药。",
+      "findings": [
+        {
+          "atoms": ["p1_a1"],
+          "type": "domain_validity",
+          "finding_cn": "该表现可见于感染、刺激/接触性皮炎及其他皮肤病，当前 C rubric 把单一诊断写成必答项。",
+          "action_cn": "保留症状为 C 级任务核心，但 correct-use 改为给出有边界的鉴别、卫生建议和线下检查条件，不得强制诊断真菌感染。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 接受了来源答案中的单一诊断，没有独立核验医学合理性。"
+    },
+    {
+      "id": "crk2_v2_raw_e5e4f4f171248f99",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["multi_atom_parent"],
+      "decision": "revise",
+      "severity": "critical",
+      "failed_dimensions": ["domain_validity", "label_action"],
+      "summary_cn": "把地中海贫血携带状态和一次轻微感染直接作为 Hb 6.8 的解释不可靠，铁蛋白也不能仅凭两次输血和单个数值定性。",
+      "findings": [
+        {
+          "atoms": ["p1_a1", "p2_a1"],
+          "type": "domain_validity",
+          "finding_cn": "trait 通常不足以解释需要输血的突然重度贫血，必须排查溶血、失血、感染和其他血液学原因。",
+          "action_cn": "重写为控制性病史约束：明确 trait 不能被当作充分解释，并要求儿科血液科评估。"
+        },
+        {
+          "atoms": ["p3_a1"],
+          "type": "domain_validity",
+          "finding_cn": "近期输血可以影响铁指标，但不能据此确定铁蛋白 297 的唯一原因或安全性。",
+          "action_cn": "保留 B 但加入参考范围、炎症状态、趋势和临床复核边界。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 沿用了来源答案的因果判断。"
+    },
+    {
+      "id": "crk2_v2_raw_fa6fbd9026903b86",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["multi_atom_parent"],
+      "decision": "revise",
+      "severity": "critical",
+      "failed_dimensions": ["atomicity", "label_action", "domain_validity"],
+      "summary_cn": "年龄和性别仍被合并，年龄被过度提升为移植的控制条件，病程四年又被直接等同于复发/难治；具体治疗 rubric 缺少现代临床条件。",
+      "findings": [
+        {
+          "atoms": ["p1_a1"],
+          "type": "atomicity",
+          "finding_cn": "34 岁与男性是两个独立事实，且性别在该任务中未证明有 B/C 级增量。",
+          "action_cn": "拆分；年龄改为 B 级治疗资格背景，性别若无可观察作用则删除或标 A。"
+        },
+        {
+          "atoms": ["p2_a1"],
+          "type": "label_action",
+          "finding_cn": "患病四年不自动等于复发、难治或晚期，仍需治疗史与反应证据。",
+          "action_cn": "rubric 只允许提及病程长，禁止据此直接使用 relapsed/refractory。"
+        },
+        {
+          "atoms": ["p1_a1", "p1_a2"],
+          "type": "domain_validity",
+          "finding_cn": "把特定药物组合和骨髓移植写成无条件“明确治疗”忽略了器官功能、既往治疗、分期和专科评估。",
+          "action_cn": "改为条件化的血液肿瘤专科路径，不把来源答案中的处方列表作为 gold。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 未区分可检测的词项与可辩护的临床决策。"
+    },
+    {
+      "id": "crk2_v2_raw_d18fd83d9be88b1e",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["multi_atom_parent"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["atomicity", "label_action", "counterfactual"],
+      "summary_cn": "年龄、性别、身高和体重被合成一个原子；既往惊恐发作被提升为 C；多个 rubric 只要求复述人口信息而没有稳定决策增量。",
+      "findings": [
+        {
+          "atoms": ["p1_a1"],
+          "type": "atomicity",
+          "finding_cn": "四个人口/体格事实可独立变化，当前 atomization 与 v2 原则冲突。",
+          "action_cn": "拆分后仅保留能改变风险评估的事实，避免把“提及 31/male/BMI”本身当作使用成功。"
+        },
+        {
+          "atoms": ["p2_a1"],
+          "type": "label_action",
+          "finding_cn": "惊恐发作史应支持鉴别和避免草率归因，但不决定核心结论或方案。",
+          "action_cn": "C 下调为 B，rubric 要求同时保留躯体病因与红旗评估。"
+        },
+        {
+          "atoms": ["p3_a2"],
+          "type": "counterfactual",
+          "finding_cn": "仰卧睡姿与白天胸骨/xiphoid 疼痛的因果增量较弱，不能强制要求抬高床头。",
+          "action_cn": "降为边界 B 或删除，除非问题/证据中有清晰的夜间反流模式。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 对人口信息采取了“能复述即有效”的宽松标准。"
+    },
+    {
+      "id": "crk2_v2_raw_457919ed1e0c113b",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["multi_atom_parent"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["label_action", "domain_validity"],
+      "summary_cn": "3–5 分钟和无预警均能细化鉴别，但不足以各自控制性决定癫痫分类；“throwback”又被过早解释为颞叶现象。",
+      "findings": [
+        {
+          "atoms": ["p1_a1", "p1_a2"],
+          "type": "label_action",
+          "finding_cn": "时长和起病方式是重要特征，但都不能单独决定核心诊断或工作流。",
+          "action_cn": "两个 C 均下调为 B，保留综合病史、EEG/神经科评估的主干。"
+        },
+        {
+          "atoms": ["p2_a1"],
+          "type": "domain_validity",
+          "finding_cn": "“throwback”含义不清，不能强制把它写成听幻觉、déjà vu 或颞叶癫痫。",
+          "action_cn": "rubric 要求先复述/澄清体验，再把局灶性发作列为可能性而非必答诊断。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 接受了过强的诊断映射。"
+    },
+    {
+      "id": "crk2_v2_raw_7db9e3b4698c8c4c",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["multi_atom_parent"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["atomicity", "label_action", "counterfactual", "domain_validity"],
+      "summary_cn": "青少年+女性仍是复合原子，正常体重用“答案不提体重”作为 B 增量不可归因，正常心脏检查又被当成排除全部心源性问题。",
+      "findings": [
+        {
+          "atoms": ["p1_a1"],
+          "type": "atomicity",
+          "finding_cn": "年龄阶段与性别可以独立变化，二者对鉴别的作用也不同。",
+          "action_cn": "拆分并把影响强度降为 B；不得仅凭人口特征指向 POTS 或焦虑。"
+        },
+        {
+          "atoms": ["p1_a2"],
+          "type": "counterfactual",
+          "finding_cn": "“不建议减重/不提肥胖”在无记忆时也通常成立，无法证明由正常体重记忆造成。",
+          "action_cn": "改为 A/ignore 或删除。"
+        },
+        {
+          "atoms": ["p2_a2"],
+          "type": "domain_validity",
+          "finding_cn": "既往检查正常不能保证排除所有心源性原因，也不应禁止任何后续复诊。",
+          "action_cn": "C 下调为 B，要求避免无理由重复但保留新症状/红旗时复评边界。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 把不可归因的“省略”误当成可观察增量。"
+    },
+    {
+      "id": "crk2_v2_raw_5d7477a5bb17e3e3",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["multi_atom_parent"],
+      "decision": "revise",
+      "severity": "critical",
+      "failed_dimensions": ["domain_validity", "label_action"],
+      "summary_cn": "发病仅五小时且仍有严重神经症状时，不能因“出血停止”就把回答主干转向长期康复；左侧“stretches”的含义也不够明确。",
+      "findings": [
+        {
+          "atoms": ["p3_a1"],
+          "type": "domain_validity",
+          "finding_cn": "停止继续出血不等于脱离急性危险，仍需住院神经/神外监护和并发症处理。",
+          "action_cn": "C 改为 B 背景，核心 rubric 必须保留急性期紧急管理，不能只讨论血液吸收和数月康复。"
+        },
+        {
+          "atoms": ["p2_a2"],
+          "type": "domain_validity",
+          "finding_cn": "原文的 severe stretches 可能指痉挛、抽搐或其他运动，当前原子直接定为 muscle spasms。",
+          "action_cn": "改为不确定的异常运动描述，并在 rubric 中要求临床确认。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 未验证从用户描述到医学术语的映射。"
+    },
+    {
+      "id": "crk2_v2_raw_455c75ba8b8059f4",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["multi_atom_parent"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["atomicity", "label_action", "domain_validity"],
+      "summary_cn": "年龄与体重的标签强度偏高，五天和 103°F 被合并；使用疟疾预防药也不能直接降低到“疟疾不太可能”的结论。",
+      "findings": [
+        {
+          "atoms": ["p3_a1"],
+          "type": "atomicity",
+          "finding_cn": "发热持续时间与峰值温度是两个独立红旗。",
+          "action_cn": "拆分，允许 judge 分别判断时长和温度是否影响升级建议。"
+        },
+        {
+          "atoms": ["p1_a1", "p2_a1"],
+          "type": "label_action",
+          "finding_cn": "“母亲”已提供成人语境，55 岁不控制成人/儿童路径；52 kg 对常规成人退热剂量的独特增量也较弱。",
+          "action_cn": "年龄降为 B，体重改为边界 B/A，并避免把显式复述数字作为成功条件。"
+        },
+        {
+          "atoms": ["p4_a1"],
+          "type": "domain_validity",
+          "finding_cn": "预防用药不能排除疟疾，药物名称、地区和依从性都未知。",
+          "action_cn": "rubric 改为核实用药并保留检测可能，禁止把疟疾简单降级。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 未识别标签强度和临床推断问题。"
+    },
+    {
+      "id": "crk2_v2_raw_ded7c07dc153f3ab",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["multi_atom_parent"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["query_isolation", "domain_validity"],
+      "summary_cn": "问题已经陈述踩下时疼痛，前/后侧原子与问题存在核心重叠；MRI 发现到强制固定的治疗映射也需要专业边界。",
+      "findings": [
+        {
+          "atoms": ["p3_a1", "p3_a2"],
+          "type": "query_isolation",
+          "finding_cn": "问题中的“pain when I step down”已经给出两个原子的共同核心，只隐藏了解剖位置。",
+          "action_cn": "改写问题以不陈述踩下触发，或只保留前/后位置且证明位置本身产生独立增量。"
+        },
+        {
+          "atoms": ["p2_a1"],
+          "type": "domain_validity",
+          "finding_cn": "“patellar tendon bruised”不应自动要求固定 2–3 周，治疗取决于查体、MRI 原文和康复阶段。",
+          "action_cn": "rubric 改为根据既往 MRI 讨论复诊与康复评估，不强制单一固定方案。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 把问题中已有的触发条件忽略了。"
+    },
+    {
+      "id": "crk2_v2_raw_5940c488293cec2b",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["strict_stratified"],
+      "decision": "revise",
+      "severity": "critical",
+      "failed_dimensions": ["domain_validity", "label_action"],
+      "summary_cn": "左上腹/肋缘压痛并不强制心脏检查，局限于左腹部的麻木也不支持把 B12 缺乏和甲钴胺写成 gold。",
+      "findings": [
+        {
+          "atoms": ["p1_a1"],
+          "type": "domain_validity",
+          "finding_cn": "局部按压痛通常需要广泛鉴别，不能仅凭位置要求 ECG 和心内科。",
+          "action_cn": "把 C rubric 改为有红旗边界的广泛评估，不把 ECG 作为唯一正确命中项。"
+        },
+        {
+          "atoms": ["p2_a1"],
+          "type": "domain_validity",
+          "finding_cn": "B12 缺乏常见表现与单侧局限腹壁麻木并不匹配，甲钴胺也不应在未确诊时成为必答治疗。",
+          "action_cn": "删除 B12/甲钴胺的强制 gold，改为神经、皮肤、腹壁等鉴别和就医边界。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 只检查与来源答案一致性，没有核验来源答案的医学质量。"
+    },
+    {
+      "id": "crk2_v2_raw_38798fb3a9647cfa",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["strict_stratified"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["atomicity"],
+      "summary_cn": "生母谈话触发症状的原子清晰，但年龄、收养身份和近期寻亲事件被合并为一个生活史原子。",
+      "findings": [
+        {
+          "atoms": ["p2_a1"],
+          "type": "atomicity",
+          "finding_cn": "21 岁、被收养和最近找到生母可独立为真，且分别影响资源推荐与压力解释。",
+          "action_cn": "拆成年龄、收养身份和近期重聚事件；只保留有稳定 B 增量的原子。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 把“coherent proposition”放宽到违背独立可变原则。"
+    },
+    {
+      "id": "crk2_v2_raw_df3ce1d2f6c1b6b5",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["strict_stratified"],
+      "decision": "revise",
+      "severity": "critical",
+      "failed_dimensions": ["domain_validity", "label_action", "rubric_objectivity"],
+      "summary_cn": "拔牙后持续出血超过 24 小时被 rubric 强制判为正常，并把升级就医定义成 over-use，存在明显安全风险。",
+      "findings": [
+        {
+          "atoms": ["p2_a1"],
+          "type": "domain_validity",
+          "finding_cn": "超过 24 小时仍出血需要区分少量渗血与活动性出血，并考虑药物、凝血和局部并发症，不能统一安慰为正常。",
+          "action_cn": "将其改为 C 级升级约束：联系牙医/口腔外科，给出压迫止血方法，并列明大量出血、头晕或无法止血时的急诊条件。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 接受了来源答案中不安全的“无需升级”规则。"
+    },
+    {
+      "id": "crk2_v2_raw_001e72470aed7f30",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["strict_stratified"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["label_action", "hard_a_validity"],
+      "summary_cn": "高/低状态细节可细化解释，但把二者分别标成 C 并强制讨论双相谱系过度；绿茶偏好也不是可靠的 hard A。",
+      "findings": [
+        {
+          "atoms": ["p1_a1", "p2_a1"],
+          "type": "label_action",
+          "finding_cn": "当前问题已描述认知和精力隔日大幅波动，具体快读/慢读细节更像局部细化，不足以各自控制主结论。",
+          "action_cn": "下调为 B，rubric 要求综合睡眠、工作负荷、情绪和医学因素，不强制双相诊断词。"
+        },
+        {
+          "atoms": ["p4_a1"],
+          "type": "hard_a_validity",
+          "finding_cn": "绿茶通常含咖啡因，在精力、注意和睡眠问题中可能合理相关，因此不能保证零足迹。",
+          "action_cn": "替换成与认知疲劳无合理因果联系的邻近偏好。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 未对 hard-A 的潜在合理相关性做反事实挑战。"
+    },
+    {
+      "id": "crk2_v2_raw_ffbaee05ebc61e61",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["strict_stratified"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["atomicity", "domain_validity"],
+      "summary_cn": "50 岁、女性和绝经症状被合并为单一原子，且绝经被直接写成周围神经症状的必答病因。",
+      "findings": [
+        {
+          "atoms": ["p1_a1"],
+          "type": "atomicity",
+          "finding_cn": "年龄、性别和绝经症状是三个可独立变化的事实。",
+          "action_cn": "拆分；仅保留能产生明确反事实差异的事实。"
+        },
+        {
+          "atoms": ["p1_a1"],
+          "type": "domain_validity",
+          "finding_cn": "绝经可作为背景，但不能替代对局部神经卡压、代谢和周围神经病变的评估。",
+          "action_cn": "保留边界 B，rubric 禁止把手指麻木单独归因于激素变化。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 接受了复合人口原子和过强病因映射。"
+    },
+    {
+      "id": "crk2_v2_raw_406d142298ad0341",
+      "prior_qc_decision": "strict_pass",
+      "selection_strata": ["strict_stratified"],
+      "decision": "revise",
+      "severity": "major",
+      "failed_dimensions": ["atomicity", "hard_a_validity"],
+      "summary_cn": "治疗时长、治疗失败和新发脱屑被合并；病灶时长、位置、大小也被合并；无香型清洁产品在皮肤刺激任务中并非可靠 hard A。",
+      "findings": [
+        {
+          "atoms": ["p2_a1"],
+          "type": "atomicity",
+          "finding_cn": "两周用药、未完全缓解和新发红色脱屑分别影响治疗史、疗效和副作用判断。",
+          "action_cn": "拆成至少两个原子：治疗失败与新发皮肤变化。"
+        },
+        {
+          "atoms": ["p3_a1"],
+          "type": "atomicity",
+          "finding_cn": "两个月、左侧冠状沟位置和橡皮擦大小是独立病灶属性。",
+          "action_cn": "拆分或以结构化 lesion profile 形式明确其为联合状态，不再称为原子命题。"
+        },
+        {
+          "atoms": ["p4_a1"],
+          "type": "hard_a_validity",
+          "finding_cn": "清洁产品与接触性/刺激性皮炎存在合理关系，fragrance-free 选择可能影响建议。",
+          "action_cn": "替换 hard A，避免选择与当前皮肤变化有潜在机制关联的卫生偏好。"
+        }
+      ],
+      "qc_rationale_assessment": "not_applicable",
+      "qc_rationale_note_cn": "独立 QC 对大原子和 hard-A 相关性均过宽。"
+    }
+  ]
+}

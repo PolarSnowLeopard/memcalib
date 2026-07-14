@@ -1,0 +1,86 @@
+{
+  "schema_version": "memcalib-v0.2-expert-audit-summary-v1",
+  "audit_scope": "protocol_acceptance_stress_audit",
+  "selection_note_cn": "该样本是风险富集压力审查，不是对 100 条总体缺陷率的简单随机估计。样本覆盖全部 9 条 QC reject、全部 4 个 correct-action 原子所在记录、全部 13 条含多原子 parent 的 strict-pass 记录，并按数据源、主题与标签组合补足 6 条 strict-pass 记录。",
+  "records": 30,
+  "parent_memories": 112,
+  "atomic_memories": 129,
+  "expert_decisions": {
+    "accept": 2,
+    "revise": 28
+  },
+  "prior_qc_decisions": {
+    "reject": 9,
+    "strict_pass": 21
+  },
+  "source_dataset": {
+    "OpenMed/MedDialog": 15,
+    "lavita/ChatDoctor-HealthCareMagic-100k": 15
+  },
+  "source_topic": {
+    "acute_symptoms": 4,
+    "cardio": 2,
+    "chronic_disease": 2,
+    "digestive": 4,
+    "general_other": 1,
+    "medication_treatment": 2,
+    "mental_sleep": 3,
+    "neuro": 2,
+    "pediatrics": 5,
+    "pregnancy_reproductive": 1,
+    "respiratory_ent": 2,
+    "skin_allergy": 2
+  },
+  "selection_strata": {
+    "correct_action": 4,
+    "multi_atom_parent": 13,
+    "qc_reject": 9,
+    "strict_risk": 2,
+    "strict_stratified": 6
+  },
+  "failed_dimensions": {
+    "atomicity": 16,
+    "counterfactual": 4,
+    "domain_validity": 19,
+    "evidence_grounding": 1,
+    "hard_a_validity": 2,
+    "label_action": 16,
+    "query_isolation": 4,
+    "rubric_objectivity": 4
+  },
+  "finding_types": {
+    "atomicity": 19,
+    "counterfactual": 2,
+    "domain_validity": 22,
+    "evidence_grounding": 1,
+    "hard_a_validity": 2,
+    "label_action": 7,
+    "query_isolation": 4
+  },
+  "qc_rationale_assessment": {
+    "exact": 6,
+    "incorrect": 2,
+    "not_applicable": 21,
+    "partial": 1
+  },
+  "rates": {
+    "strict_stress_non_accept": {
+      "numerator": 19,
+      "denominator": 21,
+      "percent": 90.5,
+      "interpretation_cn": "风险富集 strict-pass 子样本中需要修订或排除的比例；不能外推为全体 91 条的无偏缺陷率。"
+    },
+    "qc_reject_record_level_false_reject": {
+      "numerator": 0,
+      "denominator": 9,
+      "percent": 0.0,
+      "interpretation_cn": "在 9 条 QC reject 中，人工审查认为可原样直接接收的比例。"
+    },
+    "qc_reject_exact_rationale": {
+      "numerator": 6,
+      "denominator": 9,
+      "percent": 66.7,
+      "interpretation_cn": "QC reject 的拒绝理由与人工审查完全一致的比例；partial 与 incorrect 均不计入。"
+    }
+  }
+}
