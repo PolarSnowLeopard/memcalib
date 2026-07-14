@@ -293,7 +293,7 @@ class Crk2V2PipelineTest(unittest.TestCase):
                 "prior_qc_decision": "strict_pass",
                 "expert_audit": {
                     "decision": "accept",
-                    "failed_dimensions": [],
+                    "review_dimensions": ["rubric_objectivity"],
                     "selection_strata": ["multi_atom_parent"],
                     "findings": [],
                     "qc_rationale_assessment": "not_applicable",
@@ -308,7 +308,7 @@ class Crk2V2PipelineTest(unittest.TestCase):
                 "prior_qc_decision": "strict_pass",
                 "expert_audit": {
                     "decision": "revise",
-                    "failed_dimensions": ["atomicity"],
+                    "review_dimensions": ["atomicity"],
                     "selection_strata": ["strict_stratified"],
                     "findings": [{"type": "atomicity"}],
                     "qc_rationale_assessment": "not_applicable",
@@ -318,16 +318,20 @@ class Crk2V2PipelineTest(unittest.TestCase):
         summary = self.expert_audit.build_summary(
             [accepted, revised],
             {
-                "audit_scope": "protocol_acceptance_stress_audit",
+                "audit_scope": "practical_protocol_acceptance_audit",
                 "selection_note_cn": "风险富集压力审查",
+                "acceptance_threshold_cn": {"blocking": ["实质错误"], "advisory": ["措辞优化"]},
             },
         )
         self.assertEqual(50.0, summary["rates"]["strict_stress_non_accept"]["percent"])
         self.assertIn("不能外推", summary["rates"]["strict_stress_non_accept"]["interpretation_cn"])
+        self.assertEqual({"atomicity": 1, "rubric_objectivity": 1}, summary["observed_dimensions"])
+        self.assertEqual({"atomicity": 1}, summary["blocking_dimensions"])
         page = self.expert_audit.render_html([accepted, revised], summary)
         self.assertIn("Expert decision", page)
         self.assertIn("ArrowRight", page)
-        self.assertIn("protocol_acceptance_stress_audit", page)
+        self.assertIn("practical_protocol_acceptance_audit", page)
+        self.assertIn("advisory-dimension", page)
 
 
 if __name__ == "__main__":

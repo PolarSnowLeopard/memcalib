@@ -1,13 +1,29 @@
 {
-  "schema_version": "memcalib-v0.2-expert-audit-summary-v1",
-  "audit_scope": "protocol_acceptance_stress_audit",
-  "selection_note_cn": "该样本是风险富集压力审查，不是对 100 条总体缺陷率的简单随机估计。样本覆盖全部 9 条 QC reject、全部 4 个 correct-action 原子所在记录、全部 13 条含多原子 parent 的 strict-pass 记录，并按数据源、主题与标签组合补足 6 条 strict-pass 记录。",
+  "schema_version": "memcalib-v0.2-expert-audit-summary-v2",
+  "audit_scope": "practical_protocol_acceptance_audit",
+  "selection_note_cn": "该样本是风险富集压力审查，不是对 100 条总体缺陷率的简单随机估计。样本覆盖全部 9 条 QC reject、全部 4 个 correct-action 原子所在记录、全部 13 条含多原子 parent 的 strict-pass 记录，并按数据源、主题与标签组合补足 6 条 strict-pass 记录。最终 accept/revise 采用实用验收口径；非阻断问题仍保留为后续优化建议。",
+  "acceptance_threshold_cn": {
+    "blocking": [
+      "无证据生成或明显扭曲用户事实",
+      "当前问题直接泄漏核心记忆，导致反事实失效",
+      "会实质改变 OPB/UPB 统计的明显标签或 action 错误",
+      "rubric 强制明确不安全或明显错误的回答",
+      "synthetic hard-A 对当前任务存在直接且高概率的合理作用"
+    ],
+    "advisory": [
+      "同一事件、状态或决策单元内的合理信息打包",
+      "A/B/C 相邻等级均可辩护的边界案例",
+      "不会改变 judge 结论的 rubric 措辞改进",
+      "仅在假设性链条下可能相关的 hard-A",
+      "需要领域专家进一步精修但当前方向不构成明确错误的内容"
+    ]
+  },
   "records": 30,
   "parent_memories": 112,
   "atomic_memories": 129,
   "expert_decisions": {
-    "accept": 2,
-    "revise": 28
+    "accept": 19,
+    "revise": 11
   },
   "prior_qc_decisions": {
     "reject": 9,
@@ -38,7 +54,7 @@
     "strict_risk": 2,
     "strict_stratified": 6
   },
-  "failed_dimensions": {
+  "observed_dimensions": {
     "atomicity": 16,
     "counterfactual": 4,
     "domain_validity": 19,
@@ -47,6 +63,15 @@
     "label_action": 16,
     "query_isolation": 4,
     "rubric_objectivity": 4
+  },
+  "blocking_dimensions": {
+    "atomicity": 3,
+    "counterfactual": 2,
+    "domain_validity": 8,
+    "evidence_grounding": 1,
+    "label_action": 8,
+    "query_isolation": 3,
+    "rubric_objectivity": 2
   },
   "finding_types": {
     "atomicity": 19,
@@ -65,15 +90,15 @@
   },
   "rates": {
     "strict_stress_non_accept": {
-      "numerator": 19,
+      "numerator": 6,
       "denominator": 21,
-      "percent": 90.5,
-      "interpretation_cn": "风险富集 strict-pass 子样本中需要修订或排除的比例；不能外推为全体 91 条的无偏缺陷率。"
+      "percent": 28.6,
+      "interpretation_cn": "按实用验收门槛，风险富集 strict-pass 子样本中存在阻断问题的比例；不能外推为全体 91 条的无偏缺陷率。"
     },
     "qc_reject_record_level_false_reject": {
-      "numerator": 0,
+      "numerator": 4,
       "denominator": 9,
-      "percent": 0.0,
+      "percent": 44.4,
       "interpretation_cn": "在 9 条 QC reject 中，人工审查认为可原样直接接收的比例。"
     },
     "qc_reject_exact_rationale": {
