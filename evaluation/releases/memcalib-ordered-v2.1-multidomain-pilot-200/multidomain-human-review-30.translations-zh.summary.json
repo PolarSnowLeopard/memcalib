@@ -1,0 +1,22 @@
+{
+  "schema_version": "memcalib-calibration-translation-v1",
+  "purpose": "display_only",
+  "source_language": "en",
+  "target_language": "zh-CN",
+  "authoritative_language": "en",
+  "translation_model": "qwen3.7-plus",
+  "temperature": 0,
+  "records": 30,
+  "api_rows": 65,
+  "expected_fields": 2523,
+  "translated_fields": 2523,
+  "complete_records": 30,
+  "incomplete_records": 0,
+  "errors": [],
+  "api_warnings": [
+    "missing_translation:translate:answer:deepseek-flash:full_memory:crk2_raw_general_265c2c01181d985e:02:atomic_memories.6.usage_rubric.validity_scope",
+    "missing_translation:translate:answer:qwen-flash:full_memory:crk2_raw_coding_bc20aa767be77a87:02:secondary_judgment.atom_judgments.1.evidence_quote",
+    "missing_translation:translate:answer:qwen-max:no_memory:crk2_raw_coding_0ce5efdc044064ec:02:atomic_memories.4.usage_rubric.validity_scope"
+  ],
+  "missing_by_answer": {}
+}

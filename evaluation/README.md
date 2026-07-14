@@ -98,3 +98,9 @@ PYTHON_BIN=/path/to/python3 \
 ```
 
 锁定输入位于 `releases/memcalib-ordered-v2.1-multidomain-pilot-200/`，API 原始输出和日志位于被 Git 忽略的 `runs/memcalib-ordered-v2.1-multidomain-pilot-200/`。该试验用于协议和数据质量诊断，不替代正式排行榜结果。
+
+多领域人工有效性审查包位于 `releases/memcalib-ordered-v2.1-multidomain-pilot-200/multidomain-human-review-30.html`。审查包在通用对话和 Coding 领域各取 15 条回答，覆盖代表性随机样本、双 Judge 分歧、OPB、UPB 以及 Full/No-memory 配对对照；五个回答模型各占 6 条。页面逐回答、逐原子记录实际 A/B/C 使用强度、冲突类型与 Gold/rubric 质量，英文为正式依据，中文仅辅助审阅。可用以下命令从锁定输入重新生成抽样及页面：
+
+```bash
+PYTHONPATH=. /path/to/python3 evaluation/scripts/build_multidomain_review.py
+```

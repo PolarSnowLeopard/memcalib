@@ -40,6 +40,8 @@ def collect_translation_items(record: dict[str, Any]) -> list[dict[str, str]]:
     add("model_response", record.get("model_response"))
     for index, atom in enumerate(record.get("atomic_memories") or []):
         add(f"atomic_memories.{index}.text", atom.get("text"))
+        add(f"atomic_memories.{index}.evidence", atom.get("evidence"))
+        add(f"atomic_memories.{index}.label_reason", atom.get("label_reason"))
         for key, value in (atom.get("usage_rubric") or {}).items():
             if isinstance(value, list):
                 for item_index, item in enumerate(value):
@@ -122,6 +124,7 @@ def finalize(input_path: Path, api_output: Path, output_path: Path, summary_path
     }
     translations: dict[str, dict[str, str]] = {answer_id: {} for answer_id in expected}
     errors: list[str] = []
+    api_warnings: list[str] = []
     api_rows = list(iter_jsonl(api_output))
     for row in api_rows:
         params = row.get("user_defined_params") or {}
@@ -133,11 +136,11 @@ def finalize(input_path: Path, api_output: Path, output_path: Path, summary_path
         try:
             value = extract_json_object(str(row.get("response") or ""))
         except (ValueError, json.JSONDecodeError) as exc:
-            errors.append(f"invalid_json:{row.get('request_id')}:{exc}")
+            api_warnings.append(f"invalid_json:{row.get('request_id')}:{exc}")
             continue
         translated = value.get("translations")
         if not isinstance(translated, list):
-            errors.append(f"translations_not_list:{row.get('request_id')}")
+            api_warnings.append(f"translations_not_list:{row.get('request_id')}")
             continue
         seen: set[str] = set()
         for item in translated:
@@ -149,7 +152,7 @@ def finalize(input_path: Path, api_output: Path, output_path: Path, summary_path
                 translations[answer_id][field_id] = zh.strip()
                 seen.add(field_id)
         for missing in sorted(requested_ids.difference(seen)):
-            errors.append(f"missing_translation:{row.get('request_id')}:{missing}")
+            api_warnings.append(f"missing_translation:{row.get('request_id')}:{missing}")
 
     output_rows = []
     missing_by_answer: dict[str, list[str]] = {}
@@ -158,6 +161,7 @@ def finalize(input_path: Path, api_output: Path, output_path: Path, summary_path
         missing = sorted(expected[answer_id].difference(translations[answer_id]))
         if missing:
             missing_by_answer[answer_id] = missing
+            errors.extend(f"missing_translation:{answer_id}:{field_id}" for field_id in missing)
         output_rows.append({"answer_request_id": answer_id, "translations_zh": translations[answer_id]})
 
     summary = {
@@ -175,6 +179,7 @@ def finalize(input_path: Path, api_output: Path, output_path: Path, summary_path
         "complete_records": len(records) - len(missing_by_answer),
         "incomplete_records": len(missing_by_answer),
         "errors": errors,
+        "api_warnings": api_warnings,
         "missing_by_answer": missing_by_answer,
     }
     if missing_by_answer or errors:

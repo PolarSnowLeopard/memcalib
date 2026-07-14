@@ -10,7 +10,7 @@ from evaluation.scripts.build_calibration_review import (
     attach_translations,
     render_calibration_review_html,
 )
-from evaluation.scripts.calibration_review_translation import collect_translation_items, chunk_items
+from evaluation.scripts.calibration_review_translation import collect_translation_items, chunk_items, finalize
 
 
 class CalibrationReviewTest(unittest.TestCase):
@@ -85,6 +85,46 @@ class CalibrationReviewTest(unittest.TestCase):
         self.assertEqual(1, localized)
         self.assertNotIn("translations_zh", records[0])
         self.assertEqual({"question": "问题"}, records[1]["translations_zh"])
+
+    def test_translation_finalize_accepts_targeted_retry_for_an_omitted_field(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            input_path = root / "input.jsonl"
+            api_path = root / "api.jsonl"
+            output_path = root / "translations.jsonl"
+            summary_path = root / "summary.json"
+            input_path.write_text(
+                json.dumps({"answer_request_id": "answer-1", "question": "Question"}) + "\n",
+                encoding="utf-8",
+            )
+            api_rows = [
+                {
+                    "request_id": "translate:answer-1:01",
+                    "response": '{"translations":[]}',
+                    "user_defined_params": {
+                        "answer_request_id": "answer-1",
+                        "field_ids": ["question"],
+                    },
+                },
+                {
+                    "request_id": "translate:answer-1:01:retry",
+                    "response": '{"translations":[{"field_id":"question","zh":"问题"}]}',
+                    "user_defined_params": {
+                        "answer_request_id": "answer-1",
+                        "field_ids": ["question"],
+                    },
+                },
+            ]
+            api_path.write_text("".join(json.dumps(row) + "\n" for row in api_rows), encoding="utf-8")
+
+            finalize(input_path, api_path, output_path, summary_path)
+
+            summary = json.loads(summary_path.read_text(encoding="utf-8"))
+            output = json.loads(output_path.read_text(encoding="utf-8"))
+            self.assertEqual(0, summary["incomplete_records"])
+            self.assertEqual([], summary["errors"])
+            self.assertEqual(1, len(summary["api_warnings"]))
+            self.assertEqual("问题", output["translations_zh"]["question"])
 
 
 if __name__ == "__main__":

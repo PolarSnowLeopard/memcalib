@@ -1,0 +1,69 @@
+{
+  "schema_version": "memcalib-multidomain-human-review-v1",
+  "purpose": "human_validation_of_gold_rubric_and_ordered_usage_judges",
+  "records": 30,
+  "unique_samples": 28,
+  "selection_seed": 20260731,
+  "max_response_chars": 12000,
+  "domains": {
+    "coding": 15,
+    "general": 15
+  },
+  "categories": {
+    "judge_disagreement": 6,
+    "opb": 6,
+    "paired_contrast": 4,
+    "representative_random": 10,
+    "upb": 4
+  },
+  "models": {
+    "deepseek": 6,
+    "deepseek-flash": 6,
+    "kimi": 6,
+    "qwen-flash": 6,
+    "qwen-max": 6
+  },
+  "conditions": {
+    "full_memory": 20,
+    "no_memory": 10
+  },
+  "gold_atoms": {
+    "A": 40,
+    "B": 29,
+    "C": 59
+  },
+  "mixed_label_records": 30,
+  "all_have_secondary_judge": true,
+  "localized_records": 30,
+  "inputs": {
+    "evaluation/configs/memcalib-ordered-v2.1-multidomain-pilot-200.json": {
+      "sha256": "bdad928ef671da19d053036cface95da9d99a0856d8fc1c4b4d15e447796512f"
+    },
+    "evaluation/releases/memcalib-ordered-v2.1-multidomain-pilot-200/hidden-evaluation.jsonl": {
+      "sha256": "ffe87cffa24aae36dc7974444bdb74593fbf6804c4eae64c7dc87b8157d22e44"
+    },
+    "evaluation/runs/memcalib-ordered-v2.1-multidomain-pilot-200/judgments/primary.valid.jsonl": {
+      "sha256": "d2ab1d5f08f53f39d7d36e06be9cff385924c39700c0d6951a16078b7dfe4d94"
+    },
+    "evaluation/runs/memcalib-ordered-v2.1-multidomain-pilot-200/judgments/secondary.valid.jsonl": {
+      "sha256": "075b2fe7536aeae38c95dc67eac752a153df40532b22f3194f011eda6513d0d6"
+    },
+    "evaluation/templates/calibration-review-bilingual.html": {
+      "sha256": "96fb289dde6d72d448ea8c690fc368e1adbbedad12ee6d9b20cf65de9c96ab36"
+    }
+  },
+  "artifacts": {
+    "multidomain-human-review-30.jsonl": {
+      "sha256": "b1a33487502a3d1e439ae6833797c196014979733df8e05537f631fbff9a14c5"
+    },
+    "multidomain-human-review-30.html": {
+      "sha256": "c233125fe090860e2a7a97928a1f709e93b62317bcc9595cde42bae71322b7ed"
+    },
+    "multidomain-human-review-30.translations-zh.jsonl": {
+      "sha256": "2ba91ffb27f625b54e05f48adecc19a53bb3af1bc97d7ce451183dfc506e4625"
+    },
+    "multidomain-human-review-30.translations-zh.summary.json": {
+      "sha256": "0106f1592b237fa8206fd4433bfe421f7f1f0af165b143848fd4bc85e870b64f"
+    }
+  }
+}
