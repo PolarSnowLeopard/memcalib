@@ -104,3 +104,5 @@ PYTHON_BIN=/path/to/python3 \
 ```bash
 PYTHONPATH=. /path/to/python3 evaluation/scripts/build_multidomain_review.py
 ```
+
+AI 辅助专家预审结果位于 `releases/memcalib-ordered-v2.1-multidomain-pilot-200/multidomain-expert-review-30.html`，对应逐原子标注、统计摘要与问题说明使用相同文件名前缀。该预审只用于构建流程质检，不能作为论文中的人工有效性结果。预审发现 query-memory 重复、不可观测的正标签、记忆权限/作用域不明确和原子重叠等高优先级问题；修复这些问题前不应按当前方案扩大多领域数据采集。

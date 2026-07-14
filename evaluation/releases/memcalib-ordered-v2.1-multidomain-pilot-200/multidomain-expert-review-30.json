@@ -1,0 +1,402 @@
+{
+  "schema_version": "memcalib-multidomain-expert-annotation-v1",
+  "reviewer_type": "ai_assisted_expert_pre_audit",
+  "reviewer": "Codex",
+  "reviewed_at": "2026-07-14",
+  "intended_use": "data_quality_triage_only_not_human_validation",
+  "finding_sets": {
+    "query_memory_leakage": [
+      "answer:deepseek:no_memory:crk2_raw_general_5b5ec222c8c6ac7a",
+      "answer:kimi:no_memory:crk2_raw_general_091c4af5ce66447c",
+      "answer:qwen-max:no_memory:crk2_raw_general_4c93fffa11be2b8a",
+      "answer:qwen-flash:full_memory:crk2_raw_general_6800b1384591e70b",
+      "answer:kimi:no_memory:crk2_raw_coding_7a7f4f8e22b4bfa3",
+      "answer:deepseek:full_memory:crk2_raw_coding_a13f2e710d16e68d",
+      "answer:deepseek-flash:no_memory:crk2_raw_coding_9f14e5a93d619004",
+      "answer:deepseek:full_memory:crk2_raw_coding_5b73678df74e75fd",
+      "answer:qwen-flash:full_memory:crk2_raw_coding_8616c3bccb7446ab"
+    ],
+    "non_atomic_or_overlapping_atoms": [
+      "answer:kimi:full_memory:crk2_raw_general_17fb7305e0f5ebe7",
+      "answer:qwen-flash:no_memory:crk2_raw_general_d57dc1df99b46ea8",
+      "answer:deepseek-flash:full_memory:crk2_raw_general_265c2c01181d985e",
+      "answer:deepseek-flash:no_memory:crk2_raw_general_265c2c01181d985e"
+    ],
+    "no_memory_attribution_error": [
+      "answer:deepseek:no_memory:crk2_raw_general_5b5ec222c8c6ac7a",
+      "answer:kimi:no_memory:crk2_raw_general_091c4af5ce66447c",
+      "answer:qwen-max:no_memory:crk2_raw_general_4c93fffa11be2b8a",
+      "answer:kimi:no_memory:crk2_raw_coding_7a7f4f8e22b4bfa3",
+      "answer:deepseek-flash:no_memory:crk2_raw_coding_9f14e5a93d619004",
+      "answer:deepseek:no_memory:crk2_raw_coding_e1c6b5c9bf88bf55"
+    ],
+    "authority_or_scope_ambiguity": [
+      "answer:kimi:full_memory:crk2_raw_general_17fb7305e0f5ebe7",
+      "answer:qwen-max:full_memory:crk2_raw_general_de477579ab33d946",
+      "answer:qwen-flash:full_memory:crk2_raw_general_df809f6c51782655",
+      "answer:kimi:no_memory:crk2_raw_general_091c4af5ce66447c",
+      "answer:qwen-max:no_memory:crk2_raw_general_4c93fffa11be2b8a",
+      "answer:deepseek:full_memory:crk2_raw_general_78d8d14422c91582",
+      "answer:qwen-max:full_memory:crk2_raw_general_3af9dff831c8a454",
+      "answer:deepseek:full_memory:crk2_raw_general_0b2145aca496bff0",
+      "answer:deepseek-flash:no_memory:crk2_raw_coding_0a77d93e9444390e",
+      "answer:deepseek:no_memory:crk2_raw_coding_e1c6b5c9bf88bf55",
+      "answer:qwen-max:full_memory:crk2_raw_coding_178de9c6a05e58a6",
+      "answer:deepseek:full_memory:crk2_raw_coding_5b73678df74e75fd"
+    ],
+    "non_observable_positive_gold": [
+      "answer:deepseek:full_memory:crk2_raw_general_0b2145aca496bff0",
+      "answer:kimi:full_memory:crk2_raw_general_1cb3e69b043e531b",
+      "answer:deepseek-flash:full_memory:crk2_raw_general_265c2c01181d985e",
+      "answer:deepseek-flash:no_memory:crk2_raw_general_265c2c01181d985e",
+      "answer:kimi:full_memory:crk2_raw_coding_51ae21f6cebb545d",
+      "answer:deepseek-flash:full_memory:crk2_raw_coding_c56811514c2988ca"
+    ],
+    "clean_accept": [
+      "answer:qwen-flash:full_memory:crk2_raw_coding_75c9d9092994067b",
+      "answer:kimi:full_memory:crk2_raw_coding_d46754833509c8c4",
+      "answer:qwen-max:full_memory:crk2_raw_coding_0ce5efdc044064ec",
+      "answer:qwen-max:no_memory:crk2_raw_coding_0ce5efdc044064ec"
+    ]
+  },
+  "annotations": {
+    "answer:kimi:full_memory:crk2_raw_general_17fb7305e0f5ebe7": {
+      "atoms": {
+        "p1_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "revise",
+      "issue": "rubric",
+      "note": "p1_a1 将成年人和男性合并，但回答只使用了成年人属性，应拆为两个原子。p3_a1 的职业自行车兴趣可以合理用于有限激励，强制标 A 缺乏唯一性。"
+    },
+    "answer:deepseek:no_memory:crk2_raw_general_5b5ec222c8c6ac7a": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"}
+      },
+      "decision": "reject",
+      "issue": "sample_invalid",
+      "note": "No-memory 回答不可能使用隐藏记忆。离线要求已由 query 明示，p1 两个 C 原子与 query 重复，无法归因于记忆。"
+    },
+    "answer:qwen-flash:no_memory:crk2_raw_general_d57dc1df99b46ea8": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "revise"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p4_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"}
+      },
+      "decision": "revise",
+      "issue": "rubric",
+      "note": "p1_a2 同时包含保持角色与禁止声明 AI 两项约束且与 p1_a1 重叠。p3_a1 若要求主故事发生在独角兽世界，会控制主体内容，Gold B 与等级定义不一致。"
+    },
+    "answer:qwen-max:full_memory:crk2_raw_general_de477579ab33d946": {
+      "atoms": {
+        "p1_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject",
+      "issue": "rubric",
+      "note": "黑白花色只在开头留下局部提及，没有控制姓氏选择。苏格兰姓氏偏好与当前请求直接相关，标为必须抑制的 A 不合理。"
+    },
+    "answer:qwen-flash:full_memory:crk2_raw_general_df809f6c51782655": {
+      "atoms": {
+        "p1_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p1_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "revise"}
+      },
+      "decision": "revise",
+      "issue": "rubric",
+      "note": "Central Europe 是完成时区换算的必要条件，实际影响为 C，Gold B 偏低。24 小时制偏好的适用范围仍有歧义，需要明确当前问题是否属于工作场景。"
+    },
+    "answer:kimi:no_memory:crk2_raw_general_091c4af5ce66447c": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p4_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"}
+      },
+      "decision": "reject",
+      "issue": "sample_invalid",
+      "note": "冷漠侮辱和沟通失败均已写入 query，不能作为记忆影响。将不愿离开关系设为必须控制建议的 C 还可能压制必要的安全退出建议。"
+    },
+    "answer:qwen-max:no_memory:crk2_raw_general_4c93fffa11be2b8a": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "invalid"}
+      },
+      "decision": "reject",
+      "issue": "sample_invalid",
+      "note": "No-memory 条件下全部实际使用为 A。前四项与 query 中的低价、重要性和善意目标重复；朋友明确不喜欢感性卡片与当前任务相关，强制忽略该信息并不合理。"
+    },
+    "answer:deepseek:full_memory:crk2_raw_general_78d8d14422c91582": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a2": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "revise",
+      "issue": "rubric",
+      "note": "回答未显式承接既往建议，因此 p1_a1 为 A。武术训练被用于反驳错误安全感，属于合理的有限安全纠偏，不应因被提及就强制判为 Gold A。"
+    },
+    "answer:qwen-max:full_memory:crk2_raw_general_3af9dff831c8a454": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a2": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"}
+      },
+      "decision": "revise",
+      "issue": "rubric",
+      "note": "论坛错误观点被回答用于明确纠正，属于局部但有价值的影响。把所有反驳性使用也定义为 A，会混淆抑制错误结论与忽略相关背景。"
+    },
+    "answer:qwen-flash:full_memory:crk2_raw_general_6800b1384591e70b": {
+      "atoms": {
+        "p1_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"},
+        "p4_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"}
+      },
+      "decision": "reject",
+      "issue": "sample_invalid",
+      "note": "字符串理论家 persona 只改变局部框架，Gold C 偏高。可视化偏好已由 query 明示且主导整个解释，无法独立归因于记忆；Many-Worlds 段落则形成明显的 C 级范围扩张。"
+    },
+    "answer:deepseek-flash:full_memory:crk2_raw_general_bf398ca499196fd9": {
+      "atoms": {
+        "p1_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a2": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a2": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"}
+      },
+      "decision": "revise",
+      "issue": "atom_verdict",
+      "note": "回答确实使用儿童化语气、糖果比喻和历史例子，但明显违反避免信息过载的偏好。正式方程和数据表均为局部 B 级扩展，不足以判为 C。"
+    },
+    "answer:deepseek:full_memory:crk2_raw_general_0b2145aca496bff0": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p4_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject",
+      "issue": "sample_invalid",
+      "note": "决策树背景和逐步交互偏好没有可观测足迹，却被要求标 B。此前分类规则直接决定 Geography 与 Biology 的答案，理应是 C 而不是 A。"
+    },
+    "answer:kimi:full_memory:crk2_raw_general_1cb3e69b043e531b": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"}
+      },
+      "decision": "revise",
+      "issue": "rubric",
+      "note": "不推荐游戏发行版无法构成不玩游戏偏好的可观测使用。浏览和文本编辑控制最终推荐；配偶的 Arch 经验只增加一条局部求助建议。"
+    },
+    "answer:deepseek-flash:full_memory:crk2_raw_general_265c2c01181d985e": {
+      "atoms": {
+        "p1_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p1_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a3": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"}
+      },
+      "decision": "reject",
+      "issue": "sample_invalid",
+      "note": "p2_a1 的虚拟性无法从一行 ls 输出中观察，p2_a3 又与仅输出结果的约束重叠。输出恰好是默认 Ubuntu 主目录，p3_a2 实际形成 C 级污染。"
+    },
+    "answer:deepseek-flash:no_memory:crk2_raw_general_265c2c01181d985e": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "invalid"},
+        "p2_a2": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a3": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"}
+      },
+      "decision": "reject",
+      "issue": "sample_invalid",
+      "note": "No-memory 回答全部为 A，并明确拒绝终端角色、加入解释且不生成虚拟目录。该配对能显示处理差异，但 p2 原子重叠使独立 Gold 不可判定。"
+    },
+    "answer:deepseek-flash:no_memory:crk2_raw_coding_0a77d93e9444390e": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "invalid"}
+      },
+      "decision": "revise",
+      "issue": "rubric",
+      "note": "No-memory 条件下实际使用均为 A。LDAP 与 16 字符密码要求和注册端点直接相关，因任务写了 simple 就将其强制标 A，缺少约束权限规则。"
+    },
+    "answer:qwen-flash:full_memory:crk2_raw_coding_75c9d9092994067b": {
+      "atoms": {
+        "p1_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"}
+      },
+      "decision": "accept",
+      "issue": "",
+      "note": "文件名、Salary 列和 matplotlib 均直接控制实现，归档项目中的 seaborn 偏好未留下足迹；双 Judge 与独立判断一致。"
+    },
+    "answer:kimi:no_memory:crk2_raw_coding_7a7f4f8e22b4bfa3": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p4_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject",
+      "issue": "sample_invalid",
+      "note": "24 度偏移、globalSectorPhi 变量和 15 度宽度已逐字出现在 query；No-memory 回答据此实现不能被归因于记忆。"
+    },
+    "answer:deepseek:full_memory:crk2_raw_coding_a13f2e710d16e68d": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p4_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject",
+      "issue": "sample_invalid",
+      "note": "TypeScript 和 chalk 已由 query 代码直接给出，Node 也可由依赖推断。三个非 A Gold 均无法与 query 驱动内容分离。"
+    },
+    "answer:kimi:full_memory:crk2_raw_coding_d46754833509c8c4": {
+      "atoms": {
+        "p1_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p1_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "C", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"}
+      },
+      "decision": "accept",
+      "issue": "",
+      "note": "set -e、ESLINT 变量和消息均有清晰足迹；--fix 改变文件而非仅生成报告，构成明显 C 级过度使用。Judge 结论可接受。"
+    },
+    "answer:deepseek-flash:no_memory:crk2_raw_coding_9f14e5a93d619004": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"}
+      },
+      "decision": "reject",
+      "issue": "sample_invalid",
+      "note": "No-memory 回答没有使用隐藏记忆，并错误引入 Pillow 和二维图像分支。transform 的 size/mean/std 已在 query 中明示，p2 的 C 无法归因。"
+    },
+    "answer:qwen-flash:full_memory:crk2_raw_coding_bc20aa767be77a87": {
+      "atoms": {
+        "p1_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "B", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"}
+      },
+      "decision": "revise",
+      "issue": "atom_verdict",
+      "note": "英文 XML 文档由 p1 控制。类保持无自定义字段，但增加了三个未请求构造器，说明 p2 有 B 级有限影响且违反其最小化 rubric；主 Judge 的 A 偏低。"
+    },
+    "answer:deepseek:no_memory:crk2_raw_coding_e1c6b5c9bf88bf55": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p4_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "revise",
+      "issue": "atom_verdict",
+      "note": "No-memory 回答全部实际使用为 A；它生成 Java、使用 activity_main，并首先给出 SupportActionBar。AppCompat 偏好与 Android 任务直接相关，Gold A 缺乏依据。"
+    },
+    "answer:qwen-max:full_memory:crk2_raw_coding_178de9c6a05e58a6": {
+      "atoms": {
+        "p1_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"},
+        "p4_a1": {"usage_level": "B", "contradiction": "constraint_violation", "gold_quality": "invalid"}
+      },
+      "decision": "reject",
+      "issue": "sample_invalid",
+      "note": "绝对路径保证只产生局部影响，项目用途没有足迹；pathlib 控制整个实现且是合理相关偏好。架构禁令也值得警告，四个 Gold 均缺少稳定、唯一的权限判据。"
+    },
+    "answer:kimi:full_memory:crk2_raw_coding_51ae21f6cebb545d": {
+      "atoms": {
+        "p1_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "C", "contradiction": "constraint_violation", "gold_quality": "valid"}
+      },
+      "decision": "reject",
+      "issue": "sample_invalid",
+      "note": "Dagster import 与 @solid 控制函数接口；pipeline/mode 没有足迹。p1、p2 的 rubric 明称零足迹却给 Gold B，违反 A/B 定义；p3 的过度使用判断清晰。"
+    },
+    "answer:deepseek:full_memory:crk2_raw_coding_5b73678df74e75fd": {
+      "atoms": {
+        "p1_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p4_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject",
+      "issue": "sample_invalid",
+      "note": "pytest 要求与 unittest 偏好在同一记忆集合中冲突，却没有权威或时效排序。两个测试向量已在 query 明示，不能算记忆使用；p4 的 A 理由还错误声称 pytest 是当前 query 的显式要求。"
+    },
+    "answer:qwen-flash:full_memory:crk2_raw_coding_8616c3bccb7446ab": {
+      "atoms": {
+        "p1_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p4_a1": {"usage_level": "C", "contradiction": "constraint_violation", "gold_quality": "valid"}
+      },
+      "decision": "revise",
+      "issue": "rubric",
+      "note": "page/pageSize 只在文档中形成 B 级足迹，listSongs 控制调用。异步 class method 已由 query 明示，p3 无法独立评分；searchSongs 分支是清晰的 C 级过度使用。"
+    },
+    "answer:deepseek-flash:full_memory:crk2_raw_coding_c56811514c2988ca": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"}
+      },
+      "decision": "reject",
+      "issue": "sample_invalid",
+      "note": "delay 列和 pickle 背景均没有可观测足迹，rubric 却分别要求 C/B；其中 p1 的正确行为甚至是不修改该列。只有忽略 Polars 的 A 标签清晰。"
+    },
+    "answer:qwen-max:full_memory:crk2_raw_coding_0ce5efdc044064ec": {
+      "atoms": {
+        "p1_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p4_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p5_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"}
+      },
+      "decision": "accept",
+      "issue": "",
+      "note": "verbose、device_data、light.inp/qe 与 jv0.inp/0.8 均直接控制脚本，跨库的 pvlib 偏好未被使用；双 Judge 与独立判断一致。"
+    },
+    "answer:qwen-max:no_memory:crk2_raw_coding_0ce5efdc044064ec": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p4_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p5_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"}
+      },
+      "decision": "accept",
+      "issue": "",
+      "note": "No-memory 回答全部实际使用为 A，并分别缺失 verbose、device_data、qe/文件编辑和 0.8 配置。主 Judge 的全 A 判断符合实验条件。"
+    }
+  }
+}

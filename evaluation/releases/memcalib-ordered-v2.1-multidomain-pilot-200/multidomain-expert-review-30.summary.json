@@ -1,0 +1,194 @@
+{
+  "schema_version": "memcalib-multidomain-expert-review-summary-v1",
+  "reviewer_type": "ai_assisted_expert_pre_audit",
+  "intended_use": "data_quality_triage_only_not_human_validation",
+  "records": 30,
+  "atoms": 128,
+  "decisions": {
+    "accept": 4,
+    "reject": 15,
+    "revise": 11
+  },
+  "issues": {
+    "atom_verdict": 3,
+    "none": 4,
+    "rubric": 9,
+    "sample_invalid": 14
+  },
+  "usage_levels": {
+    "A": 74,
+    "B": 22,
+    "C": 32
+  },
+  "contradictions": {
+    "constraint_violation": 21,
+    "no": 107
+  },
+  "gold_quality": {
+    "invalid": 50,
+    "revise": 2,
+    "valid": 76
+  },
+  "domain_decisions": {
+    "coding": {
+      "accept": 4,
+      "reject": 7,
+      "revise": 4
+    },
+    "general": {
+      "reject": 8,
+      "revise": 7
+    }
+  },
+  "domain_gold_quality": {
+    "coding": {
+      "invalid": 22,
+      "valid": 35
+    },
+    "general": {
+      "invalid": 28,
+      "revise": 2,
+      "valid": 41
+    }
+  },
+  "condition_decisions": {
+    "full_memory": {
+      "accept": 3,
+      "reject": 9,
+      "revise": 8
+    },
+    "no_memory": {
+      "accept": 1,
+      "reject": 6,
+      "revise": 3
+    }
+  },
+  "category_decisions": {
+    "judge_disagreement": {
+      "reject": 3,
+      "revise": 3
+    },
+    "opb": {
+      "reject": 4,
+      "revise": 2
+    },
+    "paired_contrast": {
+      "accept": 2,
+      "reject": 2
+    },
+    "representative_random": {
+      "accept": 2,
+      "reject": 4,
+      "revise": 4
+    },
+    "upb": {
+      "reject": 2,
+      "revise": 2
+    }
+  },
+  "category_gold_quality": {
+    "judge_disagreement": {
+      "invalid": 11,
+      "valid": 13
+    },
+    "opb": {
+      "invalid": 13,
+      "valid": 13
+    },
+    "paired_contrast": {
+      "invalid": 4,
+      "valid": 20
+    },
+    "representative_random": {
+      "invalid": 15,
+      "revise": 2,
+      "valid": 22
+    },
+    "upb": {
+      "invalid": 7,
+      "valid": 8
+    }
+  },
+  "judge_exact_agreement_with_expert": {
+    "denominator_atoms": 128,
+    "primary": 0.632812,
+    "secondary": 0.710938
+  },
+  "confusion_matrices": {
+    "gold_rows_expert_columns": {
+      "A": {
+        "A": 21,
+        "B": 10,
+        "C": 9
+      },
+      "B": {
+        "A": 18,
+        "B": 8,
+        "C": 3
+      },
+      "C": {
+        "A": 35,
+        "B": 4,
+        "C": 20
+      }
+    },
+    "expert_rows_primary_columns": {
+      "A": {
+        "A": 50,
+        "B": 9,
+        "C": 15
+      },
+      "B": {
+        "A": 5,
+        "B": 5,
+        "C": 12
+      },
+      "C": {
+        "A": 2,
+        "B": 4,
+        "C": 26
+      }
+    },
+    "expert_rows_secondary_columns": {
+      "A": {
+        "A": 50,
+        "B": 9,
+        "C": 15
+      },
+      "B": {
+        "A": 3,
+        "B": 12,
+        "C": 7
+      },
+      "C": {
+        "A": 1,
+        "B": 2,
+        "C": 29
+      }
+    }
+  },
+  "finding_set_counts": {
+    "authority_or_scope_ambiguity": 12,
+    "clean_accept": 4,
+    "no_memory_attribution_error": 6,
+    "non_atomic_or_overlapping_atoms": 4,
+    "non_observable_positive_gold": 6,
+    "query_memory_leakage": 9
+  },
+  "inputs": {
+    "evaluation/releases/memcalib-ordered-v2.1-multidomain-pilot-200/multidomain-human-review-30.jsonl": {
+      "sha256": "b1a33487502a3d1e439ae6833797c196014979733df8e05537f631fbff9a14c5"
+    },
+    "evaluation/releases/memcalib-ordered-v2.1-multidomain-pilot-200/multidomain-expert-review-30.json": {
+      "sha256": "18db04593c2ea07a9d61b3b61978997addec60508f587245fbc3224f84230fc9"
+    },
+    "evaluation/releases/memcalib-ordered-v2.1-multidomain-pilot-200/multidomain-human-review-30.html": {
+      "sha256": "c233125fe090860e2a7a97928a1f709e93b62317bcc9595cde42bae71322b7ed"
+    }
+  },
+  "artifacts": {
+    "evaluation/releases/memcalib-ordered-v2.1-multidomain-pilot-200/multidomain-expert-review-30.html": {
+      "sha256": "756c6a447929141727d8ef6fd0501304af4469518541fbc9c92cc42cc6359e71"
+    }
+  }
+}
