@@ -21,6 +21,21 @@ DEFAULT_CONFIG = SCRIPT_DIR / "config.json"
 RUNNER_PATH = SCRIPT_DIR / "06_run_bailian_api.py"
 POSTPROCESS_PATH = SCRIPT_DIR / "30_post_crk2_v2_generation.py"
 SCHEMA_VERSION = "crk2-generation-requests-v2"
+DOMAIN_GUIDANCE = {
+    "health_seed": (
+        "Preserve medically relevant history, measurements, medication, allergies, symptom course, and safety "
+        "constraints. Do not invent diagnoses or turn unsafe claims into hard-A memories."
+    ),
+    "general": (
+        "Preserve user preferences, plans, relationships, prior experiences, resource limits, and earlier dialogue "
+        "facts. The resulting task should remain a natural general-assistant request."
+    ),
+    "coding": (
+        "Preserve project environment, language or library version, interface contract, prior failure, implementation "
+        "constraint, coding preference, and deployment context. Reference solutions are task aids only and may never "
+        "be copied into memory."
+    ),
+}
 
 
 def portable_path(path: Path) -> str:
@@ -83,10 +98,72 @@ def select_source_balanced(rows: list[dict[str, Any]], limit: int, seed: int) ->
     return selected
 
 
+def parse_domain_quotas(values: list[str]) -> dict[str, int]:
+    quotas: dict[str, int] = {}
+    for value in values:
+        domain, separator, count_text = value.rpartition("=")
+        if not separator or not domain or not count_text.isdigit():
+            raise ValueError(f"invalid domain quota {value!r}; expected DOMAIN=COUNT")
+        count = int(count_text)
+        if count <= 0 or domain in quotas:
+            raise ValueError(f"domain quota must be unique and positive: {value!r}")
+        quotas[domain] = count
+    return quotas
+
+
+def _equal_source_quotas(capacities: dict[str, int], target: int) -> dict[str, int]:
+    quotas = {source: 0 for source in capacities}
+    remaining = target
+    active = sorted(source for source, capacity in capacities.items() if capacity > 0)
+    while remaining > 0 and active:
+        share = max(1, remaining // len(active))
+        next_active: list[str] = []
+        for source in active:
+            available = capacities[source] - quotas[source]
+            take = min(available, share, remaining)
+            quotas[source] += take
+            remaining -= take
+            if quotas[source] < capacities[source]:
+                next_active.append(source)
+        active = next_active
+    if remaining:
+        raise ValueError(f"source capacities cannot satisfy domain target; short by {remaining}")
+    return quotas
+
+
+def select_domain_balanced(
+    rows: list[dict[str, Any]], domain_quotas: dict[str, int], seed: int
+) -> list[dict[str, Any]]:
+    by_domain_source: dict[str, dict[str, list[dict[str, Any]]]] = defaultdict(lambda: defaultdict(list))
+    for row in rows:
+        domain = str(row.get("domain") or "health_seed")
+        source = str(row.get("source_dataset") or "unknown")
+        by_domain_source[domain][source].append(row)
+    missing = sorted(set(domain_quotas) - set(by_domain_source))
+    if missing:
+        raise ValueError(f"domain quotas reference missing domains: {missing}")
+
+    selected: list[dict[str, Any]] = []
+    for domain, target in sorted(domain_quotas.items()):
+        source_rows = by_domain_source[domain]
+        source_quotas = _equal_source_quotas(
+            {source: len(items) for source, items in source_rows.items()},
+            target,
+        )
+        for source, quota in sorted(source_quotas.items()):
+            if quota:
+                selected.extend(_round_robin_strata(source_rows[source], quota, seed, f"{domain}:{source}"))
+    random.Random(f"{seed}:domain-final-order").shuffle(selected)
+    return selected
+
+
 def build_request(row: dict[str, Any], index: int, template: str) -> dict[str, Any]:
     source_id = str(row.get("id") or f"row_{index:06d}")
+    domain = str(row.get("domain") or "health_seed")
     content = (
-        template.replace("{source_dataset}", str(row.get("source_dataset") or ""))
+        template.replace("{domain}", domain)
+        .replace("{domain_guidance}", DOMAIN_GUIDANCE.get(domain, DOMAIN_GUIDANCE["general"]))
+        .replace("{source_dataset}", str(row.get("source_dataset") or ""))
         .replace("{source_id}", source_id)
         .replace("{topic}", str(row.get("topic") or ""))
         .replace("{source_context}", str(row.get("dialogue_context") or row.get("source_context") or ""))
@@ -110,6 +187,7 @@ def build_request(row: dict[str, Any], index: int, template: str) -> dict[str, A
 
 def distribution(rows: list[dict[str, Any]]) -> dict[str, dict[str, int]]:
     return {
+        "domain": dict(sorted(Counter(str(row.get("domain") or "health_seed") for row in rows).items())),
         "source_dataset": dict(sorted(Counter(str(row.get("source_dataset") or "unknown") for row in rows).items())),
         "topic": dict(sorted(Counter(str(row.get("topic") or "unknown") for row in rows).items())),
         "seed_complexity": dict(
@@ -130,13 +208,19 @@ def main() -> None:
     parser.add_argument("--prompt-template", type=Path, default=DEFAULT_PROMPT)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--limit", type=int, default=100)
+    parser.add_argument("--domain-quota", action="append", default=[])
     parser.add_argument("--seed", type=int, default=20260714)
     args = parser.parse_args()
 
-    if args.limit < 2:
+    if args.limit < 2 and not args.domain_quota:
         raise ValueError("limit must be at least 2")
     rows = list(iter_jsonl(args.input))
-    selected = select_source_balanced(rows, args.limit, args.seed)
+    domain_quotas = parse_domain_quotas(args.domain_quota)
+    selected = (
+        select_domain_balanced(rows, domain_quotas, args.seed)
+        if domain_quotas
+        else select_source_balanced(rows, args.limit, args.seed)
+    )
     template = args.prompt_template.read_text(encoding="utf-8")
     requests = [build_request(row, index, template) for index, row in enumerate(selected, start=1)]
     write_jsonl(args.output, requests)
@@ -151,7 +235,13 @@ def main() -> None:
             "runner": {"path": portable_path(RUNNER_PATH), "sha256": file_sha256(RUNNER_PATH)},
             "postprocess": {"path": portable_path(POSTPROCESS_PATH), "sha256": file_sha256(POSTPROCESS_PATH)},
         },
-        "parameters": {"limit": args.limit, "seed": args.seed, "language": "en", "sources": 2},
+        "parameters": {
+            "limit": len(selected),
+            "domain_quotas": domain_quotas,
+            "seed": args.seed,
+            "language": "en",
+            "sources": len({str(row.get('source_dataset') or 'unknown') for row in selected}),
+        },
         "api": {
             "base_url": api_config.get("base_url"),
             "model": api_config.get("model"),

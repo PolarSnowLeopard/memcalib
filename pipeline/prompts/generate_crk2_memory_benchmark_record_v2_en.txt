@@ -4,12 +4,15 @@ Return exactly one JSON object and no Markdown. All generated natural-language f
 
 ## Source
 
+- domain: {domain}
 - source_dataset: {source_dataset}
 - source_id: {source_id}
 - topic: {topic}
 - source_context: {source_context}
 - raw_question: {raw_question}
 - source_answer: {source_answer}
+
+Domain-specific guidance: {domain_guidance}
 
 The source answer is provided only to understand the task. Never copy it into the benchmark question or turn its solution into memory. Real memories may be grounded only in source_context or raw_question. Synthetic memories are allowed only for hard A examples.
 

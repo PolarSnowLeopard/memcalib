@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 import pandas as pd
+import pyarrow.parquet as pq
 
 from utils import norm_text, stable_id, write_json, write_jsonl
 
@@ -108,7 +109,7 @@ def _ancestor_chain(message_id: str, by_id: dict[str, dict[str, Any]], max_depth
     return chain
 
 
-def normalize_oasst1(path: Path) -> Iterable[dict[str, Any]]:
+def normalize_oasst(path: Path, source_dataset: str) -> Iterable[dict[str, Any]]:
     frame = pd.read_parquet(path)
     rows = frame.to_dict(orient="records")
     by_id = {str(row.get("message_id")): row for row in rows if row.get("message_id")}
@@ -138,9 +139,9 @@ def normalize_oasst1(path: Path) -> Iterable[dict[str, Any]]:
         )
         message_id = str(assistant.get("message_id"))
         yield _source_record(
-            source_id=stable_id("OpenAssistant/oasst1", message_id, question, prefix="raw_general"),
+            source_id=stable_id(source_dataset, message_id, question, prefix="raw_general"),
             domain="general",
-            source_dataset="OpenAssistant/oasst1",
+            source_dataset=source_dataset,
             source_split="train" if "train" in path.name else "validation",
             source_index=message_id,
             question=question,
@@ -154,6 +155,117 @@ def normalize_oasst1(path: Path) -> Iterable[dict[str, Any]]:
                 "conversation_depth": len(chain),
             },
         )
+
+
+def normalize_oasst1(path: Path) -> Iterable[dict[str, Any]]:
+    return normalize_oasst(path, "OpenAssistant/oasst1")
+
+
+def normalize_oasst2(path: Path) -> Iterable[dict[str, Any]]:
+    return normalize_oasst(path, "OpenAssistant/oasst2")
+
+
+def _format_chat_context(messages: list[dict[str, Any]], max_chars: int = 6000) -> str:
+    lines = []
+    for message in messages:
+        role = str(message.get("role") or "").lower()
+        content = clean_source_text(str(message.get("content") or ""))
+        if role not in {"user", "assistant"} or not content:
+            continue
+        lines.append(f"{'User' if role == 'user' else 'Assistant'}: {content}")
+    context = "\n".join(lines)
+    if len(context) <= max_chars:
+        return context
+    return context[-max_chars:].lstrip()
+
+
+def normalize_ultrachat(path: Path) -> Iterable[dict[str, Any]]:
+    parquet = pq.ParquetFile(path)
+    row_number = 0
+    for batch in parquet.iter_batches(columns=["prompt_id", "messages"], batch_size=1024):
+        for row in batch.to_pylist():
+            prompt_id = str(row.get("prompt_id") or row_number)
+            messages = row.get("messages") or []
+            for turn_index, assistant in enumerate(messages):
+                if turn_index == 0 or str(assistant.get("role") or "").lower() != "assistant":
+                    continue
+                user = messages[turn_index - 1]
+                if str(user.get("role") or "").lower() != "user":
+                    continue
+                question = clean_source_text(str(user.get("content") or ""))
+                answer = clean_source_text(str(assistant.get("content") or ""))
+                context = _format_chat_context(messages[: turn_index - 1])
+                if not question or not answer:
+                    continue
+                combined = f"{context} {question} {answer}"
+                if HEALTH_EXCLUSION_RE.search(combined) or CODING_EXCLUSION_RE.search(combined):
+                    continue
+                source_index = f"{prompt_id}:{turn_index}"
+                yield _source_record(
+                    source_id=stable_id(
+                        "HuggingFaceH4/ultrachat_200k",
+                        source_index,
+                        question,
+                        prefix="raw_general",
+                    ),
+                    domain="general",
+                    source_dataset="HuggingFaceH4/ultrachat_200k",
+                    source_split="train_sft",
+                    source_index=source_index,
+                    question=question,
+                    answer=answer,
+                    context=context,
+                    source_license="MIT",
+                    source_metadata={
+                        "prompt_id": prompt_id,
+                        "turn_index": turn_index,
+                        "conversation_depth": turn_index + 1,
+                        "synthetic_dialogue": True,
+                    },
+                )
+            row_number += 1
+
+
+def normalize_apps(path: Path) -> Iterable[dict[str, Any]]:
+    parquet = pq.ParquetFile(path)
+    columns = ["problem_id", "question", "solutions", "input_output", "difficulty", "url", "starter_code"]
+    for batch in parquet.iter_batches(columns=columns, batch_size=512):
+        for row in batch.to_pylist():
+            question = clean_source_text(str(row.get("question") or ""))
+            try:
+                solutions = json.loads(str(row.get("solutions") or "[]"))
+            except json.JSONDecodeError:
+                solutions = []
+            if not question or not isinstance(solutions, list) or not solutions:
+                continue
+            answer = clean_source_text(str(solutions[0] or ""))
+            if not answer:
+                continue
+            starter_code = clean_source_text(str(row.get("starter_code") or ""))
+            context = f"Starter code:\n{starter_code}" if starter_code else ""
+            input_output = str(row.get("input_output") or "")
+            has_function_name = bool(re.search(r'"fn_name"\s*:\s*"[^"\\]+"', input_output))
+            raw_problem_id = row.get("problem_id")
+            problem_id = "" if raw_problem_id is None else str(raw_problem_id)
+            yield _source_record(
+                source_id=stable_id("codeparrot/apps", problem_id, question, prefix="raw_coding"),
+                domain="coding",
+                source_dataset="codeparrot/apps",
+                source_split="train",
+                source_index=problem_id,
+                question=question,
+                answer=answer,
+                context=context,
+                source_license="MIT",
+                source_metadata={
+                    "problem_id": problem_id,
+                    "difficulty": str(row.get("difficulty") or "unknown"),
+                    "source_url": str(row.get("url") or ""),
+                    "solution_count": len(solutions),
+                    "has_function_name": has_function_name,
+                    "has_starter_code": bool(starter_code),
+                },
+            )
 
 
 def normalize_magicoder(path: Path) -> Iterable[dict[str, Any]]:
@@ -193,32 +305,48 @@ def normalize_magicoder(path: Path) -> Iterable[dict[str, Any]]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Normalize General or Coding sources into the MemCalib source schema.")
-    parser.add_argument("--source", choices=("oasst1", "magicoder"), required=True)
+    parser.add_argument("--source", choices=("oasst1", "oasst2", "ultrachat", "apps", "magicoder"), required=True)
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--manifest", type=Path)
     parser.add_argument("--max-records", type=int, default=0)
     args = parser.parse_args()
 
-    domain = "general" if args.source == "oasst1" else "coding"
+    domain = "general" if args.source in {"oasst1", "oasst2", "ultrachat"} else "coding"
     output = args.output or DEFAULT_OUTPUT_DIR / f"{domain}_normalized.jsonl"
     manifest = args.manifest or output.with_suffix(".manifest.json")
-    iterator = normalize_oasst1(args.input) if args.source == "oasst1" else normalize_magicoder(args.input)
-    rows: list[dict[str, Any]] = []
-    for row in iterator:
-        rows.append(row)
-        if args.max_records > 0 and len(rows) >= args.max_records:
-            break
-    write_jsonl(output, rows)
+    normalizers = {
+        "oasst1": normalize_oasst1,
+        "oasst2": normalize_oasst2,
+        "ultrachat": normalize_ultrachat,
+        "apps": normalize_apps,
+        "magicoder": normalize_magicoder,
+    }
+    iterator = normalizers[args.source](args.input)
+    record_count = 0
+    topic_counts: Counter[str] = Counter()
+    license_counts: Counter[str] = Counter()
+
+    def counted_rows() -> Iterable[dict[str, Any]]:
+        nonlocal record_count
+        for row in iterator:
+            record_count += 1
+            topic_counts[str(row.get("topic"))] += 1
+            license_counts[str(row.get("source_license"))] += 1
+            yield row
+            if args.max_records > 0 and record_count >= args.max_records:
+                break
+
+    write_jsonl(output, counted_rows())
     summary = {
         "schema_version": SCHEMA_VERSION,
         "source": args.source,
         "domain": domain,
         "input": str(args.input),
         "output": str(output),
-        "records": len(rows),
-        "topics": dict(sorted(Counter(str(row.get("topic")) for row in rows).items())),
-        "licenses": dict(sorted(Counter(str(row.get("source_license")) for row in rows).items())),
+        "records": record_count,
+        "topics": dict(sorted(topic_counts.items())),
+        "licenses": dict(sorted(license_counts.items())),
     }
     write_json(manifest, summary)
     print(json.dumps(summary, ensure_ascii=False, indent=2))

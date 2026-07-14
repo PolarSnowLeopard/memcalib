@@ -88,7 +88,6 @@ def validate_qc(qc: dict[str, Any], record: dict[str, Any]) -> tuple[list[str], 
             errors.append(f"atom_check_{index}_missing_reason")
         hard_fail = (
             check.get("query_relation") != "absent"
-            or check.get("atomicity") != "pass"
             or check.get("label_action_validity") == "fail"
             or check.get("counterfactual_observability") != "pass"
             or check.get("rubric_judgeability") == "fail"
@@ -96,6 +95,9 @@ def validate_qc(qc: dict[str, Any], record: dict[str, Any]) -> tuple[list[str], 
         if hard_fail:
             computed = "reject"
             decision_reasons.append(f"{atom_id}:hard_failure")
+        elif computed != "reject" and check.get("atomicity") != "pass":
+            computed = "review"
+            decision_reasons.append(f"{atom_id}:atomicity_advisory")
         elif computed != "reject" and (
             check.get("label_action_validity") == "review"
             or check.get("rubric_judgeability") == "review"
@@ -126,8 +128,20 @@ def validate_qc(qc: dict[str, Any], record: dict[str, Any]) -> tuple[list[str], 
         if check.get("relation") not in {"independent", "overlap", "entails", "contradicts"}:
             errors.append(f"pair_check_{index}_bad_relation")
         elif check.get("relation") != "independent":
-            computed = "reject"
-            decision_reasons.append(f"{left}+{right}:{check.get('relation')}")
+            left_memory = gold.get(left, {})
+            right_memory = gold.get(right, {})
+            same_parent = left_memory.get("parent_memory_id") == right_memory.get("parent_memory_id")
+            same_usage = (
+                left_memory.get("u_star") == right_memory.get("u_star")
+                and left_memory.get("memory_action") == right_memory.get("memory_action")
+            )
+            advisory_relation = check.get("relation") in {"overlap", "entails"} and same_parent and same_usage
+            if advisory_relation and computed != "reject":
+                computed = "review"
+                decision_reasons.append(f"{left}+{right}:{check.get('relation')}_same_parent_advisory")
+            else:
+                computed = "reject"
+                decision_reasons.append(f"{left}+{right}:{check.get('relation')}_blocking")
         if len(norm_text(str(check.get("reason") or ""))) < 10:
             errors.append(f"pair_check_{index}_missing_reason")
     if observed_pairs != expected_pairs:

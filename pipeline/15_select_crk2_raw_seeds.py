@@ -43,6 +43,12 @@ QUESTION_INTENT_RE = re.compile(
     r"reason for|cause of)\b",
     re.I,
 )
+CODING_INSTRUCTION_INTENT_RE = re.compile(
+    r"\b(?:you are (?:tasked with|asked to)|your task is to|you need to|the goal is to|please)\b"
+    r"[\s\S]{0,240}\b(?:implement|writ|creat|build|fix|explain|design|provid|generat|refactor|"
+    r"debug|convert|complet|develop|modif|updat|optimiz)\w*\b",
+    re.I,
+)
 
 HEALTH_SIGNAL_PATTERNS: dict[str, re.Pattern[str]] = {
     "personal_entity": re.compile(
@@ -233,8 +239,11 @@ def matched_signal_families(question: str, domain: str = "health_seed") -> list[
     return [name for name, pattern in signal_patterns_for_domain(domain).items() if pattern.search(question or "")]
 
 
-def has_question_intent(question: str) -> bool:
-    return "?" in (question or "") or bool(QUESTION_INTENT_RE.search(question or ""))
+def has_question_intent(question: str, domain: str = "health_seed") -> bool:
+    text = question or ""
+    return "?" in text or bool(QUESTION_INTENT_RE.search(text)) or (
+        domain == "coding" and bool(CODING_INSTRUCTION_INTENT_RE.search(text))
+    )
 
 
 def _score_question(question_tokens: int, sentence_count: int, relation_count: int) -> int:
@@ -288,7 +297,7 @@ def assess_record(row: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]
     answer_sentences = max(1, len([part for part in SENTENCE_RE.split(answer) if part.strip()]))
     relation_count = len(RELATION_RE.findall(question))
     signal_families = matched_signal_families(f"{source_context}\n{question}", domain)
-    question_intent = has_question_intent(question)
+    question_intent = has_question_intent(question, domain)
     answer_boilerplate_ratio, answer_content_tokens = boilerplate_ratio(answer)
     question_english_ratio = english_letter_ratio(question)
     answer_english_ratio = english_letter_ratio(answer)

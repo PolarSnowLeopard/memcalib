@@ -185,6 +185,27 @@ class Crk2V2PipelineTest(unittest.TestCase):
         self.assertEqual(50, sum(row["source_dataset"] == "source-a" for row in first))
         self.assertEqual(50, sum(row["source_dataset"] == "source-b" for row in first))
 
+    def test_domain_balanced_selection_respects_domain_targets_and_source_capacity(self) -> None:
+        rows = []
+        for domain, sources in (("health_seed", ("med-a", "med-b")), ("general", ("human", "synthetic"))):
+            for source in sources:
+                count = 10 if source != "human" else 2
+                for index in range(count):
+                    rows.append(
+                        {
+                            "id": f"{domain}-{source}-{index}",
+                            "domain": domain,
+                            "source_dataset": source,
+                            "topic": f"topic-{index % 2}",
+                            "raw_selection": {"seed_complexity": "medium"},
+                        }
+                    )
+        selected = self.prepare.select_domain_balanced(rows, {"health_seed": 8, "general": 8}, 11)
+        self.assertEqual(8, sum(row["domain"] == "health_seed" for row in selected))
+        self.assertEqual(8, sum(row["domain"] == "general" for row in selected))
+        self.assertEqual(2, sum(row["source_dataset"] == "human" for row in selected))
+        self.assertEqual(6, sum(row["source_dataset"] == "synthetic" for row in selected))
+
     def test_valid_record_passes_deterministic_gate(self) -> None:
         record, params = valid_record()
         errors, audit = self.post.validate_record(record, params)
@@ -250,6 +271,38 @@ class Crk2V2PipelineTest(unittest.TestCase):
         self.assertEqual([], errors)
         self.assertEqual("reject", decision)
         self.assertIn("declared_strict_pass_overridden_by_reject", reasons)
+
+    def test_independent_qc_treats_local_atomicity_concern_as_review(self) -> None:
+        record, _ = valid_record()
+        record["id"] = "crk2_v2_raw1"
+        checks = []
+        for item in record["memories"]:
+            checks.append(
+                {
+                    "atom_id": item["atom_id"],
+                    "query_relation": "absent",
+                    "atomicity": "pass",
+                    "label_action_validity": "pass",
+                    "counterfactual_observability": "pass",
+                    "rubric_judgeability": "pass",
+                    "recommended_u_star": item["u_star"],
+                    "recommended_memory_action": item["memory_action"],
+                    "reason": "The supplied behavior is observable and otherwise valid for this task.",
+                }
+            )
+        checks[0]["atomicity"] = "fail"
+        qc = {
+            "schema_version": "crk-2-independent-qc-v2",
+            "record_id": record["id"],
+            "atom_checks": checks,
+            "pair_checks": record["atom_pair_relations"],
+            "record_decision": "reject",
+            "issues": ["The first atom may preserve more than one tightly coupled qualifier."],
+        }
+        errors, decision, reasons = self.qc_post.validate_qc(qc, record)
+        self.assertEqual([], errors)
+        self.assertEqual("review", decision)
+        self.assertIn("p1_a1:atomicity_advisory", reasons)
 
     def test_repair_request_preserves_v2_contract_and_source_id(self) -> None:
         record, params = valid_record()

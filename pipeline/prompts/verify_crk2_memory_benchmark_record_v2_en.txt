@@ -3,7 +3,7 @@ You are an independent quality verifier for one memory-use benchmark record. Ret
 Evaluate four questions independently:
 
 1. Query isolation: Does the current question state, paraphrase, entail, presuppose, or make directly recoverable any scored memory atom?
-2. Atomicity and independence: Is each atom one independently judgeable proposition with necessary qualifiers preserved, and is every atom pair non-overlapping and non-entailing?
+2. Atomicity and independence: Is each atom one independently judgeable proposition with necessary qualifiers preserved, and is every atom pair non-overlapping and non-entailing? Treat details from one coherent event, state, decision, or constraint as atomic when they produce one joint answer footprint and separating them would destroy essential meaning.
 3. Label/action validity: Under the counterfactual definition, should the memory have A, B, or C influence, and should it be ignored, applied, or corrected? Explicitly correcting a memory is observable use and cannot be A.
 4. Rubric observability: Can a judge distinguish correct use, under-use, and over-use from answer text using the supplied rubric and counterfactual contract?
 
@@ -41,7 +41,7 @@ Return this schema:
 }
 
 Decision policy:
-- reject if any query relation is overlap or entailed, any atom is non-atomic, or any pair overlaps/entails.
-- reject if an A atom should be explicitly corrected, or a B/C atom has no observable counterfactual delta.
-- review only for a genuinely close A/B or B/C boundary with otherwise valid construction.
+- reject for query leakage, an invalid label/action, a B/C atom without an observable counterfactual delta, an unjudgeable rubric, a contradiction, or overlap/entailment that duplicates scoring across parent memories or incompatible labels/actions.
+- review a localized atomicity concern, or overlap/entailment between atoms from the same parent memory with the same label/action, when the parent still denotes one coherent event or state and the benchmark remains judgeable.
+- review a genuinely close A/B or B/C boundary with otherwise valid construction.
 - strict_pass only when all four checks are defensible and reproducible.

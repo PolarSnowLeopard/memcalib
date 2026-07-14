@@ -16,6 +16,8 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_CONFIG = SCRIPT_DIR / "config.json"
 DEFAULT_PROMPT = SCRIPT_DIR / "prompts" / "verify_source_qa_semantic_quality.txt"
 RAW_SELECTOR_PATH = SCRIPT_DIR / "15_select_crk2_raw_seeds.py"
+RUNNER_PATH = SCRIPT_DIR / "06_run_bailian_api.py"
+POSTPROCESS_PATH = SCRIPT_DIR / "19_post_source_semantic_qc.py"
 SCHEMA_VERSION = "crk2-source-semantic-qc-v1"
 DIMENSION_NAMES = (
     "question_completeness",
@@ -154,6 +156,14 @@ def main() -> None:
         "prompt": {
             "path": str(args.prompt_template),
             "sha256": RAW_SELECTOR.file_sha256(args.prompt_template),
+        },
+        "implementation": {
+            "prepare": {
+                "path": str(Path(__file__).resolve()),
+                "sha256": RAW_SELECTOR.file_sha256(Path(__file__).resolve()),
+            },
+            "runner": {"path": str(RUNNER_PATH), "sha256": RAW_SELECTOR.file_sha256(RUNNER_PATH)},
+            "postprocess": {"path": str(POSTPROCESS_PATH), "sha256": RAW_SELECTOR.file_sha256(POSTPROCESS_PATH)},
         },
         "config": {"path": str(args.config), "sha256": RAW_SELECTOR.file_sha256(args.config)},
         "parameters": {"limit": args.limit, "seed": seed, "dimensions": list(DIMENSION_NAMES)},

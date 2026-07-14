@@ -94,6 +94,68 @@ class MultidomainSourcesTest(unittest.TestCase):
         self.assertEqual("Apache-2.0", records[0]["source_license"])
         self.assertEqual(records[0]["source_answer"], records[0]["doctor_answer"])
 
+    def test_normalize_oasst2_uses_distinct_source_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "train.parquet"
+            pd.DataFrame(
+                [
+                    {
+                        "message_id": "u1",
+                        "parent_id": None,
+                        "message_tree_id": "tree1",
+                        "text": "I work nights and prefer quiet exercise. Can you suggest a weekly routine?",
+                        "role": "prompter",
+                        "lang": "en",
+                        "deleted": False,
+                        "review_result": True,
+                    },
+                    {
+                        "message_id": "a1",
+                        "parent_id": "u1",
+                        "message_tree_id": "tree1",
+                        "text": "Use short sessions after waking and reserve longer low-noise workouts for days off.",
+                        "role": "assistant",
+                        "lang": "en",
+                        "deleted": False,
+                        "review_result": True,
+                    },
+                ]
+            ).to_parquet(path, index=False)
+
+            records = list(self.normalizer.normalize_oasst2(path))
+
+        self.assertEqual(1, len(records))
+        self.assertEqual("OpenAssistant/oasst2", records[0]["source_dataset"])
+        self.assertEqual("Apache-2.0", records[0]["source_license"])
+
+    def test_normalize_ultrachat_emits_each_assistant_turn_with_prior_context(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "train_sft.parquet"
+            pd.DataFrame(
+                [
+                    {
+                        "prompt_id": "p1",
+                        "prompt": "I prefer quiet trips. Can you suggest a destination?",
+                        "messages": [
+                            {"role": "user", "content": "I prefer quiet trips. Can you suggest a destination?"},
+                            {"role": "assistant", "content": "Consider a small coastal town outside peak season."},
+                            {"role": "user", "content": "Please turn that into a two-day plan with a low budget."},
+                            {"role": "assistant", "content": "Use public transit, free walking routes, and one inexpensive local meal."},
+                        ],
+                    }
+                ]
+            ).to_parquet(path, index=False)
+
+            records = list(self.normalizer.normalize_ultrachat(path))
+
+        self.assertEqual(2, len(records))
+        self.assertEqual("HuggingFaceH4/ultrachat_200k", records[0]["source_dataset"])
+        self.assertEqual("MIT", records[0]["source_license"])
+        self.assertEqual("", records[0]["source_context"])
+        self.assertIn("User: I prefer quiet trips", records[1]["source_context"])
+        self.assertIn("Assistant: Consider a small coastal town", records[1]["source_context"])
+        self.assertTrue(records[1]["source_metadata"]["synthetic_dialogue"])
+
     def test_normalize_magicoder_preserves_code_layout(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "magicoder.jsonl"
@@ -117,6 +179,33 @@ class MultidomainSourcesTest(unittest.TestCase):
         self.assertEqual("coding", records[0]["domain"])
         self.assertIn("\n", records[0]["raw_question"])
         self.assertEqual("MIT", records[0]["source_license"])
+
+    def test_normalize_apps_preserves_task_metadata_and_uses_reference_solution(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "apps.parquet"
+            pd.DataFrame(
+                [
+                    {
+                        "problem_id": 42,
+                        "question": "Implement a parser that returns each non-empty row while preserving input order.",
+                        "solutions": json.dumps(["def parse_rows(text):\n    return [x for x in text.splitlines() if x]"]),
+                        "input_output": json.dumps({"fn_name": "parse_rows", "inputs": [], "outputs": []}),
+                        "difficulty": "interview",
+                        "url": "https://example.com/problem/42",
+                        "starter_code": "def parse_rows(text):\n    pass",
+                    }
+                ]
+            ).to_parquet(path, index=False)
+
+            records = list(self.normalizer.normalize_apps(path))
+
+        self.assertEqual(1, len(records))
+        self.assertEqual("codeparrot/apps", records[0]["source_dataset"])
+        self.assertEqual("coding", records[0]["domain"])
+        self.assertIn("Starter code:", records[0]["source_context"])
+        self.assertIn("return [x", records[0]["source_answer"])
+        self.assertEqual("interview", records[0]["source_metadata"]["difficulty"])
+        self.assertTrue(records[0]["source_metadata"]["has_function_name"])
 
     def test_domain_selector_detects_general_and_coding_memory_signals(self) -> None:
         general = {
@@ -158,6 +247,27 @@ class MultidomainSourcesTest(unittest.TestCase):
         result = self.selector.assess_record(coding, self.selection_config())["raw_selection"]
 
         self.assertNotIn("text_noise", result["hard_rejection_reasons"])
+
+    def test_coding_selector_accepts_tasked_with_instruction(self) -> None:
+        coding = {
+            "id": "c-tasked",
+            "domain": "coding",
+            "source_dataset": "Magicoder",
+            "raw_question": (
+                "You are tasked with implementing a Python function for this project. "
+                "The function must return a list and handle empty input without pandas."
+            ),
+            "source_answer": (
+                "Define the function, return an empty list for empty input, and otherwise parse each row "
+                "using only the standard library."
+            ),
+            "topic": "implementation",
+        }
+
+        result = self.selector.assess_record(coding, self.selection_config())["raw_selection"]
+
+        self.assertTrue(result["features"]["question_intent"])
+        self.assertNotIn("missing_question_intent", result["hard_rejection_reasons"])
 
     def test_coding_selector_rejects_question_that_contains_reference_solution(self) -> None:
         solution = "def solve(values):\n    total = sum(values)\n    return total if total > 0 else 0"

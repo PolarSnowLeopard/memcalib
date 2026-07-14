@@ -5,10 +5,13 @@ This directory contains the reproducible construction stages for MemCalib v0.1. 
 - `OpenMed/MedDialog`
 - `lavita/ChatDoctor-HealthCareMagic-100k`
 
-The v0.2 internal multi-domain pilot additionally uses:
+The v0.2 multi-domain construction line additionally uses:
 
 - `OpenAssistant/oasst1`
+- `OpenAssistant/oasst2`
+- `HuggingFaceH4/ultrachat_200k`
 - `ise-uiuc/Magicoder-OSS-Instruct-75K`
+- `codeparrot/apps`
 
 Raw source files, API requests and responses, logs, and large intermediates stay under `pipeline/data/` and are excluded from Git. The locked review release is under `release/memcalib-v0.1/`.
 
@@ -48,6 +51,8 @@ All configured paths are resolved relative to `pipeline/config.json`.
 33 prepare targeted v2 construction repairs
 34 merge deterministic-pass primary and repair records
 35 build the one-sample-per-page v2 human-review artifact
+36 build the practical expert-audit artifact
+37 cross-source deduplication and quota-locked General/Coding candidate pool
 ```
 
 Scripts 01-09 and 13-14 are retained as prototype and calibration lineage. They are not the final v0.1 construction path.
@@ -100,11 +105,13 @@ Scripts 29-32 implement the pre-release repair protocol motivated by the expert 
 
 The v2 annotation separates influence magnitude (`A/B/C`) from memory action (`ignore/apply/correct`). Explicitly correcting an unsafe or false memory is observable memory use and must therefore be labeled B or C. Every B/C atom also carries a counterfactual contract with a concrete observable answer delta.
 
-Three construction constraints are enforced as hard gates:
+The following construction constraints are enforced as hard gates:
 
 - the final question cannot state or entail a scored memory atom;
-- atoms must be independently judgeable and every pair must be non-overlapping and non-entailing;
+- duplicated scoring across parent memories and incompatible labels/actions is forbidden;
 - B/C requires an observable with-memory versus without-memory difference.
+
+Localized atomicity concerns, a coherent same-event grouping within one parent memory, and defensible adjacent-label boundaries are review-level observations. They do not block admission unless they make scoring ambiguous or change the required answer behavior.
 
 The first repair pilot is locked to 100 English construction requests: 50 records from each v0.1 source, stratified across topic and source complexity. Run the offline preparation step with:
 
@@ -115,3 +122,9 @@ $PY pipeline/29_prepare_crk2_v2_generation.py
 API construction, deterministic postprocessing, and independent QC are separate stages. Only records that pass script 30 and receive `strict_pass` from the recomputed script-32 decision are eligible for benchmark admission.
 
 The completed 100-record pilot required one targeted construction-repair round: 74 records passed initially and all 26 deterministic rejects passed after repair. Independent QC produced 91 strict passes and 9 rejects after one structural-output retry. The complete review interface and locked result summary are under [`evaluation/releases/memcalib-v0.2-construction-pilot-100/`](../evaluation/releases/memcalib-v0.2-construction-pilot-100/README.md).
+
+## Multi-domain Full Construction
+
+`config.multidomain-v2.json` locks the first full multi-domain target. Source semantic QC uses 24,000 candidates: 12,000 General and 12,000 Coding. Construction oversamples 18,000 records (8,500 Health, 4,750 General, and 4,750 Coding) before independent QC. Final admission targets 15,000 records with a 7,500/3,750/3,750 domain split.
+
+The General/Coding source pool is built with script 37. It performs cross-source near-duplicate removal before quota sampling, preserves source-level provenance and licenses, and allows a source shortfall to be filled only within the same domain. Strict-pass records are admitted first; non-blocking review records are eligible only when a domain target cannot otherwise be met.
