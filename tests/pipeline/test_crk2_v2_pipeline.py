@@ -81,6 +81,7 @@ def memory(atom_id: str, parent_id: str, text: str, evidence: str, label: str, s
 def valid_record() -> tuple[dict, dict]:
     params = {
         "id": "raw1",
+        "domain": "health_seed",
         "source_dataset": "OpenMed/MedDialog",
         "topic": "medication_treatment",
         "raw_question": "I take warfarin daily. I am allergic to aspirin. Which pain-relief option would be safest?",
@@ -212,6 +213,18 @@ class Crk2V2PipelineTest(unittest.TestCase):
         self.assertEqual([], errors)
         self.assertEqual(3, len(audit))
         self.assertFalse(any(item["flag"] for item in audit))
+
+    def test_normalization_preserves_domain_and_upstream_lineage(self) -> None:
+        record, params = valid_record()
+        params["source_license"] = "test-license"
+        params["raw_selection"] = {"eligible": True}
+        params["semantic_qc"] = {"state": "strict_pass"}
+        params["semantic_admission"] = {"decision": "admitted_strict"}
+        normalized = self.post.normalize_record(record, params, "request", [])
+        self.assertEqual("health_seed", normalized["domain"])
+        self.assertEqual("test-license", normalized["source_license"])
+        self.assertEqual({"eligible": True}, normalized["raw_selection"])
+        self.assertEqual("strict_pass", normalized["semantic_qc"]["state"])
 
     def test_a_cannot_use_correct_action(self) -> None:
         record, params = valid_record()

@@ -328,13 +328,18 @@ def normalize_record(record: dict[str, Any], params: dict[str, Any], request_id:
         {
             "id": request_id or f"crk2_v2_{source_id}",
             "source_dataset": params.get("source_dataset", ""),
+            "domain": params.get("domain", "health_seed"),
             "source_id": source_id,
             "source_split": params.get("source_split", ""),
             "source_index": params.get("source_index", ""),
+            "source_license": params.get("source_license", ""),
             "source_topic": params.get("topic", ""),
             "raw_query": params.get("raw_question", ""),
             "source_context": params.get("dialogue_context") or params.get("source_context") or "",
             "source_answer": params.get("doctor_answer") or params.get("source_answer") or "",
+            "raw_selection": params.get("raw_selection") or {},
+            "semantic_qc": params.get("semantic_qc") or {},
+            "semantic_admission": params.get("semantic_admission") or {},
             "deterministic_qc": {
                 "schema_version": "crk2-deterministic-qc-v2",
                 "decision": "pass",

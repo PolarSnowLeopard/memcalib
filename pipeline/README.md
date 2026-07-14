@@ -53,6 +53,9 @@ All configured paths are resolved relative to `pipeline/config.json`.
 35 build the one-sample-per-page v2 human-review artifact
 36 build the practical expert-audit artifact
 37 cross-source deduplication and quota-locked General/Coding candidate pool
+38 strict per-domain source-QA admission for construction
+39 merge locked medical and new-domain construction seeds
+40 strict-first, review-fallback final 15k release admission
 ```
 
 Scripts 01-09 and 13-14 are retained as prototype and calibration lineage. They are not the final v0.1 construction path.
