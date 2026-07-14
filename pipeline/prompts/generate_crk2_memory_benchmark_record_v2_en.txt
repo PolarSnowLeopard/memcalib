@@ -1,0 +1,146 @@
+You are constructing one auditable benchmark record for evaluating whether a dialogue model uses long-term memory with the appropriate strength and direction.
+
+Return exactly one JSON object and no Markdown. All generated natural-language fields must be in English. Evidence quotations must preserve the source wording.
+
+## Source
+
+- source_dataset: {source_dataset}
+- source_id: {source_id}
+- topic: {topic}
+- source_context: {source_context}
+- raw_question: {raw_question}
+- source_answer: {source_answer}
+
+The source answer is provided only to understand the task. Never copy it into the benchmark question or turn its solution into memory. Real memories may be grounded only in source_context or raw_question. Synthetic memories are allowed only for hard A examples.
+
+## Construction objective
+
+Create a coherent user-memory scenario and a decontextualized current question. Preserve the original task while moving reusable user facts, preferences, constraints, or history into stored memory. The current question must remain answerable when the memory is supplied, but it must not state, paraphrase, entail, or presuppose any scored memory atom.
+
+Keep the original parent memory text. Atomize it only for annotation. An atom is one independently judgeable proposition, including all qualifiers needed to preserve its meaning. Do not split a single event merely because it spans clauses or sentences. Split two details only when either could be true while the other is false and each could change the response independently.
+
+Construct 3-6 parent memory blocks when supported. Include at least one real B or C atom and exactly one synthetic hard-A parent block. The synthetic hard A must be plausible for the same user and topically close, yet should leave no footprint in a correct answer. Do not use a dangerous preference, false medical belief, false diagnosis, or other claim that deserves explicit correction as hard A.
+
+## Ordered influence labels
+
+Labels measure the magnitude of the observable causal influence that a memory should have on the answer.
+
+- A: no observable influence. Removing the memory should not change any claim, recommendation, constraint, ordering, tone, or explanation.
+- B: supporting influence. The memory should cause a local adaptation, caveat, prioritization, example, warning, or explanation while the answer backbone remains valid without it.
+- C: controlling influence. The memory must determine a core conclusion, feasible plan, safety boundary, or mandatory constraint. Removing it would make the answer materially wrong or inapplicable for this user.
+
+## Memory action
+
+Label direction separately with memory_action:
+
+- ignore: the answer should leave the memory unused. This is required for A.
+- apply: the answer should use the memory as valid context. This is allowed for B or C.
+- correct: the answer should explicitly challenge, reject, qualify, or correct the memory because it is unsafe, false, stale, or incompatible. This is allowed for B or C whenever that correction creates an observable response change.
+
+A memory is not A merely because the answer refuses to follow it. If the response should specifically mention or counteract that memory, label the magnitude B or C and set memory_action to correct. A plus correct is forbidden.
+
+## Counterfactual contract
+
+For every atom specify:
+
+- without_memory_behavior: expected answer behavior when this atom is removed and all else is fixed.
+- with_memory_behavior: expected answer behavior when this atom is present.
+- observable_delta: the smallest observable difference between the two answers; use the exact string "none" for A.
+- minimal_evidence: one or more concrete textual signals a judge could identify for B/C; use an empty list for A.
+
+B and C require a non-empty, directly observable delta. Private reasoning, generic relevance, or a change that cannot be identified in the answer is insufficient.
+
+## Query isolation and atom independence
+
+Set query_relation for every atom to absent only after checking that the final question neither states nor entails it. If isolation cannot be achieved without destroying the task, return accepted=false.
+
+List every unordered pair of atom IDs exactly once in atom_pair_relations. relation must be independent. If two atoms overlap, entail one another, or are alternative phrasings of the same proposition, merge or rewrite them before returning the record.
+
+## Judge rubric
+
+Every atom must include a complete usage_rubric that can be evaluated from a candidate answer alone. It must define correct use, under-use, over-use, forbidden roles, failure direction, and observable checks. Do not use vague criteria such as "appropriately personalized" without an observable test.
+
+memory_usage_weight must equal none for A, supporting for B, and controlling for C.
+
+## JSON schema
+
+{
+  "schema_version": "crk-2-canonical-memory-v2",
+  "accepted": true,
+  "question": "decontextualized current question",
+  "memory_blocks": [
+    {
+      "parent_memory_id": "p1",
+      "raw_evidence": "verbatim source evidence or a concise synthetic rationale",
+      "memory_text": "third-person canonical stored memory",
+      "source": "from_question|from_context|synthetic_hard_a",
+      "atom_ids": ["p1_a1"],
+      "atomization_notes": "why these atoms form independent propositions"
+    }
+  ],
+  "memories": [
+    {
+      "memory_id": "p1_a1",
+      "parent_memory_id": "p1",
+      "atom_id": "p1_a1",
+      "atom_index": 1,
+      "atom_count": 1,
+      "text": "third-person atomic stored memory",
+      "evidence": "verbatim source evidence or synthetic rationale",
+      "atomic_predicate": "one proposition with essential qualifiers",
+      "derivation": "explicit|inferred|synthetic",
+      "source": "from_question|from_context|synthetic_hard_a",
+      "memory_type": "case_fact|constraint|preference|profile_fact|safety_sensitive",
+      "u_star": "A|B|C",
+      "memory_action": "ignore|apply|correct",
+      "query_relation": "absent",
+      "subtype": "specific subtype",
+      "hard_a_family": null,
+      "label_reason": "causal label and action justification",
+      "construction_target": {
+        "task_goal": "current task",
+        "memory_role": "expected causal role",
+        "usage_boundary": "maximum justified footprint",
+        "failure_direction": "how an incorrect answer would fail"
+      },
+      "counterfactual_contract": {
+        "without_memory_behavior": "behavior without this atom",
+        "with_memory_behavior": "behavior with this atom",
+        "observable_delta": "none or a concrete answer difference",
+        "minimal_evidence": ["observable answer signal"]
+      },
+      "usage_rubric": {
+        "expected_answer_behavior": "observable expected behavior",
+        "memory_usage_weight": "none|supporting|controlling",
+        "validity_scope": "where the memory is valid",
+        "correct_use": "what counts as correct use",
+        "under_use": "what counts as insufficient use",
+        "over_use": "what counts as excessive use",
+        "forbidden_memory_role": "what the memory must not do",
+        "failure_direction": "expected error direction",
+        "observable_checks": ["check 1", "check 2"]
+      }
+    }
+  ],
+  "atom_pair_relations": [
+    {
+      "left_atom_id": "p1_a1",
+      "right_atom_id": "p2_a1",
+      "relation": "independent",
+      "reason": "why neither atom overlaps with or entails the other"
+    }
+  ],
+  "qc": {
+    "evidence_grounding_pass": true,
+    "query_isolation_pass": true,
+    "atomicity_pass": true,
+    "pairwise_independence_pass": true,
+    "counterfactual_observability_pass": true,
+    "label_action_consistency_pass": true,
+    "rubric_objectivity_pass": true,
+    "issues": []
+  },
+  "notes": "optional construction notes"
+}
+
+For synthetic hard A, hard_a_family must be one of scope_mismatch, stale_context, near_neighbor, or untriggered_preference. For real atoms it must be null. If any required constraint cannot be satisfied, return the same top-level schema with accepted=false, an empty memory list, and a concise explanation in notes.

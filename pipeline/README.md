@@ -41,6 +41,10 @@ All configured paths are resolved relative to `pipeline/config.json`.
 26 merge grounded semantic-QC retries
 27 prepare targeted construction repairs
 28 validate the grounded multi-domain pilot
+29 prepare a source-balanced CRK-2 construction-v2 pilot
+30 apply deterministic v2 construction gates
+31 prepare independent semantic-QC requests
+32 recompute and merge independent QC decisions
 ```
 
 Scripts 01-09 and 13-14 are retained as prototype and calibration lineage. They are not the final v0.1 construction path.
@@ -86,3 +90,23 @@ The completed v0.1 construction run admitted 15,577 strict-pass source records a
 See [construction-pipeline.md](../docs/construction-pipeline.md) for the research-method summary and [the release guide](../release/memcalib-v0.1/README.md) for the review package.
 
 The multi-domain pilot and its one-sample-per-page review interfaces are under [`release/memcalib-multidomain-pilot-v0.2/`](../release/memcalib-multidomain-pilot-v0.2/README.md).
+
+## Construction Protocol V2 Repair Pilot
+
+Scripts 29-32 implement the pre-release repair protocol motivated by the expert calibration audit. This protocol does not overwrite the reproducible v0.1 release.
+
+The v2 annotation separates influence magnitude (`A/B/C`) from memory action (`ignore/apply/correct`). Explicitly correcting an unsafe or false memory is observable memory use and must therefore be labeled B or C. Every B/C atom also carries a counterfactual contract with a concrete observable answer delta.
+
+Three construction constraints are enforced as hard gates:
+
+- the final question cannot state or entail a scored memory atom;
+- atoms must be independently judgeable and every pair must be non-overlapping and non-entailing;
+- B/C requires an observable with-memory versus without-memory difference.
+
+The first repair pilot is locked to 100 English construction requests: 50 records from each v0.1 source, stratified across topic and source complexity. Run the offline preparation step with:
+
+```bash
+$PY pipeline/29_prepare_crk2_v2_generation.py
+```
+
+API construction, deterministic postprocessing, and independent QC are separate stages. Only records that pass script 30 and receive `strict_pass` from the recomputed script-32 decision are eligible for benchmark admission.

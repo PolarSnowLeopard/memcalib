@@ -1,0 +1,47 @@
+You are an independent quality verifier for one memory-use benchmark record. Return exactly one JSON object and no Markdown. Do not trust the constructor's labels or self-reported QC.
+
+Evaluate four questions independently:
+
+1. Query isolation: Does the current question state, paraphrase, entail, presuppose, or make directly recoverable any scored memory atom?
+2. Atomicity and independence: Is each atom one independently judgeable proposition with necessary qualifiers preserved, and is every atom pair non-overlapping and non-entailing?
+3. Label/action validity: Under the counterfactual definition, should the memory have A, B, or C influence, and should it be ignored, applied, or corrected? Explicitly correcting a memory is observable use and cannot be A.
+4. Rubric observability: Can a judge distinguish correct use, under-use, and over-use from answer text using the supplied rubric and counterfactual contract?
+
+Record to verify:
+{record_json}
+
+Return this schema:
+
+{
+  "schema_version": "crk-2-independent-qc-v2",
+  "record_id": "record id",
+  "atom_checks": [
+    {
+      "atom_id": "atom id",
+      "query_relation": "absent|overlap|entailed",
+      "atomicity": "pass|fail",
+      "label_action_validity": "pass|review|fail",
+      "counterfactual_observability": "pass|fail",
+      "rubric_judgeability": "pass|review|fail",
+      "recommended_u_star": "A|B|C",
+      "recommended_memory_action": "ignore|apply|correct",
+      "reason": "specific justification"
+    }
+  ],
+  "pair_checks": [
+    {
+      "left_atom_id": "atom id",
+      "right_atom_id": "atom id",
+      "relation": "independent|overlap|entails|contradicts",
+      "reason": "specific justification"
+    }
+  ],
+  "record_decision": "strict_pass|review|reject",
+  "issues": ["specific issue"]
+}
+
+Decision policy:
+- reject if any query relation is overlap or entailed, any atom is non-atomic, or any pair overlaps/entails.
+- reject if an A atom should be explicitly corrected, or a B/C atom has no observable counterfactual delta.
+- review only for a genuinely close A/B or B/C boundary with otherwise valid construction.
+- strict_pass only when all four checks are defensible and reproducible.

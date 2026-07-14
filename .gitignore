@@ -66,6 +66,8 @@ pipeline/data/crk2_canonical_generation_quality_retry_result_en_*.jsonl
 pipeline/data/crk2_canonical_generation_quality_retry_failed_en_*.jsonl
 pipeline/data/crk2_canonical_memory_benchmark_en_*.jsonl
 pipeline/data/crk2_canonical_memory_benchmark_en_*.rejected.jsonl
+pipeline/data/crk2_v2_*.jsonl
+pipeline/data/crk2_v2_*.json
 pipeline/data/generated_candidates.jsonl
 pipeline/data/verified_records.jsonl
 pipeline/data/verified_rejected.jsonl
