@@ -130,8 +130,8 @@
       <p class="lead">针对校准审查中暴露的标签方向、问题泄露和原子边界问题，建立一套可执行、可复现的 100 条修复试验流程。</p>
       <div class="status">
         <strong>当前状态</strong>
-        <span>协议、硬校验和 100 条分层输入已经生成；尚未调用构建 API。</span>
-        <code>100 = 50 + 50</code>
+        <span>构建、定向修复和独立 QC 已完成：91 条 strict pass，9 条进入人工裁决。</span>
+        <code>91 PASS / 9 REVIEW</code>
       </div>
     </div>
   </header>
@@ -191,10 +191,10 @@
     <section id="flow">
       <h2>版本化构建流程</h2>
       <div class="flow">
-        <div class="step"><code>29 · PREPARE</code><h3>分层选择与锁定</h3><p>从既有严格准入池选择 100 条，固定数据源、主题、复杂度和哈希。</p><span class="step-state">已完成</span></div>
-        <div class="step"><code>30 · HARD GATES</code><h3>确定性后处理</h3><p>验证 schema、证据、语言、标签—动作、泄露、反事实和原子对矩阵。</p><span class="step-state">代码已完成 · 待 API 输出</span></div>
-        <div class="step"><code>31 · INDEPENDENT QC</code><h3>独立语义复核</h3><p>第二个模型逐原子、逐原子对重判，不信任构建模型的自检结论。</p><span class="step-state">代码已完成 · 待输入</span></div>
-        <div class="step"><code>32 · ADMISSION</code><h3>重算最终决定</h3><p>根据明细重算 strict_pass/review/reject，并保留所有审计记录。</p><span class="step-state">代码已完成 · 待复核输出</span></div>
+        <div class="step"><code>29 · PREPARE</code><h3>分层选择与锁定</h3><p>从既有严格准入池选择 100 条，固定数据源、主题、复杂度和哈希。</p><span class="step-state">完成 · 50 + 50</span></div>
+        <div class="step"><code>30 · HARD GATES</code><h3>确定性后处理</h3><p>验证 schema、证据、语言、标签—动作、泄露、反事实和原子对矩阵。</p><span class="step-state">完成 · 74 pass + 26 repaired</span></div>
+        <div class="step"><code>31 · INDEPENDENT QC</code><h3>独立语义复核</h3><p>第二个模型逐原子、逐原子对重判，不信任构建模型的自检结论。</p><span class="step-state">完成 · Kimi 100/100</span></div>
+        <div class="step"><code>32 · ADMISSION</code><h3>重算最终决定</h3><p>根据明细重算 strict_pass/review/reject，并保留所有审计记录。</p><span class="step-state">完成 · 91 strict / 9 reject</span></div>
       </div>
     </section>
 
@@ -224,7 +224,7 @@
         <div><strong style="color:var(--amber)">review</strong><p>仅允许真正的 A/B 或 B/C 边界不确定；结构、隔离和独立性仍须合格。</p></div>
         <div><strong class="bad">reject</strong><p>发生问题泄露、非原子、原子重合、A+correct 或 B/C 无可观察差异时直接拒绝。</p></div>
       </div>
-      <p class="footnote" style="margin-top:14px">下一步：运行 100 条构建 API → 查看确定性拒绝分布 → 独立语义 QC → 生成每页一条的人工审查 HTML。当前页面不包含 API 生成质量结论。</p>
+      <p class="footnote" style="margin-top:14px">当前下一步：在完整审查页中优先裁决 9 条 QC reject，并从 91 条 strict pass 中分层抽查。只有人工确认后才冻结 v2 的正式大规模构建协议。</p>
     </section>
   </main>
 </body>

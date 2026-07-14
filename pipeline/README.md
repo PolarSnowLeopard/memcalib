@@ -45,6 +45,9 @@ All configured paths are resolved relative to `pipeline/config.json`.
 30 apply deterministic v2 construction gates
 31 prepare independent semantic-QC requests
 32 recompute and merge independent QC decisions
+33 prepare targeted v2 construction repairs
+34 merge deterministic-pass primary and repair records
+35 build the one-sample-per-page v2 human-review artifact
 ```
 
 Scripts 01-09 and 13-14 are retained as prototype and calibration lineage. They are not the final v0.1 construction path.
@@ -110,3 +113,5 @@ $PY pipeline/29_prepare_crk2_v2_generation.py
 ```
 
 API construction, deterministic postprocessing, and independent QC are separate stages. Only records that pass script 30 and receive `strict_pass` from the recomputed script-32 decision are eligible for benchmark admission.
+
+The completed 100-record pilot required one targeted construction-repair round: 74 records passed initially and all 26 deterministic rejects passed after repair. Independent QC produced 91 strict passes and 9 rejects after one structural-output retry. The complete review interface and locked result summary are under [`evaluation/releases/memcalib-v0.2-construction-pilot-100/`](../evaluation/releases/memcalib-v0.2-construction-pilot-100/README.md).

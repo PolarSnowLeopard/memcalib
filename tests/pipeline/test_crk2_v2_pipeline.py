@@ -156,6 +156,8 @@ class Crk2V2PipelineTest(unittest.TestCase):
         cls.prepare = load_script(SCRIPT_DIR / "29_prepare_crk2_v2_generation.py", "prepare_crk2_v2")
         cls.post = load_script(SCRIPT_DIR / "30_post_crk2_v2_generation.py", "post_crk2_v2")
         cls.qc_post = load_script(SCRIPT_DIR / "32_post_crk2_v2_independent_qc.py", "post_crk2_v2_qc")
+        cls.repair = load_script(SCRIPT_DIR / "33_prepare_crk2_v2_repair.py", "repair_crk2_v2")
+        cls.review = load_script(SCRIPT_DIR / "35_build_crk2_v2_review.py", "review_crk2_v2")
 
     def test_prompt_formalizes_correction_as_observable_use(self) -> None:
         prompt = (SCRIPT_DIR / "prompts" / "generate_crk2_memory_benchmark_record_v2_en.txt").read_text()
@@ -247,6 +249,37 @@ class Crk2V2PipelineTest(unittest.TestCase):
         self.assertEqual([], errors)
         self.assertEqual("reject", decision)
         self.assertIn("declared_strict_pass_overridden_by_reject", reasons)
+
+    def test_repair_request_preserves_v2_contract_and_source_id(self) -> None:
+        record, params = valid_record()
+        request = self.repair.build_repair_request(
+            {
+                "errors": ["memory_0_ungrounded_evidence"],
+                "user_defined_params": params,
+                "parsed_record": record,
+            },
+            retry_round=1,
+        )
+        self.assertEqual("crk2_v2_raw1", request["request_id"])
+        self.assertEqual(1, request["user_defined_params"]["crk2_v2_repair_round"])
+        content = request["prompt"][0]["content"]
+        self.assertIn("character-for-character", content)
+        self.assertIn("B/C + correct, never A", content)
+        self.assertIn("memory_0_ungrounded_evidence", content)
+
+    def test_review_orders_rejects_first_and_exposes_full_protocol(self) -> None:
+        accepted, _ = valid_record()
+        rejected, _ = valid_record()
+        accepted.update({"id": "accepted", "source_dataset": "source-a", "review_decision": "strict_pass"})
+        rejected.update({"id": "rejected", "source_dataset": "source-b", "review_decision": "reject"})
+        records = [rejected, accepted]
+        summary = self.review.build_summary(records)
+        page = self.review.render_html(records, summary)
+        self.assertEqual({"reject": 1, "strict_pass": 1}, summary["decisions"])
+        self.assertIn("counterfactual_contract", page)
+        self.assertIn("问题—记忆隔离", page)
+        self.assertIn("ArrowRight", page)
+        self.assertIn("导出标注", page)
 
 
 if __name__ == "__main__":
