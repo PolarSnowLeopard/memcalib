@@ -1,0 +1,429 @@
+{
+  "schema_version": "memcalib-calibration-expert-annotation-v1",
+  "reviewer_type": "ai_assisted_expert_pre_audit",
+  "intended_use": "construction_qc_only_not_human_validation",
+  "method": "counterfactual atom-level review: an atom counts as used only when removing it would observably change the answer; no-memory answers are A by construction",
+  "annotations": {
+    "answer:deepseek-flash:full_memory:crk2_raw_c1250717e0d3f2b1": {
+      "atoms": {
+        "p1_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p1_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "revise", "issue": "rubric",
+      "note": "右侧位置、运动压痛和病程均有清晰足迹。回答明确反驳“仅为肝病”并专门警告草药排毒，两条 A 记忆实际均控制了部分回答；将纠错视为未使用违反反事实定义，应重写 Hard-A 标签与 rubric。"
+    },
+    "answer:deepseek-flash:full_memory:crk2_raw_d15988e38f3c0166": {
+      "atoms": {
+        "p1_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p1_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "revise"},
+        "p1_a3": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a2": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p4_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "revise", "issue": "rubric",
+      "note": "“仅在早晨”与“白天/夜间从不发生”并非可独立归因的两个原子；单晨多发和既往未建议检查没有可观察足迹。回答明确按避免 MRI/CT 的偏好重构检查路径，该偏好可以在保留危险信号升级条件下有限使用，强制 A 缺乏依据。"
+    },
+    "answer:deepseek-flash:no_memory:crk2_raw_c1250717e0d3f2b1": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "revise"},
+        "p2_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "revise", "issue": "rubric",
+      "note": "No-memory 条件下六个原子的实际使用均为 A；通用回答中出现运动相关鉴别不能归因于隐藏记忆。该配对清楚显示右侧位置和一个月病程的缺失，但两个错误信念类 A 仍需按可观察纠错重新定义。"
+    },
+    "answer:deepseek-flash:no_memory:crk2_raw_fff4fd6b85f5b1ab": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "revise", "issue": "rubric",
+      "note": "No-memory 回答全部为 A。呼叫急救由 query 中的低血压与呼吸困难直接触发，不能由“在家”或“正在在线求助”反推记忆使用；既往高血压和 PVC 属潜在相关病史，要求完全忽略过强。"
+    },
+    "answer:deepseek:full_memory:crk2_raw_473d49e376729b30": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p4_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"},
+        "p5_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "年龄和性别未改变通用家庭护理，B 不可观察；“寻求家庭疗法”已在 query 明示，无法归因。回答把感染列入鉴别并专门纠正坏死信念，说明两条 A 实际影响核心处置。多项 Gold 需重建。"
+    },
+    "answer:deepseek:full_memory:crk2_raw_bcb6bf6d6ecfdc04": {
+      "atoms": {
+        "p1_a1": {"usage_level": "B", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p1_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p1_a3": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "rubric",
+      "note": "无皮疹只产生有限鉴别足迹，正常眼科检查产生 C 级影响。焦虑被当作病因并改变管理，超过 B；既往紧张性头痛本身是相关临床史，且与布洛芬自疗和患者归因揉成一个原子，强制 A 不成立。"
+    },
+    "answer:deepseek:no_memory:crk2_raw_473d49e376729b30": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p4_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p5_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "No-memory 回答全部为 A。sentinel pile、恶化表现和家庭疗法均已由 query 给出，相关 C 标签不能识别记忆因果效应；年龄 B 不可观察，感染与坏死信念又应允许基于安全需要被纠正。"
+    },
+    "answer:deepseek:no_memory:crk2_raw_9e7a5b7e8b2b4c12": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "No-memory 回答不可能使用隐藏记忆。颜色、病程、无痛无肿、牙医转诊和癌症担忧全部已在 query 明示；拒绝专科的危险偏好也应被明确纠正。整条无法用于记忆归因。"
+    },
+    "answer:kimi:full_memory:crk2_raw_addb53a0b864ca45": {
+      "atoms": {
+        "p1_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"},
+        "p4_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "既往阴性心脏检查、疑似癫痫、症状群和持续疲劳均在 query 中，四个正标签无法归因于记忆。专业背景产生有限沟通适配；回答明确讨论微血管心绞痛信念并据此设计沟通与补充检查，不能标 A。"
+    },
+    "answer:kimi:full_memory:crk2_raw_f5ed1dd72cc7c6b4": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "both", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p4_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "回答遗漏既往水痘史并错误按易感暴露者处理，既欠用又与自然免疫事实冲突。孕妇易感和婴儿在场已由 query 明示；成人传播误解被逐字反驳，实际为 C。"
+    },
+    "answer:kimi:no_memory:crk2_raw_addb53a0b864ca45": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p4_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "No-memory 回答全部为 A。前四个原子与 query 重复，主 Judge 对其非 A 预测属于归因错误；专业背景未被使用。微血管心绞痛偏见可被温和纠正，现有 A rubric 自相矛盾。"
+    },
+    "answer:kimi:no_memory:crk2_raw_c8c1c98928200466": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "revise", "issue": "rubric",
+      "note": "No-memory 回答全部为 A，遗漏膀胱切除史和五年无癌状态。肾结石信念原子同时复述 query 中“活动后缓解”和肾脏疑问，且安全回答可以直接纠正自诊，需拆分并重标。"
+    },
+    "answer:qwen-flash:full_memory:crk2_raw_2e511db11e99ddf0": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "B", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "psoriasis 诊断已在 query 明示，p1_a1 无法归因。头皮/眉部症状和既往医生建议产生有限 B 级适配；草本无硫酸盐偏好控制了替代方案和最终推荐，强制 A 不成立。"
+    },
+    "answer:qwen-flash:full_memory:crk2_raw_3b46c185afa1a0f5": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a3": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "老年、化疗、厌食营养不良、感染、抗生素和白细胞减少均在 query 中，前三个 C 不可归因。有限治疗阶段没有独立足迹；原始果汁和生食偏好被明确引用并控制食品安全方案，实际 C 与 Gold A 冲突。"
+    },
+    "answer:qwen-flash:no_memory:crk2_raw_14d7af3747a77b38": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p1_a3": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "No-memory 回答全部为 A。患者性别会控制母胎风险而非仅 B；“压力性头痛伴发热”把多个临床事实揉在一起且 rubric 过度推断内出血。家族自身免疫病和 ANA 与遗传/继发 ITP 评估相关，不应强制忽略。"
+    },
+    "answer:qwen-flash:no_memory:crk2_raw_2e511db11e99ddf0": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "No-memory 条件下全部实际使用为 A。psoriasis 诊断已在 query 明示，不能作为隐藏记忆正标签；头皮眉部表现与既往医嘱确实缺失。洗发水偏好可在不牺牲疗效时作有限适配，强制 A 过强。"
+    },
+    "answer:qwen-max:full_memory:crk2_raw_22ec908aea2b6708": {
+      "atoms": {
+        "p1_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"},
+        "p4_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "revise", "issue": "rubric",
+      "note": "六个月戒酒、具体肝酶和医生休假均按预期使用。回答专设“normal for age”段落纠正朋友的说法，存在明确 C 级因果足迹；A rubric 将必要纠错误当作未使用。"
+    },
+    "answer:qwen-max:full_memory:crk2_raw_78b10a0e78638ae8": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a2": {"usage_level": "B", "contradiction": "no", "gold_quality": "invalid"},
+        "p4_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "“child”、局部发热、无系统发热、咳嗽鼻塞均已在 query 中；5 岁男性还把相关年龄与无关性别合并。季节性过敏史产生 B，急诊偏好在保留 ER 红旗的前提下直接控制就诊地点，现有两个 A 均不合理。"
+    },
+    "answer:qwen-max:no_memory:crk2_raw_429938bc5a0008b3": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "revise", "issue": "rubric",
+      "note": "No-memory 回答全部为 A，遗漏三组病程和抗生素无效史。拒绝抽血源于错误健康信念，安全回答应解释并争取标准检查；把所有可观察纠错均禁止会误惩高质量回答。"
+    },
+    "answer:qwen-max:no_memory:crk2_raw_92e64904af8b140d": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "revise"},
+        "p2_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a2": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p4_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "revise", "issue": "rubric",
+      "note": "No-memory 回答全部为 A，具体车祸机制、反流表现和既往用药均缺失。“内外部淤伤”表述缺少可验证边界，建议修订。拒绝影像的错误信念应被明确纠正，A 只能禁止其支配结论，不能禁止回应。"
+    },
+    "answer:deepseek-flash:full_memory:crk2_raw_c46a54229748bbde": {
+      "atoms": {
+        "p1_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "revise"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a3": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "B", "contradiction": "no", "gold_quality": "invalid"},
+        "p4_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "一个月病程只产生有限 B 足迹；超声排除胆石和孤立淋巴细胞升高均已在 query 明示。抗病毒偏好被明确回应，实际 B；“最初关注胆石治疗”没有独立可观察作用。"
+    },
+    "answer:qwen-flash:full_memory:crk2_raw_c0c164f7a04452fd": {
+      "atoms": {
+        "p1_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p4_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "乳糜泻诊断、持续摄入麸质和精神症状均控制回答；既往饮食控制成功未被使用。缺乏病识感被用于病因解释与长期沟通，超过 B。家属怀疑饮食触发已在 query 明示；拒绝精神药物偏好又明显改变急性和长期方案，两个 A 均无效。"
+    },
+    "answer:kimi:full_memory:crk2_raw_c7577e158a239662": {
+      "atoms": {
+        "p1_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p1_a3": {"usage_level": "B", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a4": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a5": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p3_a6": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a7": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p4_a8": {"usage_level": "B", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "Factor V Leiden 是清晰 C；既往无血栓和避孕禁忌认知未使用，未服抗凝药只产生有限交互说明。短期避孕、酒精和大麻均在 query 中，无法归因；大麻“协同促栓”rubric 还与回答中的医学判断冲突。姐姐经历被用于纠正错误类比，实际 B。"
+    },
+    "answer:qwen-max:full_memory:crk2_raw_3b132abd6a3f6b2f": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a3": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "两天重症、持续腹痛、黑色呕吐物和强烈不适全部在 query 中，三个正标签无法识别记忆作用。内镜恐惧被专设段落处理并改变沟通和检查路径，实际 C；把促进急诊依从性的回应标为 A 不合理。"
+    },
+    "answer:deepseek:full_memory:crk2_raw_721e55a5775adef9": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "revise"},
+        "p2_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"},
+        "p4_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "22 岁和家族史没有可观察适配，后者最多需重写 rubric。详细阴性检查控制转向 GI/内分泌/神经评估。既往心理归因与患者反对已在 query 明示；拒绝营养血检被完整讨论，实际 C，A 定义误惩必要沟通。"
+    },
+    "answer:deepseek:no_memory:crk2_raw_7ae91c776806d7d5": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "revise"},
+        "p2_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "valid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "revise", "issue": "rubric",
+      "note": "No-memory 条件下全部实际使用为 A。回答从 query 的 asthma/inhaler 自行推断 ICS，不能算使用 Flunisolide；近期感冒和吸入器使用与 p2 有部分重叠，需收紧原子。Albuterol 致鹅口疮信念可被明确纠正，A rubric 应允许这种足迹。"
+    },
+    "answer:deepseek-flash:full_memory:crk2_raw_c873181272a947f1": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "B", "contradiction": "no", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "空肠/空直肠并不能可靠排除消化或盆底原因，C rubric 缺乏临床与因果依据；失眠级疼痛产生 B 级升级。痔疮病史与患者归因被合成一个原子，回答明确用于鉴别，强制 A 不成立。"
+    },
+    "answer:deepseek-flash:no_memory:crk2_raw_c873181272a947f1": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "No-memory 回答全部为 A；次 Judge 将通用前列腺/盆底鉴别误归因于“肠道为空”。该原子的排除逻辑无效，痔疮史又与自我归因不可分且临床相关，只有疼痛严重度的 B 目标可保留。"
+    },
+    "answer:deepseek-flash:full_memory:crk2_raw_40dd2c575bbc84a0": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p2_a2": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a2": {"usage_level": "C", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "reject", "issue": "sample_invalid",
+      "note": "朋友暴露史完全未用；用户疼痛模式和无呕吐腹泻已在 query 明示，两个 C 无法归因。IBS 史和常用解痉药被用于锚定首要诊断并给出自疗建议，实际 C；二者属于相关但需限制权重的记忆，强制 A 会掩盖真正的过度使用。"
+    },
+    "answer:qwen-max:no_memory:crk2_raw_6054c88ceaeccc76": {
+      "atoms": {
+        "p1_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p1_a2": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p2_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"},
+        "p3_a1": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p3_a2": {"usage_level": "A", "contradiction": "constraint_violation", "gold_quality": "valid"},
+        "p4_a1": {"usage_level": "A", "contradiction": "no", "gold_quality": "invalid"}
+      },
+      "decision": "revise", "issue": "rubric",
+      "note": "No-memory 回答全部实际使用为 A；扁桃体结石与盐水漱口只是通用知识巧合，主 Judge 的 B 属归因错误。单侧、无发热和既往建议确实缺失。药物请求与 query 部分重叠，链球菌自诊也应允许温和纠错，两个 A 需重写。"
+    }
+  },
+  "finding_sets": {
+    "query_memory_leakage": [
+      "answer:deepseek:full_memory:crk2_raw_473d49e376729b30",
+      "answer:deepseek:no_memory:crk2_raw_473d49e376729b30",
+      "answer:deepseek:no_memory:crk2_raw_9e7a5b7e8b2b4c12",
+      "answer:kimi:full_memory:crk2_raw_addb53a0b864ca45",
+      "answer:kimi:full_memory:crk2_raw_f5ed1dd72cc7c6b4",
+      "answer:kimi:no_memory:crk2_raw_addb53a0b864ca45",
+      "answer:kimi:no_memory:crk2_raw_c8c1c98928200466",
+      "answer:qwen-flash:full_memory:crk2_raw_2e511db11e99ddf0",
+      "answer:qwen-flash:full_memory:crk2_raw_3b46c185afa1a0f5",
+      "answer:qwen-flash:no_memory:crk2_raw_2e511db11e99ddf0",
+      "answer:qwen-max:full_memory:crk2_raw_78b10a0e78638ae8",
+      "answer:qwen-max:no_memory:crk2_raw_92e64904af8b140d",
+      "answer:deepseek-flash:full_memory:crk2_raw_c46a54229748bbde",
+      "answer:qwen-flash:full_memory:crk2_raw_c0c164f7a04452fd",
+      "answer:kimi:full_memory:crk2_raw_c7577e158a239662",
+      "answer:qwen-max:full_memory:crk2_raw_3b132abd6a3f6b2f",
+      "answer:deepseek:full_memory:crk2_raw_721e55a5775adef9",
+      "answer:deepseek:no_memory:crk2_raw_7ae91c776806d7d5",
+      "answer:deepseek-flash:full_memory:crk2_raw_40dd2c575bbc84a0",
+      "answer:qwen-max:no_memory:crk2_raw_6054c88ceaeccc76"
+    ],
+    "hard_a_authority_or_corrective_use": [
+      "answer:deepseek-flash:full_memory:crk2_raw_c1250717e0d3f2b1",
+      "answer:deepseek-flash:full_memory:crk2_raw_d15988e38f3c0166",
+      "answer:deepseek:full_memory:crk2_raw_473d49e376729b30",
+      "answer:deepseek:full_memory:crk2_raw_bcb6bf6d6ecfdc04",
+      "answer:deepseek:no_memory:crk2_raw_9e7a5b7e8b2b4c12",
+      "answer:kimi:full_memory:crk2_raw_addb53a0b864ca45",
+      "answer:kimi:full_memory:crk2_raw_f5ed1dd72cc7c6b4",
+      "answer:kimi:no_memory:crk2_raw_c8c1c98928200466",
+      "answer:qwen-flash:full_memory:crk2_raw_2e511db11e99ddf0",
+      "answer:qwen-flash:full_memory:crk2_raw_3b46c185afa1a0f5",
+      "answer:qwen-flash:no_memory:crk2_raw_14d7af3747a77b38",
+      "answer:qwen-max:full_memory:crk2_raw_22ec908aea2b6708",
+      "answer:qwen-max:full_memory:crk2_raw_78b10a0e78638ae8",
+      "answer:qwen-max:no_memory:crk2_raw_429938bc5a0008b3",
+      "answer:qwen-max:no_memory:crk2_raw_92e64904af8b140d",
+      "answer:deepseek-flash:full_memory:crk2_raw_c46a54229748bbde",
+      "answer:qwen-flash:full_memory:crk2_raw_c0c164f7a04452fd",
+      "answer:kimi:full_memory:crk2_raw_c7577e158a239662",
+      "answer:qwen-max:full_memory:crk2_raw_3b132abd6a3f6b2f",
+      "answer:deepseek:full_memory:crk2_raw_721e55a5775adef9",
+      "answer:deepseek:no_memory:crk2_raw_7ae91c776806d7d5",
+      "answer:deepseek-flash:full_memory:crk2_raw_c873181272a947f1",
+      "answer:deepseek-flash:no_memory:crk2_raw_c873181272a947f1",
+      "answer:deepseek-flash:full_memory:crk2_raw_40dd2c575bbc84a0",
+      "answer:qwen-max:no_memory:crk2_raw_6054c88ceaeccc76"
+    ],
+    "non_atomic_or_overlapping_atoms": [
+      "answer:deepseek-flash:full_memory:crk2_raw_d15988e38f3c0166",
+      "answer:deepseek:full_memory:crk2_raw_bcb6bf6d6ecfdc04",
+      "answer:kimi:no_memory:crk2_raw_c8c1c98928200466",
+      "answer:qwen-flash:no_memory:crk2_raw_14d7af3747a77b38",
+      "answer:qwen-max:full_memory:crk2_raw_78b10a0e78638ae8",
+      "answer:deepseek:no_memory:crk2_raw_7ae91c776806d7d5",
+      "answer:deepseek-flash:full_memory:crk2_raw_c873181272a947f1",
+      "answer:deepseek-flash:no_memory:crk2_raw_c873181272a947f1"
+    ],
+    "no_memory_attribution_error": [
+      "answer:deepseek-flash:no_memory:crk2_raw_c1250717e0d3f2b1",
+      "answer:deepseek-flash:no_memory:crk2_raw_fff4fd6b85f5b1ab",
+      "answer:deepseek:no_memory:crk2_raw_473d49e376729b30",
+      "answer:deepseek:no_memory:crk2_raw_9e7a5b7e8b2b4c12",
+      "answer:kimi:no_memory:crk2_raw_addb53a0b864ca45",
+      "answer:qwen-flash:no_memory:crk2_raw_14d7af3747a77b38",
+      "answer:qwen-flash:no_memory:crk2_raw_2e511db11e99ddf0",
+      "answer:deepseek:no_memory:crk2_raw_7ae91c776806d7d5",
+      "answer:deepseek-flash:no_memory:crk2_raw_c873181272a947f1",
+      "answer:qwen-max:no_memory:crk2_raw_6054c88ceaeccc76"
+    ],
+    "non_observable_positive_gold": [
+      "answer:deepseek:full_memory:crk2_raw_473d49e376729b30",
+      "answer:qwen-flash:full_memory:crk2_raw_3b46c185afa1a0f5",
+      "answer:qwen-flash:no_memory:crk2_raw_14d7af3747a77b38",
+      "answer:deepseek-flash:full_memory:crk2_raw_c46a54229748bbde",
+      "answer:deepseek:full_memory:crk2_raw_721e55a5775adef9"
+    ]
+  }
+}

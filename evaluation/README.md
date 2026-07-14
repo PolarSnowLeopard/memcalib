@@ -69,6 +69,8 @@ ordered-usage-v2 已在 100 条配对回答上完成双 Judge 校准。主 Judge
 - `releases/memcalib-ordered-v2-500/calibration-human-review-30.html`：逐条人工校准复核页面。页面以英文原文为正式依据，并提供完整中文辅助译文；每条回答按原子记忆独立填写实际 A/B/C 使用强度，再给出整条审查结论。
 - `releases/memcalib-ordered-v2-500/calibration-human-review-30.translations-zh.jsonl`：30 条校准样本的逐字段中文辅助译文，不参与正式指标计算。
 
+原两数据源的 AI 辅助专家预审结果位于 `releases/memcalib-ordered-v2-500/calibration-expert-review-30.html`，逐原子标注、统计摘要和问题说明使用相同文件名前缀。该预审采用严格反事实归因口径，只用于定位构建缺陷，不能作为论文人工有效性结论。主要问题包括 query-memory 重复、Hard-A 纠错权限不清、原子重叠、不可观测正标签和 No-memory 语义巧合误归因。
+
 ## v2.1 Judge 协议
 
 `ordered-usage-v2.1` 明确将纠正、反驳和警告视为可能的记忆使用，并按其影响范围区分 B 与 C；同时将事实冲突和约束违反拆成两个辅助字段。旧 v2 配置、提示词和结果继续保留以支持复现。完整定义见 [v2.1 评测协议](../docs/evaluation_protocol_v2.1.md)。

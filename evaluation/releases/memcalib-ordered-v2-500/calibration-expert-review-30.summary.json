@@ -1,0 +1,195 @@
+{
+  "schema_version": "memcalib-calibration-expert-review-summary-v1",
+  "reviewer_type": "ai_assisted_expert_pre_audit",
+  "intended_use": "construction_qc_only_not_human_validation",
+  "records": 30,
+  "unique_samples": 25,
+  "atoms": 161,
+  "decisions": {
+    "reject": 20,
+    "revise": 10
+  },
+  "issues": {
+    "rubric": 11,
+    "sample_invalid": 19
+  },
+  "usage_levels": {
+    "A": 104,
+    "B": 14,
+    "C": 43
+  },
+  "contradictions": {
+    "both": 1,
+    "constraint_violation": 32,
+    "no": 128
+  },
+  "gold_quality": {
+    "invalid": 89,
+    "revise": 6,
+    "valid": 66
+  },
+  "source_answer_counts": {
+    "OpenMed/MedDialog": 16,
+    "lavita/ChatDoctor-HealthCareMagic-100k": 14
+  },
+  "source_decisions": {
+    "OpenMed/MedDialog": {
+      "reject": 7,
+      "revise": 9
+    },
+    "lavita/ChatDoctor-HealthCareMagic-100k": {
+      "reject": 13,
+      "revise": 1
+    }
+  },
+  "source_gold_quality": {
+    "OpenMed/MedDialog": {
+      "invalid": 33,
+      "revise": 6,
+      "valid": 42
+    },
+    "lavita/ChatDoctor-HealthCareMagic-100k": {
+      "invalid": 56,
+      "valid": 24
+    }
+  },
+  "condition_decisions": {
+    "full_memory": {
+      "reject": 14,
+      "revise": 3
+    },
+    "no_memory": {
+      "reject": 6,
+      "revise": 7
+    }
+  },
+  "panel_decisions": {
+    "diagnostic": {
+      "reject": 10,
+      "revise": 3
+    },
+    "representative": {
+      "reject": 10,
+      "revise": 7
+    }
+  },
+  "review_stratum_decisions": {
+    "diagnostic": {
+      "reject": 8,
+      "revise": 2
+    },
+    "random": {
+      "reject": 12,
+      "revise": 8
+    }
+  },
+  "judge_exact_agreement_with_expert": {
+    "all_atoms": {
+      "denominator": 161,
+      "primary": 0.689441,
+      "secondary": 0.596273
+    },
+    "valid_gold_atoms": {
+      "denominator": 66,
+      "primary": 0.939394,
+      "secondary": 0.848485
+    }
+  },
+  "confusion_matrices": {
+    "gold_rows_expert_columns_all_atoms": {
+      "A": {
+        "A": 27,
+        "B": 3,
+        "C": 19
+      },
+      "B": {
+        "A": 34,
+        "B": 7,
+        "C": 4
+      },
+      "C": {
+        "A": 43,
+        "B": 4,
+        "C": 20
+      }
+    },
+    "gold_rows_expert_columns_valid_gold_only": {
+      "A": {
+        "A": 10,
+        "B": 0,
+        "C": 0
+      },
+      "B": {
+        "A": 19,
+        "B": 7,
+        "C": 0
+      },
+      "C": {
+        "A": 12,
+        "B": 2,
+        "C": 16
+      }
+    },
+    "expert_rows_primary_columns": {
+      "A": {
+        "A": 65,
+        "B": 19,
+        "C": 20
+      },
+      "B": {
+        "A": 0,
+        "B": 14,
+        "C": 0
+      },
+      "C": {
+        "A": 7,
+        "B": 4,
+        "C": 32
+      }
+    },
+    "expert_rows_secondary_columns": {
+      "A": {
+        "A": 58,
+        "B": 20,
+        "C": 26
+      },
+      "B": {
+        "A": 2,
+        "B": 10,
+        "C": 2
+      },
+      "C": {
+        "A": 9,
+        "B": 6,
+        "C": 28
+      }
+    }
+  },
+  "finding_set_counts": {
+    "hard_a_authority_or_corrective_use": 25,
+    "no_memory_attribution_error": 10,
+    "non_atomic_or_overlapping_atoms": 8,
+    "non_observable_positive_gold": 5,
+    "query_memory_leakage": 20
+  },
+  "sampling_caveat": "The 30-answer pack is stratified for calibration and disagreement diagnosis; its defect rates are not prevalence estimates for the 15,526-sample release.",
+  "inputs": {
+    "evaluation/releases/memcalib-ordered-v2-500/calibration-human-review-30.jsonl": {
+      "sha256": "f8aba952f68fe2e18a007e4df4b97ca5ac4b1f66dda6a25ba1b8d9303a9045f6"
+    },
+    "evaluation/releases/memcalib-ordered-v2-500/calibration-expert-review-30.json": {
+      "sha256": "135518cd78e479142985f91d6ec7eefa60bc99fd0149e2319c4d2edb95dd4cf6"
+    },
+    "evaluation/releases/memcalib-ordered-v2-500/calibration-human-review-30.html": {
+      "sha256": "1466ec074f25b77d69fd7b2ab286e0dbe5317b9743f03a27ddf92d2404dcec12"
+    },
+    "evaluation/releases/memcalib-v0.1-500/hidden-evaluation.jsonl": {
+      "sha256": "7a91f0c97db6476b1e97d9fc5a6d3e219d24ac6a6c7666419e1618f0f03b4522"
+    }
+  },
+  "artifacts": {
+    "evaluation/releases/memcalib-ordered-v2-500/calibration-expert-review-30.html": {
+      "sha256": "8a4959aa915050c27a0979b2d2ea63b8f0da7bf34d34f2e6d9b7e3471b2ff364"
+    }
+  }
+}
