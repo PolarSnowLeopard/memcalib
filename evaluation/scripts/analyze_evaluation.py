@@ -28,6 +28,7 @@ MODEL_DISPLAY_NAMES = {
     "qwen35-122b-a10b": "Qwen3.5-122B-A10B",
     "qwen-flash": "Qwen3.6-Flash",
     "qwen-max": "Qwen3.7-Max",
+    "qwen3-8b": "Qwen3-8B",
 }
 
 

@@ -1,10 +1,10 @@
 # MemCalib evaluation
 
-本目录保存 MemCalib 的锁定评测输入、配置、聚合指标、审查页面和可复现分析工具。默认入口是最终多领域 v2 数据上的 500 条六模型配对诊断；v0.1、早期 ordered-usage 校准和 200 条多领域试验均作为历史归档保留。
+本目录保存 MemCalib 的锁定评测输入、配置、聚合指标、审查页面和可复现分析工具。默认入口是最终多领域 v2 数据上的 500 条七模型配对诊断；v0.1、早期 ordered-usage 校准和 200 条多领域试验均作为历史归档保留。
 
 ## 当前 v2 诊断
 
-从最终 15,000 条发布数据中按正式领域比例和来源分布确定性抽取 500 条：health 250、general 125、coding 125。六个回答模型分别运行 full-memory 和 no-memory 条件，共形成 6,000 条配对回答。主 Judge 覆盖全部回答，复核 Judge 按模型分层复核 300 条。
+从最终 15,000 条发布数据中按正式领域比例和来源分布确定性抽取 500 条：health 250、general 125、coding 125。七个回答模型分别运行 full-memory 和 no-memory 条件，共形成 7,000 条配对回答。主 Judge 覆盖全部回答，复核 Judge 按模型分层复核 350 条。
 
 回答模型只接收当前问题和非原子 `memory_blocks`。Judge 使用隐藏原子、A/B/C 规范使用等级、`memory_action` 和逐原子 rubric。A/B/C 表示影响强度；`ignore`、`apply`、`correct` 表示处置方向。错误、过时或不安全但相关的记忆可以是 B/C + `correct`，A 始终要求 `ignore`。
 
@@ -15,6 +15,8 @@
 - H：抵抗 OPB 与 UPB 能力的调和平均，越高越好；
 - full/no-memory 配对差异：用于诊断记忆引入的过度使用和记忆缓解的使用不足。
 
+**Full-memory 主结果**
+
 | 模型 | OPB↓ | UPB↓ | H↑ |
 |---|---:|---:|---:|
 | Kimi-K2.6 | 0.317 | 0.207 | 0.734 |
@@ -23,18 +25,33 @@
 | Qwen3.6-Flash | 0.392 | 0.159 | 0.706 |
 | DeepSeek-V4-Flash | 0.387 | 0.182 | 0.701 |
 | Qwen3.5-35B-A3B | 0.404 | 0.154 | 0.699 |
+| Qwen3-8B | 0.305 | 0.447 | 0.616 |
 
-复核的整体 exact agreement 为 0.936，Cohen kappa 为 0.915；有序使用等级 exact agreement 为 0.898，线性加权 kappa 为 0.868。该 500 条实验用于内部诊断和流程验证，不应表述为 15,000 条全量公开排行榜。
+**No-memory 对照结果**
+
+| 模型 | OPB↓ | UPB↓ | H↑ |
+|---|---:|---:|---:|
+| Kimi-K2.6 | 0.020 | 0.926 | 0.137 |
+| Qwen3.7-Max | 0.030 | 0.912 | 0.162 |
+| DeepSeek-V4-Pro | 0.024 | 0.913 | 0.159 |
+| Qwen3.6-Flash | 0.026 | 0.926 | 0.138 |
+| DeepSeek-V4-Flash | 0.024 | 0.913 | 0.160 |
+| Qwen3.5-35B-A3B | 0.024 | 0.931 | 0.129 |
+| Qwen3-8B | 0.012 | 0.947 | 0.101 |
+
+No-memory 条件是同一批问题不提供记忆块时的反事实基线。其低 OPB 与高 UPB 表明模型不会误用不存在的记忆，但也无法恢复 B/C 原子提供的信息。Qwen3-8B 在该条件下的 A/B/C 正确率分别为 0.980/0.048/0.055，分领域 MemCalib 分数为 health 0.338、general 0.397、coding 0.397。
+
+复核的整体 exact agreement 为 0.939，Cohen kappa 为 0.918；有序使用等级 exact agreement 为 0.896，线性加权 kappa 为 0.863。该 500 条实验用于内部诊断和流程验证，不应表述为 15,000 条全量公开排行榜。
 
 ## Judge 配置与跨模型稳定性
 
-- 主 Judge：`qwen3.7-plus`，覆盖全部 6,000 条回答；
-- 复核 Judge `deepseek-v4-pro`：200 条分层回答、761 个原子；
+- 主 Judge：`qwen3.7-plus`，覆盖全部 7,000 条回答；
+- 复核 Judge `deepseek-v4-pro`：250 条分层回答、950 个原子；
 - 复核 Judge `kimi-k2.6`：100 条分层回答、372 个原子；
 - 生成参数：temperature=0、thinking=false；
 - 分层维度：回答模型、full/no-memory 条件、来源、主题和原子数。
 
-在 1,133 个双重判定原子上，总体 exact agreement 为 0.936、Cohen kappa 为 0.915；有序 A/B/C exact agreement 为 0.898、线性加权 kappa 为 0.868。按复核模型分别计算，DeepSeek 的 kappa 为 0.926，Kimi 的 kappa 为 0.893。因此当前稳定性不是同一模型的重复自评，而是 Qwen 主 Judge 与两个不同模型家族之间的一致性；它仍不能替代盲法人工专家标注。
+在 1,322 个双重判定原子上，总体 exact agreement 为 0.939、Cohen kappa 为 0.918；有序 A/B/C exact agreement 为 0.896、线性加权 kappa 为 0.863。按复核模型分别计算，DeepSeek 的 kappa 为 0.928，Kimi 的 kappa 为 0.893。因此当前稳定性不是同一模型的重复自评，而是 Qwen 主 Judge 与两个不同模型家族之间的一致性；它仍不能替代盲法人工专家标注。
 
 ## 中间结果与审计保留
 
@@ -53,10 +70,11 @@
 
 ## 当前结果入口
 
-- [`memcalib-v2-multidomain-500-six-models/report.html`](releases/memcalib-v2-multidomain-500-six-models/report.html)：六模型可视化报告；
-- [`memcalib-v2-multidomain-500-six-models/metrics.json`](releases/memcalib-v2-multidomain-500-six-models/metrics.json)：机器可读指标、混淆矩阵、置信区间和分层结果；
+- [`memcalib-v2-multidomain-500-seven-models/report.html`](releases/memcalib-v2-multidomain-500-seven-models/report.html)：七模型 full/no-memory 可视化报告；
+- [`memcalib-v2-multidomain-500-seven-models/metrics.json`](releases/memcalib-v2-multidomain-500-seven-models/metrics.json)：七模型机器可读指标、混淆矩阵、配对差异和分层结果；
 - [`memcalib-v2-multidomain-500-qwen35/README.md`](releases/memcalib-v2-multidomain-500-qwen35/README.md)：Qwen3.5-35B-A3B 增量运行、完整性与审计说明；
 - [`memcalib-v2-multidomain-500-qwen35/`](releases/memcalib-v2-multidomain-500-qwen35/)：该模型的锁定输入映射、指标和 manifest。
+- [`memcalib-v2-multidomain-500-qwen3-8b/`](releases/memcalib-v2-multidomain-500-qwen3-8b/)：Qwen3-8B 的锁定 manifest、聚合指标和报告。
 
 发布目录只保存核对聚合结果所需的锁定输入映射、manifest、指标和报告；凭据不写入配置、脚本或清单。
 
@@ -80,4 +98,4 @@ PYTHONPATH=. "$PY" -m unittest discover -s tests/evalbench -p 'test_*.py'
 - `memcalib-ordered-v2.1-multidomain-pilot-200/`：100 general + 100 coding 的跨领域试验；
 - `memcalib-v0.1-500/`：最早 500 条五模型验证。
 
-这些归档的样本、数据版本和评测口径与最终 v2 不同。论文引用时必须同时报告数据版本、样本 manifest、评测协议版本和模型快照，不能将历史结果与当前六模型结果混为同一排行榜。
+这些归档的样本、数据版本和评测口径与最终 v2 不同。论文引用时必须同时报告数据版本、样本 manifest、评测协议版本和模型快照，不能将历史结果与当前七模型结果混为同一排行榜。

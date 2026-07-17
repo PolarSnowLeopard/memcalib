@@ -1,0 +1,55 @@
+{
+  "schema_version": "memcalib-answer-requests-v1",
+  "samples": 500,
+  "formal_requests": 1000,
+  "smoke_requests": 4,
+  "models": [
+    {
+      "key": "qwen3-8b",
+      "model": "qwen3-8b"
+    }
+  ],
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "generation": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "enable_thinking": false
+  },
+  "artifacts": {
+    "qwen3-8b/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "533830e0499abd603f55a244afced6e01e5fa0ba8c4861b438cc47b8c8d65f7a",
+      "model": "qwen3-8b",
+      "condition": "full_memory"
+    },
+    "qwen3-8b/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "40447810ba22fbf6dc66e84793f2c4f66d7277ac277b290bcb2bf275b934644f",
+      "model": "qwen3-8b",
+      "condition": "no_memory"
+    },
+    "qwen3-8b/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "496f7f38c356347580c7b7341329b3a168432e59d052153ed877217bb5a9531f",
+      "model": "qwen3-8b",
+      "condition": "smoke"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/configs/memcalib-v2-multidomain-500-qwen3-8b.json",
+      "sha256": "c7eaa186f3fe6e09556cc572f5fdd8953e2dd5e3d4b95302760825c0c1a708b8"
+    },
+    "samples": {
+      "path": "evaluation/releases/memcalib-v2-multidomain-500/model-facing.jsonl",
+      "sha256": "b5323a8d6ee8a9de4b23776e0315e279caa6e106da050850abcf6bd9ef6de773"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/answer-system.txt",
+      "sha256": "f52011f3a95e3be3a5692a128911c6eb3792c9aa4639af603613f859e516311f"
+    }
+  }
+}
