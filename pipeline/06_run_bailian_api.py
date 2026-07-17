@@ -52,6 +52,46 @@ class RateLimiter:
             self.next_time = max(now, self.next_time) + self.interval
 
 
+class ApiKeySelector:
+    def __init__(self, preferred: str, fallback: str = "") -> None:
+        if not preferred:
+            raise ValueError("Preferred API key is required")
+        self._preferred = preferred
+        self._fallback = fallback if fallback and fallback != preferred else ""
+        self._fallback_active = False
+        self._lock = threading.Lock()
+
+    @property
+    def fallback_configured(self) -> bool:
+        return bool(self._fallback)
+
+    @property
+    def fallback_activated(self) -> bool:
+        with self._lock:
+            return self._fallback_active
+
+    def current(self) -> tuple[str, str]:
+        with self._lock:
+            if self._fallback_active:
+                return self._fallback, "fallback"
+            return self._preferred, "preferred"
+
+    def activate_fallback(self) -> bool:
+        with self._lock:
+            if not self._fallback:
+                return False
+            changed = not self._fallback_active
+            self._fallback_active = True
+            return changed
+
+
+def is_model_access_denied(error: str) -> bool:
+    normalized = error.lower()
+    return "model.accessdenied" in normalized or (
+        "http" in normalized and "403" in normalized and "model access denied" in normalized
+    )
+
+
 def validate_extra_body(value: dict[str, Any]) -> dict[str, Any]:
     reserved = sorted(RESERVED_EXTRA_BODY_FIELDS.intersection(value))
     if reserved:
@@ -457,12 +497,25 @@ def ensure_not_truncated(response: dict[str, Any]) -> None:
             raise LengthFinishError("finish_reason=length")
 
 
-def run_one(row: dict[str, Any], args: argparse.Namespace, api_key: str, limiter: RateLimiter) -> dict[str, Any]:
+def run_one(
+    row: dict[str, Any],
+    args: argparse.Namespace,
+    api_key_selector: ApiKeySelector | str,
+    limiter: RateLimiter,
+) -> dict[str, Any]:
     rid = request_id(row)
     fingerprint = request_fingerprint(row)
     messages = parse_messages(row)
+    selector = (
+        api_key_selector
+        if isinstance(api_key_selector, ApiKeySelector)
+        else ApiKeySelector(api_key_selector)
+    )
     last_error = ""
-    for attempt in range(args.max_retries + 1):
+    credential_role = "preferred"
+    attempt = 0
+    while attempt <= args.max_retries:
+        api_key, credential_role = selector.current()
         try:
             limiter.wait()
             call_args = {
@@ -490,6 +543,7 @@ def run_one(row: dict[str, Any], args: argparse.Namespace, api_key: str, limiter
                 "input_fingerprint": fingerprint,
                 "response": extract_content(response),
                 "raw_response": response,
+                "credential_role": credential_role,
                 "user_defined_params": row.get("user_defined_params") or row.get("passParams") or row.get("params") or {},
             }
         except urllib.error.HTTPError as exc:
@@ -505,15 +559,24 @@ def run_one(row: dict[str, Any], args: argparse.Namespace, api_key: str, limiter
         except ProviderCallError as exc:
             last_error = str(exc)
             retryable = exc.retryable
+        if (
+            credential_role == "preferred"
+            and selector.fallback_configured
+            and is_model_access_denied(last_error)
+        ):
+            selector.activate_fallback()
+            continue
         if attempt >= args.max_retries or not retryable:
             break
         sleep_s = min(args.retry_max_sleep, args.retry_base_sleep * (2**attempt))
         time.sleep(sleep_s)
+        attempt += 1
     return {
         "ok": False,
         "request_id": rid,
         "input_fingerprint": fingerprint,
         "error": last_error,
+        "credential_role": credential_role,
         "user_defined_params": row.get("user_defined_params") or row.get("passParams") or row.get("params") or {},
         "prompt": row.get("prompt"),
     }
@@ -561,6 +624,11 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--failed", type=Path)
     parser.add_argument("--api-key-env", default="")
+    parser.add_argument(
+        "--fallback-api-key-env",
+        default="",
+        help="Optional fallback key environment variable, used only after Model.AccessDenied.",
+    )
     parser.add_argument("--base-url", default="")
     parser.add_argument("--model", default="")
     parser.add_argument("--temperature", type=float, default=None)
@@ -603,6 +671,16 @@ def main() -> None:
     api_key = next((os.environ.get(name) for name in env_names if os.environ.get(name)), "")
     if not api_key:
         raise SystemExit(f"Missing API key. Set one of: {', '.join(env_names)}")
+    fallback_env_names = (
+        [args.fallback_api_key_env]
+        if args.fallback_api_key_env
+        else ["BAILIAN_API_KEY_FALLBACK", "DASHSCOPE_API_KEY_FALLBACK"]
+    )
+    fallback_api_key = next(
+        (os.environ.get(name) for name in fallback_env_names if os.environ.get(name)),
+        "",
+    )
+    api_key_selector = ApiKeySelector(api_key, fallback_api_key)
 
     input_rows = list(iter_jsonl(args.input))
     expected_fingerprints = {request_id(row): request_fingerprint(row) for row in input_rows}
@@ -634,7 +712,7 @@ def main() -> None:
     fail_count = 0
     started = time.time()
     with ThreadPoolExecutor(max_workers=max(1, args.max_workers)) as pool:
-        futures = [pool.submit(run_one, row, args, api_key, limiter) for row in rows]
+        futures = [pool.submit(run_one, row, args, api_key_selector, limiter) for row in rows]
         for idx, fut in enumerate(as_completed(futures), start=1):
             result = fut.result()
             if result.get("ok"):
@@ -658,7 +736,27 @@ def main() -> None:
                     flush=True,
                 )
 
-    print(json.dumps({"input": str(args.input), "output": str(args.output), "failed": str(args.failed), "invalid_output": str(args.invalid_output) if args.invalid_output else None, "submitted": len(rows), "ok": ok_count, "failed_count": fail_count, "resume_done": len(done), "repair": repair_report}, ensure_ascii=False, indent=2))
+    print(
+        json.dumps(
+            {
+                "input": str(args.input),
+                "output": str(args.output),
+                "failed": str(args.failed),
+                "invalid_output": str(args.invalid_output) if args.invalid_output else None,
+                "submitted": len(rows),
+                "ok": ok_count,
+                "failed_count": fail_count,
+                "resume_done": len(done),
+                "repair": repair_report,
+                "credential_policy": {
+                    "fallback_configured": api_key_selector.fallback_configured,
+                    "fallback_activated": api_key_selector.fallback_activated,
+                },
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":

@@ -167,6 +167,81 @@ class BailianRunnerProgressTest(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual(2, calls)
 
+    def test_run_one_falls_back_only_for_model_access_denied(self) -> None:
+        row = {
+            "request_id": "r1",
+            "prompt": [{"role": "user", "content": "hello"}],
+            "user_defined_params": {"id": "raw1"},
+        }
+        args = SimpleNamespace(
+            base_url="https://example.invalid",
+            model="test-model",
+            temperature=0.0,
+            max_tokens=32,
+            timeout=1,
+            max_retries=0,
+            retry_base_sleep=0.0,
+            retry_max_sleep=0.0,
+        )
+        calls = []
+
+        def deny_preferred(**kwargs):
+            calls.append(kwargs["api_key"])
+            if kwargs["api_key"] == "fast-key":
+                raise self.runner.ProviderCallError(
+                    'HTTPError 403: {"code":"Model.AccessDenied","message":"Model access denied."}',
+                    retryable=False,
+                )
+            return {"choices": [{"finish_reason": "stop", "message": {"content": "{}"}}]}
+
+        original_call = self.runner.call_chat_completions
+        self.runner.call_chat_completions = deny_preferred
+        selector = self.runner.ApiKeySelector("fast-key", "broad-key")
+        try:
+            result = self.runner.run_one(row, args, selector, self.runner.RateLimiter(0))
+        finally:
+            self.runner.call_chat_completions = original_call
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(["fast-key", "broad-key"], calls)
+        self.assertEqual("fallback", result["credential_role"])
+        self.assertTrue(selector.fallback_activated)
+
+    def test_run_one_does_not_fall_back_for_rate_limit(self) -> None:
+        row = {
+            "request_id": "r1",
+            "prompt": [{"role": "user", "content": "hello"}],
+            "user_defined_params": {"id": "raw1"},
+        }
+        args = SimpleNamespace(
+            base_url="https://example.invalid",
+            model="test-model",
+            temperature=0.0,
+            max_tokens=32,
+            timeout=1,
+            max_retries=0,
+            retry_base_sleep=0.0,
+            retry_max_sleep=0.0,
+        )
+        calls = []
+
+        def rate_limited(**kwargs):
+            calls.append(kwargs["api_key"])
+            raise self.runner.ProviderCallError("HTTPError 429: rate limited", retryable=True)
+
+        original_call = self.runner.call_chat_completions
+        self.runner.call_chat_completions = rate_limited
+        selector = self.runner.ApiKeySelector("fast-key", "broad-key")
+        try:
+            result = self.runner.run_one(row, args, selector, self.runner.RateLimiter(0))
+        finally:
+            self.runner.call_chat_completions = original_call
+
+        self.assertFalse(result["ok"])
+        self.assertEqual(["fast-key"], calls)
+        self.assertEqual("preferred", result["credential_role"])
+        self.assertFalse(selector.fallback_activated)
+
     def test_hard_timeout_is_reported_as_retryable(self) -> None:
         original_run = self.runner.subprocess.run
 

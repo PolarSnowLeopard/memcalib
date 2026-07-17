@@ -81,7 +81,8 @@ $PY pipeline/17_select_crk2_candidate_pool.py \
 The generic runner supports concurrency, RPM limits, retries, timeouts, live progress, fingerprints, and safe resume. Credentials are read only from environment variables.
 
 ```bash
-DASHSCOPE_API_KEY="$(cat ~/.config/crk2/dashscope_api_key)" \
+DASHSCOPE_API_KEY="$(cat ~/.config/crk2/dashscope_fast_api_key)" \
+DASHSCOPE_API_KEY_FALLBACK="$(cat ~/.config/crk2/dashscope_broad_api_key)" \
 $PY pipeline/06_run_bailian_api.py \
   --input pipeline/data/requests.jsonl \
   --output pipeline/data/results.jsonl \
@@ -91,6 +92,13 @@ $PY pipeline/06_run_bailian_api.py \
   --timeout 300 \
   --progress-every 1
 ```
+
+`DASHSCOPE_API_KEY` is always preferred. If the provider explicitly returns
+`Model.AccessDenied` for that key and `DASHSCOPE_API_KEY_FALLBACK` is set, the
+runner switches the whole invocation to the fallback key. Rate limits,
+timeouts, connection failures, content inspection failures, and other errors
+do not trigger credential switching. The output records only the role
+`preferred` or `fallback`; it never writes either key.
 
 Do not commit credentials or API outputs.
 
