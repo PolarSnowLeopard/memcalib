@@ -49,10 +49,15 @@ defines the observable expected behavior.
   review interface.
 - `memcalib-v2-dataset-construction-methodology.html`: end-to-end
   construction and quality-control methodology.
-- `memcalib-v2-five-model-evaluation.html`: 500-record, five-model
+- `memcalib-v2-six-model-evaluation.html`: 500-record, six-model paired
   diagnostic evaluation report.
-- `memcalib-v2-five-model-metrics.json`: machine-readable evaluation
+- `memcalib-v2-six-model-metrics.json`: machine-readable evaluation
   metrics.
+
+The handoff archive also retains the superseded five-model snapshot for
+comparison. The six-model files are authoritative: they add Qwen3.5-35B-A3B
+without changing the locked 500-record sample or the five previously evaluated
+model outputs.
 
 ## Basic verification
 

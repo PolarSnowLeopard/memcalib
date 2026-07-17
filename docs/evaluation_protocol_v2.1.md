@@ -14,6 +14,8 @@
 
 规范标签记为 $u_i^*$。当 $\hat{u}_i > u_i^*$ 时，该原子产生过度使用；当 $\hat{u}_i < u_i^*$ 时，该原子产生使用不足。方向性 verdict 由代码根据二者的有序关系确定，Judge 不直接生成 over-use 或 under-use。
 
+规范使用等级与内容处置方向相互独立。`memory_action` 取 `ignore`、`apply` 或 `correct`：A 只允许 `ignore`；B/C 可要求 `apply`，也可要求对错误、过时或不安全内容进行 `correct`。因此 B/C 不表示记忆必然为真，纠正一条记忆也不表示回答“没有使用”它。Judge 应根据纠正对回答的实际影响范围输出 B 或 C。
+
 ## 2. 辅助冲突标记
 
 v2.1 将原有的单一 contradiction 字段拆分为两个独立布尔变量：

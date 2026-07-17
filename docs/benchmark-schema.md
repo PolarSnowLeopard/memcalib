@@ -1,116 +1,107 @@
-# MemCalib Benchmark Schema
+# MemCalib v2 Benchmark Schema
 
 ## Evaluation Boundary
 
-MemCalib separates what the answer model sees from what the evaluator sees.
+MemCalib strictly separates model-facing input from hidden supervision.
 
 ### Model-facing input
 
 - `question`
 - ordered `memory_blocks[].memory_text`
 
-### Hidden evaluation data
+### Hidden evaluation and training supervision
 
-- `memories[]` atomic annotations
-- A/B/C labels
-- construction targets
-- usage rubrics
-- source evidence and construction audit
+- atomic `memories[]`;
+- normative A/B/C use strength (`u_star`);
+- `memory_action` (`ignore`, `apply`, or `correct`);
+- counterfactual contracts and observable usage rubrics;
+- source evidence, construction QC, independent QC, and release audit.
 
-An evaluation implementation must not expose hidden atomic labels or rubrics to the answer model.
+An answer-model evaluation must not expose hidden atoms, labels, actions, or rubrics to the answer model.
 
 ## Top-Level Record
 
-| Field | Type | Role |
+| Field group | Representative fields | Role |
 |---|---|---|
-| `id` | string | stable sample ID |
-| `domain` | string | current source-domain marker |
-| `source_dataset` | string | upstream dataset identifier |
-| `source_record_id` | string | upstream/normalized lineage |
-| `source_topic` | string | stratification topic |
-| `question` | string | decontextualized current query |
-| `memory_blocks` | array | model-facing realistic memories |
-| `memories` | array | hidden atomic annotations |
-| `composition` | object | sample-level label structure |
-| `qc` | object | construction quality gates |
-| `construction_audit` | object | prompt, source, and generation lineage |
-| `raw_query` | string | retained source question for audit |
-| `doctor_answer` | string | retained source answer for audit |
+| identity | `id`, `schema_version`, `domain` | stable record identity and version |
+| source lineage | `source_dataset`, `source_id`, `source_index`, `source_split`, `source_topic`, `source_license`, `source_metadata` | upstream provenance and attribution |
+| model input | `question`, `memory_blocks` | visible benchmark input |
+| hidden supervision | `memories`, `atom_pair_relations` | atomic targets and pairwise relations |
+| source audit | `raw_query`, `source_answer`, `source_context`, `raw_selection` | retained construction evidence |
+| source admission | `semantic_qc`, `semantic_admission` | grounded source-QA decision |
+| benchmark QC | `qc`, `deterministic_qc`, `independent_qc` | construction and semantic quality gates |
+| release | `accepted`, `release_admission`, `notes` | final inclusion state and review notes |
 
 ## Parent Memory Block
 
-A parent memory block represents the unit stored or returned by a realistic memory system. It can contain multiple closely related facts.
-
-Important fields:
-
-- `parent_memory_id`: stable parent identifier;
-- `memory_text`: third-person canonical memory shown to the answer model;
-- `raw_evidence`: retained source evidence;
-- `source`: source class for the parent content;
-- `atom_count`: number of hidden atoms;
-- `parent_label_mode`: `homogeneous` or `mixed`;
-- `parent_label_set`: sorted labels represented by its atoms.
-
-Mixed parents are intentional diagnostic cases. They test whether a model can use one fact from a block while suppressing or bounding another related fact.
-
-## Atomic Memory
-
-Each entry in `memories` corresponds to one independently judgeable proposition.
+A parent block is the realistic unit returned by a memory system. It can contain multiple atomic propositions and is intentionally not reduced to one label.
 
 | Field | Meaning |
 |---|---|
-| `atom_id` | unique atom identifier |
-| `parent_memory_id` | link to model-facing block |
-| `atom_index`, `atom_count` | location inside parent |
-| `text` | canonical atomic memory |
-| `evidence` | retained supporting evidence |
-| `atomic_predicate` | normalized proposition |
-| `derivation` | explicit, inferred, or synthetic |
-| `source` | `from_question`, `from_answer`, or `synthetic_hard_a` |
-| `memory_type` | fixed memory category |
-| `u_star` | A, B, or C use label |
-| `hard_a_family` | synthetic negative family where applicable |
-| `construction_target` | intended answer-level role |
-| `usage_rubric` | observable judge contract |
+| `parent_memory_id` | stable parent identifier |
+| `memory_text` | canonical text shown to the answer model |
+| `raw_evidence` | retained source evidence |
+| `source` | parent content source class |
+| `atom_ids` | hidden atoms linked to this block |
+| `atomization_notes` | construction/audit note |
 
-## A/B/C Semantics
+Mixed parent blocks test whether a model can use one proposition while suppressing, bounding, or correcting another proposition in the same retrieved unit.
 
-### A: irrelevant or forbidden
+## Atomic Memory
 
-The response should not reveal an unsupported influence from the atom. Correct behavior normally leaves no observable footprint. Typical failures include importing the memory as a fact, inventing a restriction, expanding a risk, or allowing an unrelated preference to shape the answer.
+Each `memories[]` entry is one independently judgeable proposition.
 
-### B: supporting and bounded
+| Field group | Representative fields | Meaning |
+|---|---|---|
+| identity/linkage | `memory_id`, `atom_id`, `parent_memory_id`, `atom_index`, `atom_count` | stable identity and parent position |
+| proposition | `text`, `atomic_predicate`, `evidence`, `derivation`, `source` | normalized content and grounding |
+| taxonomy | `memory_type`, `subtype`, `hard_a_family`, `query_relation` | diagnostic categorization |
+| normative target | `u_star`, `memory_action`, `label_reason` | expected influence strength and direction |
+| answer contract | `construction_target`, `counterfactual_contract`, `usage_rubric` | observable expected behavior |
 
-The atom may improve relevance or personalization, but it must remain local and subordinate to the current task. Typical failures are overexpansion, converting support into a hard constraint, or allowing the memory to dominate the answer.
+## Label And Action Semantics
 
-### C: controlling or required
+| Label | Normative influence |
+|---|---|
+| A | no observable atom-specific influence |
+| B | bounded, local supporting influence |
+| C | controlling or materially constraining influence |
 
-The atom must alter the answer's core conclusion, recommendation, or constraint. Ignoring it makes the response incomplete, unsafe, or inapplicable.
+The label does not encode truthfulness. Direction is encoded separately:
 
-## Usage Rubric
+- `ignore`: leave no atom-specific footprint;
+- `apply`: use the memory within its valid scope;
+- `correct`: explicitly correct relevant wrong, stale, or unsafe content.
 
-Common rubric fields include:
+Allowed label-action pairs are:
 
-- `expected_answer_behavior`
-- `memory_usage_weight`
-- `validity_scope`
-- `correct_use`
-- `under_use`
-- `over_use`
-- `forbidden_memory_role`
-- `failure_direction`
-- `observable_checks`
+```text
+A -> ignore
+B -> apply | correct
+C -> apply | correct
+```
 
-Label-specific fields add controlling factors, allowed maximum footprint, contamination signals, or missing-memory failure descriptions. Rubrics are intended to support structured response evaluation; they are not gold model responses.
+For a `correct` atom, the actual-use Judge still assigns B or C according to how strongly the correction affects the answer.
+
+## Quality-Control Layers
+
+- `semantic_qc` and `semantic_admission` establish that the upstream source unit is coherent and constructible.
+- `qc` contains record-level atomicity, evidence grounding, label-action consistency, query isolation, observability, rubric objectivity, and pairwise-independence gates.
+- `deterministic_qc` records the final machine-checkable construction decision and lexical-overlap audit.
+- `independent_qc` records atom checks, pair checks, issues, reasons, and the independent semantic decision.
+- `release_admission` records strict/review eligibility and the exact domain target.
 
 ## Structural Invariants
 
-- sample IDs are unique;
-- every atom links to one parent in the same record;
-- `atom_count` agrees with the number of linked atoms;
-- parent label sets equal the labels of linked atoms;
-- A/B/C labels map to `none`, `supporting`, and `controlling` rubric weights;
-- fixed source and memory-type enums are respected;
-- generated benchmark fields are English in v0.1;
-- raw evidence may retain original source wording.
+- record IDs and source IDs are unique in the final release;
+- every atom links to exactly one block in the same record;
+- block `atom_ids`, atom positions, and counts are mutually consistent;
+- evidence is grounded according to the locked source-substring policy;
+- A is always paired with `ignore`; B/C are paired with `apply` or `correct`;
+- deterministic QC must pass for every released record;
+- release admission is either `strict_pass` or explicitly allowed non-blocking `review`;
+- reject and invalid states are excluded;
+- generated benchmark fields are English, while retained raw evidence may preserve source wording;
+- the final release contains exactly 15,000 records in the locked 7,500/3,750/3,750 domain allocation.
 
+Aggregate counts and content hashes are recorded in the release stats, manifest, and package manifest under `pipeline/data/multidomain/full-v2/`.

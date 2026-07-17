@@ -1,78 +1,128 @@
-# MemCalib v0.1 Construction Pipeline
+# MemCalib v2 Construction Pipeline
 
-## Overview
+## End-To-End Overview
 
 ```text
-public medical QA sources
-  -> normalization
-  -> deterministic eligibility and quality scoring
+8 public-source snapshots
+  -> rights, attribution, schema, language, and quality screening
   -> exact and near deduplication
-  -> source/topic/complexity stratified candidate pool
-  -> grounded semantic source-QA gate
-  -> strict-pass admission
-  -> English memory-block and atomic-rubric construction
-  -> schema and benchmark QC
-  -> locked MemCalib v0.1 release
+  -> domain/source/topic/difficulty stratified sampling
+  -> grounded semantic source-QA admission
+  -> strict-only source admission and attribution completion
+  -> 18,000 over-generated memory benchmark records
+  -> deterministic validation and targeted repair loops
+  -> independent semantic QC and failure-mode diagnosis
+  -> targeted semantic/local repair with full audit retention
+  -> strict-first exact-quota selection
+  -> 15,000-record locked release
 ```
 
-The pipeline distinguishes source admission from benchmark annotation. Deterministic source filtering does not assign A/B/C labels. Labels, atomic decomposition, construction targets, and rubrics are created only after a source record passes semantic QA.
+The pipeline separates source eligibility, benchmark construction, deterministic validation, independent semantic QC, and release selection. A record cannot skip a gate, and a later repair cannot silently overwrite earlier outputs or audit history.
 
-## Stage Map
+## 1. Source Preparation
 
-| Stage | Script | Purpose |
-|---|---|---|
-| Normalize | `pipeline/00_normalize_sources.py` | normalize locally downloaded sources |
-| Raw quality | `pipeline/15_select_crk2_raw_seeds.py` | eligibility, score, dedup, stratification |
-| Candidate pool | `pipeline/17_select_crk2_candidate_pool.py` | balanced 30k source pool |
-| Semantic QA input | `pipeline/18_prepare_source_semantic_qc.py` | fixed six-dimension request construction |
-| Semantic QA postprocess | `pipeline/19_post_source_semantic_qc.py` | evidence validation and decision parsing |
-| Admission | `pipeline/21_select_source_semantic_admission.py` | strict-pass adaptive admission |
-| Benchmark requests | `pipeline/10_prepare_crk2_generation.py` | locked English construction prompts |
-| API execution | `pipeline/06_run_bailian_api.py` | resumable OpenAI-compatible runner |
-| Benchmark postprocess | `pipeline/11_post_crk2_generation.py` | schema, language, and QC validation |
-| Audit | `pipeline/12_build_canonical_audit_artifacts.py` | one-sample-per-page review materials |
-| Statistics | `pipeline/24_analyze_crk2_formal_benchmark.py` | full release analysis |
+Eight upstream datasets cover health, general dialogue, and coding. Records are normalized to a common source unit while preserving dataset, split, source identifier, license metadata, context, question, answer, topic, and available attribution.
 
-Earlier numbered scripts are retained because they document prototype lineage. The formal v0.1 path begins with full normalization and uses stages 15 through 24.
+Deterministic filters remove unusable schemas, unsuitable language/length, severe noise, low-quality units, exact duplicates, and near duplicates. Candidate selection is stratified rather than proportional to raw source volume:
 
-## Fixed Source Selection
+1. allocate capacity across domains and sources;
+2. smooth topic capacity to avoid domination by the largest topics;
+3. target a low/medium/high construction-difficulty mixture;
+4. use deterministic quality-weighted ranking within each stratum.
 
-The source candidate pool contains 15,000 records from each source before semantic QA. Selection is deterministic under seed 42 and stratified by source, topic, and a source-observable construction-complexity proxy.
+This creates a capability-coverage distribution, not a natural user-traffic estimate.
 
-The 30,000-record semantic run produced a resolved set of 21,129 strict passes, 5,219 review records, 3,633 explicit rejects, and 19 residual invalid judgments. Construction admission selected 15,577 strict passes; no review record entered the formal construction run.
+## 2. Grounded Source Admission
 
-## Locked Construction
+The source semantic gate checks whether the question, answer, and retained context are coherent, answerable, sufficiently informative, non-trivial, and supported by quoted evidence. Structural failures are retried only for affected IDs; valid decisions remain frozen.
 
-The formal English construction run uses:
+The general/coding source run processed 34,150 candidates. After targeted structural retries, 33,574 were resolved and 576 remained invalid. Strict capacity was sufficient for the locked admission of 4,750 general and 4,750 coding source units. Stack Exchange candidates additionally required complete author attribution; 67 incomplete candidates were excluded before final admission.
 
-- model: `qwen3.7-max` at the recorded run date;
-- temperature: 0.2;
-- target parent memory count: 3-6;
-- output language: English;
-- 15,577 admitted source records;
-- prompt, config, implementation, request-order, and input hashes stored in the run lock.
+The 9,500 admitted general/coding units were combined with 15,577 previously admitted health units, creating 25,077 construction seeds.
 
-After API and quality retries, 15,569 records were parseable and 15,528 passed final fixed-schema construction QC. The 41 final rejects used memory types outside the fixed enum.
+## 3. Over-Generated Benchmark Construction
 
-## Reproducibility Boundary
+Construction draws 18,000 seeds to leave capacity for downstream rejection:
 
-Deterministic stages can be reproduced from the same source snapshots and configuration. LLM-dependent stages require the recorded prompt and a compatible model snapshot; exact regeneration may still vary if a mutable provider alias is used. The released JSONL and its SHA-256 are therefore the canonical benchmark artifact.
+| Domain | Requests |
+|---|---:|
+| health | 8,500 |
+| general | 4,750 |
+| coding | 4,750 |
 
-Full local intermediates remain excluded from Git. The private release contains the final data, summaries, audit pages, and sufficient provenance manifests to verify lineage without distributing API responses.
+For each seed, the construction contract produces realistic parent memory blocks and hidden atomic propositions. Every atom receives:
 
-## Multi-domain Pilot Extension
+- A/B/C normative influence strength;
+- an independent `ignore`, `apply`, or `correct` action;
+- source-grounded evidence or an explicit synthetic hard-A derivation;
+- a counterfactual behavior contract;
+- an observable usage rubric;
+- pairwise relations needed to detect overlap or dependence.
 
-The v0.2 internal pilot applies the same separation between source admission and benchmark annotation to OpenAssistant OASST1 and Magicoder OSS-Instruct. It adds the following reusable stages:
+The source answer supports construction coherence but is not treated as factual gold and cannot be silently converted into ungrounded memory content.
 
-| Stage | Script | Purpose |
-|---|---|---|
-| Domain normalization | `pipeline/25_normalize_domain_sources.py` | normalize general-dialogue and coding sources while preserving license and source metadata |
-| Semantic retry merge | `pipeline/26_merge_source_semantic_qc.py` | resolve evidence-grounding retries without admitting residual invalid rows |
-| Construction repair | `pipeline/27_prepare_crk2_generation_repair.py` | repair only failed construction records while preserving successful API outputs |
-| Pilot validation | `pipeline/28_validate_multidomain_benchmark.py` | verify row counts, IDs, domains, licenses, schema, rubric completeness, and evidence grounding |
+## 4. Deterministic Validation And Repair
 
-The multi-domain construction prompt keeps the model-facing memory block non-atomic and applies A/B/C labels only to hidden atoms. Real memories must be grounded in source context or the current question. The reference answer is retained for task-coherence validation but is forbidden as a memory source. Every retained `raw_evidence` and atomic `evidence` value must be a contiguous source substring after whitespace normalization. Coding records whose question contains the reference solution at a near-complete level are rejected as trivialized tasks.
+Every constructed record must pass schema, enum, identity, atomicity, evidence-grounding, label-action, query-isolation, observability, rubric-objectivity, and pairwise-independence checks.
 
-The pilot first selected 300 quality-controlled candidates per domain. After semantic-QC retry resolution, general dialogue contained 162 strict passes, 3 review records, and 135 rejects; coding contained 130 strict passes, 9 review records, 160 rejects, and 1 residual invalid record. Adaptive strict-only admission selected 122 records per domain to produce a final 100+100 review set. No review or invalid record entered construction.
+Repair loops operate only on the previous residual set. Accepted records are frozen, request/output fingerprints are checked, and every rejection remains auditable.
 
-The current pilot is an internal quality study rather than a locked benchmark expansion. Its release package records the generated artifacts and their hashes. A future large-scale run should freeze the source snapshots, prompt, model identifier, filter thresholds, and all implementation hashes before API execution.
+| Stage | Submitted | Newly accepted | Cumulative accepted | Residual |
+|---|---:|---:|---:|---:|
+| Initial construction | 18,000 | 6,888 | 6,888 | 11,112 |
+| Targeted repair 1 | 11,112 | 6,038 | 12,926 | 5,074 |
+| Targeted repair 2 | 5,074 | 800 | 13,726 | 4,274 |
+| Targeted repair 3 | 4,274 | 233 | 13,959 | 4,041 |
+| Strict local evidence repair | 4,041 | 1,624 | 15,583 | 2,417 |
+
+The local repair was deliberately narrow: it could repair verbatim evidence grounding and an empty declared source, then had to pass the original validator suite. It could not rewrite semantic targets merely to obtain a pass.
+
+## 5. Independent Semantic QC
+
+Independent QC judges atom correctness, label/action consistency, observability, query leakage, pairwise overlap, and overall release suitability without relying on the construction decision.
+
+The first independent pass exposed a systematic query-leakage failure mode: many otherwise valid atoms restated or entailed the current question. Because the failure was systematic, the pipeline did not relax the standard or admit rejects. It diagnosed representative examples, reconstructed affected semantic content, added qualified reserve records, and repeatedly recomputed the same independent QC contract. Only targeted IDs changed in each iteration.
+
+The final candidate pool contained 16,195 independently classified records:
+
+| Domain | Strict | Review | Reject | Invalid |
+|---|---:|---:|---:|---:|
+| health | 7,491 | 29 | 440 | 59 |
+| general | 3,669 | 91 | 369 | 48 |
+| coding | 3,746 | 19 | 230 | 4 |
+| total | 14,906 | 139 | 1,039 | 111 |
+
+## 6. Release Selection
+
+Release selection is deterministic and domain-constrained:
+
+```text
+for domain in [health, general, coding]:
+    take strict_pass records in locked priority order
+    if strict capacity is insufficient:
+        take only script-defined non-blocking review records
+    never take reject or invalid records
+assert exact domain quotas and global uniqueness
+```
+
+The final 15,000 records contain 14,906 strict passes and 94 non-blocking reviews, with exact quotas of 7,500 health, 3,750 general, and 3,750 coding. All 805 selected Stack Exchange records have complete attribution. The release contains 51,970 parent blocks and 53,318 atoms.
+
+## 7. Reproducibility And Audit Boundary
+
+Deterministic stages reproduce exactly from the same source snapshots, configuration, seed, and implementation. Model-dependent construction/QC may vary under mutable provider aliases, so canonical artifacts are the locked JSONL plus its manifests and hashes.
+
+The release bundle records:
+
+- dataset and compressed-file SHA-256 digests;
+- exact domain/source/label/action distributions;
+- request, output, and record fingerprints;
+- source admission, deterministic QC, independent QC, repair, exclusion, and release decisions;
+- record-level review HTML and a complete methodology report.
+
+Raw API responses, credentials, and bulky retry logs are intentionally excluded from the handoff package but retained locally under the project's audit policy.
+
+For the full source-by-source description, sampling equations, flow diagrams, repair rationale, and release invariants, see the [MemCalib v2 construction methodology report](reports/memcalib-v2-dataset-construction-methodology.html).
+
+## Historical Versions
+
+The medical-only v0.1 pipeline and 200-record multi-domain pilot remain reproducible historical artifacts. Their counts, source coverage, and quality gates must not be used as current v2 release statistics.

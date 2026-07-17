@@ -1,49 +1,45 @@
 # Attribution And Rights Notice
 
-MemCalib internal research releases are derived from the following upstream datasets.
+MemCalib v2 is an internal research derivative of eight upstream datasets. The table below reports the metadata carried by the locked v2 release; it is an audit record, not a legal determination or a grant of redistribution rights.
 
-## OpenMed/MedDialog
+| Domain | Upstream dataset | Upstream page | v2 records | License recorded in v2 |
+|---|---|---|---:|---|
+| health | OpenMed/MedDialog | https://huggingface.co/datasets/OpenMed/MedDialog | 3,793 | unknown |
+| health | lavita/ChatDoctor-HealthCareMagic-100k | https://huggingface.co/datasets/lavita/ChatDoctor-HealthCareMagic-100k | 3,707 | unknown |
+| general | HuggingFaceH4/ultrachat_200k | https://huggingface.co/datasets/HuggingFaceH4/ultrachat_200k | 2,377 | MIT |
+| general | OpenAssistant/oasst1 | https://huggingface.co/datasets/OpenAssistant/oasst1 | 470 | Apache-2.0 |
+| general | OpenAssistant/oasst2 | https://huggingface.co/datasets/OpenAssistant/oasst2 | 903 | Apache-2.0 |
+| coding | ise-uiuc/Magicoder-OSS-Instruct-75K | https://huggingface.co/datasets/ise-uiuc/Magicoder-OSS-Instruct-75K | 2,771 | MIT |
+| coding | codeparrot/apps | https://huggingface.co/datasets/codeparrot/apps | 174 | MIT |
+| coding | HuggingFaceH4/stack-exchange-preferences | https://huggingface.co/datasets/HuggingFaceH4/stack-exchange-preferences | 805 | CC-BY-SA-4.0 |
 
-- Upstream identifier: `OpenMed/MedDialog`
-- Upstream page: https://huggingface.co/datasets/OpenMed/MedDialog
-- Declared license in the local dataset card: Apache-2.0
-- Upstream source named by the card: `ruslanmv/ai-medical-chatbot`
+## Health Sources
 
-The MemCalib repository does not imply endorsement by OpenMed or the upstream authors.
+The v2 release conservatively records both health sources as license unknown. Earlier local documentation observed an Apache-2.0 declaration for an OpenMed/MedDialog dataset card, but that license was not normalized into the final v2 record metadata and has not been treated as sufficient clearance for the derivative release. The ChatDoctor-HealthCareMagic dataset card did not provide a resolved license in the construction audit.
 
-## lavita/ChatDoctor-HealthCareMagic-100k
+Health questions are real-world-style medical text and may contain inaccurate, outdated, unsafe, personal, or sensitive information. Quality control does not establish medical truth, complete de-identification, or redistribution permission.
 
-- Upstream identifier: `lavita/ChatDoctor-HealthCareMagic-100k`
-- Upstream page: https://huggingface.co/datasets/lavita/ChatDoctor-HealthCareMagic-100k
-- Associated paper: *ChatDoctor: A Medical Chat Model Fine-Tuned on a Large Language Model Meta-AI (LLaMA) Using Medical Domain Knowledge*, arXiv:2303.14070
-- License status: not specified in the current upstream dataset card
+## General And Coding Sources
 
-The absence of a stated license is unresolved. Nothing in this repository grants permission to publicly redistribute this source or its derivatives.
+The release preserves the dataset identifier, split, source ID, license field, and available source metadata for general and coding records. Dataset-level MIT or Apache metadata does not automatically resolve all rights in underlying conversations, code, questions, answers, or derivative transformations.
 
-## OpenAssistant OASST1
+Magicoder instructions are synthesized from open-source code seeds, and APPS contains programming-problem material. Public release requires a separate provenance review of underlying content, not only the dataset-card license field.
 
-- Upstream identifier: `OpenAssistant/oasst1`
-- Upstream page: https://huggingface.co/datasets/OpenAssistant/oasst1
-- Declared license in the upstream dataset card: Apache-2.0
-- Use in MemCalib: 100-record general-dialogue internal pilot
+## Stack Exchange Attribution
 
-The pilot retains source identifiers, source split, and license metadata for attribution and audit.
+Stack Exchange-derived records are marked CC-BY-SA-4.0 in the release metadata. Admission required complete attribution enrichment. All 805 selected records retain the available author/source metadata; 67 strict candidates with incomplete attribution were excluded before source admission.
 
-## Magicoder OSS-Instruct 75K
+Any public redistribution or adaptation must preserve the applicable attribution, notice, link, and share-alike obligations after legal review. MemCalib's transformation and aggregation do not waive upstream terms.
 
-- Upstream identifier: `ise-uiuc/Magicoder-OSS-Instruct-75K`
-- Upstream page: https://huggingface.co/datasets/ise-uiuc/Magicoder-OSS-Instruct-75K
-- Declared license in the upstream dataset card: MIT
-- Use in MemCalib: 100-record coding internal pilot
+## Release Restriction
 
-Magicoder instructions were synthesized from open-source code seeds. The dataset-card license is recorded, but public redistribution of MemCalib derivatives still requires a separate provenance and license audit of the upstream code-derived material.
+This repository and the v2 handoff package are restricted to private coauthor research review and controlled internal experimentation. No repository-wide code license or data license is granted. Public release remains blocked pending:
 
-## MemCalib Review Release
+1. source-by-source redistribution and derivative-rights confirmation;
+2. Stack Exchange attribution and share-alike compliance review;
+3. PII, sensitive-content, medical-safety, and code-provenance review;
+4. final author approval of the public artifact, documentation, and licensing terms.
 
-This repository is a private co-author research review package. No repository-wide code license or data license is granted. Public release is blocked pending:
+All trademarks, dataset names, source content, and author contributions remain subject to their respective owners and upstream terms.
 
-1. confirmation of source redistribution rights;
-2. PII and sensitive-content review;
-3. final author approval of code and data licensing.
-
-All trademarks, dataset names, and source content remain subject to their respective owners and upstream terms.
+Historical v0.1 and pilot notices remain relevant only to their archived release packages; the counts and source usage in this document are the current MemCalib v2 release state.

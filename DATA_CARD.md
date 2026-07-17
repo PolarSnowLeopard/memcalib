@@ -1,137 +1,120 @@
-# MemCalib v0.1 Data Card
+# MemCalib v2 Data Card
 
 ## Dataset Summary
 
-MemCalib is a benchmark for calibrated use of conversational memory. Each record contains a current query, realistic parent memory blocks shown to the answer model, and hidden atomic annotations used for evaluation. Atomic memories are labeled according to how strongly they should influence the response.
+MemCalib v2 is a 15,000-record English dataset for studying calibrated use of retrieved conversational memory. Each record contains a current question, realistic non-atomic memory blocks shown to the answer model, and hidden atomic annotations that specify both expected influence strength and expected action.
 
-Version `v0.1` contains 15,528 English medical-domain records derived from public QA sources. It is a private research review release and is not cleared for public redistribution.
+The release is restricted to private coauthor research review and controlled internal training. It is not cleared for public redistribution.
 
 ## Benchmark Task
 
-Given a question and a collection of stored memory blocks, generate a useful response that:
+Given a question and stored memory blocks, generate a useful response that:
 
-1. does not introduce content from contextually irrelevant memories;
+1. ignores memories that should not affect the current task;
 2. uses supporting memories only within their valid scope;
-3. incorporates controlling memories when omission would make the response incomplete, unsafe, or inapplicable.
+3. lets controlling memories materially constrain the answer;
+4. explicitly corrects relevant memories that are wrong, stale, or unsafe when the annotation requires correction.
 
-Parent blocks may contain multiple related atomic facts with different A/B/C roles. The answer model is evaluated at atomic granularity without receiving those hidden labels.
-
-MemCalib is related to StratMem-Bench (arXiv:2604.26243), which also distinguishes required, supportive, and irrelevant memory. The current release should not be cited as originating that three-way distinction. Its distinct evaluation representation uses non-atomic model-facing blocks, hidden atomic labels, and per-atom observable rubrics at 15,528-sample scale.
+The answer model sees parent memory blocks, not hidden atoms or rubrics. Evaluation is performed at atomic granularity.
 
 ## Dataset Composition
 
 | Unit | Count |
 |---|---:|
-| Samples | 15,528 |
-| Parent memory blocks | 56,044 |
-| Atomic memories | 78,734 |
-| Mixed-label parent blocks | 7,963 |
+| Records | 15,000 |
+| Health / general / coding | 7,500 / 3,750 / 3,750 |
+| Model-facing memory blocks | 51,970 |
+| Hidden atomic memories | 53,318 |
+| Strict pass / non-blocking review | 14,906 / 94 |
+| Upstream datasets | 8 |
 
-### Atomic labels
+### Atomic labels and actions
 
 | Label | Meaning | Count |
 |---|---|---:|
-| A | irrelevant or forbidden to use | 22,722 |
-| B | supporting, with bounded influence | 25,783 |
-| C | controlling or required | 30,229 |
+| A | no observable influence; suppress | 16,640 |
+| B | bounded supporting influence | 19,060 |
+| C | controlling or materially constraining influence | 17,618 |
+
+A/B/C encode usage strength, not truthfulness. The independent `memory_action` field encodes direction:
+
+| Action | Meaning | Count |
+|---|---|---:|
+| `ignore` | leave no atom-specific footprint | 16,640 |
+| `apply` | use the memory within its assigned scope | 36,351 |
+| `correct` | explicitly correct relevant wrong/stale/unsafe content | 327 |
+
+Allowed combinations are A+ignore, B+apply/correct, and C+apply/correct. A+correct is forbidden.
 
 ### Source distribution
 
-| Source | Samples |
-|---|---:|
-| `lavita/ChatDoctor-HealthCareMagic-100k` | 7,765 |
-| `OpenMed/MedDialog` | 7,763 |
+| Domain | Source | Records | Recorded release license |
+|---|---|---:|---|
+| health | OpenMed/MedDialog | 3,793 | unknown in v2 release metadata |
+| health | lavita/ChatDoctor-HealthCareMagic-100k | 3,707 | unknown |
+| general | HuggingFaceH4/ultrachat_200k | 2,377 | MIT |
+| general | OpenAssistant/oasst1 | 470 | Apache-2.0 |
+| general | OpenAssistant/oasst2 | 903 | Apache-2.0 |
+| coding | ise-uiuc/Magicoder-OSS-Instruct-75K | 2,771 | MIT |
+| coding | codeparrot/apps | 174 | MIT |
+| coding | HuggingFaceH4/stack-exchange-preferences | 805 | CC-BY-SA-4.0 |
 
-The near-equal source distribution is an explicit benchmark coverage choice and does not estimate the natural prevalence of either source.
-
-### Topic coverage
-
-The release covers 12 automatically assigned medical topic groups: acute symptoms, cardiovascular health, chronic disease, digestive health, general/other, medication and treatment, mental health and sleep, neurology, pediatrics, pregnancy and reproductive health, respiratory/ENT, and skin/allergy.
+All 805 selected Stack Exchange records have complete author attribution metadata. Source proportions are deliberate benchmark coverage choices, not estimates of natural traffic.
 
 ## Record Structure
 
-Important top-level fields include:
+Important top-level groups include:
 
-- `id`: stable benchmark sample identifier;
-- `source_dataset`, `source_record_id`, `source_topic`: source lineage;
-- `question`: decontextualized model-facing query;
-- `memory_blocks`: model-facing stored memory blocks;
-- `memories`: hidden atomic annotations and rubrics;
-- `composition`: aggregate sample composition;
-- `qc`: construction-stage quality gates;
-- `construction_audit`: generation and source lineage;
-- `raw_query`, `doctor_answer`: retained source evidence for audit, not model-facing benchmark input.
+- stable record, source, split, topic, domain, and license lineage;
+- model-facing `question` and `memory_blocks`;
+- hidden atomic `memories`, including `u_star`, `memory_action`, counterfactual contracts, and rubrics;
+- deterministic construction QC, independent semantic QC, and final release-admission decisions;
+- retained source question, answer, context, sampling, and semantic-admission audit.
 
-See [docs/benchmark-schema.md](docs/benchmark-schema.md) for the detailed contract.
+See [the benchmark schema](docs/benchmark-schema.md) for the detailed contract.
 
-## Construction Process
+## Construction And Quality Control
 
-1. Normalize all locally available records from the two sources.
-2. Apply deterministic schema, language, length, noise, and quality filters.
-3. Remove exact and near-duplicate source questions.
-4. Select a balanced candidate pool by source, topic, and construction complexity.
-5. Apply a grounded semantic source QA gate.
-6. Construct English parent memories, atomic memories, A/B/C labels, targets, and rubrics with a locked LLM prompt.
-7. Reject malformed or out-of-schema records and run benchmark-level structural QC.
+The final release was produced through:
 
-The final release contains 15,528 accepted records from 15,577 strict-pass source records admitted to construction. The complete lineage and hashes are included under `release/memcalib-v0.1/provenance/`.
+1. source rights/attribution review, normalization, quality filtering, and exact/near deduplication;
+2. domain/source/topic/difficulty stratified candidate selection;
+3. grounded semantic source-QA admission;
+4. over-generated memory construction with atomic labels, actions, evidence, counterfactual contracts, and rubrics;
+5. deterministic schema, label-action, evidence-grounding, isolation, observability, and pairwise-independence validation;
+6. targeted repair of only failed records, preserving all successful records and audit history;
+7. independent semantic QC and targeted correction of a detected query-leakage failure mode;
+8. strict-first selection to exact domain quotas, with only explicitly non-blocking review records eligible as capacity fallback.
 
-## Quality Checks
-
-Every released record passed construction checks for:
-
-- atomic decomposition;
-- duplicate control;
-- question-memory leakage;
-- Hard-A target consistency;
-- rubric objectivity;
-- English generated-field language;
-- fixed memory source, type, and label enums.
-
-The release verifier independently checks all file hashes, JSON parsing, ID uniqueness, reconstructed source hash, and aggregate counts.
+No reject or invalid record entered the final 15,000. Full stage counts and repair-loop details are documented in the [construction methodology report](docs/reports/memcalib-v2-dataset-construction-methodology.html).
 
 ## Intended Uses
 
-- evaluating memory-aware answer generation;
-- diagnosing under-use and over-use at atomic granularity;
-- comparing model behavior across label, memory type, topic, Hard-A family, and mixed-parent subsets;
-- judge calibration and rubric-based reward modeling research;
-- studying the gap between realistic memory blocks and atomic evaluation units.
+- evaluating over-use and under-use of conversational memory;
+- supervised or preference/reward-model research using the hidden atomic contracts;
+- controlled ablations by domain, source, label, action, memory type, and QC status;
+- judge calibration and analysis of realistic non-atomic retrieval units.
 
-## Out-of-Scope Uses
+Researchers using records for training must keep any benchmark evaluation split disjoint and must not expose hidden labels or rubrics to an answer model being evaluated.
 
-- clinical decision support or medical diagnosis;
-- estimating real-world disease or demographic prevalence;
-- claiming general-domain dialogue coverage from v0.1;
-- treating source doctor answers or LLM annotations as verified medical truth;
-- public redistribution before rights and privacy review is complete.
+## Out-Of-Scope Uses
+
+- clinical decision support, diagnosis, or treatment recommendation;
+- estimating real-world user, disease, or programming-task prevalence;
+- treating source answers or generated annotations as factual gold standards;
+- public redistribution without a separate rights, attribution, privacy, and sensitive-content review.
 
 ## Known Limitations
 
-### Domain concentration
-
-Both v0.1 sources are medical QA datasets. The topic diversity is intra-domain. General conversational memory claims require additional non-medical sources.
-
-### LLM-generated annotations
-
-Memory blocks, atomic decompositions, labels, and rubrics are generated through a fixed LLM construction process and rule validation. A 100-sample human review found the quality suitable for continued development, but a publication-grade stratified double-annotation study has not yet been completed.
-
-### Response-level validity
-
-The release has not yet been calibrated against a representative set of model responses. Counterfactual answer pairs, dual-judge agreement, and human response adjudication remain pending.
-
-### Source quality and medical safety
-
-Public medical QA text may contain inaccurate, incomplete, outdated, or unsafe advice. Source answers are retained for construction audit and are not reference-standard clinical responses.
-
-### Privacy and sensitive content
-
-The source datasets contain real-world-style medical questions and may contain names, locations, dates, or other personal details. No claim of complete de-identification is made. A dedicated PII and sensitive-content audit is required before public release.
-
-### Rights status
-
-`OpenMed/MedDialog` declares Apache-2.0. The current `lavita/ChatDoctor-HealthCareMagic-100k` dataset card does not state a license. MemCalib v0.1 is therefore restricted to private co-author review while redistribution rights are resolved.
+- The health subset has unresolved redistribution and privacy risk; all 7,500 health records are conservatively treated as license unknown in the v2 release metadata.
+- Source answers and model-generated annotations may be inaccurate even after structural and semantic QC.
+- Independent QC is model-assisted. A systematic query-leakage failure was detected and repaired, but this does not replace blinded expert annotation.
+- Only 327 atoms require `correct`; conclusions about correction behavior have wider uncertainty than A/B/C aggregate results.
+- Each record includes a synthetic hard-A, which strengthens over-use testing but introduces a construction prior.
+- The 94 non-blocking review records should remain explicitly marked; strict-only sensitivity analysis uses 14,906 records.
 
 ## Maintenance And Versioning
 
-The release manifest is the source of truth for file hashes, counts, and lineage. Any content change requires a new release version and new hashes. Generated model evaluations must reference the exact release manifest SHA-256 and fixed model snapshots.
+The release manifest, package manifest, statistics, and SHA-256 hashes are the source of truth. Any content change requires a new version and new hashes. Evaluations must reference the exact dataset digest, sample manifest, protocol version, and model snapshot.
+
+The historical v0.1 medical-only release and its 15,526-record evaluation remain archived under `release/memcalib-v0.1/` and `evaluation/releases/memcalib-ordered-v2.1-full-15526/`.
