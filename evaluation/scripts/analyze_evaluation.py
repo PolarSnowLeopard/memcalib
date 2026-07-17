@@ -24,6 +24,8 @@ MODEL_DISPLAY_NAMES = {
     "deepseek": "DeepSeek-V4-Pro",
     "deepseek-flash": "DeepSeek-V4-Flash",
     "kimi": "Kimi-K2.6",
+    "qwen35-35b-a3b": "Qwen3.5-35B-A3B",
+    "qwen35-122b-a10b": "Qwen3.5-122B-A10B",
     "qwen-flash": "Qwen3.6-Flash",
     "qwen-max": "Qwen3.7-Max",
 }
@@ -588,7 +590,7 @@ def assess_benchmark_validity(metrics: dict[str, Any]) -> dict[str, Any]:
     agreement_kappa = agreement.get("linear_weighted_kappa", agreement.get("kappa"))
     model_score_spread = max(scores) - min(scores) if scores else None
     checks = {
-        "five_models_complete": len(scores) == 5,
+        "five_models_complete": len(scores) >= 5,
         "judge_exact_agreement_at_least_0.75": (agreement.get("exact_agreement") or 0) >= 0.75,
         "judge_kappa_at_least_0.60": (agreement_kappa or 0) >= 0.60,
     }

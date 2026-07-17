@@ -1,0 +1,72 @@
+{
+  "schema_version": "memcalib-judge-requests-ordered-usage-v2.1",
+  "primary_requests": 1000,
+  "secondary_requests": 50,
+  "secondary_by_judge": {
+    "deepseek-v4-pro": 50,
+    "kimi-k2.6": 0
+  },
+  "human_random_ids": 0,
+  "secondary_sampling": {
+    "total": 50,
+    "per_model_per_condition": 25,
+    "stratify_by": [
+      "condition",
+      "source_dataset",
+      "source_topic",
+      "atom_count_bucket"
+    ]
+  },
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "artifacts": {
+    "primary.jsonl": {
+      "rows": 1000,
+      "sha256": "f597fbab1411dd93b0204de6c89cc2ff2d5e1c06ffcf0eccb3feecb32dbec24b"
+    },
+    "secondary-deepseek.jsonl": {
+      "rows": 50,
+      "sha256": "57a083fd775458c310c6a53923eab81474a063431b9cb6f6a2463a0d55dd3f3d"
+    },
+    "secondary-kimi.jsonl": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "secondary-answer-ids.txt": {
+      "rows": 50,
+      "sha256": "be8e5e7499ea0120beb0d9d73924e2b311b4b0fabcbe82ef56d4886f6b0b63d9"
+    },
+    "human-random-answer-ids.txt": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/configs/memcalib-v2-multidomain-500-qwen35.json",
+      "sha256": "7f7f6d326cca6d8d7a1978ec1544d975977b7e919715461fcb55213372b8a389"
+    },
+    "hidden": {
+      "path": "evaluation/releases/memcalib-v2-multidomain-500/hidden-evaluation.jsonl",
+      "sha256": "4cfbfe1030ce1639e39de2bc48e12f3d1097694848edcafa06b222a3dbafef8e"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/judge-system-v2.1.txt",
+      "sha256": "482899899ad089318068c562d909327bfee12f012eb266d3484a915244885dc6"
+    },
+    "answers": [
+      {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500-qwen35/answers/qwen35-35b-a3b/full_memory.jsonl",
+        "sha256": "2f705c3ca275bee9dca1b22072a1143a21625f4cd3d13f4ae4a633f053c52f51",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500-qwen35/answers/qwen35-35b-a3b/no_memory.jsonl",
+        "sha256": "75fabcff2e1d0368621e2b9dbcb64e5935004612bc928855ed5e601d92ed9c1e",
+        "rows": 500
+      }
+    ]
+  }
+}

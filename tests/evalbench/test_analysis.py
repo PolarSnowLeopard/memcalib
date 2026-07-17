@@ -292,6 +292,24 @@ class AnalysisTest(unittest.TestCase):
         self.assertEqual("provisionally_supported", assessment["status"])
         self.assertEqual([], assessment["failed_checks"])
 
+    def test_validity_assessment_accepts_an_extended_model_panel(self) -> None:
+        metrics = {
+            "models": {
+                f"m{index}": {
+                    "full_memory": {"memcalib_score": 0.50 + index * 0.04},
+                    "no_memory": {"answers": 1},
+                    "paired": {"memory_reduced_upb": 0.10},
+                }
+                for index in range(7)
+            },
+            "judge_agreement": {"overall": {"exact_agreement": 0.8, "kappa": 0.65}},
+        }
+
+        assessment = assess_benchmark_validity(metrics)
+
+        self.assertTrue(assessment["checks"]["five_models_complete"])
+        self.assertEqual([], assessment["failed_checks"])
+
     def test_validity_assessment_keeps_narrow_macro_spread_as_a_caveat(self) -> None:
         label_profiles = [
             {"A": 0.46, "B": 0.75, "C": 0.83},
