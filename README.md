@@ -104,6 +104,18 @@ v2 构建流程包括数据源许可与署名审查、确定性清洗和去重�
 
 六模型复核的整体 exact agreement 为 0.936，Cohen κ 为 0.915；有序使用等级 exact agreement 为 0.898，线性加权 κ 为 0.868。Qwen3.5-35B-A3B 的 UPB 最低、C 类使用正确率最高，但 OPB 最高、A 类抑制正确率最低，进一步显示模型间存在清晰的“利用相关记忆”和“拒绝不该使用的记忆”权衡。当前结果属于 500 条内部诊断，不应解释为 15,000 条全量公开 leaderboard，人工验证仍待扩展。
 
+### Judge 配置与稳定性
+
+全部 6,000 条回答由 `qwen3.7-plus` 按 `ordered-usage-v2.1` 协议进行主评审，temperature 为 0 且关闭 thinking。另有 300 条回答按回答模型、full/no-memory 条件、来源、主题和原子数分层抽取，交给不同模型家族独立复核：`deepseek-v4-pro` 复核 200 条回答、761 个原子，`kimi-k2.6` 复核 100 条回答、372 个原子。
+
+相对主 Judge，1,133 个复核原子的总体 exact agreement 为 0.936、Cohen κ 为 0.915；有序 A/B/C 等级 exact agreement 为 0.898、线性加权 κ 为 0.868。DeepSeek 与 Kimi 分别得到 κ=0.926 和 κ=0.893。该结果支持模型间判定稳定性，但不替代盲法人工专家验证。
+
+### 中间结果与保存边界
+
+模型请求、模型原始回答、Judge 请求、Judge 原始 API 输出、规范化逐原子判定，以及失败、重试和日志均保存在本地 `evaluation/runs/<run>/`。其中 `requests/answers/` 保存回答请求，`answers/` 保存模型回答，`requests/judges/` 保存 Judge 请求，`api/` 保存原始 Judge 输出，`judgments/` 保存结构化后的有效/无效判定。
+
+`evaluation/runs/` 被 Git 忽略，也不进入协作者数据 ZIP。远程仓库的 `evaluation/releases/<release>/` 保存锁定输入映射、行数和 SHA-256 manifest、聚合指标与 HTML 报告，使结果可核对但不分发大体积原始响应。如需异机复算或长期归档，必须单独备份对应 `evaluation/runs/` 目录，并继续排除 API Key。
+
 实验说明见 [evaluation/README.md](evaluation/README.md)，正式协议见 [v2.1 评测协议](docs/evaluation_protocol_v2.1.md)，完整混淆矩阵、置信区间和领域结果见 [v2 六模型报告](evaluation/releases/memcalib-v2-multidomain-500-six-models/report.html)。历史 v0.1 的 15,526 条全量评测仍保留在[原全量报告](evaluation/releases/memcalib-ordered-v2.1-full-15526/report.html)中。
 
 ## 发布与许可状态

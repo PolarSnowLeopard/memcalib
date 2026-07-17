@@ -26,6 +26,31 @@
 
 复核的整体 exact agreement 为 0.936，Cohen kappa 为 0.915；有序使用等级 exact agreement 为 0.898，线性加权 kappa 为 0.868。该 500 条实验用于内部诊断和流程验证，不应表述为 15,000 条全量公开排行榜。
 
+## Judge 配置与跨模型稳定性
+
+- 主 Judge：`qwen3.7-plus`，覆盖全部 6,000 条回答；
+- 复核 Judge `deepseek-v4-pro`：200 条分层回答、761 个原子；
+- 复核 Judge `kimi-k2.6`：100 条分层回答、372 个原子；
+- 生成参数：temperature=0、thinking=false；
+- 分层维度：回答模型、full/no-memory 条件、来源、主题和原子数。
+
+在 1,133 个双重判定原子上，总体 exact agreement 为 0.936、Cohen kappa 为 0.915；有序 A/B/C exact agreement 为 0.898、线性加权 kappa 为 0.868。按复核模型分别计算，DeepSeek 的 kappa 为 0.926，Kimi 的 kappa 为 0.893。因此当前稳定性不是同一模型的重复自评，而是 Qwen 主 Judge 与两个不同模型家族之间的一致性；它仍不能替代盲法人工专家标注。
+
+## 中间结果与审计保留
+
+每次运行在 `evaluation/runs/<run>/` 下保留以下中间结果：
+
+| 路径 | 内容 |
+|---|---|
+| `requests/answers/` | full/no-memory 模型请求及输入指纹 |
+| `answers/` | 模型原始回答、失败、重试、截断与完整性报告 |
+| `requests/judges/` | 主 Judge 和复核 Judge 请求及抽样 ID |
+| `api/` | Judge 原始 API 响应、失败与结构重试 |
+| `judgments/` | 规范化逐原子有效判定、invalid 和合并结果 |
+| `workflow.status` / `workflow.completed` | 阶段状态与完成时间 |
+
+这些原始中间结果保存在本机，但 `evaluation/runs/` 被 Git 忽略，不推送远程仓库，也不进入协作者数据 ZIP。远程 `evaluation/releases/<release>/` 只保存锁定配置、输入/输出行数、SHA-256、运行 manifest、聚合 `metrics.json` 和 `report.html`。因此远程材料可以审计结果口径和完整性；若要在另一台机器上重新聚合逐条结果，仍需单独传输对应的 `evaluation/runs/`，并确保不包含任何凭据。
+
 ## 当前结果入口
 
 - [`memcalib-v2-multidomain-500-six-models/report.html`](releases/memcalib-v2-multidomain-500-six-models/report.html)：六模型可视化报告；
@@ -33,7 +58,7 @@
 - [`memcalib-v2-multidomain-500-qwen35/README.md`](releases/memcalib-v2-multidomain-500-qwen35/README.md)：Qwen3.5-35B-A3B 增量运行、完整性与审计说明；
 - [`memcalib-v2-multidomain-500-qwen35/`](releases/memcalib-v2-multidomain-500-qwen35/)：该模型的锁定输入映射、指标和 manifest。
 
-原始 API 响应和运行日志保存在被 Git 忽略的 `evaluation/runs/`，不属于评测发布包。发布目录只保存复现聚合所需的锁定输入映射、归一化结果、manifest、指标和报告；凭据不写入配置、脚本或清单。
+发布目录只保存核对聚合结果所需的锁定输入映射、manifest、指标和报告；凭据不写入配置、脚本或清单。
 
 ## 聚合复现
 
