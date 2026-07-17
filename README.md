@@ -6,29 +6,26 @@ MemCalib 用于评测模型在回答新问题时，能否恰当地调节检索�
 
 ## 当前版本
 
-MemCalib v0.1 是供论文合作者内部审阅的私有版本，基于两个英文医学问答数据源构建。该版本用于验证 benchmark 的数据构建流程与评测表示形式，目前尚不足以支持对通用对话场景的结论。
-
-已新增 [多领域试验集 v0.2](release/memcalib-multidomain-pilot-v0.2/README.md)：从 OpenAssistant OASST1 构建 100 条通用对话样本，从 Magicoder OSS-Instruct 构建 100 条 coding 样本。该试验集用于验证跨领域迁移、证据 grounding 和领域分布，不改变 v0.1 正式评测结果。
+MemCalib v2 是当前供论文合作者内部审阅和训练使用的多领域版本。最终发布集包含 15,000 条英文记录，严格按照 health、general、coding 三个领域的预定配额选取；所有记录均通过确定性结构校验、证据 grounding、语义质量控制和独立模型复核。14,906 条为 strict pass，94 条为脚本明确允许的 non-blocking review，reject 和 invalid 均未进入最终数据。
 
 | 统计项 | 数量 |
 |---|---:|
-| 样本 | 15,528 |
-| 原始记忆块 | 56,044 |
-| 原子记忆 | 78,734 |
-| 含混合标签的记忆块 | 7,963（14.2%） |
-| A / 无关原子记忆 | 22,722 |
-| B / 支持性原子记忆 | 25,783 |
-| C / 控制性原子记忆 | 30,229 |
-| 数据源 | 2 |
-| 医学主题 | 12 |
+| 样本 | 15,000 |
+| health / general / coding | 7,500 / 3,750 / 3,750 |
+| 模型可见记忆块 | 51,970 |
+| 隐藏原子记忆 | 53,318 |
+| A / B / C 原子记忆 | 16,640 / 19,060 / 17,618 |
+| strict / non-blocking review | 14,906 / 94 |
+| 数据源 | 8 |
+| 完整署名的 Stack Exchange 记录 | 805 |
 
 ## 能力定义
 
-- **A - suppress（抑制）：** 该记忆不应在回答中留下缺乏依据的影响。
-- **B - bound（有限使用）：** 该记忆可以为回答提供支持，但不应控制回答或导致内容过度扩展。
+- **A - suppress（抑制）：** 该记忆不应影响当前回答，对应 `ignore` 动作。
+- **B - bound（有限使用）：** 该记忆与问题相关，但只能作为有限支持，不能不受约束地控制回答。
 - **C - control（控制）：** 该记忆必须实质性地约束回答内容或主要建议。
 
-模型输入中呈现的是 `memory_blocks`。评测使用隐藏的 `memories` 数组，其中每条原子记忆均包含 A/B/C 标签、构造目标以及可观测的 judge rubric。该设计在保留真实非原子记忆输入形态的同时，支持细粒度的错误诊断。
+A/B/C 描述的是记忆对当前回答的**使用强度**，并不直接等同于“错误/正确”。错误、过时或不安全但仍与问题相关的记忆通过独立的 `memory_action=correct` 标记，可能属于 B 或 C；A 原子只允许 `ignore`，禁止 `A+correct`。模型输入中呈现的是 `memory_blocks`，评测使用隐藏的 `memories` 数组及原子级 rubric，因此可以分别测量“不该用却用了”的 OPB 和“该用却没用”的 UPB。
 
 ## 研究定位
 
@@ -36,7 +33,15 @@ MemCalib v0.1 是供论文合作者内部审阅的私有版本，基于两个英
 
 ## 五分钟快速审阅
 
-使用当前工作区指定的非 Conda Python 运行时，或任意带有标准库的 Python 3.11 及以上版本：
+v2 审阅入口：
+
+- [15,000 条数据交付说明](docs/MEMCALIB_V2_COAUTHOR_HANDOFF.md)
+- [完整构建与质检方法报告](docs/reports/memcalib-v2-dataset-construction-methodology.html)
+- [六模型抽样评测报告](evaluation/releases/memcalib-v2-multidomain-500-six-models/report.html)
+- [六模型机器可读指标](evaluation/releases/memcalib-v2-multidomain-500-six-models/metrics.json)
+- [Qwen3.5-35B-A3B 增量评测审计](evaluation/releases/memcalib-v2-multidomain-500-qwen35/README.md)
+
+以下命令用于验证历史 v0.1 仓库内发布包。使用当前工作区指定的非 Conda Python 运行时，或任意带有标准库的 Python 3.11 及以上版本：
 
 ```bash
 PY=/Users/zhaofanyu/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3
@@ -72,6 +77,7 @@ shasum -a 256 memcalib-v0.1.jsonl
 ```text
 pipeline/                 可复现的数据构建阶段与提示词
 release/memcalib-v0.1/   已锁定的内部审阅数据版本
+evaluation/releases/     评测发布包、指标、manifest 与 HTML 报告
 tools/                    确定性发布包构建与验证工具
 tests/                    流水线与发布工具测试
 docs/                     数据结构、方法、数据来源与归档设计文档
@@ -81,26 +87,27 @@ docs/                     数据结构、方法、数据来源与归档设计文
 
 ## 构建与评测进展
 
-当前构建流程包括确定性源数据过滤、去重、候选样本分层选择、源问答语义质检、英文记忆构造、原子信息拆分、A/B/C 标注、原子级 rubric 生成和结构化质量检查。
+v2 构建流程包括数据源许可与署名审查、确定性清洗和去重、按领域/来源/主题分层抽样、源问答语义质检、英文记忆构造、原子化、A/B/C 使用强度与动作标注、证据逐字 grounding、确定性 validator、独立模型质检以及只针对失败项的定向修复。完整方法、阶段容量和审计闭环见[构建方法报告](docs/reports/memcalib-v2-dataset-construction-methodology.html)。
 
-正式全量评测已经完成。最终评测集包含 15,526 条样本、56,031 条模型可见的非原子记忆和 78,726 条隐藏原子标注。五个代表性模型各回答全部样本，共得到 77,630 条回答；主 Judge 完成 77,630 条评审，两个复核 Judge 对分层抽取的 2,500 条回答进行复核。主评审共覆盖 393,630 个原子判定。
+当前 v2 模型比较使用从最终 15,000 条数据中按正式领域比例和来源分布确定性抽取的 500 条样本，其中 health 250、general 125、coding 125。六个模型分别完成 full-memory 与 no-memory 两个配对条件，共 6,000 条回答；主 Judge 完成 6,000 条评审，复核 Judge 完成 300 条分层复核。
 
-正式协议采用 `ordered-usage-v2.1`，以 OPB 错误率、UPB 错误率及两个方向抵抗能力的调和平均 H 作为主指标。全量结果如下：
+协议采用 `ordered-usage-v2.1`，以 OPB 错误率、UPB 错误率及两个方向抵抗能力的调和平均 H 作为主指标。v2 抽样结果如下：
 
 | 模型 | OPB↓ | UPB↓ | H↑ |
 |---|---:|---:|---:|
-| Kimi-K2.6 | 0.348 | 0.289 | 0.680 |
-| Qwen3.7-Max | 0.377 | 0.258 | 0.677 |
-| DeepSeek-V4-Pro | 0.394 | 0.254 | 0.669 |
-| Qwen3.6-Flash | 0.415 | 0.224 | 0.667 |
-| DeepSeek-V4-Flash | 0.396 | 0.290 | 0.653 |
+| Kimi-K2.6 | 0.317 | 0.207 | 0.734 |
+| Qwen3.7-Max | 0.345 | 0.179 | 0.728 |
+| DeepSeek-V4-Pro | 0.368 | 0.183 | 0.713 |
+| Qwen3.6-Flash | 0.392 | 0.159 | 0.706 |
+| DeepSeek-V4-Flash | 0.387 | 0.182 | 0.701 |
+| Qwen3.5-35B-A3B | 0.404 | 0.154 | 0.699 |
 
-复核子集覆盖 12,665 个原子。有序 A/B/C 等级的 exact agreement 为 0.814，线性加权 Cohen κ 为 0.752；`scorable` 一致率为 1.000。五个模型的 H 分数分布较集中，但 A/B/C 标签正确率最大跨度达到 0.124，且模型间存在明显的 OPB/UPB 权衡。因此，当前结果支持 benchmark 对方向性记忆校准差异的测量能力，同时保留“单一总分区分度有限”和“人工验证仍待扩展”两项限制。
+六模型复核的整体 exact agreement 为 0.936，Cohen κ 为 0.915；有序使用等级 exact agreement 为 0.898，线性加权 κ 为 0.868。Qwen3.5-35B-A3B 的 UPB 最低、C 类使用正确率最高，但 OPB 最高、A 类抑制正确率最低，进一步显示模型间存在清晰的“利用相关记忆”和“拒绝不该使用的记忆”权衡。当前结果属于 500 条内部诊断，不应解释为 15,000 条全量公开 leaderboard，人工验证仍待扩展。
 
-实验说明见 [evaluation/README.md](evaluation/README.md)，正式协议见 [v2.1 评测协议](docs/evaluation_protocol_v2.1.md)，完整混淆矩阵、置信区间和分层结果见 [15,526 条全量评测报告](evaluation/releases/memcalib-ordered-v2.1-full-15526/report.html)。
+实验说明见 [evaluation/README.md](evaluation/README.md)，正式协议见 [v2.1 评测协议](docs/evaluation_protocol_v2.1.md)，完整混淆矩阵、置信区间和领域结果见 [v2 六模型报告](evaluation/releases/memcalib-v2-multidomain-500-six-models/report.html)。历史 v0.1 的 15,526 条全量评测仍保留在[原全量报告](evaluation/releases/memcalib-ordered-v2.1-full-15526/report.html)中。
 
 ## 发布与许可状态
 
-本仓库仅用于论文合作者内部研究审阅。`OpenMed/MedDialog` 声明采用 Apache-2.0 许可；`lavita/ChatDoctor-HealthCareMagic-100k` 的数据卡未注明许可证。因此，当前数据分片尚不具备公开再分发条件。公开发布前还需完成个人身份信息（PII）与敏感内容审查。
+本仓库仅用于论文合作者内部研究审阅。v2 使用 8 个来源；每条记录保存来源、split、license 和可用的署名元数据。医学来源中的 `lavita/ChatDoctor-HealthCareMagic-100k` 数据卡未注明许可证，因此 7,500 条 health 数据当前仍记为 license unknown。Stack Exchange 入选记录均完成 CC-BY-SA-4.0 署名补全。完整数据尚不具备公开再分发条件，公开发布前仍需完成权利、PII 和敏感内容审查。
 
 数据来源署名与权利状态详见 [NOTICE.md](NOTICE.md)。当前内部审阅版本未对仓库整体授予代码或数据许可证。

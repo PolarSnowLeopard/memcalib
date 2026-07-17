@@ -28,13 +28,14 @@ The SHA-256 digest of the decompressed JSONL is:
 ## Memory semantics
 
 - `A`: the memory should not be used to answer the current question.
-- `B`: the memory is relevant but wrong, unsafe, stale, or otherwise needs
-  explicit correction.
-- `C`: the memory is relevant and usable.
+- `B`: the memory is relevant but should provide only bounded support.
+- `C`: the memory should materially control or constrain the answer.
 
-The per-atom `memory_action` and `usage_rubric` fields provide the
-corresponding expected behavior. In particular, memories that need
-correction are not represented as ordinary usable memories.
+These labels encode usage strength, not truthfulness. The per-atom
+`memory_action` field separately specifies `ignore`, `apply`, or `correct`.
+Wrong, stale, or unsafe but relevant memories can therefore be `B+correct`
+or `C+correct`; `A` is always paired with `ignore`. The `usage_rubric` field
+defines the observable expected behavior.
 
 ## Included review materials
 
