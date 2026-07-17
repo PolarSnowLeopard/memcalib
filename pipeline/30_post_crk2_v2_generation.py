@@ -347,6 +347,15 @@ def normalize_record(record: dict[str, Any], params: dict[str, Any], request_id:
             },
         }
     )
+    semantic_repair = params.get("crk2_v2_semantic_repair")
+    if isinstance(semantic_repair, dict):
+        result["semantic_repair"] = semantic_repair
+    reserve_reconstruction = params.get("crk2_v2_reserve_reconstruction")
+    if isinstance(reserve_reconstruction, dict):
+        result["reserve_reconstruction"] = reserve_reconstruction
+    source_metadata = params.get("source_metadata")
+    if isinstance(source_metadata, dict) and source_metadata:
+        result["source_metadata"] = source_metadata
     return result
 
 

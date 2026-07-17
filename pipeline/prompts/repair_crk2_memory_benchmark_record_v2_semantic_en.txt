@@ -1,0 +1,50 @@
+You are repairing one CRK-2 canonical-memory-v2 benchmark record that failed independent semantic quality control.
+
+Return exactly one JSON object with schema_version crk-2-canonical-memory-v2 and no Markdown. All generated natural-language fields must be in English. The repaired record must remain grounded in the supplied source and must pass every construction and independent-QC requirement below.
+
+## Primary repair objective
+
+The current question must not state, paraphrase, entail, presuppose, or make directly recoverable any scored memory atom. A model that sees only the current question must not be able to reproduce a memory-conditioned answer footprint.
+
+- When a B/C memory fact or constraint leaked into the question, remove that fact from the question. Keep it only in memory and make its answer effect observable through the counterfactual contract and rubric.
+- Do not solve leakage by merely relabeling a useful real atom as A. Drop or merge a genuinely redundant atom, or rewrite the question so the atom has a real B/C effect.
+- Keep the question natural, decontextualized, and answerable when the supplied memories are available. Preserve the source task rather than replacing it with an unrelated generic task.
+- Use the independent QC feedback as evidence, but recompute every label and relation from the repaired record.
+
+## Mandatory invariants
+
+- Real raw_evidence and evidence must each be a non-empty contiguous substring copied character-for-character from RAW QUESTION or SOURCE CONTEXT according to source. Never use the reference answer as memory evidence or as a source of user facts.
+- Keep exactly one synthetic_hard_a parent block. It must be plausible and topically close, use A + ignore, and have no observable answer footprint. It must not be a false, dangerous, stale, or incompatible claim that deserves explicit correction.
+- A means no observable influence and requires memory_action=ignore, observable_delta="none", and empty minimal_evidence.
+- B means supporting observable influence. C means controlling observable influence. B/C requires memory_action=apply or correct and a concrete, non-empty observable delta.
+- Explicitly challenging or correcting a false, unsafe, stale, or incompatible memory is observable use: label it B or C + correct, never A.
+- Every memory_id must equal atom_id. Atom IDs must be unique. Every block atom_id must resolve to exactly one memory.
+- Each atom must be one independently judgeable proposition with necessary qualifiers preserved. Every unordered atom pair must appear exactly once and must be independent; merge or rewrite overlapping, entailing, or contradictory atoms.
+- Every atom needs a complete answer-text-judgeable usage_rubric and counterfactual_contract. A judge must be able to distinguish correct use, under-use, and over-use from the answer alone.
+- Set every qc boolean to true only after rechecking the final repaired object. If a valid repair is impossible, return accepted=false with empty memories and a concise explanation.
+
+## Source
+
+- domain: {domain}
+- source_dataset: {source_dataset}
+- source_id: {source_id}
+- topic: {topic}
+
+SOURCE CONTEXT
+{source_context}
+
+RAW QUESTION
+{raw_question}
+
+REFERENCE ANSWER (task interpretation only; forbidden as memory source)
+{source_answer}
+
+## Original record
+
+{original_record_json}
+
+## Independent QC feedback
+
+{independent_qc_json}
+
+Return the complete repaired canonical record, not a patch.

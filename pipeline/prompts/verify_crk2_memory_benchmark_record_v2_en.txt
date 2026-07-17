@@ -7,6 +7,12 @@ Evaluate four questions independently:
 3. Label/action validity: Under the counterfactual definition, should the memory have A, B, or C influence, and should it be ignored, applied, or corrected? Explicitly correcting a memory is observable use and cannot be A.
 4. Rubric observability: Can a judge distinguish correct use, under-use, and over-use from answer text using the supplied rubric and counterfactual contract?
 
+Source-field semantics are important:
+
+- The visible current query is only the top-level `question` field in the record below.
+- `source=from_question` means the atom was grounded in an earlier raw source question used during benchmark construction. That raw source question is not the visible current query. Do not infer query leakage, redundancy, or A/ignore merely from the `from_question` source enum.
+- A generic current coding question may deliberately move concrete behavioral requirements into retrieved memories. Judge whether the current question plus the applicable retrieved memories defines an observable artifact; do not require the generic question to repeat scored constraints.
+
 Record to verify:
 {record_json}
 

@@ -158,6 +158,33 @@ class Crk2V2PipelineTest(unittest.TestCase):
         cls.post = load_script(SCRIPT_DIR / "30_post_crk2_v2_generation.py", "post_crk2_v2")
         cls.qc_post = load_script(SCRIPT_DIR / "32_post_crk2_v2_independent_qc.py", "post_crk2_v2_qc")
         cls.repair = load_script(SCRIPT_DIR / "33_prepare_crk2_v2_repair.py", "repair_crk2_v2")
+        cls.grounding_repair = load_script(
+            SCRIPT_DIR / "43_repair_crk2_v2_evidence_grounding.py", "grounding_repair_crk2_v2"
+        )
+        cls.pass_merge = load_script(
+            SCRIPT_DIR / "44_merge_crk2_v2_deterministic_pass.py", "merge_crk2_v2_deterministic_pass"
+        )
+        cls.semantic_repair = load_script(
+            SCRIPT_DIR / "45_prepare_crk2_v2_semantic_repair.py", "prepare_crk2_v2_semantic_repair"
+        )
+        cls.semantic_merge = load_script(
+            SCRIPT_DIR / "46_merge_crk2_v2_semantic_repairs.py", "merge_crk2_v2_semantic_repairs"
+        )
+        cls.qc_candidates = load_script(
+            SCRIPT_DIR / "47_build_crk2_v2_semantic_qc_candidates.py", "build_crk2_v2_semantic_qc_candidates"
+        )
+        cls.qc_merge = load_script(
+            SCRIPT_DIR / "48_merge_crk2_v2_independent_qc_repairs.py", "merge_crk2_v2_independent_qc_repairs"
+        )
+        cls.reserve_reconstruction = load_script(
+            SCRIPT_DIR / "49_prepare_crk2_v2_reserve_reconstruction.py", "prepare_crk2_v2_reserve_reconstruction"
+        )
+        cls.metadata_backfill = load_script(
+            SCRIPT_DIR / "52_backfill_crk2_v2_source_metadata.py", "backfill_crk2_v2_source_metadata"
+        )
+        cls.release_artifacts = load_script(
+            SCRIPT_DIR / "53_build_multidomain_release_artifacts.py", "build_multidomain_release_artifacts"
+        )
         cls.review = load_script(SCRIPT_DIR / "35_build_crk2_v2_review.py", "review_crk2_v2")
         cls.expert_audit = load_script(SCRIPT_DIR / "36_build_crk2_v2_expert_audit.py", "expert_audit_crk2_v2")
 
@@ -220,11 +247,61 @@ class Crk2V2PipelineTest(unittest.TestCase):
         params["raw_selection"] = {"eligible": True}
         params["semantic_qc"] = {"state": "strict_pass"}
         params["semantic_admission"] = {"decision": "admitted_strict"}
+        params["source_metadata"] = {"dataset_revision": "test-revision"}
         normalized = self.post.normalize_record(record, params, "request", [])
         self.assertEqual("health_seed", normalized["domain"])
         self.assertEqual("test-license", normalized["source_license"])
         self.assertEqual({"eligible": True}, normalized["raw_selection"])
         self.assertEqual("strict_pass", normalized["semantic_qc"]["state"])
+        self.assertEqual({"dataset_revision": "test-revision"}, normalized["source_metadata"])
+
+    def test_source_metadata_backfill_requires_complete_stack_exchange_attribution(self) -> None:
+        record, _ = valid_record()
+        record.update(
+            {
+                "id": "request",
+                "source_id": "raw1",
+                "source_dataset": self.metadata_backfill.STACK_EXCHANGE_DATASET,
+            }
+        )
+        metadata = {
+            "question_author_name": "Question Author",
+            "question_author_profile": "https://stackoverflow.com/users/1/example",
+            "answer_author": "Answer Author",
+            "answer_author_profile": "https://stackoverflow.com/users/2/example",
+            "question_url": "https://stackoverflow.com/questions/3/example",
+            "attribution_complete": True,
+        }
+        repaired, audit = self.metadata_backfill.backfill_rows([record], {"raw1": metadata})
+        self.assertEqual(metadata, repaired[0]["source_metadata"])
+        self.assertEqual(1, audit["stack_exchange_attribution_complete"])
+
+        incomplete = dict(metadata)
+        incomplete["question_author_name"] = ""
+        with self.assertRaisesRegex(ValueError, "incomplete Stack Exchange attribution"):
+            self.metadata_backfill.backfill_rows([record], {"raw1": incomplete})
+
+    def test_release_artifact_validation_rejects_incomplete_attribution(self) -> None:
+        record, params = valid_record()
+        normalized = self.post.normalize_record(record, params, "request", [])
+        normalized["source_dataset"] = self.release_artifacts.STACK_EXCHANGE_DATASET
+        normalized["release_admission"] = {"decision": "admitted_strict"}
+        normalized["independent_qc"] = {"decision": "strict_pass"}
+        normalized["source_metadata"] = {
+            "question_author_name": "Question Author",
+            "question_author_profile": "https://stackoverflow.com/users/1/example",
+            "answer_author": "Answer Author",
+            "answer_author_profile": "https://stackoverflow.com/users/2/example",
+            "question_url": "https://stackoverflow.com/questions/3/example",
+            "attribution_complete": True,
+        }
+        audit = self.release_artifacts.validate_release([normalized], 1, {"health_seed": 1})
+        self.assertEqual(1, audit["stack_exchange_attribution_complete"])
+
+        normalized["source_metadata"]["attribution_complete"] = False
+        with self.assertRaisesRegex(ValueError, "attribution_not_complete"):
+            self.release_artifacts.validate_release([normalized], 1, {"health_seed": 1})
+        self.assertEqual("#", self.release_artifacts.safe_url("javascript:alert(1)"))
 
     def test_a_cannot_use_correct_action(self) -> None:
         record, params = valid_record()
@@ -333,6 +410,206 @@ class Crk2V2PipelineTest(unittest.TestCase):
         self.assertIn("character-for-character", content)
         self.assertIn("B/C + correct, never A", content)
         self.assertIn("memory_0_ungrounded_evidence", content)
+
+    def test_grounding_repair_uses_exact_source_span_and_passes_validator(self) -> None:
+        record, params = valid_record()
+        record["memory_blocks"][0]["raw_evidence"] = "The person uses warfarin every day."
+        record["memories"][0]["evidence"] = "The person uses warfarin every day."
+        record["qc"]["evidence_grounding_pass"] = False
+        errors, _ = self.post.validate_record(record, params)
+        repaired, actions, failures = self.grounding_repair.repair_record(
+            {
+                "errors": errors,
+                "user_defined_params": params,
+                "parsed_record": record,
+            },
+            min_score=0.25,
+        )
+        self.assertEqual([], failures)
+        self.assertEqual(2, len(actions))
+        self.assertEqual("I take warfarin daily.", repaired["memory_blocks"][0]["raw_evidence"])
+        self.assertEqual("I take warfarin daily.", repaired["memories"][0]["evidence"])
+        self.assertEqual([], self.post.validate_record(repaired, params)[0])
+
+    def test_grounding_repair_refuses_records_with_other_errors(self) -> None:
+        record, params = valid_record()
+        repaired, actions, failures = self.grounding_repair.repair_record(
+            {
+                "errors": ["memory_0_ungrounded_evidence", "memory_0_bad_label"],
+                "user_defined_params": params,
+                "parsed_record": record,
+            },
+            min_score=0.25,
+        )
+        self.assertEqual({}, repaired)
+        self.assertEqual([], actions)
+        self.assertEqual(["not_grounding_only"], failures)
+
+    def test_grounding_repair_corrects_empty_context_source(self) -> None:
+        record, params = valid_record()
+        record["memory_blocks"][0]["source"] = "from_context"
+        record["memory_blocks"][0]["raw_evidence"] = "The person uses warfarin every day."
+        record["memories"][0]["source"] = "from_context"
+        record["memories"][0]["evidence"] = "The person uses warfarin every day."
+        record["qc"]["evidence_grounding_pass"] = False
+        errors, _ = self.post.validate_record(record, params)
+        repaired, actions, failures = self.grounding_repair.repair_record(
+            {
+                "errors": errors,
+                "user_defined_params": params,
+                "parsed_record": record,
+            },
+            min_score=0.25,
+        )
+        self.assertEqual([], failures)
+        self.assertEqual("from_question", repaired["memory_blocks"][0]["source"])
+        self.assertEqual("from_question", repaired["memories"][0]["source"])
+        self.assertTrue(any(action.get("reason") == "declared_source_empty" for action in actions))
+        self.assertEqual([], self.post.validate_record(repaired, params)[0])
+
+    def test_deterministic_pass_merge_preserves_request_order_and_exclusions(self) -> None:
+        requests = [
+            {"request_id": f"request-{source_id}", "user_defined_params": {"id": source_id, "domain": "general"}}
+            for source_id in ("source-a", "source-b", "source-c")
+        ]
+        records = [
+            {"id": "record-c", "source_id": "source-c"},
+            {"id": "record-a", "source_id": "source-a"},
+        ]
+        resolved, excluded = self.pass_merge.merge_in_request_order(requests, records)
+        self.assertEqual(["source-a", "source-c"], [row["source_id"] for row in resolved])
+        self.assertEqual(["source-b"], [row["source_id"] for row in excluded])
+        self.assertEqual("deterministic_reject", excluded[0]["exclusion_reason"])
+
+    def test_semantic_repair_request_preserves_record_id_and_qc_feedback(self) -> None:
+        record, params = valid_record()
+        record.update(
+            {
+                "id": "crk2_v2_raw1",
+                "source_id": "raw1",
+                "domain": "health_seed",
+                "source_dataset": "source-a",
+                "independent_qc": {
+                    "decision": "reject",
+                    "declared_decision": "reject",
+                    "decision_reasons": ["p1_a1:hard_failure"],
+                    "issues": ["The question repeats the first memory atom."],
+                    "atom_checks": [],
+                    "pair_checks": [],
+                },
+            }
+        )
+        template = (SCRIPT_DIR / "prompts" / "repair_crk2_memory_benchmark_record_v2_semantic_en.txt").read_text()
+        request = self.semantic_repair.build_semantic_repair_request(
+            record,
+            {"request_id": "crk2_v2_raw1", "user_defined_params": params},
+            retry_round=1,
+            template=template,
+        )
+        self.assertEqual("crk2_v2_raw1", request["request_id"])
+        lineage = request["user_defined_params"]["crk2_v2_semantic_repair"]
+        self.assertEqual("crk2_v2_raw1", lineage["original_record_id"])
+        content = request["prompt"][0]["content"]
+        self.assertIn("must not state, paraphrase, entail", content)
+        self.assertIn("The question repeats the first memory atom.", content)
+        self.assertIn("B or C + correct, never A", content)
+
+    def test_semantic_repair_v2_prompt_preserves_leaked_atoms_and_rewrites_question(self) -> None:
+        content = (SCRIPT_DIR / "prompts" / "repair_crk2_memory_benchmark_record_v2_semantic_v2_en.txt").read_text()
+        self.assertIn("keep the atom in memory and remove", content)
+        self.assertIn("Use 3-6 parent memory_blocks and 3-8 atomic memories", content)
+        self.assertIn("query_relation must equal absent", content)
+        self.assertIn("B or C + correct, never A", content)
+
+    def test_normalization_preserves_semantic_repair_lineage(self) -> None:
+        record, params = valid_record()
+        params["crk2_v2_semantic_repair"] = {
+            "schema_version": "crk2-v2-semantic-repair-requests-v1",
+            "retry_round": 1,
+        }
+        normalized = self.post.normalize_record(record, params, "crk2_v2_raw1", [])
+        self.assertEqual(1, normalized["semantic_repair"]["retry_round"])
+
+    def test_semantic_merge_replaces_targets_and_retains_unresolved_originals(self) -> None:
+        base = [
+            {"id": "record-a", "source_id": "source-a", "domain": "general"},
+            {"id": "record-b", "source_id": "source-b", "domain": "coding"},
+            {"id": "record-c", "source_id": "source-c", "domain": "health_seed"},
+        ]
+        targets = [
+            {"id": "record-b", "independent_qc": {"decision_reasons": ["p1:hard_failure"]}},
+            {"id": "record-c", "independent_qc": {"decision_reasons": ["p2:hard_failure"]}},
+        ]
+        repaired = [{"id": "record-b", "source_id": "source-b", "domain": "coding", "repaired": True}]
+        merged, unresolved = self.semantic_merge.merge_semantic_repairs(base, targets, repaired)
+        self.assertEqual(["record-a", "record-b", "record-c"], [row["id"] for row in merged])
+        self.assertTrue(merged[1]["repaired"])
+        self.assertEqual("source-c", merged[2]["source_id"])
+        self.assertEqual(["record-c"], [row["record_id"] for row in unresolved])
+
+    def test_semantic_merge_appends_nonoverlapping_reserve_records(self) -> None:
+        base = [{"id": "record-a", "source_id": "source-a", "domain": "general"}]
+        additional = [{"id": "record-b", "source_id": "source-b", "domain": "coding"}]
+        merged, unresolved = self.semantic_merge.merge_semantic_repairs(base, [], [], additional)
+        self.assertEqual(["record-a", "record-b"], [row["id"] for row in merged])
+        self.assertEqual([], unresolved)
+
+    def test_semantic_qc_candidates_include_only_repairs_and_prior_invalid(self) -> None:
+        benchmark = [
+            {"id": "record-a", "source_id": "source-a", "domain": "general"},
+            {"id": "record-b", "source_id": "source-b", "domain": "coding"},
+            {"id": "record-c", "source_id": "source-c", "domain": "health_seed"},
+        ]
+        repaired = [{"id": "record-b", "source_id": "source-b", "domain": "coding", "repaired": True}]
+        prior_invalid = [{"record_id": "record-c", "errors": ["bad_json"]}]
+        candidates = self.qc_candidates.build_candidates(benchmark, repaired, prior_invalid)
+        self.assertEqual(["record-b", "record-c"], [row["id"] for row in candidates])
+        self.assertTrue(candidates[0]["repaired"])
+
+    def test_semantic_qc_candidates_append_reserve_records(self) -> None:
+        benchmark = [{"id": "record-a", "source_id": "source-a", "domain": "general"}]
+        additional = [{"id": "record-b", "source_id": "source-b", "domain": "coding"}]
+        candidates = self.qc_candidates.build_candidates(benchmark, [], [], additional)
+        self.assertEqual(["record-b"], [row["id"] for row in candidates])
+
+    def test_qc_merge_replaces_only_retried_records(self) -> None:
+        prior = {
+            "strict_pass": [{"id": "strict-old"}],
+            "review": [{"id": "review-old"}],
+            "reject": [{"id": "repair-me"}, {"id": "reject-old"}],
+            "invalid": [{"record_id": "retry-invalid"}],
+        }
+        retry = {
+            "strict_pass": [{"id": "repair-me"}],
+            "review": [{"id": "retry-invalid"}],
+            "reject": [],
+            "invalid": [],
+        }
+        merged = self.qc_merge.merge_qc_buckets(prior, retry)
+        self.assertEqual(["strict-old", "repair-me"], [row["id"] for row in merged["strict_pass"]])
+        self.assertEqual(["review-old", "retry-invalid"], [row["id"] for row in merged["review"]])
+        self.assertEqual(["reject-old"], [row["id"] for row in merged["reject"]])
+        self.assertEqual([], merged["invalid"])
+
+    def test_qc_merge_appends_new_reserve_record(self) -> None:
+        prior = {"strict_pass": [{"id": "old"}], "review": [], "reject": [], "invalid": []}
+        retry = {"strict_pass": [{"id": "reserve"}], "review": [], "reject": [], "invalid": []}
+        merged = self.qc_merge.merge_qc_buckets(prior, retry)
+        self.assertEqual(["old", "reserve"], [row["id"] for row in merged["strict_pass"]])
+
+    def test_reserve_reconstruction_request_requires_real_applied_memory(self) -> None:
+        record, params = valid_record()
+        row = {
+            "request_id": "crk2_v2_raw1",
+            "errors": ["missing_real_applied_memory"],
+            "user_defined_params": params,
+            "parsed_record": record,
+        }
+        template = (SCRIPT_DIR / "prompts" / "reconstruct_crk2_memory_benchmark_record_v2_en.txt").read_text()
+        request = self.reserve_reconstruction.build_reconstruction_request(row, 1, template)
+        self.assertEqual("crk2_v2_raw1", request["request_id"])
+        self.assertIn("Include at least one real B/C atom", request["prompt"][0]["content"])
+        self.assertEqual(1, request["user_defined_params"]["crk2_v2_reserve_reconstruction"]["retry_round"])
 
     def test_review_orders_rejects_first_and_exposes_full_protocol(self) -> None:
         accepted, _ = valid_record()

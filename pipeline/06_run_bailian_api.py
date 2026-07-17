@@ -6,6 +6,10 @@ import hashlib
 import http.client
 import json
 import os
+import shutil
+import subprocess
+import sys
+import tempfile
 import threading
 import time
 import urllib.error
@@ -24,6 +28,12 @@ RESERVED_EXTRA_BODY_FIELDS = {"model", "messages", "temperature", "max_tokens"}
 
 class LengthFinishError(RuntimeError):
     pass
+
+
+class ProviderCallError(RuntimeError):
+    def __init__(self, message: str, *, retryable: bool) -> None:
+        super().__init__(message)
+        self.retryable = retryable
 
 
 class RateLimiter:
@@ -206,6 +216,230 @@ def call_chat_completions(
         return json.loads(resp.read().decode("utf-8"))
 
 
+def call_chat_completions_with_hard_timeout(
+    *,
+    base_url: str,
+    api_key: str,
+    model: str,
+    messages: list[dict[str, str]],
+    temperature: float,
+    max_tokens: int,
+    timeout: int,
+    hard_timeout: int,
+    extra_body: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    curl_path = shutil.which("curl")
+    if curl_path:
+        return call_chat_completions_with_curl(
+            curl_path=curl_path,
+            base_url=base_url,
+            api_key=api_key,
+            model=model,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            hard_timeout=hard_timeout,
+            extra_body=extra_body,
+        )
+
+    return call_chat_completions_with_python_worker(
+        base_url=base_url,
+        api_key=api_key,
+        model=model,
+        messages=messages,
+        temperature=temperature,
+        max_tokens=max_tokens,
+        timeout=timeout,
+        hard_timeout=hard_timeout,
+        extra_body=extra_body,
+    )
+
+
+def call_chat_completions_with_curl(
+    *,
+    curl_path: str,
+    base_url: str,
+    api_key: str,
+    model: str,
+    messages: list[dict[str, str]],
+    temperature: float,
+    max_tokens: int,
+    hard_timeout: int,
+    extra_body: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    payload = {
+        "model": model,
+        "messages": messages,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+    }
+    payload.update(validate_extra_body(extra_body or {}))
+    data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    with tempfile.TemporaryFile(mode="w+b") as header_file:
+        header_file.write(f"Authorization: Bearer {api_key}\nContent-Type: application/json\n".encode("utf-8"))
+        header_file.flush()
+        header_file.seek(0)
+        try:
+            completed = subprocess.run(
+                [
+                    curl_path,
+                    "--silent",
+                    "--show-error",
+                    "--http1.1",
+                    "--max-time",
+                    str(hard_timeout),
+                    "--request",
+                    "POST",
+                    "--header",
+                    f"@/dev/fd/{header_file.fileno()}",
+                    "--data-binary",
+                    "@-",
+                    "--write-out",
+                    "\n%{http_code}",
+                    base_url,
+                ],
+                input=data,
+                capture_output=True,
+                timeout=hard_timeout + 5,
+                pass_fds=(header_file.fileno(),),
+                check=False,
+            )
+        except subprocess.TimeoutExpired as exc:
+            raise ProviderCallError(
+                f"HardTimeoutError: request exceeded {hard_timeout}s total deadline",
+                retryable=True,
+            ) from exc
+
+    body, separator, status_text = completed.stdout.rpartition(b"\n")
+    try:
+        status_code = int(status_text) if separator else 0
+    except ValueError:
+        status_code = 0
+    if completed.returncode == 28:
+        raise ProviderCallError(
+            f"HardTimeoutError: request exceeded {hard_timeout}s total deadline",
+            retryable=True,
+        )
+    if status_code >= 400:
+        excerpt = body.decode("utf-8", errors="replace")[:1000]
+        raise ProviderCallError(
+            f"HTTPError {status_code}: {excerpt}",
+            retryable=status_code in {408, 409, 429, 500, 502, 503, 504},
+        )
+    if completed.returncode != 0:
+        stderr = completed.stderr.decode("utf-8", errors="replace")[:500]
+        raise ProviderCallError(
+            f"CurlError {completed.returncode}: {stderr}",
+            retryable=True,
+        )
+    try:
+        response = json.loads(body.decode("utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ProviderCallError("Provider returned invalid JSON", retryable=True) from exc
+    if not isinstance(response, dict):
+        raise ProviderCallError("Provider returned no response object", retryable=True)
+    return response
+
+
+def call_chat_completions_with_python_worker(
+    *,
+    base_url: str,
+    api_key: str,
+    model: str,
+    messages: list[dict[str, str]],
+    temperature: float,
+    max_tokens: int,
+    timeout: int,
+    hard_timeout: int,
+    extra_body: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    envelope = {
+        "base_url": base_url,
+        "model": model,
+        "messages": messages,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "timeout": timeout,
+        "extra_body": extra_body or {},
+    }
+    child_env = os.environ.copy()
+    child_env["CRK2_CHILD_API_KEY"] = api_key
+    try:
+        completed = subprocess.run(
+            [sys.executable, str(Path(__file__).resolve()), "--single-request-worker"],
+            input=json.dumps(envelope, ensure_ascii=False),
+            text=True,
+            capture_output=True,
+            timeout=hard_timeout,
+            env=child_env,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise ProviderCallError(
+            f"HardTimeoutError: request exceeded {hard_timeout}s total deadline",
+            retryable=True,
+        ) from exc
+
+    if completed.returncode != 0:
+        raise ProviderCallError(
+            f"Provider worker exited with code {completed.returncode}",
+            retryable=True,
+        )
+    try:
+        worker_result = json.loads(completed.stdout)
+    except json.JSONDecodeError as exc:
+        raise ProviderCallError("Provider worker returned invalid JSON", retryable=True) from exc
+    if not worker_result.get("ok"):
+        raise ProviderCallError(
+            str(worker_result.get("error") or "Provider worker failed"),
+            retryable=bool(worker_result.get("retryable")),
+        )
+    response = worker_result.get("response")
+    if not isinstance(response, dict):
+        raise ProviderCallError("Provider worker returned no response object", retryable=True)
+    return response
+
+
+def single_request_worker_main() -> int:
+    try:
+        envelope = json.loads(sys.stdin.read())
+        api_key = os.environ.get("CRK2_CHILD_API_KEY", "")
+        if not api_key:
+            raise ValueError("Missing child API key")
+        response = call_chat_completions(
+            base_url=str(envelope["base_url"]),
+            api_key=api_key,
+            model=str(envelope["model"]),
+            messages=envelope["messages"],
+            temperature=float(envelope["temperature"]),
+            max_tokens=int(envelope["max_tokens"]),
+            timeout=int(envelope["timeout"]),
+            extra_body=envelope.get("extra_body") or {},
+        )
+        result = {"ok": True, "response": response}
+    except urllib.error.HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")
+        result = {
+            "ok": False,
+            "error": f"HTTPError {exc.code}: {body[:1000]}",
+            "retryable": exc.code in {408, 409, 429, 500, 502, 503, 504},
+        }
+    except (urllib.error.URLError, http.client.HTTPException, TimeoutError, ValueError, json.JSONDecodeError) as exc:
+        result = {
+            "ok": False,
+            "error": f"{type(exc).__name__}: {exc}",
+            "retryable": True,
+        }
+    except Exception as exc:
+        result = {
+            "ok": False,
+            "error": f"{type(exc).__name__}: {exc}",
+            "retryable": False,
+        }
+    sys.stdout.write(json.dumps(result, ensure_ascii=False))
+    return 0
+
+
 def extract_content(response: dict[str, Any]) -> str:
     choices = response.get("choices")
     if isinstance(choices, list) and choices:
@@ -231,16 +465,24 @@ def run_one(row: dict[str, Any], args: argparse.Namespace, api_key: str, limiter
     for attempt in range(args.max_retries + 1):
         try:
             limiter.wait()
-            response = call_chat_completions(
-                base_url=args.base_url,
-                api_key=api_key,
-                model=args.model,
-                messages=messages,
-                temperature=args.temperature,
-                max_tokens=args.max_tokens,
-                timeout=args.timeout,
-                extra_body=getattr(args, "extra_body", {}),
-            )
+            call_args = {
+                "base_url": args.base_url,
+                "api_key": api_key,
+                "model": args.model,
+                "messages": messages,
+                "temperature": args.temperature,
+                "max_tokens": args.max_tokens,
+                "timeout": args.timeout,
+                "extra_body": getattr(args, "extra_body", {}),
+            }
+            hard_timeout = int(getattr(args, "hard_timeout", 0) or 0)
+            if hard_timeout > 0:
+                response = call_chat_completions_with_hard_timeout(
+                    **call_args,
+                    hard_timeout=hard_timeout,
+                )
+            else:
+                response = call_chat_completions(**call_args)
             ensure_not_truncated(response)
             return {
                 "ok": True,
@@ -260,6 +502,9 @@ def run_one(row: dict[str, Any], args: argparse.Namespace, api_key: str, limiter
         except (urllib.error.URLError, http.client.HTTPException, TimeoutError, ValueError, json.JSONDecodeError) as exc:
             last_error = f"{type(exc).__name__}: {exc}"
             retryable = True
+        except ProviderCallError as exc:
+            last_error = str(exc)
+            retryable = exc.retryable
         if attempt >= args.max_retries or not retryable:
             break
         sleep_s = min(args.retry_max_sleep, args.retry_base_sleep * (2**attempt))
@@ -324,6 +569,12 @@ def main() -> None:
     parser.add_argument("--max-workers", type=int, default=None)
     parser.add_argument("--max-retries", type=int, default=None)
     parser.add_argument("--timeout", type=int, default=None)
+    parser.add_argument(
+        "--hard-timeout",
+        type=int,
+        default=None,
+        help="Total per-attempt deadline in seconds. Defaults to --timeout; use 0 to disable subprocess isolation.",
+    )
     parser.add_argument("--extra-body-json", default="", help="JSON object merged into the provider request payload.")
     parser.add_argument("--retry-base-sleep", type=float, default=2.0)
     parser.add_argument("--retry-max-sleep", type=float, default=60.0)
@@ -344,6 +595,7 @@ def main() -> None:
     args.max_workers = args.max_workers if args.max_workers is not None else int(cfg.get("max_workers", 4))
     args.max_retries = args.max_retries if args.max_retries is not None else int(cfg.get("max_retries", 5))
     args.timeout = args.timeout if args.timeout is not None else int(cfg.get("timeout", 300))
+    args.hard_timeout = args.hard_timeout if args.hard_timeout is not None else int(cfg.get("hard_timeout", args.timeout))
     args.extra_body = parse_extra_body(args.extra_body_json)
     args.failed = args.failed or args.output.with_suffix(".failed.jsonl")
 
@@ -410,4 +662,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    if sys.argv[1:] == ["--single-request-worker"]:
+        raise SystemExit(single_request_worker_main())
     main()

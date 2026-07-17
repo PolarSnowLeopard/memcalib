@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import re
 from collections import Counter
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -17,6 +19,7 @@ from utils import norm_text, stable_id, write_json, write_jsonl
 SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_OUTPUT_DIR = SCRIPT_DIR / "data" / "multidomain"
 SCHEMA_VERSION = "memcalib-domain-source-v1"
+STACK_EXCHANGE_DATASET_REVISION = "c7bda74048748f55749cd663c3d8d1025a841fd9"
 
 GENERAL_TOPIC_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("writing_creative", re.compile(r"\b(write|rewrite|story|poem|essay|email|letter|tone|character|creative)\b", re.I)),
@@ -50,6 +53,74 @@ def clean_source_text(text: str) -> str:
     text = (text or "").replace("\r\n", "\n").replace("\r", "\n").strip()
     lines = [line.rstrip() for line in text.splitlines()]
     return re.sub(r"\n{3,}", "\n\n", "\n".join(lines))
+
+
+class _StackExchangeHTMLParser(HTMLParser):
+    BLOCK_TAGS = {
+        "blockquote",
+        "br",
+        "div",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "li",
+        "ol",
+        "p",
+        "pre",
+        "table",
+        "tr",
+        "ul",
+    }
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+        self.pre_depth = 0
+        self.inline_code_depth = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        del attrs
+        if tag == "pre":
+            self.parts.append("\n```\n")
+            self.pre_depth += 1
+        elif tag == "code" and self.pre_depth == 0:
+            self.parts.append("`")
+            self.inline_code_depth += 1
+        elif tag == "li":
+            self.parts.append("\n- ")
+        elif tag in self.BLOCK_TAGS:
+            self.parts.append("\n")
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "pre":
+            self.pre_depth = max(0, self.pre_depth - 1)
+            self.parts.append("\n```\n")
+        elif tag == "code" and self.pre_depth == 0 and self.inline_code_depth > 0:
+            self.parts.append("`")
+            self.inline_code_depth -= 1
+        elif tag in self.BLOCK_TAGS:
+            self.parts.append("\n")
+
+    def handle_data(self, data: str) -> None:
+        self.parts.append(data)
+
+
+def stack_exchange_html_to_text(value: str) -> str:
+    parser = _StackExchangeHTMLParser()
+    parser.feed(value or "")
+    parser.close()
+    text = html.unescape("".join(parser.parts)).replace("\xa0", " ")
+    lines = []
+    in_fence = False
+    for raw_line in text.replace("\r\n", "\n").replace("\r", "\n").splitlines():
+        line = raw_line.rstrip() if in_fence else re.sub(r"[ \t]+", " ", raw_line).strip()
+        if line == "```":
+            in_fence = not in_fence
+        lines.append(line)
+    return clean_source_text("\n".join(lines))
 
 
 def classify_topic(text: str, domain: str) -> str:
@@ -303,9 +374,88 @@ def normalize_magicoder(path: Path) -> Iterable[dict[str, Any]]:
             )
 
 
+def _best_stack_exchange_answer(answers: list[dict[str, Any]]) -> dict[str, Any] | None:
+    candidates = [answer for answer in answers if str(answer.get("text") or "").strip()]
+    if not candidates:
+        return None
+    return max(
+        candidates,
+        key=lambda answer: (
+            bool(answer.get("selected")),
+            int(answer.get("pm_score") or -1),
+            -int(answer.get("answer_id") or 0),
+        ),
+    )
+
+
+def normalize_stack_exchange(path: Path) -> Iterable[dict[str, Any]]:
+    parquet = pq.ParquetFile(path)
+    columns = ["qid", "question", "answers", "date", "metadata"]
+    for batch in parquet.iter_batches(columns=columns, batch_size=512):
+        for row in batch.to_pylist():
+            qid = str(row.get("qid") or "")
+            question = stack_exchange_html_to_text(str(row.get("question") or ""))
+            answers = row.get("answers") or []
+            chosen = _best_stack_exchange_answer(answers)
+            if not qid or not question or chosen is None:
+                continue
+            answer = stack_exchange_html_to_text(str(chosen.get("text") or ""))
+            if not answer:
+                continue
+            metadata = [str(value or "") for value in (row.get("metadata") or [])]
+            question_url = metadata[0] if len(metadata) > 0 else f"https://stackoverflow.com/questions/{qid}"
+            site_url = metadata[1] if len(metadata) > 1 else "https://stackoverflow.com"
+            question_author_profile = metadata[2] if len(metadata) > 2 else ""
+            question_author_name = ""
+            answer_author = str(chosen.get("author") or "")
+            answer_author_profile = str(chosen.get("author_profile") or "")
+            attribution_complete = bool(
+                question_author_name and question_author_profile and answer_author and answer_author_profile
+            )
+            yield _source_record(
+                source_id=stable_id(
+                    "HuggingFaceH4/stack-exchange-preferences",
+                    qid,
+                    question,
+                    prefix="raw_coding",
+                ),
+                domain="coding",
+                source_dataset="HuggingFaceH4/stack-exchange-preferences",
+                source_split="data/Stackoverflow.com/train",
+                source_index=qid,
+                question=question,
+                answer=answer,
+                context="",
+                source_license="CC-BY-SA-4.0",
+                source_metadata={
+                    "qid": qid,
+                    "question_url": question_url,
+                    "question_author_profile": question_author_profile,
+                    "question_author_name": question_author_name,
+                    "answer_id": str(chosen.get("answer_id") or ""),
+                    "answer_author": answer_author,
+                    "answer_author_id": str(chosen.get("author_id") or ""),
+                    "answer_author_profile": answer_author_profile,
+                    "answer_selected": bool(chosen.get("selected")),
+                    "answer_pm_score": int(chosen.get("pm_score") or -1),
+                    "answer_count": len(answers),
+                    "question_date": str(row.get("date") or ""),
+                    "site_url": site_url,
+                    "dataset_revision": STACK_EXCHANGE_DATASET_REVISION,
+                    "dataset_shard": path.name,
+                    "attribution_complete": attribution_complete,
+                    "attribution_note": "question author display name must be resolved before release",
+                },
+            )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Normalize General or Coding sources into the MemCalib source schema.")
-    parser.add_argument("--source", choices=("oasst1", "oasst2", "ultrachat", "apps", "magicoder"), required=True)
+    parser.add_argument(
+        "--source",
+        choices=("oasst1", "oasst2", "ultrachat", "apps", "magicoder", "stack_exchange"),
+        required=True,
+    )
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--manifest", type=Path)
@@ -321,6 +471,7 @@ def main() -> None:
         "ultrachat": normalize_ultrachat,
         "apps": normalize_apps,
         "magicoder": normalize_magicoder,
+        "stack_exchange": normalize_stack_exchange,
     }
     iterator = normalizers[args.source](args.input)
     record_count = 0

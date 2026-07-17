@@ -58,6 +58,26 @@ def _eligible(row: dict[str, Any]) -> bool:
     return bool((row.get("raw_selection") or {}).get("eligible"))
 
 
+def exclude_records(
+    rows: list[dict[str, Any]], exclude_ids: list[str]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    normalized = [value.strip() for value in exclude_ids]
+    if any(not value for value in normalized) or len(normalized) != len(set(normalized)):
+        raise ValueError("excluded IDs must be non-empty and unique")
+    if not normalized:
+        return rows, []
+
+    targets = set(normalized)
+    excluded = [row for row in rows if str(row.get("id") or "") in targets]
+    found = {str(row.get("id") or "") for row in excluded}
+    missing = sorted(targets - found)
+    if missing:
+        raise ValueError(f"excluded IDs missing from inputs: {missing}")
+    if len(excluded) != len(found):
+        raise ValueError("excluded IDs must identify one input record each")
+    return [row for row in rows if str(row.get("id") or "") not in targets], excluded
+
+
 def distribution(rows: list[dict[str, Any]]) -> dict[str, dict[str, int]]:
     return {
         "domain": dict(sorted(Counter(str(row.get("domain") or "unknown") for row in rows).items())),
@@ -165,6 +185,12 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--seed", type=int, default=20260715)
+    parser.add_argument(
+        "--exclude-id",
+        action="append",
+        default=[],
+        help="Explicitly exclude a blocked or unusable source ID before deterministic selection.",
+    )
     args = parser.parse_args()
 
     source_quotas = parse_source_quotas(args.source_quota)
@@ -177,6 +203,7 @@ def main() -> None:
         rows.extend(input_rows)
         input_metadata.append({"path": str(path), "sha256": file_sha256(path), "records": len(input_rows)})
 
+    rows, excluded_rows = exclude_records(rows, args.exclude_id)
     selected, audit = build_pool(rows, source_quotas, args.seed, selection_config)
     write_jsonl(args.output, selected)
     manifest = {
@@ -184,7 +211,16 @@ def main() -> None:
         "inputs": input_metadata,
         "implementation": {"path": str(Path(__file__).resolve()), "sha256": file_sha256(Path(__file__).resolve())},
         "config": {"path": str(args.config), "sha256": file_sha256(args.config)},
-        "parameters": {"seed": args.seed},
+        "parameters": {"seed": args.seed, "excluded_ids": sorted(args.exclude_id)},
+        "excluded_records": [
+            {
+                "id": str(row.get("id") or ""),
+                "domain": str(row.get("domain") or "unknown"),
+                "source_dataset": str(row.get("source_dataset") or "unknown"),
+                "topic": str(row.get("topic") or "unknown"),
+            }
+            for row in sorted(excluded_rows, key=lambda item: str(item.get("id") or ""))
+        ],
         **audit,
         "output": {"path": str(args.output), "sha256": file_sha256(args.output), "records": len(selected)},
     }

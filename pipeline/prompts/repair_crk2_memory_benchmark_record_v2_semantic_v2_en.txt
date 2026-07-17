@@ -1,0 +1,64 @@
+You are repairing one CRK-2 canonical-memory-v2 benchmark record that failed independent semantic quality control.
+
+Return exactly one JSON object with schema_version crk-2-canonical-memory-v2 and no Markdown. All generated natural-language fields must be in English. Return the complete repaired record, not a patch.
+
+## Repair priority
+
+Preserve the original real memory inventory and repair the CURRENT QUESTION around it. When a B/C atom leaked into the question, keep the atom in memory and remove its fact, constraint, preference, history, or wording from the question. Do not delete useful real atoms and do not relabel them A merely because the original question leaked them.
+
+The repaired question must not state, paraphrase, entail, presuppose, or make directly recoverable any scored memory atom. A model that sees only the repaired question must not be able to reproduce a memory-conditioned answer footprint. The question must remain natural and answerable when the memory blocks are supplied, and it must preserve the source task rather than become an unrelated generic request.
+
+Use the independent QC feedback as evidence, but recompute every label, action, contract, rubric, and pair relation from the final repaired object.
+
+## Exact structural requirements
+
+- accepted must be true.
+- Use 3-6 parent memory_blocks and 3-8 atomic memories. Preserve original parent and atom IDs when the propositions remain present.
+- Keep exactly one synthetic_hard_a parent block. It must be A + ignore, plausible, topically close, and have no observable answer footprint. It must not be false, dangerous, stale, or incompatible in a way that deserves correction.
+- memory_id must equal atom_id. IDs must be unique. Every block atom_id must resolve to exactly one memory.
+- Every unordered atom pair must appear exactly once in atom_pair_relations with relation=independent and a specific reason. Merge or rewrite overlapping, entailing, or contradictory atoms.
+
+## Exact enum and grounding requirements
+
+- source: from_question, from_context, or synthetic_hard_a only.
+- derivation: explicit, inferred, or synthetic only.
+- memory_type: case_fact, constraint, preference, profile_fact, or safety_sensitive only.
+- u_star: A, B, or C only. memory_action: ignore, apply, or correct only.
+- query_relation must equal absent for every atom after rewriting the question.
+- Real raw_evidence and evidence must each be a non-empty contiguous substring copied character-for-character from RAW QUESTION or SOURCE CONTEXT according to source. Never paraphrase evidence. Never use the reference answer as memory evidence or as a source of user facts.
+
+## Label, counterfactual, and rubric requirements
+
+- A means no observable influence and requires ignore, observable_delta="none", empty minimal_evidence, and memory_usage_weight="none".
+- B means supporting observable influence and requires apply or correct, a concrete non-empty observable_delta, non-empty minimal_evidence, and memory_usage_weight="supporting".
+- C means controlling observable influence and requires apply or correct, a concrete non-empty observable_delta, non-empty minimal_evidence, and memory_usage_weight="controlling".
+- Explicitly challenging or correcting a false, unsafe, stale, or incompatible memory is observable use: label it B or C + correct, never A.
+- Every atom must be independently judgeable and preserve necessary qualifiers.
+- Every atom must include complete construction_target, counterfactual_contract, and usage_rubric objects. A judge reading only an answer must be able to distinguish correct use, under-use, and over-use.
+- Set all seven qc booleans to true only after rechecking the final object; qc.issues must be empty.
+
+If the existing record has a leaked real atom, rewriting the question is preferred over dropping the atom. If a valid 3-parent/3-atom repair is impossible from grounded source facts plus one synthetic hard-A parent, return accepted=false with empty memories and explain why.
+
+## Source
+
+- domain: {domain}
+- source_dataset: {source_dataset}
+- source_id: {source_id}
+- topic: {topic}
+
+SOURCE CONTEXT
+{source_context}
+
+RAW QUESTION
+{raw_question}
+
+REFERENCE ANSWER (task interpretation only; forbidden as memory source)
+{source_answer}
+
+## Original record before semantic repair
+
+{original_record_json}
+
+## Independent QC feedback
+
+{independent_qc_json}

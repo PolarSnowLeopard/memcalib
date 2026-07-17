@@ -37,6 +37,10 @@ class MultidomainSourcesTest(unittest.TestCase):
         cls.generation = load_script("multidomain_generation_prepare", "10_prepare_crk2_generation.py")
         cls.generation_post = load_script("multidomain_generation_post", "11_post_crk2_generation.py")
         cls.generation_repair = load_script("multidomain_generation_repair", "27_prepare_crk2_generation_repair.py")
+        cls.attribution = load_script(
+            "stack_exchange_attribution",
+            "42_enrich_stack_exchange_attribution.py",
+        )
 
     @staticmethod
     def selection_config() -> dict:
@@ -206,6 +210,82 @@ class MultidomainSourcesTest(unittest.TestCase):
         self.assertIn("return [x", records[0]["source_answer"])
         self.assertEqual("interview", records[0]["source_metadata"]["difficulty"])
         self.assertTrue(records[0]["source_metadata"]["has_function_name"])
+
+    def test_normalize_stack_exchange_preserves_attribution_and_selects_accepted_answer(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "train-00000-of-00335.parquet"
+            pd.DataFrame(
+                [
+                    {
+                        "qid": 42,
+                        "question": "<p>How can I fix this <code>ValueError</code> in Python?</p>",
+                        "answers": [
+                            {
+                                "answer_id": 10,
+                                "author": "High Score",
+                                "author_id": 100,
+                                "author_profile": "https://stackoverflow.com/users/100",
+                                "pm_score": 12,
+                                "selected": False,
+                                "text": "<p>Use a broad fallback.</p>",
+                            },
+                            {
+                                "answer_id": 11,
+                                "author": "Accepted Author",
+                                "author_id": 101,
+                                "author_profile": "https://stackoverflow.com/users/101",
+                                "pm_score": 8,
+                                "selected": True,
+                                "text": "<p>Validate the input first.</p><pre><code>int(value)</code></pre>",
+                            },
+                        ],
+                        "date": "2020/01/02",
+                        "metadata": [
+                            "https://stackoverflow.com/questions/42",
+                            "https://stackoverflow.com",
+                            "https://stackoverflow.com/users/99",
+                        ],
+                    }
+                ]
+            ).to_parquet(path, index=False)
+
+            records = list(self.normalizer.normalize_stack_exchange(path))
+
+        self.assertEqual(1, len(records))
+        record = records[0]
+        self.assertEqual("coding", record["domain"])
+        self.assertEqual("CC-BY-SA-4.0", record["source_license"])
+        self.assertEqual("Accepted Author", record["source_metadata"]["answer_author"])
+        self.assertEqual("https://stackoverflow.com/questions/42", record["source_metadata"]["question_url"])
+        self.assertEqual("https://stackoverflow.com/users/99", record["source_metadata"]["question_author_profile"])
+        self.assertIn("`ValueError`", record["raw_question"])
+        self.assertIn("```\nint(value)\n```", record["source_answer"])
+        self.assertFalse(record["source_metadata"]["attribution_complete"])
+
+    def test_stack_exchange_attribution_enrichment_resolves_question_author(self) -> None:
+        row = {
+            "id": "stack-1",
+            "source_dataset": "HuggingFaceH4/stack-exchange-preferences",
+            "source_metadata": {
+                "question_url": "https://stackoverflow.com/questions/42",
+                "question_author_profile": "https://stackoverflow.com/users/99/",
+                "question_author_name": "",
+                "answer_author": "Accepted Author",
+                "answer_author_profile": "https://stackoverflow.com/users/101",
+                "attribution_complete": False,
+            },
+        }
+
+        enriched, audit = self.attribution.enrich_rows(
+            [row],
+            {99: {"display_name": "Question Author", "link": "https://stackoverflow.com/users/99/name"}},
+        )
+
+        metadata = enriched[0]["source_metadata"]
+        self.assertEqual("Question Author", metadata["question_author_name"])
+        self.assertTrue(metadata["attribution_complete"])
+        self.assertEqual(1, audit["question_authors_resolved"])
+        self.assertEqual([99], self.attribution.required_user_ids([row]))
 
     def test_domain_selector_detects_general_and_coding_memory_signals(self) -> None:
         general = {

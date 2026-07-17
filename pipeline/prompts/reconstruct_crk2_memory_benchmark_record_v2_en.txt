@@ -1,0 +1,65 @@
+You are reconstructing one CRK-2 canonical-memory-v2 benchmark record that failed repeated deterministic validation.
+
+Return exactly one complete JSON object with schema_version crk-2-canonical-memory-v2 and no Markdown. All generated natural-language fields must be in English. Rebuild invalid sections rather than preserving malformed structure.
+
+## Construction objective
+
+Create a natural decontextualized current question and a coherent stored-memory scenario grounded in the source. The question must preserve the source task while excluding every scored memory proposition. It must not state, paraphrase, entail, presuppose, or make directly recoverable any scored atom. A model that sees only the current question must not be able to reproduce a memory-conditioned answer footprint.
+
+When a source fact, preference, constraint, history, interface detail, or safety boundary should affect the answer, keep it only in memory and rewrite the question around it. Do not turn a leaked real memory into A merely because the old question repeated it.
+
+## Exact structural requirements
+
+- accepted=true.
+- Use 3-6 parent memory_blocks and 3-8 atomic memories.
+- Include at least two grounded real parent blocks when the source supports them, and exactly one synthetic_hard_a parent block.
+- Include at least one real B/C atom with memory_action apply or correct. Do not label every real atom A.
+- The synthetic_hard_a parent must use A + ignore, derivation=synthetic, and one allowed hard_a_family: scope_mismatch, stale_context, near_neighbor, or untriggered_preference. It must be plausible and topically close but leave no answer footprint. It must not be a false, dangerous, stale, or incompatible claim that deserves correction.
+- memory_id must equal atom_id. IDs must be unique. Every block atom_id must resolve to exactly one memory.
+- Every unordered atom pair must appear exactly once with relation=independent and a specific reason.
+
+## Exact enums and grounding
+
+- source: from_question, from_context, or synthetic_hard_a.
+- derivation: explicit, inferred, or synthetic.
+- memory_type: case_fact, constraint, preference, profile_fact, or safety_sensitive.
+- u_star: A, B, or C. memory_action: ignore, apply, or correct.
+- query_relation must be absent for every atom.
+- For every real block and atom, raw_evidence/evidence must be a non-empty contiguous substring copied character-for-character from RAW QUESTION or SOURCE CONTEXT according to source. Never paraphrase evidence. Never use the reference answer as memory evidence or as a source of user facts.
+- hard_a_family must be null for every real atom.
+
+## Labels, contracts, and rubrics
+
+- A requires ignore, observable_delta="none", empty minimal_evidence, and memory_usage_weight="none".
+- B requires apply or correct, a concrete non-empty observable delta, non-empty minimal_evidence, and memory_usage_weight="supporting".
+- C requires apply or correct, a concrete non-empty observable delta, non-empty minimal_evidence, and memory_usage_weight="controlling".
+- Explicit correction of a false, unsafe, stale, or incompatible memory is observable use: use B/C + correct, never A.
+- Each atom must be independently judgeable with necessary qualifiers preserved.
+- Every atom must contain complete construction_target, counterfactual_contract, and usage_rubric objects that let a judge distinguish correct use, under-use, and over-use from answer text alone.
+- Set all seven qc booleans to true only after rechecking the final object; qc.issues must be empty.
+
+If a valid 3-parent/3-atom record cannot be grounded using real source facts plus exactly one synthetic hard-A block, return accepted=false with empty memories and explain why.
+
+## Failed deterministic checks
+
+{failed_errors_json}
+
+## Source
+
+- domain: {domain}
+- source_dataset: {source_dataset}
+- source_id: {source_id}
+- topic: {topic}
+
+SOURCE CONTEXT
+{source_context}
+
+RAW QUESTION
+{raw_question}
+
+REFERENCE ANSWER (task interpretation only; forbidden as memory source)
+{source_answer}
+
+## Last parsed construction attempt
+
+{original_record_json}

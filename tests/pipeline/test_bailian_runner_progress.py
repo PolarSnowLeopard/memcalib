@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import subprocess
 import tempfile
 import unittest
 from http.client import RemoteDisconnected
@@ -165,6 +166,31 @@ class BailianRunnerProgressTest(unittest.TestCase):
 
         self.assertTrue(result["ok"])
         self.assertEqual(2, calls)
+
+    def test_hard_timeout_is_reported_as_retryable(self) -> None:
+        original_run = self.runner.subprocess.run
+
+        def raise_timeout(*args, **kwargs):
+            raise subprocess.TimeoutExpired(cmd=args[0], timeout=kwargs["timeout"])
+
+        self.runner.subprocess.run = raise_timeout
+        try:
+            with self.assertRaises(self.runner.ProviderCallError) as raised:
+                self.runner.call_chat_completions_with_hard_timeout(
+                    base_url="https://example.invalid",
+                    api_key="fake-key",
+                    model="test-model",
+                    messages=[{"role": "user", "content": "hello"}],
+                    temperature=0.0,
+                    max_tokens=32,
+                    timeout=300,
+                    hard_timeout=1,
+                )
+        finally:
+            self.runner.subprocess.run = original_run
+
+        self.assertTrue(raised.exception.retryable)
+        self.assertIn("exceeded 1s", str(raised.exception))
 
 
 if __name__ == "__main__":
