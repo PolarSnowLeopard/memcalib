@@ -1,0 +1,434 @@
+{
+  "schema_version": "memcalib-answer-run-v1",
+  "status": "completed",
+  "completed_at": "2026-07-17T14:29:26+08:00",
+  "formal_answers": 5000,
+  "models": [
+    {
+      "key": "qwen-max",
+      "model": "qwen3.7-max"
+    },
+    {
+      "key": "qwen-flash",
+      "model": "qwen3.6-flash"
+    },
+    {
+      "key": "deepseek",
+      "model": "deepseek-v4-pro"
+    },
+    {
+      "key": "deepseek-flash",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "key": "kimi",
+      "model": "kimi-k2.6"
+    }
+  ],
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "generation": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "enable_thinking": false
+  },
+  "aggregate_usage": {
+    "prompt_tokens": 669041,
+    "completion_tokens": 2681870,
+    "total_tokens": 3350911
+  },
+  "cells": {
+    "deepseek-flash:full_memory": {
+      "model": "deepseek-v4-flash",
+      "condition": "full_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/requests/answers/deepseek-flash/full_memory.jsonl",
+        "sha256": "c13002b94ef9d9866baa0a6f6636523140bb064dcbb3d742720a433f53849335"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/answers/deepseek-flash/full_memory.jsonl",
+        "sha256": "2e65a5361daa173df60b7a74962c011cee6cf9a3f80d9d9f9e257aa312445e01"
+      },
+      "validation": {
+        "expected": 500,
+        "output_rows": 500,
+        "unique_output_ids": 500,
+        "duplicate_ids": 0,
+        "valid": 500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 500,
+        "returned_models": {
+          "deepseek-v4-flash": 500
+        },
+        "finish_reasons": {
+          "stop": 500
+        },
+        "usage": {
+          "prompt_tokens": 82448,
+          "completion_tokens": 203534,
+          "total_tokens": 285982
+        },
+        "response_chars": {
+          "min": 51,
+          "mean": 1832.402,
+          "max": 10548
+        }
+      }
+    },
+    "deepseek-flash:no_memory": {
+      "model": "deepseek-v4-flash",
+      "condition": "no_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/requests/answers/deepseek-flash/no_memory.jsonl",
+        "sha256": "b6faaf069b9f24292c668322e007784623d454aa3b7907bd2fe2eb90bec300b0"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/answers/deepseek-flash/no_memory.jsonl",
+        "sha256": "2ab3bcef3b71be7e45f6f54d90ccae713ac290cf668a4b7991e02e06cfb47740"
+      },
+      "validation": {
+        "expected": 500,
+        "output_rows": 500,
+        "unique_output_ids": 500,
+        "duplicate_ids": 0,
+        "valid": 500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 500,
+        "returned_models": {
+          "deepseek-v4-flash": 500
+        },
+        "finish_reasons": {
+          "stop": 500
+        },
+        "usage": {
+          "prompt_tokens": 45189,
+          "completion_tokens": 247286,
+          "total_tokens": 292475
+        },
+        "response_chars": {
+          "min": 93,
+          "mean": 2146.518,
+          "max": 14285
+        }
+      }
+    },
+    "deepseek:full_memory": {
+      "model": "deepseek-v4-pro",
+      "condition": "full_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/requests/answers/deepseek/full_memory.jsonl",
+        "sha256": "3af658952f942bbbf0e6708cb21a7a11acb73729533b5621546e6ca6a1937f75"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/answers/deepseek/full_memory.jsonl",
+        "sha256": "14c9d3eed890b7bc23a8f61f16ff6117de50469a55f19dd2172447dba6c1555c"
+      },
+      "validation": {
+        "expected": 500,
+        "output_rows": 500,
+        "unique_output_ids": 500,
+        "duplicate_ids": 0,
+        "valid": 500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 500,
+        "returned_models": {
+          "deepseek-v4-pro": 500
+        },
+        "finish_reasons": {
+          "stop": 500
+        },
+        "usage": {
+          "prompt_tokens": 82448,
+          "completion_tokens": 224570,
+          "total_tokens": 307018
+        },
+        "response_chars": {
+          "min": 45,
+          "mean": 2045.572,
+          "max": 11912
+        }
+      }
+    },
+    "deepseek:no_memory": {
+      "model": "deepseek-v4-pro",
+      "condition": "no_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/requests/answers/deepseek/no_memory.jsonl",
+        "sha256": "1c996d384982d5d1a2ea910b329afa0a53c10cf5c18bf72c271e7d5eae9bbfd0"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/answers/deepseek/no_memory.jsonl",
+        "sha256": "4ad8f51aa894166056a10e9bdf0b3d3880a71aa9c8e463e220b892637c1ead89"
+      },
+      "validation": {
+        "expected": 500,
+        "output_rows": 500,
+        "unique_output_ids": 500,
+        "duplicate_ids": 0,
+        "valid": 500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 500,
+        "returned_models": {
+          "deepseek-v4-pro": 500
+        },
+        "finish_reasons": {
+          "stop": 500
+        },
+        "usage": {
+          "prompt_tokens": 45189,
+          "completion_tokens": 322317,
+          "total_tokens": 367506
+        },
+        "response_chars": {
+          "min": 112,
+          "mean": 2862.158,
+          "max": 27988
+        }
+      }
+    },
+    "kimi:full_memory": {
+      "model": "kimi-k2.6",
+      "condition": "full_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/requests/answers/kimi/full_memory.jsonl",
+        "sha256": "6228fd7ea8efdf4317d9e46c803979fc5f68aed5ddf2c698bb1c1bd5bc573d80"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/answers/kimi/full_memory.jsonl",
+        "sha256": "9871213fbe43ef3ff756b8cab2351b840448a3b7833f37a5ee74bfc11c9e861a"
+      },
+      "validation": {
+        "expected": 500,
+        "output_rows": 500,
+        "unique_output_ids": 500,
+        "duplicate_ids": 0,
+        "valid": 500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 500,
+        "returned_models": {
+          "kimi-k2.6": 500
+        },
+        "finish_reasons": {
+          "stop": 500
+        },
+        "usage": {
+          "prompt_tokens": 84823,
+          "completion_tokens": 189998,
+          "total_tokens": 274821
+        },
+        "response_chars": {
+          "min": 51,
+          "mean": 1751.262,
+          "max": 14188
+        }
+      }
+    },
+    "kimi:no_memory": {
+      "model": "kimi-k2.6",
+      "condition": "no_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/requests/answers/kimi/no_memory.jsonl",
+        "sha256": "0a435e28d2754e0df4f53307e2767dd54e33a8690f7f4dc8609696a7ad52925d"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/answers/kimi/no_memory.jsonl",
+        "sha256": "fdfe06c3559286ed00a445ba9c79ff4c64e4692146c4443674e6fea22de85734"
+      },
+      "validation": {
+        "expected": 500,
+        "output_rows": 500,
+        "unique_output_ids": 500,
+        "duplicate_ids": 0,
+        "valid": 500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 500,
+        "returned_models": {
+          "kimi-k2.6": 500
+        },
+        "finish_reasons": {
+          "stop": 500
+        },
+        "usage": {
+          "prompt_tokens": 48126,
+          "completion_tokens": 241384,
+          "total_tokens": 289510
+        },
+        "response_chars": {
+          "min": 110,
+          "mean": 2129.408,
+          "max": 21554
+        }
+      }
+    },
+    "qwen-flash:full_memory": {
+      "model": "qwen3.6-flash",
+      "condition": "full_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/requests/answers/qwen-flash/full_memory.jsonl",
+        "sha256": "9fd5c134ccd584d8e43100327a5997627412102380a60f98cecfe61e5f6b0fa3"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/answers/qwen-flash/full_memory.jsonl",
+        "sha256": "6dda48a440843619347c151d14a57b4dcba026de500798586c96ea629757e61e"
+      },
+      "validation": {
+        "expected": 500,
+        "output_rows": 500,
+        "unique_output_ids": 500,
+        "duplicate_ids": 0,
+        "valid": 500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 500,
+        "returned_models": {
+          "qwen3.6-flash": 500
+        },
+        "finish_reasons": {
+          "stop": 500
+        },
+        "usage": {
+          "prompt_tokens": 89687,
+          "completion_tokens": 378699,
+          "total_tokens": 468386
+        },
+        "response_chars": {
+          "min": 51,
+          "mean": 3331.41,
+          "max": 10644
+        }
+      }
+    },
+    "qwen-flash:no_memory": {
+      "model": "qwen3.6-flash",
+      "condition": "no_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/requests/answers/qwen-flash/no_memory.jsonl",
+        "sha256": "78c38ff8f05ebc4541bde552440551d4ccaf6d05111d67c523b3625a93b10ba3"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/answers/qwen-flash/no_memory.jsonl",
+        "sha256": "3b2e00eb2bd2a19403a6e56589e3a2cbfe6332a04846002db494918b2e7f83e5"
+      },
+      "validation": {
+        "expected": 500,
+        "output_rows": 500,
+        "unique_output_ids": 500,
+        "duplicate_ids": 0,
+        "valid": 500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 500,
+        "returned_models": {
+          "qwen3.6-flash": 500
+        },
+        "finish_reasons": {
+          "stop": 500
+        },
+        "usage": {
+          "prompt_tokens": 50722,
+          "completion_tokens": 367615,
+          "total_tokens": 418337
+        },
+        "response_chars": {
+          "min": 50,
+          "mean": 3148.938,
+          "max": 9404
+        }
+      }
+    },
+    "qwen-max:full_memory": {
+      "model": "qwen3.7-max",
+      "condition": "full_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/requests/answers/qwen-max/full_memory.jsonl",
+        "sha256": "26f8aa03b4a857c26bec90c2cb629783caa57ed0f521dc4c801b57eaa3ca9c2c"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/answers/qwen-max/full_memory.jsonl",
+        "sha256": "e7a0251da5cf7a9e0474a262dcb101738824175d0be879794c07dd5d62d8eca3"
+      },
+      "validation": {
+        "expected": 500,
+        "output_rows": 500,
+        "unique_output_ids": 500,
+        "duplicate_ids": 0,
+        "valid": 500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 500,
+        "returned_models": {
+          "qwen3.7-max": 500
+        },
+        "finish_reasons": {
+          "stop": 500
+        },
+        "usage": {
+          "prompt_tokens": 89687,
+          "completion_tokens": 215567,
+          "total_tokens": 305254
+        },
+        "response_chars": {
+          "min": 51,
+          "mean": 2006.334,
+          "max": 10742
+        }
+      }
+    },
+    "qwen-max:no_memory": {
+      "model": "qwen3.7-max",
+      "condition": "no_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/requests/answers/qwen-max/no_memory.jsonl",
+        "sha256": "9b423ceab8f703d5932afcfaa1bc63911c88d5148b350a68234c271d472ccd16"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v2-multidomain-500/answers/qwen-max/no_memory.jsonl",
+        "sha256": "be632802cbcf1db4fc1e139ff891d9fe1bd432cf14ca830e4e9b1e14d64a9ec4"
+      },
+      "validation": {
+        "expected": 500,
+        "output_rows": 500,
+        "unique_output_ids": 500,
+        "duplicate_ids": 0,
+        "valid": 500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 500,
+        "returned_models": {
+          "qwen3.7-max": 500
+        },
+        "finish_reasons": {
+          "stop": 500
+        },
+        "usage": {
+          "prompt_tokens": 50722,
+          "completion_tokens": 290900,
+          "total_tokens": 341622
+        },
+        "response_chars": {
+          "min": 58,
+          "mean": 2572.654,
+          "max": 13544
+        }
+      }
+    }
+  }
+}

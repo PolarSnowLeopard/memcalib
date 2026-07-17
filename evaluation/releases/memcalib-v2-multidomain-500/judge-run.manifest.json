@@ -1,0 +1,117 @@
+{
+  "schema_version": "memcalib-judge-run-v1",
+  "status": "completed",
+  "completed_at": "2026-07-17T14:36:11+08:00",
+  "generation": {
+    "temperature": 0.0,
+    "max_tokens": 4096,
+    "enable_thinking": false
+  },
+  "primary_judge": {
+    "key": "qwen-judge",
+    "model": "qwen3.7-plus"
+  },
+  "secondary_judges": [
+    {
+      "key": "deepseek-judge",
+      "model": "deepseek-v4-pro"
+    },
+    {
+      "key": "kimi-judge",
+      "model": "kimi-k2.6"
+    }
+  ],
+  "request_manifest": {
+    "path": "evaluation/releases/memcalib-v2-multidomain-500/judge-request.manifest.json",
+    "sha256": "1c46b17b48cb926589a243073f1d9fe042dcca5e4dc54ce7e5e8d02556639261"
+  },
+  "normalized": {
+    "primary": {
+      "path": "evaluation/runs/memcalib-v2-multidomain-500/judgments/primary.valid.jsonl",
+      "sha256": "c48e49881510823c8d5ba22aa8bcd07190388e4778bdaa72a29fda8b565fea71",
+      "rows": 5000,
+      "summary": {
+        "rows": 5000,
+        "unique_answer_request_ids": 5000,
+        "atoms": 17730,
+        "judge_models": {
+          "qwen3.7-plus": 5000
+        },
+        "rows_with_warnings": 368,
+        "warning_counts": {
+          "invalid_confidence": 15,
+          "ungrounded_evidence_quote": 405
+        },
+        "rows_with_schema_repairs": 0,
+        "schema_repairs": 0
+      }
+    },
+    "secondary": {
+      "path": "evaluation/runs/memcalib-v2-multidomain-500/judgments/secondary.valid.jsonl",
+      "sha256": "fe6454c1e6573760b82b355fe2a7b8cf8b0d5312a848301f105d57d2e933f630",
+      "rows": 250,
+      "summary": {
+        "rows": 250,
+        "unique_answer_request_ids": 250,
+        "atoms": 943,
+        "judge_models": {
+          "deepseek-v4-pro": 150,
+          "kimi-k2.6": 100
+        },
+        "rows_with_warnings": 21,
+        "warning_counts": {
+          "ungrounded_evidence_quote": 31
+        },
+        "rows_with_schema_repairs": 0,
+        "schema_repairs": 0
+      }
+    }
+  },
+  "targeted_retry_outputs": {
+    "requests/judges/primary.structural-retry1.jsonl": {
+      "path": "evaluation/runs/memcalib-v2-multidomain-500/requests/judges/primary.structural-retry1.jsonl",
+      "sha256": "5df543faccd088312e8fb2d97d78aefcb8c9a25b46d9c3794fce0115df16f134",
+      "rows": 9
+    },
+    "api/primary.retry-api1.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v2-multidomain-500/api/primary.retry-api1.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "api/primary.structural-retry1.final-missing.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v2-multidomain-500/api/primary.structural-retry1.final-missing.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "api/primary.structural-retry1.jsonl": {
+      "path": "evaluation/runs/memcalib-v2-multidomain-500/api/primary.structural-retry1.jsonl",
+      "sha256": "ce8ac1833445e515526f826f9e9b81a7c42030950e19705f6615bd0a82d4bea3",
+      "rows": 9
+    },
+    "api/primary.structural-retry1.retry-api1.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v2-multidomain-500/api/primary.structural-retry1.retry-api1.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "api/secondary-deepseek.retry-api1.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v2-multidomain-500/api/secondary-deepseek.retry-api1.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "api/secondary-kimi.retry-api1.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v2-multidomain-500/api/secondary-kimi.retry-api1.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "judgments/primary.structural-retry1.invalid.jsonl": {
+      "path": "evaluation/runs/memcalib-v2-multidomain-500/judgments/primary.structural-retry1.invalid.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "judgments/primary.structural-retry1.valid.jsonl": {
+      "path": "evaluation/runs/memcalib-v2-multidomain-500/judgments/primary.structural-retry1.valid.jsonl",
+      "sha256": "972b7679ac44bdafc182d556d65250dff8cf8b8b9c75d41191c0980cdc857943",
+      "rows": 9
+    }
+  }
+}

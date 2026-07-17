@@ -1,0 +1,136 @@
+{
+  "schema_version": "memcalib-v2-multidomain-sample-release-v1",
+  "release": "memcalib-v2-multidomain-500",
+  "status": "internal_diagnostic",
+  "samples": 500,
+  "seed": 20260717,
+  "ordered_id_sha256": "e68a3d6e6ed41ea6f8064d4fcea64083802e28c2c1d85a1ce8e0cbc9bbf684d2",
+  "sampling": {
+    "method": "proportional_stratified_without_replacement",
+    "stratify_by": [
+      "domain",
+      "source_dataset",
+      "source_topic",
+      "release_admission.decision",
+      "atom_count_bucket"
+    ],
+    "within_cell_order": "stable_seeded_hash"
+  },
+  "distribution": {
+    "domains": {
+      "coding": 125,
+      "general": 125,
+      "health_seed": 250
+    },
+    "sources": {
+      "HuggingFaceH4/stack-exchange-preferences": 28,
+      "HuggingFaceH4/ultrachat_200k": 80,
+      "OpenAssistant/oasst1": 15,
+      "OpenAssistant/oasst2": 30,
+      "OpenMed/MedDialog": 126,
+      "codeparrot/apps": 5,
+      "ise-uiuc/Magicoder-OSS-Instruct-75K": 92,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 124
+    },
+    "topics": {
+      "acute_symptoms": 21,
+      "api_library": 29,
+      "cardio": 7,
+      "career_productivity": 6,
+      "chronic_disease": 25,
+      "coding_other": 3,
+      "data_algorithm": 29,
+      "debugging": 28,
+      "digestive": 24,
+      "general_other": 29,
+      "implementation": 18,
+      "learning_explanation": 22,
+      "medication_treatment": 27,
+      "mental_sleep": 11,
+      "neuro": 12,
+      "pediatrics": 26,
+      "planning_advice": 28,
+      "pregnancy_reproductive": 27,
+      "relationships_communication": 11,
+      "respiratory_ent": 27,
+      "skin_allergy": 27,
+      "systems_devops": 9,
+      "testing_quality": 9,
+      "travel_shopping_household": 14,
+      "writing_creative": 31
+    },
+    "release_admission": {
+      "admitted_nonblocking_review": 3,
+      "admitted_strict": 497
+    },
+    "atom_count_buckets": {
+      "2-3": 265,
+      "4-5": 235
+    },
+    "memory_labels": {
+      "A": 545,
+      "B": 650,
+      "C": 578
+    }
+  },
+  "source": {
+    "path": "pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.jsonl",
+    "rows": 15000,
+    "sha256": "41139c0f8cc54c2d2b2606c9edf2028de69b630cad7078eb1c3348625cb257b7"
+  },
+  "config": {
+    "path": "evaluation/configs/memcalib-v2-multidomain-500.json",
+    "sha256": "3b2db66ef6bbf13ee02927f0345b8915fe6202fed044aa47e45e06d9b30dbad4"
+  },
+  "artifacts": {
+    "hidden": {
+      "path": "evaluation/releases/memcalib-v2-multidomain-500/hidden-evaluation.jsonl",
+      "bytes": 11574550,
+      "sha256": "4cfbfe1030ce1639e39de2bc48e12f3d1097694848edcafa06b222a3dbafef8e",
+      "rows": 500
+    },
+    "hidden_gzip": {
+      "path": "evaluation/releases/memcalib-v2-multidomain-500/hidden-evaluation.jsonl.gz",
+      "bytes": 2273771,
+      "sha256": "7b61666cff8bda5829015d24e9096c0424b870e029ece92f722cb645a68ddfff"
+    },
+    "model_facing": {
+      "path": "evaluation/releases/memcalib-v2-multidomain-500/model-facing.jsonl",
+      "bytes": 419911,
+      "sha256": "b5323a8d6ee8a9de4b23776e0315e279caa6e106da050850abcf6bd9ef6de773",
+      "rows": 500
+    },
+    "model_facing_gzip": {
+      "path": "evaluation/releases/memcalib-v2-multidomain-500/model-facing.jsonl.gz",
+      "bytes": 104219,
+      "sha256": "09ce0816ff95e43319ea5f2be85aaead7e5035ca53187764f28143e62d62a50d"
+    },
+    "sample_ids": {
+      "path": "evaluation/releases/memcalib-v2-multidomain-500/sample-ids.txt",
+      "bytes": 16375,
+      "sha256": "7632849faa492fc9b4a165c4be305d9794f05939f76c045e9c862bc90f55c8a2",
+      "rows": 500
+    }
+  },
+  "privacy_contract": {
+    "model_facing_fields": [
+      "id",
+      "domain",
+      "panel",
+      "source_dataset",
+      "source_topic",
+      "question",
+      "memory_blocks.parent_memory_id",
+      "memory_blocks.memory_text"
+    ],
+    "hidden_only": [
+      "source_answer",
+      "memories",
+      "usage_rubric",
+      "raw_selection",
+      "semantic_qc",
+      "independent_qc",
+      "release_admission"
+    ]
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "schema_version": "memcalib-answer-requests-v1",
+  "samples": 500,
+  "formal_requests": 5000,
+  "smoke_requests": 20,
+  "models": [
+    {
+      "key": "qwen-max",
+      "model": "qwen3.7-max"
+    },
+    {
+      "key": "qwen-flash",
+      "model": "qwen3.6-flash"
+    },
+    {
+      "key": "deepseek",
+      "model": "deepseek-v4-pro"
+    },
+    {
+      "key": "deepseek-flash",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "key": "kimi",
+      "model": "kimi-k2.6"
+    }
+  ],
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "generation": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "enable_thinking": false
+  },
+  "artifacts": {
+    "deepseek-flash/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "c13002b94ef9d9866baa0a6f6636523140bb064dcbb3d742720a433f53849335",
+      "model": "deepseek-v4-flash",
+      "condition": "full_memory"
+    },
+    "deepseek-flash/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "b6faaf069b9f24292c668322e007784623d454aa3b7907bd2fe2eb90bec300b0",
+      "model": "deepseek-v4-flash",
+      "condition": "no_memory"
+    },
+    "deepseek-flash/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "71fe5111f0a3cae8da518960386d100415cac3b5dbdf1e3d3f0bec5e3e0fa075",
+      "model": "deepseek-v4-flash",
+      "condition": "smoke"
+    },
+    "deepseek/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "3af658952f942bbbf0e6708cb21a7a11acb73729533b5621546e6ca6a1937f75",
+      "model": "deepseek-v4-pro",
+      "condition": "full_memory"
+    },
+    "deepseek/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "1c996d384982d5d1a2ea910b329afa0a53c10cf5c18bf72c271e7d5eae9bbfd0",
+      "model": "deepseek-v4-pro",
+      "condition": "no_memory"
+    },
+    "deepseek/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "e85b89d7f435c3df6804762d0cc8509c610c13da752a1cc74c02517644c92edc",
+      "model": "deepseek-v4-pro",
+      "condition": "smoke"
+    },
+    "kimi/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "6228fd7ea8efdf4317d9e46c803979fc5f68aed5ddf2c698bb1c1bd5bc573d80",
+      "model": "kimi-k2.6",
+      "condition": "full_memory"
+    },
+    "kimi/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "0a435e28d2754e0df4f53307e2767dd54e33a8690f7f4dc8609696a7ad52925d",
+      "model": "kimi-k2.6",
+      "condition": "no_memory"
+    },
+    "kimi/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "864c4c08102b414fa73510587ef5632f9f4735497de4e9f2146115dc22439ba4",
+      "model": "kimi-k2.6",
+      "condition": "smoke"
+    },
+    "qwen-flash/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "9fd5c134ccd584d8e43100327a5997627412102380a60f98cecfe61e5f6b0fa3",
+      "model": "qwen3.6-flash",
+      "condition": "full_memory"
+    },
+    "qwen-flash/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "78c38ff8f05ebc4541bde552440551d4ccaf6d05111d67c523b3625a93b10ba3",
+      "model": "qwen3.6-flash",
+      "condition": "no_memory"
+    },
+    "qwen-flash/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "05470c730df5312c500ac13908e9903bf039c10a56820d8737ed6a4f08298c9a",
+      "model": "qwen3.6-flash",
+      "condition": "smoke"
+    },
+    "qwen-max/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "26f8aa03b4a857c26bec90c2cb629783caa57ed0f521dc4c801b57eaa3ca9c2c",
+      "model": "qwen3.7-max",
+      "condition": "full_memory"
+    },
+    "qwen-max/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "9b423ceab8f703d5932afcfaa1bc63911c88d5148b350a68234c271d472ccd16",
+      "model": "qwen3.7-max",
+      "condition": "no_memory"
+    },
+    "qwen-max/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "57ce87107309e23daea5a4cc34e2172b79d2dd008a2a83a46a5023f9491f55f4",
+      "model": "qwen3.7-max",
+      "condition": "smoke"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/configs/memcalib-v2-multidomain-500.json",
+      "sha256": "3b2db66ef6bbf13ee02927f0345b8915fe6202fed044aa47e45e06d9b30dbad4"
+    },
+    "samples": {
+      "path": "evaluation/releases/memcalib-v2-multidomain-500/model-facing.jsonl",
+      "sha256": "b5323a8d6ee8a9de4b23776e0315e279caa6e106da050850abcf6bd9ef6de773"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/answer-system.txt",
+      "sha256": "f52011f3a95e3be3a5692a128911c6eb3792c9aa4639af603613f859e516311f"
+    }
+  }
+}

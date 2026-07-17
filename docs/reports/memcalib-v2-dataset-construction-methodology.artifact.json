@@ -1,0 +1,2475 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "MemCalib v2 数据集构建全流程",
+    "description": "面向流程审查与论文 Methods 撰写的端到端技术报告，按真实执行顺序展示数据源、抽样、源准入、构建、确定性验证、独立质检、修复循环和最终发布。",
+    "generatedAt": "2026-07-17T13:31:55+08:00",
+    "sources": [
+      {
+        "id": "release_stats",
+        "label": "MemCalib v2 最终发布统计",
+        "path": "pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.stats.json",
+        "query": {
+          "engine": "duckdb",
+          "sql": "SELECT * FROM read_json_auto('pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.stats.json');",
+          "description": "最终 15,000 条发布记录的领域、来源、结构、标签与完整性统计。",
+          "tables_used": [
+            "pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.stats.json"
+          ]
+        }
+      },
+      {
+        "id": "release_manifest",
+        "label": "MemCalib v2 最终发布准入清单",
+        "path": "pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.manifest.json",
+        "query": {
+          "engine": "duckdb",
+          "sql": "SELECT * FROM read_json_auto('pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.manifest.json');",
+          "description": "最终按领域 strict-first 选择时的容量、配额与输出哈希。",
+          "tables_used": [
+            "pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.manifest.json"
+          ]
+        }
+      },
+      {
+        "id": "source_catalog",
+        "label": "八个上游来源及发布分布",
+        "query": {
+          "engine": "duckdb",
+          "sql": "SELECT * FROM (VALUES ('健康','OpenMed/MedDialog',3793,'unknown'),('健康','lavita/ChatDoctor-HealthCareMagic-100k',3707,'unknown'),('通用','HuggingFaceH4/ultrachat_200k',2377,'MIT'),('通用','OpenAssistant/oasst1',470,'Apache-2.0'),('通用','OpenAssistant/oasst2',903,'Apache-2.0'),('编程','ise-uiuc/Magicoder-OSS-Instruct-75K',2771,'MIT'),('编程','codeparrot/apps',174,'MIT'),('编程','HuggingFaceH4/stack-exchange-preferences',805,'CC-BY-SA-4.0')) AS t(domain, source, records, license);",
+          "description": "联合来源卡、归一化规则与最终发布统计整理的数据源目录。",
+          "tables_used": [
+            "docs/sources/meddialog.md",
+            "docs/sources/chatdoctor-healthcaremagic.md",
+            "docs/sources/openassistant-oasst1.md",
+            "docs/sources/magicoder-oss-instruct.md",
+            "pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.stats.json"
+          ]
+        }
+      },
+      {
+        "id": "sampling_method",
+        "label": "来源—主题—难度分层与质量加权抽样",
+        "query": {
+          "engine": "duckdb",
+          "sql": "SELECT * FROM (VALUES ('topic_weight','sqrt(capacity)'),('difficulty_mix','0.25 / 0.50 / 0.25'),('near_duplicate_threshold','0.88'),('minimum_quality_score','60')) AS t(rule, value);",
+          "description": "锁定配置与版本化选择逻辑中使用的抽样规则。",
+          "tables_used": [
+            "pipeline/config.multidomain-v2.json",
+            "pipeline/15_select_crk2_raw_seeds.py",
+            "pipeline/37_build_multidomain_full_candidate_pool.py",
+            "pipeline/38_select_multidomain_source_admission.py"
+          ],
+          "metric_definitions": [
+            "来源层使用等权目标并受可用容量约束。",
+            "主题层权重为可用容量的平方根。",
+            "难度层目标比例为 simple 25%、medium 50%、complex 25%。"
+          ]
+        }
+      },
+      {
+        "id": "source_qc",
+        "label": "34,150 个通用/编程源单元的语义质检",
+        "path": "pipeline/data/multidomain/full-v2/source_semantic_qc_multidomain_resolved_34150.manifest.json",
+        "query": {
+          "engine": "duckdb",
+          "sql": "SELECT * FROM (VALUES ('首批候选',8391,431,14821,357),('扩展批次',1273,38,6185,154),('通用补充批次',257,11,2167,65),('合计',9921,480,23173,576)) AS t(batch, strict_pass, review, reject, residual_invalid);",
+          "description": "三批源语义质检在定向结构重试后的 resolved 状态。",
+          "tables_used": [
+            "pipeline/data/multidomain/full-v2/source_semantic_qc_resolved_summary_24000.json",
+            "pipeline/data/multidomain/full-v2/source_semantic_qc_extension_resolved_summary_7650.json",
+            "pipeline/data/multidomain/full-v2/source_semantic_qc_extension_general2_resolved_summary_2500.json",
+            "pipeline/data/multidomain/full-v2/source_semantic_qc_multidomain_resolved_34150.manifest.json"
+          ]
+        }
+      },
+      {
+        "id": "source_admission",
+        "label": "通用/编程严格源准入与 Stack Exchange 署名审计",
+        "path": "pipeline/data/multidomain/full-v2/source_semantic_admitted_multidomain_attributed_9500.manifest.json",
+        "query": {
+          "engine": "duckdb",
+          "sql": "SELECT * FROM (VALUES ('general',4901,0,4750),('coding',5020,67,4750)) AS t(domain, strict_before_attribution, attribution_excluded, admitted);",
+          "description": "领域容量、署名排除和最终每领域 4,750 条 strict 源单元。",
+          "tables_used": [
+            "pipeline/data/multidomain/full-v2/source_semantic_admitted_multidomain_attribution_audit_9500.manifest.json",
+            "pipeline/data/multidomain/full-v2/source_semantic_admitted_multidomain_attributed_9500.manifest.json"
+          ]
+        }
+      },
+      {
+        "id": "construction_protocol",
+        "label": "CRK-2 v2 构建与独立质检协议",
+        "path": "docs/crk2-v2-construction-protocol.md",
+        "query": {
+          "engine": "duckdb",
+          "sql": "SELECT * FROM (VALUES ('A','ignore','zero observable influence'),('B','apply or correct','supporting observable influence'),('C','apply or correct','controlling observable influence')) AS t(label, allowed_action, definition);",
+          "description": "A/B/C 影响强度、动作方向、反事实契约与质量门槛的版本化定义。",
+          "tables_used": [
+            "docs/crk2-v2-construction-protocol.md"
+          ]
+        }
+      },
+      {
+        "id": "generation_manifest",
+        "label": "18,000 个构建目标与领域配额",
+        "path": "pipeline/data/multidomain/full-v2/crk2_v2_generation_input_18000.manifest.json",
+        "query": {
+          "engine": "duckdb",
+          "sql": "SELECT * FROM (VALUES ('health_seed',8500),('general',4750),('coding',4750)) AS t(domain, requests);",
+          "description": "由 25,077 条严格源单元准备的超额构建请求。",
+          "tables_used": [
+            "pipeline/data/multidomain/full-v2/crk2_v2_generation_input_18000.manifest.json"
+          ]
+        }
+      },
+      {
+        "id": "deterministic_lineage",
+        "label": "18,000 个构建目标的确定性验证与修复审计",
+        "query": {
+          "engine": "duckdb",
+          "sql": "SELECT * FROM (VALUES ('主轮',18000,6888,6888,11112),('修复 1',11112,6038,12926,5074),('修复 2',5074,800,13726,4274),('修复 3',4274,233,13959,4041),('严格证据修复',4041,1624,15583,2417)) AS t(stage, input_records, newly_accepted, cumulative_accepted, residual);",
+          "description": "每轮只处理上一轮未通过项；既有通过项冻结并保留。",
+          "tables_used": [
+            "pipeline/data/multidomain/full-v2/crk2_v2_memory_benchmark_18000.summary.json",
+            "pipeline/data/multidomain/full-v2/crk2_v2_memory_benchmark_repair1_11112.summary.json",
+            "pipeline/data/multidomain/full-v2/crk2_v2_memory_benchmark_repair2_5074.summary.json",
+            "pipeline/data/multidomain/full-v2/crk2_v2_memory_benchmark_repair3_4274.summary.json",
+            "pipeline/data/multidomain/full-v2/crk2_v2_memory_benchmark_grounding_sourcefix_4041.summary.json",
+            "pipeline/data/multidomain/full-v2/crk2_v2_memory_benchmark_deterministic_pass_15583.manifest.json"
+          ]
+        }
+      },
+      {
+        "id": "semantic_repair_lineage",
+        "label": "独立语义质检与定向修复合并审计",
+        "query": {
+          "engine": "duckdb",
+          "sql": "SELECT * FROM (VALUES ('首轮独立质检',6969,98,8231,285),('语义重构与储备合并',12982,126,2909,178),('语义修复 4',14262,137,1592,204),('编程修复 5',14430,138,1419,208),('本地修复 1',14508,138,1376,173),('本地修复 2 + 复核重试',14818,139,1127,111),('本地修复 3',14906,139,1039,111)) AS t(stage, strict_pass, review, reject, invalid);",
+          "description": "每次只替换目标 ID 的记录与 QC 判定，未修改记录沿用原判定。",
+          "tables_used": [
+            "pipeline/data/multidomain/full-v2/crk2_v2_independent_qc_15583.summary.json",
+            "pipeline/data/multidomain/full-v2/crk2_v2_independent_qc_resolved_15905.summary.json",
+            "pipeline/data/multidomain/full-v2/crk2_v2_independent_qc_resolved_repair4_15905.summary.json",
+            "pipeline/data/multidomain/full-v2/crk2_v2_independent_qc_resolved_repair5_16195.summary.json",
+            "pipeline/data/multidomain/full-v2/crk2_v2_independent_qc_resolved_local_repair1_16195.summary.json",
+            "pipeline/data/multidomain/full-v2/crk2_v2_independent_qc_resolved_local_repair2_retry_16195.summary.json",
+            "pipeline/data/multidomain/full-v2/crk2_v2_independent_qc_resolved_local_repair3_16195.summary.json"
+          ]
+        }
+      },
+      {
+        "id": "final_qc",
+        "label": "最终 16,195 条候选的独立质检状态",
+        "query": {
+          "engine": "duckdb",
+          "sql": "SELECT * FROM (VALUES ('健康','strict_pass',7491),('健康','review',29),('健康','reject',440),('健康','invalid',59),('通用','strict_pass',3669),('通用','review',91),('通用','reject',369),('通用','invalid',48),('编程','strict_pass',3746),('编程','review',19),('编程','reject',230),('编程','invalid',4)) AS t(domain, decision, records);",
+          "description": "最终候选池按领域分解后的 strict/review/reject/invalid。",
+          "tables_used": [
+            "pipeline/data/multidomain/full-v2/crk2_v2_independent_qc_resolved_local_repair3_16195.summary.json"
+          ]
+        }
+      },
+      {
+        "id": "release_package",
+        "label": "最终发布包、审查材料与内容哈希",
+        "path": "pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.package.json",
+        "query": {
+          "engine": "duckdb",
+          "sql": "SELECT * FROM read_json_auto('pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.package.json');",
+          "description": "发布 JSONL、manifest、统计、审查 HTML 与压缩包的文件级审计。",
+          "tables_used": [
+            "pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.package.json"
+          ]
+        }
+      }
+    ],
+    "cards": [
+      {
+        "id": "card_records",
+        "dataset": "headline_metrics",
+        "sourceId": "release_stats",
+        "metrics": [
+          {
+            "label": "最终发布记录",
+            "field": "records",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "card_atoms",
+        "dataset": "headline_metrics",
+        "sourceId": "release_stats",
+        "metrics": [
+          {
+            "label": "原子记忆",
+            "field": "memory_atoms",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "card_quality",
+        "dataset": "headline_metrics",
+        "sourceId": "release_manifest",
+        "metrics": [
+          {
+            "label": "strict",
+            "field": "strict_records",
+            "format": "number"
+          },
+          {
+            "label": "非阻断 review",
+            "field": "review_records",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "card_coverage",
+        "dataset": "headline_metrics",
+        "sourceId": "release_stats",
+        "metrics": [
+          {
+            "label": "上游来源",
+            "field": "sources",
+            "format": "number"
+          },
+          {
+            "label": "领域",
+            "field": "domains",
+            "format": "number"
+          }
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "id": "chart_source_qc",
+        "title": "三批源语义质检的状态构成",
+        "subtitle": "每批总数等于 strict + review + reject + 定向重试后残余 invalid",
+        "showDescription": true,
+        "intent": "composition",
+        "type": "stackedBar",
+        "dataset": "source_qc_chart",
+        "sourceId": "source_qc",
+        "encodings": {
+          "x": {
+            "field": "batch",
+            "type": "ordinal",
+            "label": "候选批次"
+          },
+          "y": {
+            "field": "records",
+            "type": "quantitative",
+            "aggregate": "sum",
+            "format": "number",
+            "label": "源单元数"
+          },
+          "color": {
+            "field": "decision",
+            "type": "nominal",
+            "label": "质检状态"
+          }
+        },
+        "layout": "full"
+      },
+      {
+        "id": "chart_deterministic",
+        "title": "18,000 个构建目标的累计确定性通过数",
+        "subtitle": "通过项冻结；每轮只处理上一轮 residual",
+        "showDescription": true,
+        "intent": "funnel",
+        "type": "bar",
+        "dataset": "deterministic_progress",
+        "sourceId": "deterministic_lineage",
+        "encodings": {
+          "x": {
+            "field": "stage",
+            "type": "ordinal",
+            "label": "阶段"
+          },
+          "y": {
+            "field": "cumulative_accepted",
+            "type": "quantitative",
+            "aggregate": "sum",
+            "format": "number",
+            "label": "累计 pass"
+          },
+          "tooltip": [
+            {
+              "field": "input",
+              "type": "quantitative",
+              "label": "本轮输入"
+            },
+            {
+              "field": "newly_accepted",
+              "type": "quantitative",
+              "label": "本轮新增"
+            },
+            {
+              "field": "residual",
+              "type": "quantitative",
+              "label": "本轮残留"
+            }
+          ]
+        },
+        "layout": "full"
+      },
+      {
+        "id": "chart_qc_iteration",
+        "title": "定向语义修复期间的独立质检状态变化",
+        "subtitle": "各阶段只替换目标 ID；分母在储备重构后由 15,583 增至 16,195",
+        "showDescription": true,
+        "intent": "composition",
+        "type": "stackedBar",
+        "dataset": "qc_iteration",
+        "sourceId": "semantic_repair_lineage",
+        "encodings": {
+          "x": {
+            "field": "stage",
+            "type": "ordinal",
+            "label": "合并阶段"
+          },
+          "y": {
+            "field": "records",
+            "type": "quantitative",
+            "aggregate": "sum",
+            "format": "number",
+            "label": "候选记录数"
+          },
+          "color": {
+            "field": "decision",
+            "type": "nominal",
+            "label": "QC 状态"
+          }
+        },
+        "layout": "full"
+      },
+      {
+        "id": "chart_final_qc",
+        "title": "最终 16,195 条候选的领域内质检状态",
+        "subtitle": "strict 与允许的 non-blocking review 构成发布容量",
+        "showDescription": true,
+        "intent": "composition",
+        "type": "stackedBar",
+        "dataset": "final_qc_by_domain",
+        "sourceId": "final_qc",
+        "encodings": {
+          "x": {
+            "field": "domain",
+            "type": "nominal",
+            "label": "领域"
+          },
+          "y": {
+            "field": "records",
+            "type": "quantitative",
+            "aggregate": "sum",
+            "format": "number",
+            "label": "候选记录数"
+          },
+          "color": {
+            "field": "decision",
+            "type": "nominal",
+            "label": "质检状态"
+          }
+        },
+        "layout": "full"
+      },
+      {
+        "id": "chart_sources",
+        "title": "最终 15,000 条记录的数据源构成",
+        "subtitle": "颜色表示健康、通用和编程领域",
+        "showDescription": true,
+        "intent": "composition",
+        "type": "horizontalBar",
+        "dataset": "source_distribution",
+        "sourceId": "release_stats",
+        "encodings": {
+          "x": {
+            "field": "source",
+            "type": "nominal",
+            "label": "数据源"
+          },
+          "y": {
+            "field": "records",
+            "type": "quantitative",
+            "aggregate": "sum",
+            "format": "number",
+            "label": "发布记录数"
+          },
+          "color": {
+            "field": "domain",
+            "type": "nominal",
+            "label": "领域"
+          }
+        },
+        "layout": "full"
+      },
+      {
+        "id": "chart_labels",
+        "title": "最终发布集的 A/B/C 原子分布",
+        "subtitle": "总计 53,318 个原子；A=零影响，B=支持影响，C=控制影响",
+        "showDescription": true,
+        "intent": "composition",
+        "type": "stackedBar",
+        "dataset": "labels_by_domain",
+        "sourceId": "release_stats",
+        "encodings": {
+          "x": {
+            "field": "domain",
+            "type": "nominal",
+            "label": "领域"
+          },
+          "y": {
+            "field": "atoms",
+            "type": "quantitative",
+            "aggregate": "sum",
+            "format": "number",
+            "label": "原子数"
+          },
+          "color": {
+            "field": "label",
+            "type": "nominal",
+            "label": "影响标签"
+          }
+        },
+        "layout": "full"
+      }
+    ],
+    "tables": [
+      {
+        "id": "table_lineage",
+        "title": "端到端数据血缘：每一步的输入、输出和失败去向",
+        "subtitle": "不同阶段的统计单位不同；本表明确区分源单元、构建目标、QC 候选和发布记录",
+        "showDescription": true,
+        "dataset": "lineage_steps",
+        "sourceId": "release_package",
+        "defaultSort": {
+          "field": "order",
+          "direction": "asc"
+        },
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "order",
+            "label": "阶段",
+            "format": "number"
+          },
+          {
+            "field": "stage",
+            "label": "处理",
+            "type": "text"
+          },
+          {
+            "field": "input",
+            "label": "输入",
+            "type": "text"
+          },
+          {
+            "field": "output",
+            "label": "输出",
+            "type": "text"
+          },
+          {
+            "field": "unit",
+            "label": "统计单位",
+            "type": "text"
+          },
+          {
+            "field": "promotion",
+            "label": "进入下一步的条件",
+            "type": "text"
+          },
+          {
+            "field": "failure_branch",
+            "label": "失败/未选去向",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "table_sources",
+        "title": "八个公开来源如何进入最终数据集",
+        "subtitle": "最终记录数来自发布集；unknown 不代表可自由再分发",
+        "showDescription": true,
+        "dataset": "source_catalog",
+        "sourceId": "source_catalog",
+        "defaultSort": {
+          "field": "final_records",
+          "direction": "asc"
+        },
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "domain",
+            "label": "领域",
+            "type": "text"
+          },
+          {
+            "field": "source",
+            "label": "来源",
+            "type": "text"
+          },
+          {
+            "field": "original_unit",
+            "label": "原始单元",
+            "type": "text"
+          },
+          {
+            "field": "memory_signal",
+            "label": "主要记忆信号",
+            "type": "text"
+          },
+          {
+            "field": "final_records",
+            "label": "最终记录",
+            "format": "number"
+          },
+          {
+            "field": "license",
+            "label": "许可元数据",
+            "type": "text"
+          },
+          {
+            "field": "caveat",
+            "label": "审查边界",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "table_formulas",
+        "title": "抽样公式与符号解释",
+        "subtitle": "公式使用 Unicode 纯文本，不依赖 MathJax 或 LaTeX，因此离线 HTML 中不会失效",
+        "showDescription": true,
+        "dataset": "formula_reference",
+        "sourceId": "sampling_method",
+        "defaultSort": {
+          "field": "order",
+          "direction": "asc"
+        },
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "order",
+            "label": "序号",
+            "format": "number"
+          },
+          {
+            "field": "purpose",
+            "label": "用途",
+            "type": "text"
+          },
+          {
+            "field": "formula",
+            "label": "公式",
+            "type": "text"
+          },
+          {
+            "field": "symbols",
+            "label": "符号",
+            "type": "text"
+          },
+          {
+            "field": "operational_meaning",
+            "label": "实际含义",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "table_source_qc_batches",
+        "title": "三批源语义质检的真实计数",
+        "subtitle": "retry_valid 只来自原 invalid 的定向结构重试；review/reject 不重跑",
+        "showDescription": true,
+        "dataset": "source_qc_batches",
+        "sourceId": "source_qc",
+        "defaultSort": {
+          "field": "requested",
+          "direction": "asc"
+        },
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "batch",
+            "label": "批次",
+            "type": "text"
+          },
+          {
+            "field": "requested",
+            "label": "候选",
+            "format": "number"
+          },
+          {
+            "field": "original_valid",
+            "label": "首轮有效",
+            "format": "number"
+          },
+          {
+            "field": "retry_valid",
+            "label": "重试转有效",
+            "format": "number"
+          },
+          {
+            "field": "strict_pass",
+            "label": "strict",
+            "format": "number"
+          },
+          {
+            "field": "review",
+            "label": "review",
+            "format": "number"
+          },
+          {
+            "field": "reject",
+            "label": "reject",
+            "format": "number"
+          },
+          {
+            "field": "residual_invalid",
+            "label": "残余 invalid",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "table_source_qc_dimensions",
+        "title": "源单元的六维语义准入",
+        "subtitle": "每个维度都必须附带可在源文本中定位的证据",
+        "showDescription": true,
+        "dataset": "source_qc_dimensions",
+        "sourceId": "source_qc",
+        "defaultSort": {
+          "field": "order",
+          "direction": "asc"
+        },
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "order",
+            "label": "序号",
+            "format": "number"
+          },
+          {
+            "field": "dimension",
+            "label": "维度",
+            "type": "text"
+          },
+          {
+            "field": "question",
+            "label": "审查问题",
+            "type": "text"
+          },
+          {
+            "field": "pass_evidence",
+            "label": "通过所需证据",
+            "type": "text"
+          },
+          {
+            "field": "failure_effect",
+            "label": "失败结果",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "table_construction_fields",
+        "title": "一条 benchmark 记录到底包含什么",
+        "subtitle": "字段结构服务于可训练、可判分和可审计三个目标",
+        "showDescription": true,
+        "dataset": "construction_fields",
+        "sourceId": "construction_protocol",
+        "defaultSort": {
+          "field": "order",
+          "direction": "asc"
+        },
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "order",
+            "label": "序号",
+            "format": "number"
+          },
+          {
+            "field": "field",
+            "label": "组成部分",
+            "type": "text"
+          },
+          {
+            "field": "content",
+            "label": "内容",
+            "type": "text"
+          },
+          {
+            "field": "hard_rule",
+            "label": "硬约束",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "table_labels",
+        "title": "A/B/C 与动作方向的判定表",
+        "subtitle": "错误、不安全或陈旧记忆若需要显式纠正，属于 B/C + correct，而不是 A",
+        "showDescription": true,
+        "dataset": "label_semantics",
+        "sourceId": "construction_protocol",
+        "defaultSort": {
+          "field": "label",
+          "direction": "asc"
+        },
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "label",
+            "label": "标签",
+            "type": "text"
+          },
+          {
+            "field": "remove_memory_test",
+            "label": "移除记忆测试",
+            "type": "text"
+          },
+          {
+            "field": "allowed_action",
+            "label": "允许动作",
+            "type": "text"
+          },
+          {
+            "field": "correct_example",
+            "label": "正确例型",
+            "type": "text"
+          },
+          {
+            "field": "forbidden",
+            "label": "禁止情况",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "table_example_trace",
+        "title": "一条真实 strict 记录的压缩追踪示例",
+        "subtitle": "取自最终通用领域记录并缩写；用于说明数据结构，不用于证明来源回答正确",
+        "showDescription": true,
+        "dataset": "example_trace",
+        "sourceId": "release_stats",
+        "defaultSort": {
+          "field": "order",
+          "direction": "asc"
+        },
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "order",
+            "label": "步骤",
+            "format": "number"
+          },
+          {
+            "field": "artifact",
+            "label": "产物",
+            "type": "text"
+          },
+          {
+            "field": "example",
+            "label": "示例内容",
+            "type": "text"
+          },
+          {
+            "field": "decision",
+            "label": "为什么这样标",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "table_deterministic_gates",
+        "title": "构建记录的确定性硬门槛",
+        "subtitle": "任一阻断门槛失败都不能进入独立 QC",
+        "showDescription": true,
+        "dataset": "deterministic_gates",
+        "sourceId": "construction_protocol",
+        "defaultSort": {
+          "field": "order",
+          "direction": "asc"
+        },
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "order",
+            "label": "序号",
+            "format": "number"
+          },
+          {
+            "field": "gate",
+            "label": "门槛",
+            "type": "text"
+          },
+          {
+            "field": "test",
+            "label": "检查内容",
+            "type": "text"
+          },
+          {
+            "field": "failure",
+            "label": "失败去向",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "table_semantic_repairs",
+        "title": "独立质检后的逐轮修复与合并",
+        "subtitle": "merged_state 是替换目标 ID 后的全池状态，不是把本轮数字简单相加",
+        "showDescription": true,
+        "dataset": "semantic_repair_rounds",
+        "sourceId": "semantic_repair_lineage",
+        "defaultSort": {
+          "field": "order",
+          "direction": "asc"
+        },
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "order",
+            "label": "序号",
+            "format": "number"
+          },
+          {
+            "field": "stage",
+            "label": "阶段",
+            "type": "text"
+          },
+          {
+            "field": "targets",
+            "label": "本轮目标",
+            "type": "text"
+          },
+          {
+            "field": "changed_pass",
+            "label": "重新通过确定性门槛",
+            "type": "text"
+          },
+          {
+            "field": "re_qc",
+            "label": "受影响项重新 QC",
+            "type": "text"
+          },
+          {
+            "field": "merged_state",
+            "label": "合并后的全池状态",
+            "type": "text"
+          },
+          {
+            "field": "why_next",
+            "label": "继续/停止原因",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "table_release_selection",
+        "title": "最终领域配额如何由 strict 和 review 填满",
+        "subtitle": "review 仅用于实际 strict 短缺；reject/invalid 选择数恒为 0",
+        "showDescription": true,
+        "dataset": "release_selection",
+        "sourceId": "release_manifest",
+        "defaultSort": {
+          "field": "target",
+          "direction": "asc"
+        },
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "domain",
+            "label": "领域",
+            "type": "text"
+          },
+          {
+            "field": "target",
+            "label": "目标",
+            "format": "number"
+          },
+          {
+            "field": "strict_capacity",
+            "label": "strict 容量",
+            "format": "number"
+          },
+          {
+            "field": "review_capacity",
+            "label": "review 容量",
+            "format": "number"
+          },
+          {
+            "field": "strict_selected",
+            "label": "选入 strict",
+            "format": "number"
+          },
+          {
+            "field": "review_selected",
+            "label": "选入 review",
+            "format": "number"
+          },
+          {
+            "field": "reject_invalid_selected",
+            "label": "选入 reject/invalid",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "table_release_checks",
+        "title": "最终发布的全量完整性检查",
+        "subtitle": "以下检查覆盖全部记录或全部原子，不是抽样估计",
+        "showDescription": true,
+        "dataset": "release_checks",
+        "sourceId": "release_stats",
+        "defaultSort": {
+          "field": "order",
+          "direction": "asc"
+        },
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "order",
+            "label": "序号",
+            "format": "number"
+          },
+          {
+            "field": "check",
+            "label": "检查",
+            "type": "text"
+          },
+          {
+            "field": "scope",
+            "label": "范围",
+            "type": "text"
+          },
+          {
+            "field": "result",
+            "label": "结果",
+            "type": "text"
+          },
+          {
+            "field": "status",
+            "label": "状态",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "table_paper_mapping",
+        "title": "从本报告到论文 Methods 的映射",
+        "subtitle": "建议正文讲主干，附录保留公式、全量计数和修复审计",
+        "showDescription": true,
+        "dataset": "paper_mapping",
+        "sourceId": "release_package",
+        "defaultSort": {
+          "field": "paper_section",
+          "direction": "asc"
+        },
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "paper_section",
+            "label": "论文部分",
+            "type": "text"
+          },
+          {
+            "field": "report_sections",
+            "label": "报告依据",
+            "type": "text"
+          },
+          {
+            "field": "recommended_claim",
+            "label": "建议表述",
+            "type": "text"
+          },
+          {
+            "field": "must_report",
+            "label": "必须报告",
+            "type": "text"
+          }
+        ]
+      }
+    ],
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "layout": "full",
+        "body": "# MemCalib v2 数据集构建全流程\n\n**从 8 个公开来源到 15,000 条可发布记忆校准记录**\n\n这是一份面向团队审查和论文 Methods 撰写的流程文档。它按真实执行顺序说明每一步的输入、操作、准入条件、失败分支、输出与数量变化，而不是只罗列概念。\n\n**阅读约定：**“源单元”“构建目标”“QC 候选”“发布记录”是四种不同统计单位，不能把所有数字当作同一个漏斗。"
+      },
+      {
+        "id": "summary",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 先看结论：数据经过两道准入和两类修复循环\n\n第一道准入发生在**源数据层**：通用与编程领域的 34,150 个候选源单元经过硬过滤、分层抽样和六维语义质检，只有 9,921 个成为 strict 容量，最终各领域选 4,750 个。它们与既有 15,577 个健康 strict 源单元合并，形成 25,077 条构建源池。\n\n第二道准入发生在**benchmark 记录层**：从源池超额构建 18,000 条候选，经确定性门槛、失败项定向修复、独立逐原子质检和受影响记录重新质检，形成 16,195 条最终 QC 候选。最终状态为 14,906 strict、139 review、1,039 reject、111 invalid。\n\n发布阶段按领域 strict-first 精确选择 15,000 条：健康 7,500、通用 3,750、编程 3,750。只有 strict 和脚本明确定义的 non-blocking review 可入选；reject/invalid 零准入。最终包含 53,318 个原子记忆。"
+      },
+      {
+        "id": "headline_metrics_block",
+        "type": "metric-strip",
+        "layout": "full",
+        "cardIds": [
+          "card_records",
+          "card_atoms",
+          "card_quality",
+          "card_coverage"
+        ]
+      },
+      {
+        "id": "pipeline_map",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 总流程图：健康源与新领域源先并行，再在构建阶段汇合\n\n1. **健康通道：**2 个健康来源 → 既有 strict 源池 15,577。\n2. **通用/编程通道：**6 个新领域来源 → 规则筛选与分层候选 34,150 → 六维源语义 QC → strict 容量 9,921 → 署名审计 → 通用和编程各准入 4,750。\n3. **两条通道汇合：**15,577 + 9,500 = 25,077 条 strict 构建源。\n4. **超额构建：**从源池生成 18,000 个目标，领域配额为 8,500 / 4,750 / 4,750。\n5. **确定性验证：**主轮与失败项定向修复后，15,583 条通过全部硬门槛，2,417 条留在排除审计。\n6. **独立 QC：**逐原子和逐原子对重新判断；语义重构与储备补充后形成 16,195 条最终 QC 候选。\n7. **最终候选状态：**14,906 strict、139 review、1,039 reject、111 invalid。\n8. **领域内发布：**strict-first，review 只补 strict 的实际短缺，得到最终 15,000 条。\n\n最重要的审计不变量是：**通过项冻结；只修失败项；每个修改版本重新跑完整确定性验证和独立 QC；无法修复的 residual 保留而不是静默删除。**"
+      },
+      {
+        "id": "lineage_table_block",
+        "type": "table",
+        "layout": "full",
+        "tableId": "table_lineage"
+      },
+      {
+        "id": "stage1",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 阶段 1 — 把八个异构来源转换为同一种“源单元”\n\n所有来源先被映射为统一的研究对象。一个源单元必须包含：\n\n- 原始问题；\n- 可选的先前上下文；\n- 参考回答；\n- 来源数据集、稳定来源 ID、原始 split 与索引；\n- 主题标签；\n- 许可和署名元数据。\n\n这里的参考回答只用于判断问题是否完整、回答是否相关以及任务是否可构造；它**不是**最终 benchmark 的标准答案，也不会被直接复制成用户记忆。真实记忆只能从原始问题或先前上下文提取。\n\n三个领域承担不同覆盖任务：健康来源提供病史、治疗和安全约束；通用来源提供计划、偏好和历史上下文；编程来源提供接口、环境、依赖和失败历史。"
+      },
+      {
+        "id": "sources_table_block",
+        "type": "table",
+        "layout": "full",
+        "tableId": "table_sources"
+      },
+      {
+        "id": "sources_chart_block",
+        "type": "chart",
+        "layout": "full",
+        "chartId": "chart_sources"
+      },
+      {
+        "id": "stage2",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 阶段 2 — 先硬过滤和去重，再决定哪些源单元值得送入语义 QC\n\n每个归一化源单元依次经过：\n\n1. **完整性过滤：**问题、回答和稳定来源 ID 必须存在；\n2. **文本过滤：**长度、最小词数、英文字符比例、模板化回答比例和噪声均需达标；\n3. **记忆信号过滤：**至少出现一种可构造信号，例如病史、偏好、时间历史、环境、依赖或失败经历；\n4. **质量评分：**问题信息量、回答实质性、记忆可构造性、文本整洁性合计为 0–100，最低合格分为 60；\n5. **精确去重：**规范化问题完全相同者形成同一簇；\n6. **近重复去重：**词集合 Jaccard 相似度达到 0.88 时视为近重复，保留质量更高且 ID 排序稳定的代表。\n\n首批 24,000 个候选未提供足够的通用 strict 容量，因此增加 7,650 个同域扩展候选和 2,500 个通用补充候选。扩展的是候选覆盖，不是降低质量门槛。最终进入源语义 QC 的新领域候选总数为 34,150。"
+      },
+      {
+        "id": "stage3",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 阶段 3 — 用来源、主题、难度和质量四层规则抽样\n\n抽样目标不是复刻原始互联网分布，而是防止大来源和大主题支配 benchmark。配额按以下顺序分配：\n\n1. **领域固定：**候选和最终发布均锁定领域目标；\n2. **来源层：**同一领域内来源使用等权目标，但不能超过各自容量；\n3. **主题层：**来源内部按主题容量的平方根分配，缓和头部主题；\n4. **难度层：**simple/medium/complex 目标为 25%/50%/25%；\n5. **层内选择：**使用质量加权的固定种子随机优先级，而不是简单取最高分。\n\n整数配额采用容量约束的最大余数法：先分配各层向下取整后的配额，再按小数余量从大到小补齐；已经达到容量上限的分层跳过。若细分层不足，先在同一来源内回填，再在同一领域内回填，禁止跨领域挪用。"
+      },
+      {
+        "id": "formula_table_block",
+        "type": "table",
+        "layout": "full",
+        "tableId": "table_formulas"
+      },
+      {
+        "id": "stage4",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 阶段 4 — 对源单元做六维语义 QC，只让 strict 记录进入构建\n\n规则筛选只能发现明显质量问题，不能判断问答是否真的适合构造记忆任务。因此，34,150 个候选继续接受六维语义审查。每个维度输出 pass、uncertain 或 reject，并必须给出可在源文本中逐字定位的证据。\n\n记录状态按维度结果重新计算：\n\n- 输出无法解析、枚举不合法、维度缺失或证据不 grounding → **invalid**；\n- 否则，任一维度为 reject → **reject**；\n- 否则，任一维度为 uncertain → **review**；\n- 否则，六维全部 pass → **strict_pass**。\n\n只有 invalid 会被定向重试，因为它表示判定结构失败；review 和 reject 是有效语义判断，不因容量压力反复调用。"
+      },
+      {
+        "id": "source_qc_dimensions_block",
+        "type": "table",
+        "layout": "full",
+        "tableId": "table_source_qc_dimensions"
+      },
+      {
+        "id": "source_qc_batches_block",
+        "type": "table",
+        "layout": "full",
+        "tableId": "table_source_qc_batches"
+      },
+      {
+        "id": "source_qc_chart_block",
+        "type": "chart",
+        "layout": "full",
+        "chartId": "chart_source_qc"
+      },
+      {
+        "id": "source_admission",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 阶段 4 的输出 — 34,150 个候选最终只提供 9,921 个 strict 容量\n\n三批候选合并后：\n\n- 33,574 个获得有效判定；\n- 576 个在定向重试后仍为 invalid；\n- 有效判定中 strict 9,921、review 480、reject 23,173；\n- strict 容量按领域为通用 4,901、编程 5,020。\n\nStack Exchange 还需要公开署名完整性。预选记录中有 67 条无法补全作者署名，因此在最终源准入前排除；编程可用 strict 容量由 5,020 降为 4,953。最终通用与编程各选择 4,750 条，全部来自 strict。没有用 review 补源，也没有把通用容量挪到编程或反向挪用。",
+        "sourceId": "source_admission"
+      },
+      {
+        "id": "stage5",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 阶段 5 — 从 strict 源单元构造可训练、可判分的记忆任务\n\n9,500 条新领域 strict 源单元与 15,577 条既有健康 strict 源单元合并，得到 25,077 条构建源池。随后按健康 8,500、通用 4,750、编程 4,750 超额构建 18,000 条记录。健康领域多构建 1,000 条，用于吸收后续 QC 损耗。\n\n构建器不只是“写一个问题和若干记忆”，而是必须产出完整反事实评测契约。每条记录至少有一个真实 B/C 原子，并恰好有一个合成 hard-A 父记忆。hard-A 必须与主题接近但对当前问题无用，用于检测模型是否无差别服从所有记忆。\n\n错误、危险、过期或不该直接采用的记忆**不能**因为“不应照做”就标 A。若合格回答必须明确纠正或限定它，这种纠正本身是可观察的记忆使用，因此应标为 B 或 C，并使用 `correct` 动作。"
+      },
+      {
+        "id": "construction_fields_block",
+        "type": "table",
+        "layout": "full",
+        "tableId": "table_construction_fields"
+      },
+      {
+        "id": "labels_table_block",
+        "type": "table",
+        "layout": "full",
+        "tableId": "table_labels"
+      },
+      {
+        "id": "example_intro",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 单条记录追踪 — 从源对话到 A/B/C 与判分 rubric\n\n下表压缩展示一条最终 strict 记录的实际结构。这个示例说明为什么同一条记录中可以同时出现 A、B 和 C：它们衡量的是对**当前问题**的可观察影响，而不是事实本身的重要程度。"
+      },
+      {
+        "id": "example_trace_block",
+        "type": "table",
+        "layout": "full",
+        "tableId": "table_example_trace"
+      },
+      {
+        "id": "stage6",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 阶段 6 — 确定性验证先拦截所有可机器判定的硬错误\n\n18,000 条构建结果全部接受同一组确定性验证。主轮只有 6,888 条直接通过，11,112 条失败；失败主要来自证据非逐字 grounding、字段/ID 不完整、标签与动作不一致、反事实差异不可观察或原子对覆盖问题。\n\n修复遵循三条规则：\n\n1. 已通过记录立即冻结，不重跑、不覆盖；\n2. 失败记录按明确错误原因分组，只修改与该错误相关的字段；\n3. 修复版本必须从头通过全部门槛，不能只复验被修改的那一项。\n\n前三轮为模型辅助的定向修复。最后一轮只处理“错误集合完全由 grounding 构成”的记录：把证据替换为原始问题/上下文中最接近的连续逐字片段，不改标签、动作或任务语义。找不到可信片段的 2,417 条继续保留在排除审计中。"
+      },
+      {
+        "id": "deterministic_gates_block",
+        "type": "table",
+        "layout": "full",
+        "tableId": "table_deterministic_gates"
+      },
+      {
+        "id": "deterministic_chart_block",
+        "type": "chart",
+        "layout": "full",
+        "chartId": "chart_deterministic"
+      },
+      {
+        "id": "stage7",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 阶段 7 — 独立 QC 重新判断语义，不采信构建器自报结论\n\n独立 QC 对每个原子重新回答四个问题：当前问题是否已经泄露记忆；原子是否可独立判定；A/B/C 与动作是否成立；反事实契约和 rubric 是否能从回答文本中客观判分。对每一对原子还要判断独立、重叠、蕴含或矛盾。\n\n首轮 15,583 条独立 QC 得到 6,969 strict、98 review、8,231 reject、285 invalid。对拒绝理由的抽查发现，大量记录把“记忆来源于构建前的原始问题”误读成“记忆出现在评测时当前问题中”，形成系统性 query-source 混淆。\n\n处理方式不是批量把 reject 改成 pass，而是：\n\n- 修正 source-field 与 current-query 的语义边界；\n- 对受影响记录重新构造或局部修复；\n- 每个新版本重新跑完整确定性验证；\n- 只对发生变化的 ID 重新做独立 QC；\n- 合并时用新判定替换同一 ID 的旧判定，其余记录保持不变。\n\n当原 18,000 池中的可修复记录仍不足以提供领域容量时，从 2,417 条排除储备中定向重构 1,190 条，最终新增 612 个合格候选；因此后续 QC 池从 15,583 增至 16,195。"
+      },
+      {
+        "id": "semantic_repairs_block",
+        "type": "table",
+        "layout": "full",
+        "tableId": "table_semantic_repairs"
+      },
+      {
+        "id": "qc_iteration_chart_block",
+        "type": "chart",
+        "layout": "full",
+        "chartId": "chart_qc_iteration"
+      },
+      {
+        "id": "qc_status_rules",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 独立 QC 的四个状态如何决定失败去向\n\n- **strict_pass：**所有阻断项通过，没有需要人工边界判断的问题；\n- **review：**只存在非阻断边界，例如局部原子性疑虑、同一父块内且使用方式一致的轻微重叠，或真正邻近的 A/B、B/C 边界；\n- **reject：**存在问题泄漏、标签/动作错误、B/C 无可观察差异、rubric 不可判、跨父块重叠/蕴含/矛盾等阻断缺陷；\n- **invalid：**QC 输出结构、枚举、覆盖或记录指纹不合法，无法形成可信语义判定。\n\nreview 不是“低质量但勉强可用”。任何安全问题、泄漏、错误标签或不可判 rubric 都不能被归为 non-blocking review。"
+      },
+      {
+        "id": "final_qc_chart_block",
+        "type": "chart",
+        "layout": "full",
+        "chartId": "chart_final_qc"
+      },
+      {
+        "id": "stage8",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 阶段 8 — 按领域 strict-first 选择最终 15,000 条\n\n对每个领域 d，设目标为 T(d)，strict 候选集合为 S(d)，允许的 non-blocking review 集合为 V(d)。发布规则使用以下纯文本公式：\n\n- `take_strict(d) = min(T(d), |S(d)|)`\n- `take_review(d) = T(d) − take_strict(d)`\n- 容量条件：`0 ≤ take_review(d) ≤ |V(d)|`\n- 最终集合：`release(d) = StratifiedSelect(S(d), take_strict(d)) ∪ StratifiedSelect(V(d), take_review(d))`\n\n如果某领域的 strict+允许 review 仍达不到 T(d)，发布过程必须失败；不能跨领域挪用，也不能纳入 reject/invalid。实际只需要 94 条 review：健康 9、通用 81、编程 4。剩余 45 条 review 未被选入。"
+      },
+      {
+        "id": "release_selection_block",
+        "type": "table",
+        "layout": "full",
+        "tableId": "table_release_selection"
+      },
+      {
+        "id": "labels_chart_block",
+        "type": "chart",
+        "layout": "full",
+        "chartId": "chart_labels"
+      },
+      {
+        "id": "stage9",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 阶段 9 — 发布前对全部记录、全部原子和来源链路做完整性审计\n\n最终输出不是一个孤立 JSONL，而是一组互相校验的产物：\n\n- **benchmark JSONL：**15,000 条训练/评测记录；\n- **manifest：**输入、参数、容量、领域配额、准入状态和输出哈希；\n- **stats：**来源、主题、领域、标签、动作、记忆类型和结构分布；\n- **review HTML：**供人工逐条检查 strict/review/reject 示例；\n- **package/checksum：**文件列表、字节数与 SHA-256。\n\n机器不变量覆盖全量 15,000 条和 53,318 个原子。人工审查用于补充语义合理性、领域风险与可读性，但人工意见不能直接覆写记录，必须形成新版本和新审计。"
+      },
+      {
+        "id": "release_checks_block",
+        "type": "table",
+        "layout": "full",
+        "tableId": "table_release_checks"
+      },
+      {
+        "id": "pseudocode",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 可复现的实现无关伪代码\n\n1. 归一化全部公开来源，形成统一源单元。\n2. 运行硬过滤，要求质量分至少为 60。\n3. 做精确去重和阈值 0.88 的近重复去重。\n4. 按领域、来源、主题和难度做固定种子的质量加权抽样。\n5. 对源候选做六维语义 QC；只重试 invalid；每领域只准入 strict。\n6. 合并健康 strict 源池和新领域 strict 源池，超额构建 18,000 条。\n7. 对全部构建结果运行完整确定性验证。\n8. 冻结通过项，记录失败原因，只修具有明确、局部错误的失败项。\n9. 对每个修复版本重新运行全部确定性门槛；无可辩护修复时停止。\n10. 对确定性通过池做独立逐原子 QC。\n11. 若领域容量不足，只选择可修复 reject 或储备记录做定向语义重构。\n12. 新版本再次经过确定性验证和独立 QC，并按同一 ID 替换旧版本；未修改 ID 保持不变。\n13. 当精确领域配额可由 strict + 允许 review 满足时停止修复。\n14. 领域内 strict-first 选择最终记录，断言 reject/invalid 零准入。\n15. 全量验证发布不变量并输出 JSONL、manifest、stats、review 与哈希。"
+      },
+      {
+        "id": "limitations",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 仍然存在的局限与风险\n\n1. **参考回答不是事实金标准。**它只帮助判断源问答是否完整和可构造，不能被解释为医学或技术真理。\n2. **健康来源的权利与隐私风险未被质量分数消除。**最终 7,500 条健康记录的许可元数据为 unknown；公开再分发前仍需法律、PII 和敏感内容专项审查。\n3. **独立 QC 仍是模型辅助判断。**query-source 混淆证明质检提示语也可能产生系统性偏差；当前流程通过逐项重算、定向重检和审计保留降低风险，但不等价于双盲专家共识。\n4. **分层抽样是能力覆盖分布，不是自然用户流量分布。**来源均衡、主题平方根平滑和难度配额都会主动改变原始数据比例。\n5. **94 条 review 应保留显式标记。**最保守的实验应同时报告 full 15,000 与 strict-only 14,906。\n6. **每条记录固定一个合成 hard-A。**它强化过度使用测试，但也引入人工先验，应在训练和评测分析中单独说明。\n7. **correct 原子只有 327 个。**关于错误、不安全和陈旧记忆纠正的结论需要单独报告置信区间，并考虑后续扩充。"
+      },
+      {
+        "id": "paper_use",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 论文撰写时如何使用这份流程\n\n论文正文建议保留三条主线：**源数据 strict 准入、记录级双重验证、领域内 strict-first 发布**。完整抽样公式、各轮修复计数、A/B/C 判定表和审计不变量放入附录。实验部分至少同时报告三个领域、strict-only 子集、A/B/C、apply/correct，以及去除 94 条 review 的敏感性结果。\n\n任何性能提升都应表述为“在该构造分布和 rubric 下的记忆使用校准能力”，不能直接外推为真实长期记忆系统中的用户收益。"
+      },
+      {
+        "id": "paper_mapping_block",
+        "type": "table",
+        "layout": "full",
+        "tableId": "table_paper_mapping"
+      },
+      {
+        "id": "open_questions",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## 团队审查时仍需明确的决策\n\n1. 论文主结果使用 full 15,000，还是 strict-only 14,906 为主、94 条 review 只做敏感性分析？\n2. 健康来源最终采用公开文本、仅发布 ID/派生标注，还是受控访问？\n3. 是否增加第二模型家族或人工专家的分层盲审，以估计独立 QC 偏差？\n4. correct 子集是否需要单独扩充和重新平衡？\n5. 训练时是否对每条记录固定一个 hard-A 的构造先验进行重加权？"
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "status": "ready",
+    "generatedAt": "2026-07-17T13:31:55+08:00",
+    "datasets": {
+      "headline_metrics": [
+        {
+          "records": 15000,
+          "memory_atoms": 53318,
+          "strict_records": 14906,
+          "review_records": 94,
+          "sources": 8,
+          "domains": 3
+        }
+      ],
+      "lineage_steps": [
+        {
+          "order": 1,
+          "stage": "公开数据归一化",
+          "input": "8 个公开来源",
+          "output": "统一源单元",
+          "unit": "问题/上下文/参考回答",
+          "promotion": "字段完整、来源可追踪",
+          "failure_branch": "缺字段、非英语、异常噪声 → 排除"
+        },
+        {
+          "order": 2,
+          "stage": "通用/编程候选抽样",
+          "input": "归一化新领域源池",
+          "output": "34,150",
+          "unit": "源单元",
+          "promotion": "硬过滤、质量≥60、去重、分层入样",
+          "failure_branch": "低质或重复 → 不送语义 QC"
+        },
+        {
+          "order": 3,
+          "stage": "源语义 QC",
+          "input": "34,150",
+          "output": "33,574 有效判定",
+          "unit": "源单元",
+          "promotion": "六维判断结构有效",
+          "failure_branch": "2,166/1,011/493 invalid 定向重试；最终 576 残留"
+        },
+        {
+          "order": 4,
+          "stage": "strict 源准入",
+          "input": "9,921 strict 容量",
+          "output": "9,500",
+          "unit": "源单元",
+          "promotion": "通用 4,750 + 编程 4,750；仅 strict",
+          "failure_branch": "review/reject/invalid 不进入构建"
+        },
+        {
+          "order": 5,
+          "stage": "构建源池合并",
+          "input": "15,577 健康 + 9,500 新领域",
+          "output": "25,077",
+          "unit": "strict 源单元",
+          "promotion": "来源、主题、领域配额锁定",
+          "failure_branch": "Stack Exchange 署名不全的 67 条先排除"
+        },
+        {
+          "order": 6,
+          "stage": "超额构建",
+          "input": "25,077",
+          "output": "18,000",
+          "unit": "构建目标",
+          "promotion": "健康 8,500 / 通用 4,750 / 编程 4,750",
+          "failure_branch": "未抽中者保留为源储备，不视为质量失败"
+        },
+        {
+          "order": 7,
+          "stage": "确定性验证与修复",
+          "input": "18,000",
+          "output": "15,583 pass",
+          "unit": "构建记录",
+          "promotion": "全部结构与语义硬门槛通过",
+          "failure_branch": "2,417 记录保留在排除审计"
+        },
+        {
+          "order": 8,
+          "stage": "独立 QC 与定向语义重构",
+          "input": "15,583 + 储备重构",
+          "output": "16,195",
+          "unit": "QC 候选",
+          "promotion": "每个修改版本重新确定性验证和独立 QC",
+          "failure_branch": "最终 reject 1,039；invalid 111"
+        },
+        {
+          "order": 9,
+          "stage": "领域内 strict-first 发布",
+          "input": "14,906 strict + 139 review",
+          "output": "15,000",
+          "unit": "发布记录",
+          "promotion": "领域配额精确匹配；review 只补 strict 短缺",
+          "failure_branch": "45 条多余 review 未选；reject/invalid 零准入"
+        },
+        {
+          "order": 10,
+          "stage": "发布完整性审计",
+          "input": "15,000",
+          "output": "JSONL + manifest + stats + review + package",
+          "unit": "发布包",
+          "promotion": "全量不变量与 SHA-256 均通过",
+          "failure_branch": "任一不变量失败 → 不发布"
+        }
+      ],
+      "source_catalog": [
+        {
+          "domain": "健康",
+          "source": "OpenMed/MedDialog",
+          "original_unit": "患者消息、对话上下文、医生回复",
+          "memory_signal": "病史、症状进展、治疗与安全约束",
+          "final_records": 3793,
+          "license": "unknown",
+          "caveat": "回答不是临床金标准；发布前需权利与隐私审查"
+        },
+        {
+          "domain": "健康",
+          "source": "ChatDoctor-HealthCareMagic-100k",
+          "original_unit": "健康指令/输入与回答",
+          "memory_signal": "个体症状、既往情况、偏好与治疗背景",
+          "final_records": 3707,
+          "license": "unknown",
+          "caveat": "回答不是临床金标准；许可元数据待确认"
+        },
+        {
+          "domain": "通用",
+          "source": "UltraChat 200k",
+          "original_unit": "多轮对话路径与当前回复",
+          "memory_signal": "计划、偏好、生活任务和解释上下文",
+          "final_records": 2377,
+          "license": "MIT",
+          "caveat": "原始互联网式回答可能含事实或风格偏差"
+        },
+        {
+          "domain": "通用",
+          "source": "OpenAssistant OASST1",
+          "original_unit": "英语用户轮次、前序路径、正向回复",
+          "memory_signal": "历史上下文、偏好、项目与关系背景",
+          "final_records": 470,
+          "license": "Apache-2.0",
+          "caveat": "对话树路径需保持轮次语义完整"
+        },
+        {
+          "domain": "通用",
+          "source": "OpenAssistant OASST2",
+          "original_unit": "英语用户轮次、前序路径、正向回复",
+          "memory_signal": "补充开放任务与主题覆盖",
+          "final_records": 903,
+          "license": "Apache-2.0",
+          "caveat": "对话树路径需保持轮次语义完整"
+        },
+        {
+          "domain": "编程",
+          "source": "Magicoder OSS Instruct",
+          "original_unit": "编程指令与参考响应",
+          "memory_signal": "接口、依赖、项目环境与实现约束",
+          "final_records": 2771,
+          "license": "MIT",
+          "caveat": "参考代码不作为绝对正确答案"
+        },
+        {
+          "domain": "编程",
+          "source": "APPS",
+          "original_unit": "算法题面与参考解法",
+          "memory_signal": "输入输出、复杂度与实现限制",
+          "final_records": 174,
+          "license": "MIT",
+          "caveat": "题面适合约束构造，但个体化记忆密度较低"
+        },
+        {
+          "domain": "编程",
+          "source": "Stack Exchange Preferences",
+          "original_unit": "社区问题、候选回答与作者署名",
+          "memory_signal": "调试历史、API、系统环境与真实社区约束",
+          "final_records": 805,
+          "license": "CC-BY-SA-4.0",
+          "caveat": "入选前强制补全作者署名；不完整记录不得公开发布"
+        }
+      ],
+      "source_distribution": [
+        {
+          "source": "MedDialog",
+          "domain": "健康",
+          "records": 3793
+        },
+        {
+          "source": "ChatDoctor-HCM",
+          "domain": "健康",
+          "records": 3707
+        },
+        {
+          "source": "Magicoder OSS",
+          "domain": "编程",
+          "records": 2771
+        },
+        {
+          "source": "UltraChat",
+          "domain": "通用",
+          "records": 2377
+        },
+        {
+          "source": "OASST2",
+          "domain": "通用",
+          "records": 903
+        },
+        {
+          "source": "Stack Exchange",
+          "domain": "编程",
+          "records": 805
+        },
+        {
+          "source": "OASST1",
+          "domain": "通用",
+          "records": 470
+        },
+        {
+          "source": "APPS",
+          "domain": "编程",
+          "records": 174
+        }
+      ],
+      "formula_reference": [
+        {
+          "order": 1,
+          "purpose": "容量约束配额的理想值",
+          "formula": "ideal(h) = N × w(h) / Σⱼ w(j)",
+          "symbols": "N=本层目标数；h=分层；w=分层权重",
+          "operational_meaning": "先算每个分层在不考虑容量上限时应得到多少样本"
+        },
+        {
+          "order": 2,
+          "purpose": "整数配额与容量上限",
+          "formula": "quota(h) = min(C(h), ⌊ideal(h)⌋)",
+          "symbols": "C(h)=该分层可用容量；⌊·⌋=向下取整",
+          "operational_meaning": "任何分层都不能分到超过其真实可用记录数的配额"
+        },
+        {
+          "order": 3,
+          "purpose": "主题平滑",
+          "formula": "w(source, topic) = √C(source, topic)",
+          "symbols": "C=来源内该主题的可用容量",
+          "operational_meaning": "大主题仍占更多，但不会按原始规模线性支配样本"
+        },
+        {
+          "order": 4,
+          "purpose": "难度目标",
+          "formula": "w(simple, medium, complex) = (0.25, 0.50, 0.25)",
+          "symbols": "三类难度由可审计文本与上下文特征得到",
+          "operational_meaning": "保证中等难度为主，同时保留两端样本"
+        },
+        {
+          "order": 5,
+          "purpose": "质量归一化",
+          "formula": "q(i) = clip((score(i) − 60) / 40, 0, 1)",
+          "symbols": "score=0–100 质量分；60=最低合格分",
+          "operational_meaning": "只在已合格记录内区分相对质量"
+        },
+        {
+          "order": 6,
+          "purpose": "质量加权概率",
+          "formula": "weight(i) = exp(2 × q(i))",
+          "symbols": "2=锁定的质量倾斜强度",
+          "operational_meaning": "高分记录更可能入样，但低分合格记录不会被确定性清零"
+        },
+        {
+          "order": 7,
+          "purpose": "可复现的加权无放回排序",
+          "formula": "priority(i) = −ln(Uᵢ) / weight(i)",
+          "symbols": "Uᵢ∈(0,1) 来自固定随机种子",
+          "operational_meaning": "按 priority 从小到大选；同一输入与种子可复现"
+        }
+      ],
+      "source_qc_batches": [
+        {
+          "batch": "首批候选",
+          "requested": 24000,
+          "original_valid": 21834,
+          "retry_valid": 1809,
+          "strict_pass": 8391,
+          "review": 431,
+          "reject": 14821,
+          "residual_invalid": 357
+        },
+        {
+          "batch": "扩展批次",
+          "requested": 7650,
+          "original_valid": 6639,
+          "retry_valid": 857,
+          "strict_pass": 1273,
+          "review": 38,
+          "reject": 6185,
+          "residual_invalid": 154
+        },
+        {
+          "batch": "通用补充批次",
+          "requested": 2500,
+          "original_valid": 2007,
+          "retry_valid": 428,
+          "strict_pass": 257,
+          "review": 11,
+          "reject": 2167,
+          "residual_invalid": 65
+        },
+        {
+          "batch": "合计",
+          "requested": 34150,
+          "original_valid": 30480,
+          "retry_valid": 3094,
+          "strict_pass": 9921,
+          "review": 480,
+          "reject": 23173,
+          "residual_invalid": 576
+        }
+      ],
+      "source_qc_chart": [
+        {
+          "batch": "首批 24,000",
+          "decision": "strict",
+          "records": 8391
+        },
+        {
+          "batch": "首批 24,000",
+          "decision": "review",
+          "records": 431
+        },
+        {
+          "batch": "首批 24,000",
+          "decision": "reject",
+          "records": 14821
+        },
+        {
+          "batch": "首批 24,000",
+          "decision": "invalid",
+          "records": 357
+        },
+        {
+          "batch": "扩展 7,650",
+          "decision": "strict",
+          "records": 1273
+        },
+        {
+          "batch": "扩展 7,650",
+          "decision": "review",
+          "records": 38
+        },
+        {
+          "batch": "扩展 7,650",
+          "decision": "reject",
+          "records": 6185
+        },
+        {
+          "batch": "扩展 7,650",
+          "decision": "invalid",
+          "records": 154
+        },
+        {
+          "batch": "通用补充 2,500",
+          "decision": "strict",
+          "records": 257
+        },
+        {
+          "batch": "通用补充 2,500",
+          "decision": "review",
+          "records": 11
+        },
+        {
+          "batch": "通用补充 2,500",
+          "decision": "reject",
+          "records": 2167
+        },
+        {
+          "batch": "通用补充 2,500",
+          "decision": "invalid",
+          "records": 65
+        }
+      ],
+      "source_qc_dimensions": [
+        {
+          "order": 1,
+          "dimension": "问题完整性",
+          "question": "当前问题能否在给定上下文中被明确理解？",
+          "pass_evidence": "问题文本或必要上文中的连续证据片段",
+          "failure_effect": "reject"
+        },
+        {
+          "order": 2,
+          "dimension": "回答相关性",
+          "question": "参考回答是否直接回应问题，而非偏题或套话？",
+          "pass_evidence": "回答中直接对应请求的连续片段",
+          "failure_effect": "reject"
+        },
+        {
+          "order": 3,
+          "dimension": "回答实质性",
+          "question": "回答是否包含足够内容支持任务理解？",
+          "pass_evidence": "关键解释、步骤、比较或约束",
+          "failure_effect": "reject"
+        },
+        {
+          "order": 4,
+          "dimension": "记忆可提取性",
+          "question": "问题/上下文中是否存在可用于未来回答的个体事实或约束？",
+          "pass_evidence": "病史、偏好、环境、失败历史等逐字片段",
+          "failure_effect": "reject"
+        },
+        {
+          "order": 5,
+          "dimension": "文本完整性",
+          "question": "文本是否连贯、未截断、无明显损坏？",
+          "pass_evidence": "完整问题—上下文—回答链",
+          "failure_effect": "reject"
+        },
+        {
+          "order": 6,
+          "dimension": "安全与合理性",
+          "question": "回答是否不存在明显危险、荒谬或材料性错误？",
+          "pass_evidence": "与核心建议或技术结论对应的片段",
+          "failure_effect": "reject"
+        }
+      ],
+      "construction_fields": [
+        {
+          "order": 1,
+          "field": "当前问题",
+          "content": "从原始任务改写出的、模型在评测时看到的问题",
+          "hard_rule": "不得陈述、改写、蕴含或预设计分记忆"
+        },
+        {
+          "order": 2,
+          "field": "父记忆块",
+          "content": "3–6 个语义完整的历史事实、偏好或约束",
+          "hard_rule": "真实块来自原始问题/上下文；恰好一个合成 hard-A"
+        },
+        {
+          "order": 3,
+          "field": "原子记忆",
+          "content": "可独立取真值并可独立影响回答的最小命题",
+          "hard_rule": "父子 ID、证据、来源、类型和动作完整"
+        },
+        {
+          "order": 4,
+          "field": "A/B/C 影响标签",
+          "content": "移除该记忆后，回答可观察行为变化的强度",
+          "hard_rule": "A=零影响；B=支持影响；C=控制影响"
+        },
+        {
+          "order": 5,
+          "field": "memory action",
+          "content": "ignore、apply 或 correct",
+          "hard_rule": "A 只能 ignore；B/C 可 apply 或 correct"
+        },
+        {
+          "order": 6,
+          "field": "反事实契约",
+          "content": "无记忆行为、有记忆行为、最小差异、可观察证据",
+          "hard_rule": "B/C 差异非空；A 差异为 none 且证据为空"
+        },
+        {
+          "order": 7,
+          "field": "使用 rubric",
+          "content": "正确使用、欠使用、过使用和禁止角色",
+          "hard_rule": "必须能只根据候选回答文本进行判分"
+        },
+        {
+          "order": 8,
+          "field": "全部原子对",
+          "content": "n 个原子的 n(n−1)/2 个无序关系",
+          "hard_rule": "每一对都必须显式判定独立、重叠、蕴含或矛盾"
+        }
+      ],
+      "label_semantics": [
+        {
+          "label": "A",
+          "remove_memory_test": "移除后，合格回答的可观察行为完全不变",
+          "allowed_action": "ignore",
+          "correct_example": "同主题但与当前问题无关的偏好，不应出现在回答中",
+          "forbidden": "A + apply；A + correct；任何非空 observable delta"
+        },
+        {
+          "label": "B",
+          "remove_memory_test": "移除后仍可回答，但失去局部适配、警示或优先级变化",
+          "allowed_action": "apply 或 correct",
+          "correct_example": "结合用户既有工具给出更熟悉的操作路径",
+          "forbidden": "无法指出回答文本中的局部差异"
+        },
+        {
+          "label": "C",
+          "remove_memory_test": "移除后核心结论、可行方案或安全边界改变",
+          "allowed_action": "apply 或 correct",
+          "correct_example": "硬件、禁忌或接口约束直接排除某个方案",
+          "forbidden": "只改变措辞却标为 C"
+        }
+      ],
+      "example_trace": [
+        {
+          "order": 1,
+          "artifact": "源上下文",
+          "example": "用户主机使用 Linux Mint，并准备给旧 Pentium/HDD 笔记本选择轻量发行版。",
+          "decision": "包含当前环境与目标硬件两类可提取记忆。"
+        },
+        {
+          "order": 2,
+          "artifact": "当前问题",
+          "example": "比较 Lubuntu、Puppy、antiX、Bodhi 和 Xubuntu 的软件可用性与社区支持。",
+          "decision": "问题本身不重复 Mint 使用情况或旧硬件约束。"
+        },
+        {
+          "order": 3,
+          "artifact": "原子 1",
+          "example": "用户当前使用 Linux Mint。",
+          "decision": "B + apply：可把 Ubuntu/APT 生态解释为熟悉迁移路径，但不控制核心答案。"
+        },
+        {
+          "order": 4,
+          "artifact": "原子 2",
+          "example": "目标设备是旧 Pentium + 机械硬盘。",
+          "decision": "C + apply：它控制“软件多”是否具有实际价值，改变方案排序。"
+        },
+        {
+          "order": 5,
+          "artifact": "原子 3",
+          "example": "用户偏好不使用 systemd（构造的 hard-A）。",
+          "decision": "A + ignore：当前只问软件与社区支持，回答中出现 systemd 即为过度使用。"
+        },
+        {
+          "order": 6,
+          "artifact": "原子对与 rubric",
+          "example": "三对关系均独立；每个原子都有 with/without 行为和可观察检查。",
+          "decision": "通过确定性门槛与独立 QC 后，才可成为 strict 候选。"
+        }
+      ],
+      "deterministic_progress": [
+        {
+          "stage": "主轮",
+          "input": 18000,
+          "newly_accepted": 6888,
+          "cumulative_accepted": 6888,
+          "residual": 11112
+        },
+        {
+          "stage": "修复 1",
+          "input": 11112,
+          "newly_accepted": 6038,
+          "cumulative_accepted": 12926,
+          "residual": 5074
+        },
+        {
+          "stage": "修复 2",
+          "input": 5074,
+          "newly_accepted": 800,
+          "cumulative_accepted": 13726,
+          "residual": 4274
+        },
+        {
+          "stage": "修复 3",
+          "input": 4274,
+          "newly_accepted": 233,
+          "cumulative_accepted": 13959,
+          "residual": 4041
+        },
+        {
+          "stage": "严格证据修复",
+          "input": 4041,
+          "newly_accepted": 1624,
+          "cumulative_accepted": 15583,
+          "residual": 2417
+        }
+      ],
+      "deterministic_gates": [
+        {
+          "order": 1,
+          "gate": "结构与 ID",
+          "test": "schema、记录 ID、父子 ID、枚举和必填字段是否完整",
+          "failure": "invalid/reject；不得进入独立 QC"
+        },
+        {
+          "order": 2,
+          "gate": "证据逐字 grounding",
+          "test": "每条真实证据是否为原始问题或上下文的连续片段",
+          "failure": "只可做严格 span 修复；找不到可信片段则排除"
+        },
+        {
+          "order": 3,
+          "gate": "问题—记忆隔离",
+          "test": "当前问题是否泄露任一计分原子",
+          "failure": "阻断；必须重写问题或记录"
+        },
+        {
+          "order": 4,
+          "gate": "hard-A 约束",
+          "test": "是否恰好一个合成 hard-A，且安全、无须纠正",
+          "failure": "阻断；危险错误不能伪装成 A"
+        },
+        {
+          "order": 5,
+          "gate": "标签—动作—差异一致",
+          "test": "A/B/C、ignore/apply/correct 与 observable delta 是否相容",
+          "failure": "阻断；按明确错误原因定向修复"
+        },
+        {
+          "order": 6,
+          "gate": "原子对覆盖",
+          "test": "是否覆盖全部 n(n−1)/2 个无序原子对",
+          "failure": "阻断；缺失、重复或关系不合法均拒绝"
+        },
+        {
+          "order": 7,
+          "gate": "rubric 可判性",
+          "test": "是否能从回答中辨别正确使用、欠用和过用",
+          "failure": "阻断；无法判分的记录不用于 benchmark"
+        }
+      ],
+      "semantic_repair_rounds": [
+        {
+          "order": 1,
+          "stage": "首轮独立 QC",
+          "targets": "15,583 全量",
+          "changed_pass": "无",
+          "re_qc": "6,969 strict / 98 review / 8,231 reject / 285 invalid",
+          "merged_state": "同左",
+          "why_next": "审计发现大量 query-source 语义混淆，必须修复记录并重新判定"
+        },
+        {
+          "order": 2,
+          "stage": "语义重构 1–3 + 储备补充",
+          "targets": "8,231 reject；另取 1,190 储备",
+          "changed_pass": "7,941 替换 + 612 新增",
+          "re_qc": "8,838 个受影响候选：6,013 strict / 28 review / 2,619 reject / 178 invalid",
+          "merged_state": "12,982 strict / 126 review / 2,909 reject / 178 invalid",
+          "why_next": "仍有 2,619 个已重构记录被独立 QC 拒绝"
+        },
+        {
+          "order": 3,
+          "stage": "语义修复 4",
+          "targets": "2,619",
+          "changed_pass": "2,337 重新通过确定性门槛",
+          "re_qc": "1,280 strict / 11 review / 1,020 reject / 26 invalid",
+          "merged_state": "14,262 strict / 137 review / 1,592 reject / 204 invalid",
+          "why_next": "编程 strict 容量仍不足最终 3,750 配额"
+        },
+        {
+          "order": 4,
+          "stage": "编程语义修复 5",
+          "targets": "783 个编程候选",
+          "changed_pass": "499 重新通过确定性门槛",
+          "re_qc": "168 strict / 1 review / 326 reject / 4 invalid",
+          "merged_state": "14,430 strict / 138 review / 1,419 reject / 208 invalid",
+          "why_next": "编程容量仍不足；剩余错误可按明确局部模式修复"
+        },
+        {
+          "order": 5,
+          "stage": "本地规则修复 1",
+          "targets": "711 个编程残留",
+          "changed_pass": "595 通过确定性门槛",
+          "re_qc": "78 strict / 0 review / 452 reject / 65 invalid",
+          "merged_state": "14,508 strict / 138 review / 1,376 reject / 173 invalid",
+          "why_next": "结构 invalid 与局部关系问题仍有可审计修复空间"
+        },
+        {
+          "order": 6,
+          "stage": "本地规则修复 2 + QC 重试",
+          "targets": "517；其中 305 定向重审",
+          "changed_pass": "517 全部通过确定性门槛",
+          "re_qc": "初审 209 strict/1 review；重审再得 101 strict",
+          "merged_state": "14,818 strict / 139 review / 1,127 reject / 111 invalid",
+          "why_next": "距编程 strict 容量目标只差一个小批次"
+        },
+        {
+          "order": 7,
+          "stage": "本地规则修复 3",
+          "targets": "203 个编程 reject",
+          "changed_pass": "203 全部通过确定性门槛",
+          "re_qc": "88 strict / 0 review / 115 reject / 0 invalid",
+          "merged_state": "14,906 strict / 139 review / 1,039 reject / 111 invalid",
+          "why_next": "三领域 strict+允许 review 已满足精确发布配额，停止修复"
+        }
+      ],
+      "qc_iteration": [
+        {
+          "stage": "首轮 QC",
+          "decision": "strict",
+          "records": 6969
+        },
+        {
+          "stage": "首轮 QC",
+          "decision": "review",
+          "records": 98
+        },
+        {
+          "stage": "首轮 QC",
+          "decision": "reject",
+          "records": 8231
+        },
+        {
+          "stage": "首轮 QC",
+          "decision": "invalid",
+          "records": 285
+        },
+        {
+          "stage": "语义重构",
+          "decision": "strict",
+          "records": 12982
+        },
+        {
+          "stage": "语义重构",
+          "decision": "review",
+          "records": 126
+        },
+        {
+          "stage": "语义重构",
+          "decision": "reject",
+          "records": 2909
+        },
+        {
+          "stage": "语义重构",
+          "decision": "invalid",
+          "records": 178
+        },
+        {
+          "stage": "修复 4",
+          "decision": "strict",
+          "records": 14262
+        },
+        {
+          "stage": "修复 4",
+          "decision": "review",
+          "records": 137
+        },
+        {
+          "stage": "修复 4",
+          "decision": "reject",
+          "records": 1592
+        },
+        {
+          "stage": "修复 4",
+          "decision": "invalid",
+          "records": 204
+        },
+        {
+          "stage": "编程修复 5",
+          "decision": "strict",
+          "records": 14430
+        },
+        {
+          "stage": "编程修复 5",
+          "decision": "review",
+          "records": 138
+        },
+        {
+          "stage": "编程修复 5",
+          "decision": "reject",
+          "records": 1419
+        },
+        {
+          "stage": "编程修复 5",
+          "decision": "invalid",
+          "records": 208
+        },
+        {
+          "stage": "最终",
+          "decision": "strict",
+          "records": 14906
+        },
+        {
+          "stage": "最终",
+          "decision": "review",
+          "records": 139
+        },
+        {
+          "stage": "最终",
+          "decision": "reject",
+          "records": 1039
+        },
+        {
+          "stage": "最终",
+          "decision": "invalid",
+          "records": 111
+        }
+      ],
+      "final_qc_by_domain": [
+        {
+          "domain": "健康",
+          "decision": "strict_pass",
+          "records": 7491
+        },
+        {
+          "domain": "健康",
+          "decision": "review",
+          "records": 29
+        },
+        {
+          "domain": "健康",
+          "decision": "reject",
+          "records": 440
+        },
+        {
+          "domain": "健康",
+          "decision": "invalid",
+          "records": 59
+        },
+        {
+          "domain": "通用",
+          "decision": "strict_pass",
+          "records": 3669
+        },
+        {
+          "domain": "通用",
+          "decision": "review",
+          "records": 91
+        },
+        {
+          "domain": "通用",
+          "decision": "reject",
+          "records": 369
+        },
+        {
+          "domain": "通用",
+          "decision": "invalid",
+          "records": 48
+        },
+        {
+          "domain": "编程",
+          "decision": "strict_pass",
+          "records": 3746
+        },
+        {
+          "domain": "编程",
+          "decision": "review",
+          "records": 19
+        },
+        {
+          "domain": "编程",
+          "decision": "reject",
+          "records": 230
+        },
+        {
+          "domain": "编程",
+          "decision": "invalid",
+          "records": 4
+        }
+      ],
+      "release_selection": [
+        {
+          "domain": "健康",
+          "target": 7500,
+          "strict_capacity": 7491,
+          "review_capacity": 29,
+          "strict_selected": 7491,
+          "review_selected": 9,
+          "reject_invalid_selected": 0
+        },
+        {
+          "domain": "通用",
+          "target": 3750,
+          "strict_capacity": 3669,
+          "review_capacity": 91,
+          "strict_selected": 3669,
+          "review_selected": 81,
+          "reject_invalid_selected": 0
+        },
+        {
+          "domain": "编程",
+          "target": 3750,
+          "strict_capacity": 3746,
+          "review_capacity": 19,
+          "strict_selected": 3746,
+          "review_selected": 4,
+          "reject_invalid_selected": 0
+        },
+        {
+          "domain": "合计",
+          "target": 15000,
+          "strict_capacity": 14906,
+          "review_capacity": 139,
+          "strict_selected": 14906,
+          "review_selected": 94,
+          "reject_invalid_selected": 0
+        }
+      ],
+      "labels_by_domain": [
+        {
+          "domain": "健康",
+          "label": "A",
+          "atoms": 8025
+        },
+        {
+          "domain": "健康",
+          "label": "B",
+          "atoms": 11289
+        },
+        {
+          "domain": "健康",
+          "label": "C",
+          "atoms": 8663
+        },
+        {
+          "domain": "通用",
+          "label": "A",
+          "atoms": 4478
+        },
+        {
+          "domain": "通用",
+          "label": "B",
+          "atoms": 5110
+        },
+        {
+          "domain": "通用",
+          "label": "C",
+          "atoms": 2995
+        },
+        {
+          "domain": "编程",
+          "label": "A",
+          "atoms": 4137
+        },
+        {
+          "domain": "编程",
+          "label": "B",
+          "atoms": 2661
+        },
+        {
+          "domain": "编程",
+          "label": "C",
+          "atoms": 5960
+        }
+      ],
+      "release_checks": [
+        {
+          "order": 1,
+          "check": "记录总数",
+          "scope": "记录",
+          "result": "15,000 / 15,000",
+          "status": "通过"
+        },
+        {
+          "order": 2,
+          "check": "唯一记录 ID",
+          "scope": "记录",
+          "result": "15,000",
+          "status": "通过"
+        },
+        {
+          "order": 3,
+          "check": "唯一来源 ID",
+          "scope": "记录",
+          "result": "15,000",
+          "status": "通过"
+        },
+        {
+          "order": 4,
+          "check": "领域配额",
+          "scope": "记录",
+          "result": "7,500 / 3,750 / 3,750",
+          "status": "精确匹配"
+        },
+        {
+          "order": 5,
+          "check": "确定性门槛",
+          "scope": "记录",
+          "result": "全部 pass",
+          "status": "通过"
+        },
+        {
+          "order": 6,
+          "check": "发布准入",
+          "scope": "记录",
+          "result": "14,906 strict + 94 review",
+          "status": "通过"
+        },
+        {
+          "order": 7,
+          "check": "标签—动作组合",
+          "scope": "53,318 原子",
+          "result": "无非法组合",
+          "status": "通过"
+        },
+        {
+          "order": 8,
+          "check": "Stack Exchange 署名",
+          "scope": "805 记录",
+          "result": "805 / 805 完整",
+          "status": "通过"
+        },
+        {
+          "order": 9,
+          "check": "内容哈希",
+          "scope": "最终 JSONL",
+          "result": "41139c0f…257b7",
+          "status": "已记录"
+        }
+      ],
+      "paper_mapping": [
+        {
+          "paper_section": "Data sources",
+          "report_sections": "阶段 1–2",
+          "recommended_claim": "八源、三域、源单元定义与权利边界",
+          "must_report": "来源版本、许可、最终贡献数"
+        },
+        {
+          "paper_section": "Sampling",
+          "report_sections": "阶段 3",
+          "recommended_claim": "来源/主题/难度分层与质量加权",
+          "must_report": "容量约束、固定种子、非自然分布"
+        },
+        {
+          "paper_section": "Source quality control",
+          "report_sections": "阶段 4",
+          "recommended_claim": "六维源 QC 与 invalid 定向重试",
+          "must_report": "34,150 分母及各状态计数"
+        },
+        {
+          "paper_section": "Benchmark construction",
+          "report_sections": "阶段 5",
+          "recommended_claim": "当前问题、父块、原子、标签、动作、反事实契约",
+          "must_report": "A/B/C 与 correct 的正交定义"
+        },
+        {
+          "paper_section": "Validation and repair",
+          "report_sections": "阶段 6–7",
+          "recommended_claim": "确定性门槛、独立 QC、只修失败项",
+          "must_report": "每轮目标、通过、残留与停止条件"
+        },
+        {
+          "paper_section": "Release selection",
+          "report_sections": "阶段 8–9",
+          "recommended_claim": "strict-first、review 只补领域短缺",
+          "must_report": "14,906 strict + 94 review；零 reject/invalid"
+        },
+        {
+          "paper_section": "Limitations",
+          "report_sections": "风险与边界",
+          "recommended_claim": "许可、隐私、模型辅助 QC 与构造分布限制",
+          "must_report": "健康来源 unknown license 与 hard-A 人工构造"
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "release_stats",
+      "label": "MemCalib v2 最终发布统计",
+      "path": "pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.stats.json",
+      "query": {
+        "engine": "duckdb",
+        "sql": "SELECT * FROM read_json_auto('pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.stats.json');",
+        "description": "最终 15,000 条发布记录的领域、来源、结构、标签与完整性统计。",
+        "tables_used": [
+          "pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.stats.json"
+        ]
+      }
+    },
+    {
+      "id": "release_manifest",
+      "label": "MemCalib v2 最终发布准入清单",
+      "path": "pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.manifest.json",
+      "query": {
+        "engine": "duckdb",
+        "sql": "SELECT * FROM read_json_auto('pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.manifest.json');",
+        "description": "最终按领域 strict-first 选择时的容量、配额与输出哈希。",
+        "tables_used": [
+          "pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.manifest.json"
+        ]
+      }
+    },
+    {
+      "id": "source_catalog",
+      "label": "八个上游来源及发布分布",
+      "query": {
+        "engine": "duckdb",
+        "sql": "SELECT * FROM (VALUES ('健康','OpenMed/MedDialog',3793,'unknown'),('健康','lavita/ChatDoctor-HealthCareMagic-100k',3707,'unknown'),('通用','HuggingFaceH4/ultrachat_200k',2377,'MIT'),('通用','OpenAssistant/oasst1',470,'Apache-2.0'),('通用','OpenAssistant/oasst2',903,'Apache-2.0'),('编程','ise-uiuc/Magicoder-OSS-Instruct-75K',2771,'MIT'),('编程','codeparrot/apps',174,'MIT'),('编程','HuggingFaceH4/stack-exchange-preferences',805,'CC-BY-SA-4.0')) AS t(domain, source, records, license);",
+        "description": "联合来源卡、归一化规则与最终发布统计整理的数据源目录。",
+        "tables_used": [
+          "docs/sources/meddialog.md",
+          "docs/sources/chatdoctor-healthcaremagic.md",
+          "docs/sources/openassistant-oasst1.md",
+          "docs/sources/magicoder-oss-instruct.md",
+          "pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.stats.json"
+        ]
+      }
+    },
+    {
+      "id": "sampling_method",
+      "label": "来源—主题—难度分层与质量加权抽样",
+      "query": {
+        "engine": "duckdb",
+        "sql": "SELECT * FROM (VALUES ('topic_weight','sqrt(capacity)'),('difficulty_mix','0.25 / 0.50 / 0.25'),('near_duplicate_threshold','0.88'),('minimum_quality_score','60')) AS t(rule, value);",
+        "description": "锁定配置与版本化选择逻辑中使用的抽样规则。",
+        "tables_used": [
+          "pipeline/config.multidomain-v2.json",
+          "pipeline/15_select_crk2_raw_seeds.py",
+          "pipeline/37_build_multidomain_full_candidate_pool.py",
+          "pipeline/38_select_multidomain_source_admission.py"
+        ],
+        "metric_definitions": [
+          "来源层使用等权目标并受可用容量约束。",
+          "主题层权重为可用容量的平方根。",
+          "难度层目标比例为 simple 25%、medium 50%、complex 25%。"
+        ]
+      }
+    },
+    {
+      "id": "source_qc",
+      "label": "34,150 个通用/编程源单元的语义质检",
+      "path": "pipeline/data/multidomain/full-v2/source_semantic_qc_multidomain_resolved_34150.manifest.json",
+      "query": {
+        "engine": "duckdb",
+        "sql": "SELECT * FROM (VALUES ('首批候选',8391,431,14821,357),('扩展批次',1273,38,6185,154),('通用补充批次',257,11,2167,65),('合计',9921,480,23173,576)) AS t(batch, strict_pass, review, reject, residual_invalid);",
+        "description": "三批源语义质检在定向结构重试后的 resolved 状态。",
+        "tables_used": [
+          "pipeline/data/multidomain/full-v2/source_semantic_qc_resolved_summary_24000.json",
+          "pipeline/data/multidomain/full-v2/source_semantic_qc_extension_resolved_summary_7650.json",
+          "pipeline/data/multidomain/full-v2/source_semantic_qc_extension_general2_resolved_summary_2500.json",
+          "pipeline/data/multidomain/full-v2/source_semantic_qc_multidomain_resolved_34150.manifest.json"
+        ]
+      }
+    },
+    {
+      "id": "source_admission",
+      "label": "通用/编程严格源准入与 Stack Exchange 署名审计",
+      "path": "pipeline/data/multidomain/full-v2/source_semantic_admitted_multidomain_attributed_9500.manifest.json",
+      "query": {
+        "engine": "duckdb",
+        "sql": "SELECT * FROM (VALUES ('general',4901,0,4750),('coding',5020,67,4750)) AS t(domain, strict_before_attribution, attribution_excluded, admitted);",
+        "description": "领域容量、署名排除和最终每领域 4,750 条 strict 源单元。",
+        "tables_used": [
+          "pipeline/data/multidomain/full-v2/source_semantic_admitted_multidomain_attribution_audit_9500.manifest.json",
+          "pipeline/data/multidomain/full-v2/source_semantic_admitted_multidomain_attributed_9500.manifest.json"
+        ]
+      }
+    },
+    {
+      "id": "construction_protocol",
+      "label": "CRK-2 v2 构建与独立质检协议",
+      "path": "docs/crk2-v2-construction-protocol.md",
+      "query": {
+        "engine": "duckdb",
+        "sql": "SELECT * FROM (VALUES ('A','ignore','zero observable influence'),('B','apply or correct','supporting observable influence'),('C','apply or correct','controlling observable influence')) AS t(label, allowed_action, definition);",
+        "description": "A/B/C 影响强度、动作方向、反事实契约与质量门槛的版本化定义。",
+        "tables_used": [
+          "docs/crk2-v2-construction-protocol.md"
+        ]
+      }
+    },
+    {
+      "id": "generation_manifest",
+      "label": "18,000 个构建目标与领域配额",
+      "path": "pipeline/data/multidomain/full-v2/crk2_v2_generation_input_18000.manifest.json",
+      "query": {
+        "engine": "duckdb",
+        "sql": "SELECT * FROM (VALUES ('health_seed',8500),('general',4750),('coding',4750)) AS t(domain, requests);",
+        "description": "由 25,077 条严格源单元准备的超额构建请求。",
+        "tables_used": [
+          "pipeline/data/multidomain/full-v2/crk2_v2_generation_input_18000.manifest.json"
+        ]
+      }
+    },
+    {
+      "id": "deterministic_lineage",
+      "label": "18,000 个构建目标的确定性验证与修复审计",
+      "query": {
+        "engine": "duckdb",
+        "sql": "SELECT * FROM (VALUES ('主轮',18000,6888,6888,11112),('修复 1',11112,6038,12926,5074),('修复 2',5074,800,13726,4274),('修复 3',4274,233,13959,4041),('严格证据修复',4041,1624,15583,2417)) AS t(stage, input_records, newly_accepted, cumulative_accepted, residual);",
+        "description": "每轮只处理上一轮未通过项；既有通过项冻结并保留。",
+        "tables_used": [
+          "pipeline/data/multidomain/full-v2/crk2_v2_memory_benchmark_18000.summary.json",
+          "pipeline/data/multidomain/full-v2/crk2_v2_memory_benchmark_repair1_11112.summary.json",
+          "pipeline/data/multidomain/full-v2/crk2_v2_memory_benchmark_repair2_5074.summary.json",
+          "pipeline/data/multidomain/full-v2/crk2_v2_memory_benchmark_repair3_4274.summary.json",
+          "pipeline/data/multidomain/full-v2/crk2_v2_memory_benchmark_grounding_sourcefix_4041.summary.json",
+          "pipeline/data/multidomain/full-v2/crk2_v2_memory_benchmark_deterministic_pass_15583.manifest.json"
+        ]
+      }
+    },
+    {
+      "id": "semantic_repair_lineage",
+      "label": "独立语义质检与定向修复合并审计",
+      "query": {
+        "engine": "duckdb",
+        "sql": "SELECT * FROM (VALUES ('首轮独立质检',6969,98,8231,285),('语义重构与储备合并',12982,126,2909,178),('语义修复 4',14262,137,1592,204),('编程修复 5',14430,138,1419,208),('本地修复 1',14508,138,1376,173),('本地修复 2 + 复核重试',14818,139,1127,111),('本地修复 3',14906,139,1039,111)) AS t(stage, strict_pass, review, reject, invalid);",
+        "description": "每次只替换目标 ID 的记录与 QC 判定，未修改记录沿用原判定。",
+        "tables_used": [
+          "pipeline/data/multidomain/full-v2/crk2_v2_independent_qc_15583.summary.json",
+          "pipeline/data/multidomain/full-v2/crk2_v2_independent_qc_resolved_15905.summary.json",
+          "pipeline/data/multidomain/full-v2/crk2_v2_independent_qc_resolved_repair4_15905.summary.json",
+          "pipeline/data/multidomain/full-v2/crk2_v2_independent_qc_resolved_repair5_16195.summary.json",
+          "pipeline/data/multidomain/full-v2/crk2_v2_independent_qc_resolved_local_repair1_16195.summary.json",
+          "pipeline/data/multidomain/full-v2/crk2_v2_independent_qc_resolved_local_repair2_retry_16195.summary.json",
+          "pipeline/data/multidomain/full-v2/crk2_v2_independent_qc_resolved_local_repair3_16195.summary.json"
+        ]
+      }
+    },
+    {
+      "id": "final_qc",
+      "label": "最终 16,195 条候选的独立质检状态",
+      "query": {
+        "engine": "duckdb",
+        "sql": "SELECT * FROM (VALUES ('健康','strict_pass',7491),('健康','review',29),('健康','reject',440),('健康','invalid',59),('通用','strict_pass',3669),('通用','review',91),('通用','reject',369),('通用','invalid',48),('编程','strict_pass',3746),('编程','review',19),('编程','reject',230),('编程','invalid',4)) AS t(domain, decision, records);",
+        "description": "最终候选池按领域分解后的 strict/review/reject/invalid。",
+        "tables_used": [
+          "pipeline/data/multidomain/full-v2/crk2_v2_independent_qc_resolved_local_repair3_16195.summary.json"
+        ]
+      }
+    },
+    {
+      "id": "release_package",
+      "label": "最终发布包、审查材料与内容哈希",
+      "path": "pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.package.json",
+      "query": {
+        "engine": "duckdb",
+        "sql": "SELECT * FROM read_json_auto('pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.package.json');",
+        "description": "发布 JSONL、manifest、统计、审查 HTML 与压缩包的文件级审计。",
+        "tables_used": [
+          "pipeline/data/multidomain/full-v2/memcalib_v02_multidomain_benchmark_15000.package.json"
+        ]
+      }
+    }
+  ]
+}
