@@ -40,7 +40,11 @@ def atom_count_bucket(row: dict[str, Any]) -> str:
 
 
 def admission_decision(row: dict[str, Any]) -> str:
-    return str((row.get("release_admission") or {}).get("decision") or "unknown")
+    for field in ("revision_release_admission", "release_admission", "semantic_admission"):
+        decision = str((row.get(field) or {}).get("decision") or "").strip()
+        if decision:
+            return decision
+    return "unknown"
 
 
 def within_admission_stratum(row: dict[str, Any]) -> tuple[str, str, str]:
@@ -244,6 +248,7 @@ def build_release(
                 "raw_selection",
                 "semantic_qc",
                 "independent_qc",
+                "revision_release_admission",
                 "release_admission",
             ],
         },

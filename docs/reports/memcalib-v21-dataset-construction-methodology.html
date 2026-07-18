@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>MemCalib v2.1 数据集构建与质检全流程</title>
+<style>
+:root{
+  --ink:#17202a;
+  --muted:#5e6b76;
+  --line:#d8dee4;
+  --paper:#ffffff;
+  --soft:#f5f7f9;
+  --blue:#1769aa;
+  --blue-soft:#eaf3fa;
+  --green:#18794e;
+  --green-soft:#eaf7f0;
+  --amber:#9a6700;
+  --amber-soft:#fff7d6;
+  --red:#b42318;
+  --red-soft:#fff0ee;
+  --violet:#6941c6;
+  --violet-soft:#f2efff;
+  --max:1160px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:#eef1f4}
+body{
+  margin:0;
+  color:var(--ink);
+  background:#eef1f4;
+  font:15px/1.72 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  letter-spacing:0;
+}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+code,pre,.formula{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+header{
+  background:var(--paper);
+  border-bottom:1px solid var(--line);
+}
+.hero{
+  max-width:var(--max);
+  margin:auto;
+  padding:48px 28px 34px;
+}
+.kicker{margin:0 0 10px;color:var(--blue);font-size:13px;font-weight:700}
+h1{
+  max-width:920px;
+  margin:0;
+  font-size:38px;
+  line-height:1.2;
+  letter-spacing:0;
+}
+.dek{max-width:850px;margin:16px 0 0;color:var(--muted);font-size:18px}
+.meta{display:flex;flex-wrap:wrap;gap:9px 20px;margin-top:22px;color:var(--muted);font-size:13px}
+.summary-band{border-top:1px solid var(--line);background:var(--soft)}
+.summary-grid{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  max-width:var(--max);
+  margin:auto;
+  padding:0 28px;
+}
+.summary-item{min-width:0;padding:18px 16px;border-left:1px solid var(--line)}
+.summary-item:last-child{border-right:1px solid var(--line)}
+.summary-value{font-size:23px;font-weight:750;font-variant-numeric:tabular-nums}
+.summary-label{color:var(--muted);font-size:12px;line-height:1.4}
+.layout{
+  display:grid;
+  grid-template-columns:230px minmax(0,1fr);
+  gap:38px;
+  max-width:var(--max);
+  margin:0 auto;
+  padding:34px 28px 80px;
+}
+nav{
+  position:sticky;
+  top:20px;
+  align-self:start;
+  padding:16px 0;
+  border-top:3px solid var(--ink);
+  border-bottom:1px solid var(--line);
+}
+nav strong{display:block;margin-bottom:9px;font-size:13px}
+nav a{display:block;padding:5px 0;color:var(--muted);font-size:13px}
+nav a:hover{color:var(--blue);text-decoration:none}
+main{min-width:0}
+section{
+  margin:0 0 54px;
+  padding-top:4px;
+  scroll-margin-top:24px;
+}
+h2{
+  margin:0 0 14px;
+  padding-bottom:10px;
+  border-bottom:2px solid var(--ink);
+  font-size:26px;
+  line-height:1.3;
+}
+h3{margin:28px 0 10px;font-size:19px;line-height:1.35}
+h4{margin:20px 0 8px;font-size:15px}
+p{margin:9px 0}
+.lead{font-size:17px;color:#34404b}
+.callout{
+  margin:18px 0;
+  padding:14px 16px;
+  border-left:4px solid var(--blue);
+  background:var(--blue-soft);
+}
+.callout.green{border-left-color:var(--green);background:var(--green-soft)}
+.callout.amber{border-left-color:var(--amber);background:var(--amber-soft)}
+.callout.red{border-left-color:var(--red);background:var(--red-soft)}
+.callout strong{display:block;margin-bottom:3px}
+.flow-frame{
+  margin:20px 0;
+  overflow-x:auto;
+  border:1px solid var(--line);
+  background:var(--paper);
+}
+.flow-frame svg{display:block;min-width:980px;width:100%;height:auto}
+.caption{margin-top:7px;color:var(--muted);font-size:12px}
+.stage-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin:18px 0;
+}
+.stage{
+  min-width:0;
+  padding:15px;
+  border:1px solid var(--line);
+  border-top:4px solid var(--blue);
+  background:var(--paper);
+  border-radius:6px;
+}
+.stage.green{border-top-color:var(--green)}
+.stage.amber{border-top-color:var(--amber)}
+.stage.violet{border-top-color:var(--violet)}
+.stage-num{color:var(--muted);font-size:12px;font-weight:700}
+.stage h3{margin:4px 0 7px;font-size:16px}
+.stage p{margin:0;color:var(--muted);font-size:13px}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}
+.io-block{padding:14px 16px;border:1px solid var(--line);background:var(--paper);border-radius:6px}
+.io-block b{display:block;color:var(--muted);font-size:12px;text-transform:uppercase}
+.io-block span{display:block;margin-top:5px;font-size:17px;font-weight:700}
+.table-wrap{margin:16px 0;overflow-x:auto;border:1px solid var(--line);background:var(--paper)}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--soft);font-size:12px;font-weight:700}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;white-space:nowrap}
+.formula{
+  margin:14px 0;
+  padding:16px;
+  overflow-x:auto;
+  border:1px solid #b9c3cc;
+  background:#fbfcfd;
+  color:#111827;
+  font-size:15px;
+  text-align:center;
+  white-space:nowrap;
+}
+.formula .frac{display:inline-flex;align-items:center;flex-direction:column;vertical-align:middle}
+.formula .top{padding:0 5px 2px;border-bottom:1px solid currentColor}
+.formula .bottom{padding:2px 5px 0}
+.formula-note{margin-top:-8px;color:var(--muted);font-size:12px;text-align:center}
+pre{
+  margin:15px 0;
+  padding:16px 18px;
+  overflow:auto;
+  border:1px solid #242b33;
+  border-radius:6px;
+  background:#17202a;
+  color:#f2f5f7;
+  font-size:13px;
+  line-height:1.65;
+}
+.memory-diagram{
+  display:grid;
+  grid-template-columns:1fr 56px 1.2fr;
+  gap:12px;
+  align-items:center;
+  margin:18px 0;
+}
+.visible,.hidden{
+  padding:16px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  border-radius:6px;
+}
+.visible h4,.hidden h4{margin:0 0 10px}
+.block{
+  margin:8px 0;
+  padding:10px 12px;
+  border-left:4px solid var(--blue);
+  background:var(--blue-soft);
+}
+.block.a{border-left-color:var(--amber);background:var(--amber-soft)}
+.atom-row{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0}
+.atom{
+  padding:5px 9px;
+  border:1px solid var(--line);
+  background:var(--soft);
+  border-radius:4px;
+  font-size:12px;
+}
+.arrow{color:var(--muted);font-size:28px;text-align:center}
+.label-matrix{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.label-card{padding:15px;border:1px solid var(--line);background:var(--paper);border-radius:6px}
+.label-card.a{border-top:4px solid var(--amber)}
+.label-card.b{border-top:4px solid var(--blue)}
+.label-card.c{border-top:4px solid var(--green)}
+.label-card h3{margin:0 0 6px}
+.label-card p{margin:0;color:var(--muted);font-size:13px}
+.funnel{margin:18px 0;padding:16px;border:1px solid var(--line);background:var(--paper)}
+.funnel-row{display:grid;grid-template-columns:215px 1fr 100px;gap:12px;align-items:center;margin:9px 0}
+.funnel-label{font-size:13px}
+.bar{height:18px;background:var(--soft)}
+.bar span{display:block;height:100%;background:var(--blue)}
+.funnel-row:nth-child(2n) .bar span{background:var(--green)}
+.funnel-value{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 22px;margin:15px 0;padding:0;list-style:none}
+.checklist li{position:relative;padding-left:24px}
+.checklist li:before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:800}
+.hash{overflow-wrap:anywhere;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+.footnotes{color:var(--muted);font-size:13px}
+footer{padding:26px 28px;border-top:1px solid var(--line);background:var(--paper);color:var(--muted);font-size:12px;text-align:center}
+@media(max-width:900px){
+  .summary-grid{grid-template-columns:repeat(3,1fr)}
+  .layout{grid-template-columns:1fr}
+  nav{position:static;display:grid;grid-template-columns:repeat(2,1fr);gap:0 16px}
+  nav strong{grid-column:1/-1}
+  .stage-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:620px){
+  h1{font-size:29px}
+  .hero{padding:34px 20px 26px}
+  .summary-grid{grid-template-columns:repeat(2,1fr);padding:0 20px}
+  .summary-item{border-bottom:1px solid var(--line)}
+  .layout{padding:26px 20px 60px}
+  .stage-grid,.io,.label-matrix,.checklist{grid-template-columns:1fr}
+  .memory-diagram{grid-template-columns:1fr}
+  .arrow{transform:rotate(90deg)}
+  .funnel-row{grid-template-columns:1fr 68px}
+  .bar{grid-column:1/-1;grid-row:2}
+}
+@media print{
+  html,body{background:#fff}
+  nav{display:none}
+  .layout{display:block;max-width:none;padding:20px}
+  section{break-inside:avoid}
+  a{color:inherit}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="hero">
+    <p class="kicker">MEMCALIB v2.1 · DATASET METHODOLOGY</p>
+    <h1>从 8 个公共数据源到 15,000 条 strict-only 记忆校准数据</h1>
+    <p class="dek">面向合作者审查与论文方法撰写的完整构建说明。本文按真实执行顺序解释数据源、抽样、记忆分层、五类 Hard A、确定性质检、独立 Judge、定向修复、尾部人工确定性修复与最终发布不变量。</p>
+    <div class="meta">
+      <span>版本：v2.1 internal research release</span>
+      <span>生成日期：2026-07-19</span>
+      <span>范围：health · general · coding</span>
+      <span>发布状态：15,000 / 15,000 strict</span>
+    </div>
+  </div>
+  <div class="summary-band">
+    <div class="summary-grid">
+      <div class="summary-item"><div class="summary-value">15,000</div><div class="summary-label">最终记录</div></div>
+      <div class="summary-item"><div class="summary-value">8</div><div class="summary-label">上游来源</div></div>
+      <div class="summary-item"><div class="summary-value">30,000</div><div class="summary-label">模型可见块</div></div>
+      <div class="summary-item"><div class="summary-value">50%</div><div class="summary-label">多原子可见块</div></div>
+      <div class="summary-item"><div class="summary-value">53,316</div><div class="summary-label">隐藏原子</div></div>
+      <div class="summary-item"><div class="summary-value">100%</div><div class="summary-label">strict 发布</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav aria-label="目录">
+    <strong>报告目录</strong>
+    <a href="#reading">1. 如何阅读这份报告</a>
+    <a href="#overview">2. 总体流程</a>
+    <a href="#sources">3. 数据源与权利边界</a>
+    <a href="#sampling">4. 归一化与分层抽样</a>
+    <a href="#source-qc">5. 源问答语义准入</a>
+    <a href="#foundation">6. v2 基础集构建</a>
+    <a href="#interface">7. v2.1 两块记忆接口</a>
+    <a href="#harda">8. 五类 Hard A</a>
+    <a href="#labels">9. A/B/C 与动作</a>
+    <a href="#deterministic">10. 确定性校验</a>
+    <a href="#independent-qc">11. 独立质检与修复</a>
+    <a href="#tail">12. 93 条尾部修复</a>
+    <a href="#release">13. 最终发布与统计</a>
+    <a href="#audit">14. 审计与复现边界</a>
+    <a href="#limits">15. 局限与论文表述</a>
+  </nav>
+
+  <main>
+    <section id="reading">
+      <h2>1. 如何阅读这份报告</h2>
+      <p class="lead">整个数据集经历了两层构建。第一层从公共问答数据得到原始多领域基准；第二层在不改变来源谱系和领域配额的前提下，重构模型可见记忆块与 Hard A，并重新完成全量质检。</p>
+      <div class="callout">
+        <strong>最容易混淆的地方</strong>
+        18,000 是 v2 基础构建阶段的过生成量；15,000 是锁定基础集及 v2.1 全量重构量。v2.1 不是从 18,000 条中再次抽样，而是对锁定的 15,000 条逐条重构并重新质检。
+      </div>
+      <div class="io">
+        <div class="io-block"><b>基础层输入</b><span>8 个公共来源快照</span><p>完成来源清洗、源语义准入、18,000 条过生成和 15,000 条配额发布。</p></div>
+        <div class="io-block"><b>v2.1 修订输入</b><span>锁定的 15,000 条 v2 记录</span><p>重构为两块可见记忆、五类均衡 Hard A，并重新完成全量 QC。</p></div>
+      </div>
+    </section>
+
+    <section id="overview">
+      <h2>2. 总体流程</h2>
+      <div class="flow-frame" role="img" aria-label="MemCalib v2.1 完整流程图">
+        <svg viewBox="0 0 1100 350" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 z" fill="#6b7785"/>
+            </marker>
+          </defs>
+          <rect x="18" y="30" width="150" height="70" rx="6" fill="#eaf3fa" stroke="#1769aa"/>
+          <text x="93" y="56" text-anchor="middle" font-size="14" font-weight="700" fill="#17202a">8 个公共来源</text>
+          <text x="93" y="78" text-anchor="middle" font-size="12" fill="#5e6b76">归一化 · 去重 · 权利</text>
+          <rect x="210" y="30" width="150" height="70" rx="6" fill="#eaf7f0" stroke="#18794e"/>
+          <text x="285" y="56" text-anchor="middle" font-size="14" font-weight="700" fill="#17202a">分层源抽样</text>
+          <text x="285" y="78" text-anchor="middle" font-size="12" fill="#5e6b76">领域 · 来源 · 主题 · 难度</text>
+          <rect x="402" y="30" width="150" height="70" rx="6" fill="#fff7d6" stroke="#9a6700"/>
+          <text x="477" y="56" text-anchor="middle" font-size="14" font-weight="700" fill="#17202a">源语义准入</text>
+          <text x="477" y="78" text-anchor="middle" font-size="12" fill="#5e6b76">strict-only · 署名完整</text>
+          <rect x="594" y="30" width="150" height="70" rx="6" fill="#f2efff" stroke="#6941c6"/>
+          <text x="669" y="56" text-anchor="middle" font-size="14" font-weight="700" fill="#17202a">18,000 条过生成</text>
+          <text x="669" y="78" text-anchor="middle" font-size="12" fill="#5e6b76">原子 · 标签 · 证据 · rubric</text>
+          <rect x="786" y="30" width="150" height="70" rx="6" fill="#eaf7f0" stroke="#18794e"/>
+          <text x="861" y="56" text-anchor="middle" font-size="14" font-weight="700" fill="#17202a">v2 基础集</text>
+          <text x="861" y="78" text-anchor="middle" font-size="12" fill="#5e6b76">15,000 条 exact quota</text>
+          <line x1="168" y1="65" x2="202" y2="65" stroke="#6b7785" stroke-width="2" marker-end="url(#arrowhead)"/>
+          <line x1="360" y1="65" x2="394" y2="65" stroke="#6b7785" stroke-width="2" marker-end="url(#arrowhead)"/>
+          <line x1="552" y1="65" x2="586" y2="65" stroke="#6b7785" stroke-width="2" marker-end="url(#arrowhead)"/>
+          <line x1="744" y1="65" x2="778" y2="65" stroke="#6b7785" stroke-width="2" marker-end="url(#arrowhead)"/>
+          <path d="M861 100 L861 132 L93 132 L93 164" fill="none" stroke="#6b7785" stroke-width="2" marker-end="url(#arrowhead)"/>
+          <rect x="18" y="168" width="180" height="82" rx="6" fill="#eaf3fa" stroke="#1769aa"/>
+          <text x="108" y="194" text-anchor="middle" font-size="14" font-weight="700" fill="#17202a">v2.1 两块重构</text>
+          <text x="108" y="216" text-anchor="middle" font-size="12" fill="#5e6b76">1 多原子真实块</text>
+          <text x="108" y="234" text-anchor="middle" font-size="12" fill="#5e6b76">1 单原子 Hard A 块</text>
+          <rect x="240" y="168" width="180" height="82" rx="6" fill="#fff7d6" stroke="#9a6700"/>
+          <text x="330" y="194" text-anchor="middle" font-size="14" font-weight="700" fill="#17202a">五类 Hard A 均衡</text>
+          <text x="330" y="216" text-anchor="middle" font-size="12" fill="#5e6b76">每类 3,000</text>
+          <text x="330" y="234" text-anchor="middle" font-size="12" fill="#5e6b76">领域内同比例</text>
+          <rect x="462" y="168" width="180" height="82" rx="6" fill="#eaf7f0" stroke="#18794e"/>
+          <text x="552" y="194" text-anchor="middle" font-size="14" font-weight="700" fill="#17202a">确定性全量校验</text>
+          <text x="552" y="216" text-anchor="middle" font-size="12" fill="#5e6b76">14,923 初次通过</text>
+          <text x="552" y="234" text-anchor="middle" font-size="12" fill="#5e6b76">77 定向修复通过</text>
+          <rect x="684" y="168" width="180" height="82" rx="6" fill="#f2efff" stroke="#6941c6"/>
+          <text x="774" y="194" text-anchor="middle" font-size="14" font-weight="700" fill="#17202a">独立 QC 循环</text>
+          <text x="774" y="216" text-anchor="middle" font-size="12" fill="#5e6b76">全量 Judge · 定向修复</text>
+          <text x="774" y="234" text-anchor="middle" font-size="12" fill="#5e6b76">第二模型家族复核</text>
+          <rect x="906" y="168" width="176" height="82" rx="6" fill="#fff0ee" stroke="#b42318"/>
+          <text x="994" y="194" text-anchor="middle" font-size="14" font-weight="700" fill="#17202a">93 条尾部直修</text>
+          <text x="994" y="216" text-anchor="middle" font-size="12" fill="#5e6b76">双 Judge + 审计</text>
+          <text x="994" y="234" text-anchor="middle" font-size="12" fill="#5e6b76">0 条双非 strict</text>
+          <line x1="198" y1="209" x2="232" y2="209" stroke="#6b7785" stroke-width="2" marker-end="url(#arrowhead)"/>
+          <line x1="420" y1="209" x2="454" y2="209" stroke="#6b7785" stroke-width="2" marker-end="url(#arrowhead)"/>
+          <line x1="642" y1="209" x2="676" y2="209" stroke="#6b7785" stroke-width="2" marker-end="url(#arrowhead)"/>
+          <line x1="864" y1="209" x2="898" y2="209" stroke="#6b7785" stroke-width="2" marker-end="url(#arrowhead)"/>
+          <path d="M994 250 L994 288 L552 288 L552 310" fill="none" stroke="#6b7785" stroke-width="2" marker-end="url(#arrowhead)"/>
+          <rect x="430" y="312" width="244" height="30" rx="6" fill="#18794e"/>
+          <text x="552" y="332" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff">15,000 条 strict-only v2.1</text>
+        </svg>
+      </div>
+      <p class="caption">图 1. 两层构建流程。上排得到 v2 基础集，下排完成 v2.1 结构修订和重新质检。</p>
+
+      <div class="stage-grid">
+        <div class="stage"><div class="stage-num">GATE 01</div><h3>来源可用</h3><p>结构、语言、长度、噪声、去重、许可与署名元数据可追踪。</p></div>
+        <div class="stage green"><div class="stage-num">GATE 02</div><h3>源问答可用</h3><p>问题可回答，答案与保留上下文连贯，并有逐字证据支持。</p></div>
+        <div class="stage amber"><div class="stage-num">GATE 03</div><h3>记忆构造可用</h3><p>原子、标签、动作、证据、反事实与 rubric 完整且一致。</p></div>
+        <div class="stage violet"><div class="stage-num">GATE 04</div><h3>v2.1 结构可用</h3><p>恰好两块、真实块可拆解、Hard A 符合五类边界。</p></div>
+        <div class="stage green"><div class="stage-num">GATE 05</div><h3>独立语义可用</h3><p>独立 Judge 不继承构造结论，失败项才进入修复。</p></div>
+        <div class="stage"><div class="stage-num">GATE 06</div><h3>发布不变量成立</h3><p>配额、结构、家族、唯一性、署名和 strict 状态全部精确闭合。</p></div>
+      </div>
+    </section>
+
+    <section id="sources">
+      <h2>3. 数据源与权利边界</h2>
+      <p>数据源被选择用于覆盖三种不同的记忆使用场景：医学问题中的安全与个体约束、通用对话中的偏好与背景信息、编程任务中的环境约束与技术事实。来源比例是能力覆盖设计，不代表真实流量分布。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>领域</th><th>来源</th><th>最终记录</th><th>主要覆盖</th><th>记录的许可状态</th></tr></thead>
+          <tbody>
+            <tr><td>Health</td><td>OpenMed/MedDialog</td><td class="num">3,793</td><td>症状、慢病、药物、就医建议</td><td>release metadata 中 unknown</td></tr>
+            <tr><td>Health</td><td>ChatDoctor-HealthCareMagic-100k</td><td class="num">3,707</td><td>真实风格医学问答与个体情况</td><td>unknown</td></tr>
+            <tr><td>General</td><td>UltraChat 200K</td><td class="num">2,377</td><td>解释、计划、写作、生活建议</td><td>MIT</td></tr>
+            <tr><td>General</td><td>OASST1</td><td class="num">470</td><td>多轮通用助理任务</td><td>Apache-2.0</td></tr>
+            <tr><td>General</td><td>OASST2</td><td class="num">903</td><td>多轮通用助理任务</td><td>Apache-2.0</td></tr>
+            <tr><td>Coding</td><td>Magicoder OSS Instruct</td><td class="num">2,771</td><td>实现、调试、API、算法</td><td>MIT</td></tr>
+            <tr><td>Coding</td><td>APPS</td><td class="num">174</td><td>算法题与程序实现</td><td>MIT</td></tr>
+            <tr><td>Coding</td><td>Stack Exchange Preferences</td><td class="num">805</td><td>真实技术问答与方案权衡</td><td>CC-BY-SA-4.0，署名完整</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout amber">
+        <strong>发布边界</strong>
+        本版本只用于论文合作者内部研究审阅和受控训练。Health 子集仍有许可与隐私不确定性；公开再分发前必须另做权利、PII 和敏感内容审查。
+      </div>
+    </section>
+
+    <section id="sampling">
+      <h2>4. 归一化、去重与分层抽样</h2>
+      <h3>4.1 统一源记录</h3>
+      <p>不同数据集先被映射成同一种源记录：来源、split、稳定 ID、上下文、问题、回答、主题、许可、作者与链接。任何后续变换都保留这条谱系。</p>
+      <ul class="checklist">
+        <li>结构字段完整且可解析</li>
+        <li>问题与回答非空、长度合适</li>
+        <li>主要语言符合英语构建目标</li>
+        <li>过滤模板噪声、乱码和低信息单元</li>
+        <li>精确文本去重</li>
+        <li>近重复聚类后只保留代表项</li>
+      </ul>
+
+      <h3>4.2 为什么不能简单随机抽样</h3>
+      <p>简单随机抽样会让大来源和高频主题占据多数样本，并掩盖医学安全、偏好触发、编程约束等稀有但关键能力。我们先固定领域总量，再按来源、主题和难度分层。</p>
+      <div class="formula" aria-label="分层原始配额公式">
+        <i>q</i><sub>h</sub><sup>*</sup>
+        &nbsp;=&nbsp;
+        <i>n</i><sub>d</sub>
+        &nbsp;×&nbsp;
+        <span class="frac"><span class="top"><i>N</i><sub>h</sub></span><span class="bottom">Σ<sub>j∈d</sub> <i>N</i><sub>j</sub></span></span>
+      </div>
+      <p class="formula-note">其中 h 是领域 d 内的来源×主题×难度单元；整数配额采用最大余数法闭合。</p>
+      <pre><code>for each domain d:
+    fix domain target n[d]
+    count eligible records in every stratum h
+    compute proportional raw quota q*[h]
+    floor all quotas
+    assign remaining seats by descending fractional remainder
+    if a stratum lacks capacity:
+        reallocate only inside the same domain
+    rank candidates by quality score, then stable seeded hash</code></pre>
+      <div class="callout green">
+        <strong>抽样的可复现性</strong>
+        相同的源快照、配置和 seed 会得到相同的记录顺序。稳定哈希只用于同质量候选之间的确定性排序，不会改变领域配额。
+      </div>
+    </section>
+
+    <section id="source-qc">
+      <h2>5. 源问答语义准入</h2>
+      <p>通过格式和去重并不意味着问答适合构造记忆。源语义 Gate 继续检查问题是否可回答、回答是否与上下文一致、内容是否非平凡，以及保留证据能否支持后续记忆构造。</p>
+      <div class="io">
+        <div class="io-block"><b>输入</b><span>34,150 general/coding 候选</span><p>每条都带问题、回答、上下文与来源谱系。</p></div>
+        <div class="io-block"><b>解析结果</b><span>33,574 resolved + 576 invalid</span><p>invalid 保留审计，不作为隐性负样本使用。</p></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>容量检查</th><th class="num">General</th><th class="num">Coding</th></tr></thead>
+          <tbody>
+            <tr><td>strict 容量</td><td class="num">4,901</td><td class="num">5,020</td></tr>
+            <tr><td>署名过滤后 strict 容量</td><td class="num">4,901</td><td class="num">4,953</td></tr>
+            <tr><td>最终准入</td><td class="num">4,750</td><td class="num">4,750</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Stack Exchange 候选中有 67 条无法补齐作者署名，因此在公开可分享的准入前被排除。既不挪用其他领域容量，也不把 review 降格为 strict。9,500 条 general/coding 准入单元与 15,577 条既有 health 准入单元合并，形成 25,077 条构造种子。</p>
+    </section>
+
+    <section id="foundation">
+      <h2>6. v2 基础集：从种子到 15,000 条记录</h2>
+      <p>为了给下游拒绝留出容量，基础构建并非直接生成 15,000 条，而是按领域过生成 18,000 条。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>领域</th><th class="num">构造请求</th><th class="num">最终 v2/v2.1 配额</th></tr></thead>
+          <tbody>
+            <tr><td>Health</td><td class="num">8,500</td><td class="num">7,500</td></tr>
+            <tr><td>General</td><td class="num">4,750</td><td class="num">3,750</td></tr>
+            <tr><td>Coding</td><td class="num">4,750</td><td class="num">3,750</td></tr>
+            <tr><td><b>Total</b></td><td class="num"><b>18,000</b></td><td class="num"><b>15,000</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>每条候选不只是一个问答对，而是一组互相校准的对象：</p>
+      <ul class="checklist">
+        <li>当前问题与来源谱系</li>
+        <li>模型可见的记忆文本</li>
+        <li>隐藏的原子记忆</li>
+        <li>A/B/C 使用强度</li>
+        <li>ignore/apply/correct 动作</li>
+        <li>逐字 evidence span</li>
+        <li>反事实使用合同</li>
+        <li>可观察的逐原子 rubric</li>
+        <li>原子间独立/重叠关系</li>
+        <li>构造和语义 QC 审计</li>
+      </ul>
+      <p>基础 v2 经确定性 validator、只修失败项的多轮 repair、独立语义 QC 和领域内 exact-quota 选择得到 15,000 条。v2.1 保留这 15,000 条的来源与领域谱系，但重新设计记忆接口。</p>
+    </section>
+
+    <section id="interface">
+      <h2>7. v2.1：模型可见块与隐藏原子的双层接口</h2>
+      <p class="lead">论文卖点不只是“一个样本有多个原子”，而是模型实际看到的检索单位本身包含多个可分离原子，评测却仍能在原子层判断过度使用和使用不足。</p>
+      <div class="memory-diagram">
+        <div class="visible">
+          <h4>回答模型看到</h4>
+          <div class="block"><b>Block 1 · composite grounded</b><br>编号组合的真实记忆内容，包含 2–7 个原子。</div>
+          <div class="block a"><b>Block 2 · synthetic Hard A</b><br>单原子、表面相关、规范上零影响。</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="hidden">
+          <h4>评测端隐藏标注</h4>
+          <div class="atom-row">
+            <span class="atom">r₁ · B/apply</span>
+            <span class="atom">r₂ · C/apply</span>
+            <span class="atom">r₃ · B/correct</span>
+          </div>
+          <div class="atom-row">
+            <span class="atom">hard A · A/ignore</span>
+          </div>
+          <p>每个原子另含证据、有效范围、反事实合同和可观察检查项。</p>
+        </div>
+      </div>
+      <div class="formula" aria-label="多原子块占比公式">
+        multi-atom share
+        &nbsp;=&nbsp;
+        <span class="frac"><span class="top">15,000 composite blocks</span><span class="bottom">30,000 visible blocks</span></span>
+        &nbsp;=&nbsp; 0.5
+      </div>
+      <p>每条记录恰好有一个多原子块，因此记录级覆盖率是 100%。复合块必须满足四个条件：完整覆盖全部真实原子、没有新增命题、自然连贯、可恢复为原始原子。</p>
+    </section>
+
+    <section id="harda">
+      <h2>8. 按五类规范构造 Hard A</h2>
+      <p>Hard A 的目的不是制造随机无关噪声，而是构造“看起来值得用、实际上不应留下任何回答痕迹”的近邻记忆。五类机制对应不同的过度使用诱因。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>家族</th><th>表面诱因</th><th>为什么必须忽略</th><th class="num">数量</th></tr></thead>
+          <tbody>
+            <tr><td>Factual judgment pollution</td><td>用户背景、信念或地区经验似乎能解释当前问题</td><td>客观判断必须依据当前证据，背景不能改变结论或证据权重</td><td class="num">3,000</td></tr>
+            <tr><td>Scope overreach</td><td>记忆在相邻任务、环境或时间段中是真实的</td><td>适用范围没有覆盖当前问题，不能跨范围推广</td><td class="num">3,000</td></tr>
+            <tr><td>Current evidence conflict</td><td>旧记忆与当前事实竞争</td><td>当前问题已提供更强或更新证据，旧记忆无决策权</td><td class="num">3,000</td></tr>
+            <tr><td>Profile/style near-neighbor</td><td>用户画像或表达风格与答案形式邻近</td><td>没有触发条件，不能改变实质建议或结论</td><td class="num">3,000</td></tr>
+            <tr><td>Untriggered preference</td><td>用户确实拥有该偏好</td><td>当前任务没有涉及该偏好的作用域</td><td class="num">3,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="formula">
+        ∀ family <i>f</i>:
+        &nbsp;<i>N</i><sub>f</sub> = 3,000,
+        &nbsp;<i>N</i><sub>f,health</sub> = 1,500,
+        &nbsp;<i>N</i><sub>f,general</sub> = <i>N</i><sub>f,coding</sub> = 750
+      </div>
+      <div class="callout red">
+        <strong>Hard A 的硬边界</strong>
+        错误、过时或不安全，而且回答必须显式纠正的记忆，不是 Hard A。它应当标为 B/C + correct。Hard A 必须允许“完全不提及”成为正确行为。
+      </div>
+    </section>
+
+    <section id="labels">
+      <h2>9. A/B/C 使用强度与动作方向</h2>
+      <div class="label-matrix">
+        <div class="label-card a"><h3>A · Suppress</h3><p>零影响。只能配 `ignore`。任何改变结论、排序、证据权重、建议或原子特定措辞的行为都算 over-use。</p></div>
+        <div class="label-card b"><h3>B · Bound</h3><p>有限支持。可以 `apply`，也可在相关内容错误时 `correct`，但不能不受约束地控制答案。</p></div>
+        <div class="label-card c"><h3>C · Control</h3><p>必须实质性约束答案。可以 `apply` 或 `correct`。缺失或弱化会形成 under-use。</p></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>组合</th><th class="num">数量</th><th>评测含义</th></tr></thead>
+          <tbody>
+            <tr><td>A + ignore</td><td class="num">16,668</td><td>不应观察到该原子对答案的专属影响</td></tr>
+            <tr><td>B + apply</td><td class="num">18,899</td><td>有限使用，不能越界控制</td></tr>
+            <tr><td>B + correct</td><td class="num">133</td><td>相关但仅需有限纠正</td></tr>
+            <tr><td>C + apply</td><td class="num">17,422</td><td>答案必须被该约束显著控制</td></tr>
+            <tr><td>C + correct</td><td class="num">194</td><td>必须显式纠正并据此改变答案</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>这种“强度 × 方向”分解避免把 A 错误地等价为“错误记忆”。A 只回答“当前问题是否应使用”，`correct` 才回答“相关内容是否需要纠正”。</p>
+    </section>
+
+    <section id="deterministic">
+      <h2>10. v2.1 确定性重构与校验</h2>
+      <p>全量 15,000 条首先通过模型完成结构重构，再由确定性程序重新计算所有不依赖语义主观判断的条件。</p>
+      <div class="funnel">
+        <div class="funnel-row"><div class="funnel-label">重构请求</div><div class="bar"><span style="width:100%"></span></div><div class="funnel-value">15,000</div></div>
+        <div class="funnel-row"><div class="funnel-label">初次确定性通过</div><div class="bar"><span style="width:99.49%"></span></div><div class="funnel-value">14,923</div></div>
+        <div class="funnel-row"><div class="funnel-label">定向修复请求</div><div class="bar"><span style="width:0.51%;min-width:4px"></span></div><div class="funnel-value">77</div></div>
+        <div class="funnel-row"><div class="funnel-label">修复后完整候选</div><div class="bar"><span style="width:100%"></span></div><div class="funnel-value">15,000</div></div>
+      </div>
+      <ul class="checklist">
+        <li>记录 ID、来源 ID 和请求指纹一致</li>
+        <li>每条恰好两个模型可见块</li>
+        <li>复合块覆盖全部真实原子</li>
+        <li>复合块不新增命题</li>
+        <li>每条恰好一个 Hard A</li>
+        <li>五类家族与领域配额精确闭合</li>
+        <li>证据是保留来源中的连续子串</li>
+        <li>标签和动作组合合法</li>
+        <li>A 的 rubric 明确零 footprint</li>
+        <li>原子对关系与 overlap 标注一致</li>
+      </ul>
+      <pre><code>validate(record):
+    assert identity_and_fingerprints_match(record)
+    assert exactly_two_visible_blocks(record)
+    assert composite_block_exactly_covers_real_atoms(record)
+    assert composite_block_adds_no_proposition(record)
+    assert exactly_one_hard_a_atom(record)
+    assert legal_label_action_pairs(record)
+    assert every_evidence_span_is_verbatim(record)
+    assert query_isolation_and_pair_relations_hold(record)
+    assert rubrics_are_observable_and_atom_specific(record)</code></pre>
+    </section>
+
+    <section id="independent-qc">
+      <h2>11. 独立语义 QC 与迭代修复</h2>
+      <p>独立 Judge 不读取构造模型给出的“通过”决定，而是重新判断复合块、原子标签、动作、rubric 和 Hard A 边界。结构错误只重试输出格式；语义失败不能靠重试改写成 strict。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>阶段</th><th class="num">Strict</th><th class="num">Review</th><th class="num">Reject</th><th class="num">Invalid</th><th>处理</th></tr></thead>
+          <tbody>
+            <tr><td>第一次全量独立 QC</td><td class="num">14,140</td><td class="num">296</td><td class="num">564</td><td class="num">0</td><td>15 个结构 invalid 定向重试后归零</td></tr>
+            <tr><td>Hard-A 定向语义修复后</td><td class="num">14,552</td><td class="num">303</td><td class="num">145</td><td class="num">0</td><td>只覆盖 461 个新指纹</td></tr>
+            <tr><td>第二模型家族复核后</td><td class="num">14,907</td><td class="num">22</td><td class="num">71</td><td class="num">0</td><td>复核 423 个争议项，invalid 保留旧状态</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>11.1 修复循环</h3>
+      <pre><code>accepted = frozen strict records
+residual = review ∪ reject ∪ invalid
+
+while residual is not empty and a bounded repair exists:
+    classify failure mechanism
+    prepare requests only for repairable IDs
+    run repair without touching accepted IDs
+    validate new request and record fingerprints
+    run fresh independent QC on changed fingerprints only
+    overlay valid fresh decisions
+    preserve old outputs, failures, and audit lineage
+
+never convert reject/review to strict by threshold relaxation</code></pre>
+      <p>第一次全量 QC 的 860 个非 strict 记录中，461 个具有可定向修复的 Hard-A 语义问题；423 个含复合块、真实原子或多原因争议，被推迟到第二模型家族复核。集合允许重叠，因为同一记录可有多个问题。</p>
+      <div class="callout">
+        <strong>为什么需要第二模型家族</strong>
+        同一 Judge 既发现问题又验证修复会放大自洽偏差。对 423 个争议项使用不同模型家族，可暴露 family boundary、label/action 和 composite coherence 的判定差异。
+      </div>
+    </section>
+
+    <section id="tail">
+      <h2>12. 93 条尾部记录的直接修复</h2>
+      <p>第二轮后只剩 93 条非 strict，已经不值得再做大规模生成。按合作者要求，改为逐条、受限、可审计的直接修复。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>允许的操作</th><th class="num">动作数</th><th>边界</th></tr></thead>
+          <tbody>
+            <tr><td>修复真实原子</td><td class="num">59</td><td>必须仍由原始来源证据支持，不得发明新事实</td></tr>
+            <tr><td>同家族替换 Hard A</td><td class="num">47</td><td>家族配额不变，且新原子必须满足零 footprint</td></tr>
+            <tr><td>删除无支持原子</td><td class="num">2</td><td>删除后真实原子仍不少于 2 个</td></tr>
+            <tr><td>记录形式化人工证明</td><td class="num">16</td><td>明确列出为何满足 validator 与语义边界</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>操作数可重叠。每次修复都刷新 evidence span、复合块文本和记录指纹，并只对改变的指纹重新调用两个独立 Judge。最后一版判定为：</p>
+      <div class="io">
+        <div class="io-block"><b>双 Judge strict 共识</b><span>79</span><p>DeepSeek 与 Kimi 都给出 strict。</p></div>
+        <div class="io-block"><b>显式确定性 tiebreak</b><span>14</span><p>一个 Judge strict，另一个非 strict；原始理由、全部 validator 和人工证明同时保存。</p></div>
+      </div>
+      <div class="callout green">
+        <strong>尾部停止条件</strong>
+        两个 Judge 都非 strict 的记录数为 0。若出现双非 strict，记录不得进入最终发布。
+      </div>
+    </section>
+
+    <section id="release">
+      <h2>13. 最终发布集与不变量</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>统计</th><th class="num">最终值</th></tr></thead>
+          <tbody>
+            <tr><td>记录数 / 唯一记录 ID / 唯一来源 ID</td><td class="num">15,000 / 15,000 / 15,000</td></tr>
+            <tr><td>Health / General / Coding</td><td class="num">7,500 / 3,750 / 3,750</td></tr>
+            <tr><td>Strict / Review / Reject / Invalid</td><td class="num">15,000 / 0 / 0 / 0</td></tr>
+            <tr><td>模型可见块 / 多原子块</td><td class="num">30,000 / 15,000</td></tr>
+            <tr><td>隐藏原子 / 真实原子 / 合成 Hard A</td><td class="num">53,316 / 38,316 / 15,000</td></tr>
+            <tr><td>每条原子数：min / median / mean / max</td><td class="num">3 / 3 / 3.5544 / 8</td></tr>
+            <tr><td>A / B / C</td><td class="num">16,668 / 19,032 / 17,616</td></tr>
+            <tr><td>Stack Exchange 完整署名</td><td class="num">805 / 805</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <pre><code>assert records == unique_record_ids == unique_source_ids == 15_000
+assert domains == {health: 7_500, general: 3_750, coding: 3_750}
+assert visible_blocks == 30_000
+assert multi_atom_visible_blocks == 15_000
+assert every_record_has_one_multi_atom_block
+assert each_hard_a_family == 3_000
+assert all_release_decisions == strict
+assert review == reject == invalid == 0
+assert complete_stack_exchange_attribution == 805</code></pre>
+      <h3>13.1 锁定哈希</h3>
+      <p>未压缩 JSONL：</p>
+      <p class="hash">bd45f77534351cd096476080096ce9ba6250a375941a171ab561ad78704bed44</p>
+      <p>统计文件：</p>
+      <p class="hash">b974a54de0cce3d07697700fa1c9beb882dcf323794ad946f85f047a7a511751</p>
+    </section>
+
+    <section id="audit">
+      <h2>14. 审计、复现与中间结果</h2>
+      <p>每个模型阶段保存请求、原始输出、失败、结构 invalid、重试、指纹和后处理决策。修复采用 overlay 而不是原地覆盖：基础记录、修复记录、旧 QC 和新 QC 都能按 ID 和 fingerprint 追溯。</p>
+      <div class="stage-grid">
+        <div class="stage"><div class="stage-num">SOURCE</div><h3>来源审计</h3><p>原始 ID、split、许可、作者、链接、归一化和去重决策。</p></div>
+        <div class="stage green"><div class="stage-num">REQUEST</div><h3>请求审计</h3><p>request ID、输入 fingerprint、模型配置和提示词版本。</p></div>
+        <div class="stage amber"><div class="stage-num">RESULT</div><h3>响应审计</h3><p>原始输出、finish reason、失败类型、重试和最终 resolved 结果。</p></div>
+        <div class="stage violet"><div class="stage-num">QC</div><h3>质检审计</h3><p>validator、Judge 原始结论、规范化 reason 和状态变化。</p></div>
+        <div class="stage green"><div class="stage-num">REPAIR</div><h3>修复审计</h3><p>旧/新 fingerprint、允许的动作、证据变化和复核结果。</p></div>
+        <div class="stage"><div class="stage-num">RELEASE</div><h3>发布审计</h3><p>manifest、统计、SHA-256、审查 HTML 和交付包清单。</p></div>
+      </div>
+      <div class="callout amber">
+        <strong>可复现边界</strong>
+        确定性阶段可由相同源快照、配置和实现精确复算。依赖可变模型别名的生成和 QC 可能随服务端更新发生变化，因此论文实验必须引用锁定数据哈希、样本 manifest、提示词版本、模型别名和运行日期。
+      </div>
+      <p>API Key 不写入任何请求、响应、日志、manifest 或交付包。大体积原始 API 中间结果只保存在本地审计目录；协作者 ZIP 包只包含最终数据、manifest、统计、审阅页面和方法文档。</p>
+    </section>
+
+    <section id="limits">
+      <h2>15. 局限与论文表述建议</h2>
+      <ul>
+        <li><b>不是自然流量样本：</b>领域、来源和主题是能力覆盖配额，不能用于推断真实用户分布。</li>
+        <li><b>模型辅助标注：</b>即使经过双 Judge 和确定性修复，也不等价于大规模盲法专家标注。</li>
+        <li><b>合成 Hard A 先验：</b>每条都含一个 Hard A，适合测 OPB，但会形成已知的构造分布。</li>
+        <li><b>两块接口限制：</b>固定两个可见块便于控制变量，但不覆盖所有生产检索布局。</li>
+        <li><b>纠正样本较少：</b>只有 327 个 `correct` 原子，纠正能力的置信区间会更宽。</li>
+        <li><b>公开权利未清完：</b>Health 子集的许可与隐私风险要求公开发布前另做审查。</li>
+      </ul>
+      <div class="callout">
+        <strong>论文中可以准确声称</strong>
+        v2.1 的 15,000 条记录全部包含一个模型可见多原子真实记忆块和一个五类均衡 Hard A 块；最终发布集全部通过确定性验证，并经独立模型 QC、定向修复与尾部跨家族复核形成 strict-only 发布。
+      </div>
+      <div class="callout red">
+        <strong>论文中不应声称</strong>
+        不应把数据称为自然分布、医学事实金标准、完全人工标注或已获准公开再分发；也不应把 v2.0 的七模型指标直接当作 v2.1 指标。
+      </div>
+      <p class="footnotes">配套文件：<a href="../../DATA_CARD.md">Data Card</a> · <a href="../construction-pipeline.md">流水线摘要</a> · <a href="../MEMCALIB_V2_COAUTHOR_HANDOFF.md">合作者交付说明</a></p>
+    </section>
+  </main>
+</div>
+
+<footer>
+  MemCalib v2.1 internal methodology report · self-contained HTML · no external scripts, fonts, or formula renderer
+</footer>
+</body>
+</html>

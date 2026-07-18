@@ -7,7 +7,7 @@ from collections import Counter
 from pathlib import Path
 
 from evaluation.common import sha256_file
-from evaluation.scripts.release_memcalib_v2_sample import build_release
+from evaluation.scripts.release_memcalib_v2_sample import admission_decision, build_release
 
 
 def source_row(domain: str, index: int) -> dict:
@@ -43,6 +43,18 @@ def source_row(domain: str, index: int) -> dict:
 
 
 class MemCalibV2SampleReleaseTest(unittest.TestCase):
+    def test_revision_release_admission_takes_precedence(self) -> None:
+        row = {
+            "revision_release_admission": {"decision": "strict_pass"},
+            "release_admission": {"decision": "admitted_nonblocking_review"},
+        }
+        self.assertEqual("strict_pass", admission_decision(row))
+        self.assertEqual(
+            "admitted_nonblocking_review",
+            admission_decision({"release_admission": row["release_admission"]}),
+        )
+        self.assertEqual("unknown", admission_decision({}))
+
     def test_sample_is_reproducible_and_hides_private_fields(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

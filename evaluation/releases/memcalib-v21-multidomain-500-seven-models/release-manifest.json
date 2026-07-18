@@ -1,0 +1,136 @@
+{
+  "schema_version": "memcalib-v2-multidomain-sample-release-v1",
+  "release": "memcalib-v21-multidomain-500-seven-models",
+  "status": "internal_diagnostic",
+  "samples": 500,
+  "seed": 20260719,
+  "ordered_id_sha256": "92292219c596e790720456754376354be30c5954bf7875085594fbce40c52d29",
+  "sampling": {
+    "method": "proportional_stratified_without_replacement",
+    "stratify_by": [
+      "domain",
+      "source_dataset",
+      "source_topic",
+      "release_admission.decision",
+      "atom_count_bucket"
+    ],
+    "within_cell_order": "stable_seeded_hash"
+  },
+  "distribution": {
+    "domains": {
+      "coding": 125,
+      "general": 125,
+      "health_seed": 250
+    },
+    "sources": {
+      "HuggingFaceH4/stack-exchange-preferences": 28,
+      "HuggingFaceH4/ultrachat_200k": 79,
+      "OpenAssistant/oasst1": 16,
+      "OpenAssistant/oasst2": 30,
+      "OpenMed/MedDialog": 127,
+      "codeparrot/apps": 5,
+      "ise-uiuc/Magicoder-OSS-Instruct-75K": 92,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 123
+    },
+    "topics": {
+      "acute_symptoms": 21,
+      "api_library": 29,
+      "cardio": 7,
+      "career_productivity": 6,
+      "chronic_disease": 26,
+      "coding_other": 3,
+      "data_algorithm": 29,
+      "debugging": 28,
+      "digestive": 24,
+      "general_other": 29,
+      "implementation": 18,
+      "learning_explanation": 21,
+      "medication_treatment": 27,
+      "mental_sleep": 11,
+      "neuro": 12,
+      "pediatrics": 25,
+      "planning_advice": 27,
+      "pregnancy_reproductive": 27,
+      "relationships_communication": 11,
+      "respiratory_ent": 27,
+      "skin_allergy": 27,
+      "systems_devops": 9,
+      "testing_quality": 9,
+      "travel_shopping_household": 14,
+      "writing_creative": 33
+    },
+    "release_admission": {
+      "admitted_strict": 500
+    },
+    "atom_count_buckets": {
+      "2-3": 266,
+      "4-5": 234
+    },
+    "memory_labels": {
+      "A": 556,
+      "B": 635,
+      "C": 570
+    }
+  },
+  "source": {
+    "path": "pipeline/data/multidomain/full-v2/revision-composite-harda/release/memcalib_v21_multidomain_benchmark_15000.jsonl",
+    "rows": 15000,
+    "sha256": "bd45f77534351cd096476080096ce9ba6250a375941a171ab561ad78704bed44"
+  },
+  "config": {
+    "path": "evaluation/configs/memcalib-v21-multidomain-500-seven-models.json",
+    "sha256": "9045a43dd70e86689ce268c687e7f12601b780fcf5fcb3c8a7d0f4866189780a"
+  },
+  "artifacts": {
+    "hidden": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-seven-models/hidden-evaluation.jsonl",
+      "bytes": 13832582,
+      "sha256": "2fca7b2a75a9b8f4f0fb0386a9ea1ef1b0d4e59173f84fa864d90372e77993e0",
+      "rows": 500
+    },
+    "hidden_gzip": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-seven-models/hidden-evaluation.jsonl.gz",
+      "bytes": 2695320,
+      "sha256": "f95e8873e5a38f6b281fc3b37fae2ae906b108e6ea9df9e436fc436875917447"
+    },
+    "model_facing": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-seven-models/model-facing.jsonl",
+      "bytes": 422795,
+      "sha256": "1e37ba0435f2ceb65d369c817660b0822c934d8318823c402fc657453ac127d8",
+      "rows": 500
+    },
+    "model_facing_gzip": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-seven-models/model-facing.jsonl.gz",
+      "bytes": 107023,
+      "sha256": "15f5986a57d8676cca4d0b8274282b7d056d7d6cb2654d9909c67454fd147ef0"
+    },
+    "sample_ids": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-seven-models/sample-ids.txt",
+      "bytes": 16375,
+      "sha256": "808c763dfd4aa5f93c04752cfca984d47e50d011490d47cc8707529b3318c2ed",
+      "rows": 500
+    }
+  },
+  "privacy_contract": {
+    "model_facing_fields": [
+      "id",
+      "domain",
+      "panel",
+      "source_dataset",
+      "source_topic",
+      "question",
+      "memory_blocks.parent_memory_id",
+      "memory_blocks.memory_text"
+    ],
+    "hidden_only": [
+      "source_answer",
+      "memories",
+      "usage_rubric",
+      "raw_selection",
+      "semantic_qc",
+      "independent_qc",
+      "revision_release_admission",
+      "release_admission"
+    ]
+  }
+}

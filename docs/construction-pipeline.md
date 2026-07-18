@@ -1,128 +1,272 @@
-# MemCalib v2 Construction Pipeline
+# MemCalib v2.1 Construction Pipeline
 
-## End-To-End Overview
+## End-to-End Overview
 
 ```text
 8 public-source snapshots
   -> rights, attribution, schema, language, and quality screening
   -> exact and near deduplication
-  -> domain/source/topic/difficulty stratified sampling
-  -> grounded semantic source-QA admission
-  -> strict-only source admission and attribution completion
-  -> 18,000 over-generated memory benchmark records
-  -> deterministic validation and targeted repair loops
-  -> independent semantic QC and failure-mode diagnosis
-  -> targeted semantic/local repair with full audit retention
-  -> strict-first exact-quota selection
-  -> 15,000-record locked release
+  -> domain/source/topic/difficulty stratified source sampling
+  -> grounded source-QA semantic admission
+  -> strict-only admission and Stack Exchange attribution completion
+  -> 18,000 over-generated benchmark candidates
+  -> deterministic validation, targeted repairs, independent QC
+  -> exact-quota 15,000-record v2 foundation
+  -> v2.1 two-block reconstruction
+  -> five-family balanced Hard A construction
+  -> full deterministic validation
+  -> full independent QC, targeted semantic repair, second-family review
+  -> direct audited repair of the 93-record tail
+  -> 15,000-record strict-only v2.1 release
 ```
 
-The pipeline separates source eligibility, benchmark construction, deterministic validation, independent semantic QC, and release selection. A record cannot skip a gate, and a later repair cannot silently overwrite earlier outputs or audit history.
+The pipeline separates source eligibility, benchmark construction, deterministic validation, independent semantic QC, and release selection. A record cannot skip a gate. Repairs operate only on failed IDs, successful outputs remain frozen, and every overwritten fingerprint retains an audit trail.
 
 ## 1. Source Preparation
 
-Eight upstream datasets cover health, general dialogue, and coding. Records are normalized to a common source unit while preserving dataset, split, source identifier, license metadata, context, question, answer, topic, and available attribution.
+Eight upstream datasets cover health, general dialogue, and coding:
 
-Deterministic filters remove unusable schemas, unsuitable language/length, severe noise, low-quality units, exact duplicates, and near duplicates. Candidate selection is stratified rather than proportional to raw source volume:
+| Domain | Sources | Role |
+|---|---|---|
+| Health | MedDialog; ChatDoctor-HealthCareMagic | symptom, medication, chronic-condition, and care-seeking questions |
+| General | UltraChat 200K; OASST1; OASST2 | explanation, planning, writing, household, communication, and productivity tasks |
+| Coding | Magicoder OSS Instruct; APPS; Stack Exchange Preferences | implementation, debugging, algorithms, APIs, systems, testing, and code review |
+
+Records are normalized to a common source unit while preserving dataset, split, source ID, license metadata, context, question, answer, topic, and available attribution.
+
+Deterministic filters remove unusable schemas, unsuitable language or length, severe noise, low-information units, exact duplicates, and near duplicates. Candidate selection is stratified rather than proportional to raw source volume:
 
 1. allocate capacity across domains and sources;
-2. smooth topic capacity to avoid domination by the largest topics;
+2. smooth topic capacity so a large source topic cannot dominate;
 3. target a low/medium/high construction-difficulty mixture;
-4. use deterministic quality-weighted ranking within each stratum.
+4. rank deterministically within each stratum by quality and a seeded stable hash.
 
-This creates a capability-coverage distribution, not a natural user-traffic estimate.
+For a stratum \(h\) with \(N_h\) eligible records and a domain target \(n_d\), its initial proportional quota is:
+
+```text
+raw_quota(h) = n_d * N_h / sum_j(N_j)
+```
+
+Integer quotas are produced with largest-remainder allocation, then adjusted only when a cell lacks capacity. The result is a capability-coverage distribution, not an estimate of natural user traffic.
 
 ## 2. Grounded Source Admission
 
-The source semantic gate checks whether the question, answer, and retained context are coherent, answerable, sufficiently informative, non-trivial, and supported by quoted evidence. Structural failures are retried only for affected IDs; valid decisions remain frozen.
+The source semantic gate checks whether the retained question, answer, and context are coherent, answerable, sufficiently informative, non-trivial, and supported by quoted evidence. Structural output failures are retried only for the affected IDs; valid decisions remain frozen.
 
-The general/coding source run processed 34,150 candidates. After targeted structural retries, 33,574 were resolved and 576 remained invalid. Strict capacity was sufficient for the locked admission of 4,750 general and 4,750 coding source units. Stack Exchange candidates additionally required complete author attribution; 67 incomplete candidates were excluded before final admission.
+The general/coding source run processed 34,150 candidates. After targeted structural retries:
 
-The 9,500 admitted general/coding units were combined with 15,577 previously admitted health units, creating 25,077 construction seeds.
+| Quantity | Count |
+|---|---:|
+| Resolved source-QA decisions | 33,574 |
+| Residual invalid | 576 |
+| Strict general capacity | 4,901 |
+| Strict coding capacity before attribution filtering | 5,020 |
+| Stack Exchange records missing complete attribution | 67 |
+| Strict coding capacity after attribution filtering | 4,953 |
+| Final strict general / coding admission | 4,750 / 4,750 |
 
-## 3. Over-Generated Benchmark Construction
+No capacity was moved between domains and no review item was promoted to fill a quota. The 9,500 admitted general/coding units were combined with 15,577 previously admitted health units, producing 25,077 construction seeds.
 
-Construction draws 18,000 seeds to leave capacity for downstream rejection:
+## 3. v2 Foundation Construction
 
-| Domain | Requests |
+Construction over-generates 18,000 records to leave capacity for downstream rejection:
+
+| Domain | Construction requests |
 |---|---:|
 | health | 8,500 |
 | general | 4,750 |
 | coding | 4,750 |
+| **Total** | **18,000** |
 
-For each seed, the construction contract produces realistic parent memory blocks and hidden atomic propositions. Every atom receives:
+For each seed, the constructor produces model-facing memory text and hidden atomic propositions. Every atom receives:
 
-- A/B/C normative influence strength;
+- normative influence strength A, B, or C;
 - an independent `ignore`, `apply`, or `correct` action;
-- source-grounded evidence or an explicit synthetic hard-A derivation;
+- source-grounded evidence or an explicit synthetic derivation;
 - a counterfactual behavior contract;
 - an observable usage rubric;
-- pairwise relations needed to detect overlap or dependence.
+- pairwise relations needed to identify overlap or dependence.
 
-The source answer supports construction coherence but is not treated as factual gold and cannot be silently converted into ungrounded memory content.
+The source answer supports construction coherence but is not treated as factual gold. It cannot be silently converted into an unsupported memory.
 
-## 4. Deterministic Validation And Repair
+Deterministic validators check schema, identity, enum values, evidence grounding, label-action compatibility, question isolation, rubric observability, and pairwise independence. Model-based repair is applied only to the residual set. The v2 foundation then passes an independent semantic QC and exact-domain-quota selection, yielding 15,000 source-aligned records.
 
-Every constructed record must pass schema, enum, identity, atomicity, evidence-grounding, label-action, query-isolation, observability, rubric-objectivity, and pairwise-independence checks.
+## 4. v2.1 Memory Interface Revision
 
-Repair loops operate only on the previous residual set. Accepted records are frozen, request/output fingerprints are checked, and every rejection remains auditable.
+The v2.1 revision keeps each foundation record's source lineage and question but replaces the memory interface.
 
-| Stage | Submitted | Newly accepted | Cumulative accepted | Residual |
-|---|---:|---:|---:|---:|
-| Initial construction | 18,000 | 6,888 | 6,888 | 11,112 |
-| Targeted repair 1 | 11,112 | 6,038 | 12,926 | 5,074 |
-| Targeted repair 2 | 5,074 | 800 | 13,726 | 4,274 |
-| Targeted repair 3 | 4,274 | 233 | 13,959 | 4,041 |
-| Strict local evidence repair | 4,041 | 1,624 | 15,583 | 2,417 |
+### 4.1 Two visible blocks
 
-The local repair was deliberately narrow: it could repair verbatim evidence grounding and an empty declared source, then had to pass the original validator suite. It could not rewrite semantic targets merely to obtain a pass.
-
-## 5. Independent Semantic QC
-
-Independent QC judges atom correctness, label/action consistency, observability, query leakage, pairwise overlap, and overall release suitability without relying on the construction decision.
-
-The first independent pass exposed a systematic query-leakage failure mode: many otherwise valid atoms restated or entailed the current question. Because the failure was systematic, the pipeline did not relax the standard or admit rejects. It diagnosed representative examples, reconstructed affected semantic content, added qualified reserve records, and repeatedly recomputed the same independent QC contract. Only targeted IDs changed in each iteration.
-
-The final candidate pool contained 16,195 independently classified records:
-
-| Domain | Strict | Review | Reject | Invalid |
-|---|---:|---:|---:|---:|
-| health | 7,491 | 29 | 440 | 59 |
-| general | 3,669 | 91 | 369 | 48 |
-| coding | 3,746 | 19 | 230 | 4 |
-| total | 14,906 | 139 | 1,039 | 111 |
-
-## 6. Release Selection
-
-Release selection is deterministic and domain-constrained:
+For each record with real atoms \(r_1,\ldots,r_k\), where \(k \ge 2\):
 
 ```text
-for domain in [health, general, coding]:
-    take strict_pass records in locked priority order
-    if strict capacity is insufficient:
-        take only script-defined non-blocking review records
-    never take reject or invalid records
-assert exact domain quotas and global uniqueness
+visible_block_1 = numbered composition of r_1 ... r_k
+visible_block_2 = one synthetic Hard A atom
+hidden_atoms    = r_1 ... r_k plus Hard A
 ```
 
-The final 15,000 records contain 14,906 strict passes and 94 non-blocking reviews, with exact quotas of 7,500 health, 3,750 general, and 3,750 coding. All 805 selected Stack Exchange records have complete attribution. The release contains 51,970 parent blocks and 53,318 atoms.
+The first block must be coherent, exactly cover the real atoms, add no new proposition, and remain recoverable into the original atomic units. The second block must contain exactly one Hard A atom. Therefore:
 
-## 7. Reproducibility And Audit Boundary
+```text
+visible blocks              = 2 * 15,000 = 30,000
+multi-atom visible blocks   = 1 * 15,000 = 15,000
+multi-atom visible share    = 15,000 / 30,000 = 0.5
+records with multi-atom     = 15,000 / 15,000 = 1.0
+```
 
-Deterministic stages reproduce exactly from the same source snapshots, configuration, seed, and implementation. Model-dependent construction/QC may vary under mutable provider aliases, so canonical artifacts are the locked JSONL plus its manifests and hashes.
+### 4.2 A/B/C and action semantics
 
-The release bundle records:
+The normative labels describe how much influence a memory should have on the current answer:
 
-- dataset and compressed-file SHA-256 digests;
-- exact domain/source/label/action distributions;
-- request, output, and record fingerprints;
-- source admission, deterministic QC, independent QC, repair, exclusion, and release decisions;
-- record-level review HTML and a complete methodology report.
+- **A, suppress:** zero answer footprint; action must be `ignore`.
+- **B, bound:** relevant but limited support; action is `apply` or `correct`.
+- **C, control:** materially controls or constrains the answer; action is `apply` or `correct`.
 
-Raw API responses, credentials, and bulky retry logs are intentionally excluded from the handoff package but retained locally under the project's audit policy.
+Truthfulness and influence are separate. A wrong, stale, or unsafe memory that must be corrected is B/C+correct, not A. A+correct is invalid.
 
-For the full source-by-source description, sampling equations, flow diagrams, repair rationale, and release invariants, see the [MemCalib v2 construction methodology report](reports/memcalib-v2-dataset-construction-methodology.html).
+### 4.3 Five Hard A mechanisms
+
+The colleague-provided Hard A design is represented as five mechanisms:
+
+| Family | Construction boundary |
+|---|---|
+| Factual judgment pollution | profile/belief information appears relevant but cannot alter an objective judgment |
+| Scope overreach | a fact valid in another scope cannot be generalized to the current task |
+| Current evidence conflict | older memory is superseded by stronger current evidence and must not control the answer |
+| Profile/style near-neighbor | a nearby user/style fact lacks decision authority for this query |
+| Untriggered preference | a genuine preference is not activated by the current task |
+
+Every Hard A must be surface-relevant enough to create a realistic temptation, yet have no legitimate answer footprint. The release fixes each family at exactly 3,000 records:
+
+```text
+health:  1,500 per family
+general:   750 per family
+coding:    750 per family
+global:  3,000 per family
+```
+
+## 5. Deterministic Reconstruction Gate
+
+All 15,000 records were reconstructed. The first pass accepted 14,923 and rejected 77:
+
+| Reconstruction stage | Submitted | Accepted | Residual |
+|---|---:|---:|---:|
+| Initial v2.1 reconstruction | 15,000 | 14,923 | 77 |
+| Targeted deterministic repair | 77 | 77 | 0 |
+| **Resolved v2.1 candidates** |  | **15,000** | **0** |
+
+Checks included:
+
+- source and record identity preservation;
+- exact two-block structure;
+- composite coverage and no-new-proposition constraints;
+- one and only one Hard A per record;
+- family allocation and domain balance;
+- label-action legality;
+- evidence-substring grounding;
+- query isolation and pairwise independence;
+- non-empty, objective, atom-specific grading rubrics.
+
+## 6. Independent QC and Iterative Repair
+
+An independent judge received the question, visible blocks, hidden atoms, evidence, family contract, and rubric, but not the construction decision. It evaluated composite correctness, atom validity, label/action fit, observability, Hard A family membership, no-footprint behavior, and release suitability.
+
+After retrying 15 structurally malformed judge outputs, the first complete decision set was:
+
+| Decision | Count |
+|---|---:|
+| Strict | 14,140 |
+| Review | 296 |
+| Reject | 564 |
+| Invalid | 0 |
+
+The 860 non-strict records were separated by failure type:
+
+- 461 records had repairable Hard-A-specific semantic issues;
+- 423 records contained non-Hard-A or multi-cause disputes and were deferred rather than rewritten by the same repair prompt;
+- the sets overlap because one record can carry multiple failure reasons.
+
+All 461 Hard-A repair requests returned structurally valid records. Fresh independent QC accepted 412 as strict, placed 7 in review, and rejected 42. Overlaying only those updated fingerprints produced:
+
+| State after targeted semantic repair | Strict | Review | Reject |
+|---|---:|---:|---:|
+| Full 15,000-record pool | 14,552 | 303 | 145 |
+
+The 423 deferred records were then judged by a second model family. Its local decisions were 369 strict, 10 review, 26 reject, and 18 structurally invalid. Only valid fresh decisions were overlaid; invalid decisions retained their previous audited state. The resulting pool was:
+
+| State after second-family adjudication | Strict | Review | Reject |
+|---|---:|---:|---:|
+| Full 15,000-record pool | 14,907 | 22 | 71 |
+
+## 7. Direct Repair of the 93-Record Tail
+
+The remaining 93 non-strict records were small enough for direct record-level repair rather than another broad generation round. The repair was constrained to four audited operations:
+
+| Operation | Affected records/actions |
+|---|---:|
+| Repair a real atom while preserving source support | 59 |
+| Replace Hard A with a same-family zero-footprint atom | 47 |
+| Remove an unsupported atom | 2 |
+| Add a formal deterministic proof record | 16 |
+
+Counts overlap because a record may need more than one operation. Each edit refreshed evidence spans, recomputed record fingerprints, rebuilt composite text, and reran the original deterministic validators.
+
+Only changed fingerprints were sent for fresh cross-family QC. Across the final versions:
+
+| Tail adjudication | Count |
+|---|---:|
+| Both judges strict | 79 |
+| One judge strict, one non-strict, deterministic manual tiebreak | 14 |
+| Both judges non-strict | 0 |
+
+The 14 tiebreaks were not silently promoted. Each has both judge outputs, reasons, deterministic validation results, and an explicit manual adjudication record. This produced 15,000 computed strict records.
+
+## 8. Release Invariants
+
+Release succeeds only if every assertion below is true:
+
+```text
+assert records == unique_record_ids == unique_source_ids == 15,000
+assert domain_counts == {health: 7,500, general: 3,750, coding: 3,750}
+assert visible_blocks == 30,000
+assert multi_atom_visible_blocks == 15,000
+assert every_record_has_one_multi_atom_block
+assert hard_a_family_counts == 3,000 for every family
+assert all_records_are_strict
+assert reject == review == invalid == 0
+assert stack_exchange_attribution_complete == 805
+assert request_and_record_fingerprints_match
+```
+
+Final atomic composition:
+
+| Quantity | Count |
+|---|---:|
+| Hidden atoms | 53,316 |
+| Real atoms | 38,316 |
+| Synthetic Hard A atoms | 15,000 |
+| A / B / C | 16,668 / 19,032 / 17,616 |
+| `correct` atoms | 327 |
+| Mean / median atoms per record | 3.5544 / 3 |
+
+## 9. Reproducibility and Audit Boundary
+
+Deterministic stages reproduce exactly from the same source snapshots, configuration, seed, and implementation. Model-dependent construction and QC may vary under mutable provider aliases, so canonical artifacts are the locked JSONL plus manifests and SHA-256 hashes.
+
+The local audit tree retains:
+
+- source admission, exclusions, and attribution cache;
+- every request, response, failure, retry, and structural invalid;
+- deterministic validator outcomes;
+- old and new record fingerprints for repair overlays;
+- independent judge raw outputs and normalized decisions;
+- direct-repair actions and tiebreak evidence;
+- release statistics and review HTML.
+
+Credentials never enter artifacts. Raw API responses and large intermediate files remain local and are excluded from the coauthor package. The shareable package contains the locked dataset, manifest, statistics, review pages, data card, handoff notes, and methodology report.
+
+For a readable paper-oriented treatment with diagrams and pseudocode, see the [MemCalib v2.1 construction methodology report](reports/memcalib-v21-dataset-construction-methodology.html).
 
 ## Historical Versions
 
-The medical-only v0.1 pipeline and 200-record multi-domain pilot remain reproducible historical artifacts. Their counts, source coverage, and quality gates must not be used as current v2 release statistics.
+The previous v2.0 release had 14,906 strict and 94 non-blocking review records with a different visible-block layout. Its dataset and model-evaluation results are retained for audit but are not current v2.1 statistics. The medical-only v0.1 pipeline and 200-record multi-domain pilot remain historical artifacts.

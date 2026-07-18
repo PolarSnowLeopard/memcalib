@@ -1,0 +1,101 @@
+{
+  "schema_version": "memcalib-v21-multidomain-sample-evaluation-config-v1",
+  "seed": 20260719,
+  "source_count": 15000,
+  "sample_count": 500,
+  "release": "memcalib-v21-multidomain-500-seven-models",
+  "source_inputs": {
+    "benchmark_sha256": "bd45f77534351cd096476080096ce9ba6250a375941a171ab561ad78704bed44"
+  },
+  "domain_counts": {
+    "health_seed": 250,
+    "general": 125,
+    "coding": 125
+  },
+  "sampling": {
+    "method": "proportional_stratified_without_replacement",
+    "stratify_by": [
+      "domain",
+      "source_dataset",
+      "source_topic",
+      "release_admission.decision",
+      "atom_count_bucket"
+    ],
+    "within_cell_order": "stable_seeded_hash"
+  },
+  "evaluation_modes": {
+    "leaderboard_required_conditions": [
+      "full_memory"
+    ],
+    "official_research_conditions": [
+      "full_memory",
+      "no_memory"
+    ],
+    "primary_metrics_condition": "full_memory",
+    "counterfactual_condition": "no_memory"
+  },
+  "answer_models": [
+    {
+      "key": "qwen-max",
+      "model": "qwen3.7-max"
+    },
+    {
+      "key": "qwen-flash",
+      "model": "qwen3.6-flash"
+    },
+    {
+      "key": "deepseek",
+      "model": "deepseek-v4-pro"
+    },
+    {
+      "key": "deepseek-flash",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "key": "kimi",
+      "model": "kimi-k2.6"
+    },
+    {
+      "key": "qwen35-35b-a3b",
+      "model": "qwen3.5-35b-a3b"
+    },
+    {
+      "key": "qwen3-8b",
+      "model": "qwen3-8b"
+    }
+  ],
+  "answer_generation": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "enable_thinking": false
+  },
+  "judge_protocol": "ordered-usage-v2.1",
+  "judge_prompt": "evaluation/prompts/judge-system-v2.1.txt",
+  "primary_judge": {
+    "key": "qwen-judge",
+    "model": "qwen3.7-plus"
+  },
+  "secondary_judge": {
+    "key": "deepseek-judge",
+    "model": "deepseek-v4-pro"
+  },
+  "deepseek_secondary_judge": {
+    "key": "kimi-judge",
+    "model": "kimi-k2.6"
+  },
+  "judge_generation": {
+    "temperature": 0.0,
+    "max_tokens": 4096,
+    "enable_thinking": false
+  },
+  "secondary_judge_sampling": {
+    "total": 350,
+    "per_model_per_condition": 25,
+    "stratify_by": [
+      "condition",
+      "source_dataset",
+      "source_topic",
+      "atom_count_bucket"
+    ]
+  }
+}

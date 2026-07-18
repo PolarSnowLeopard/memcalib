@@ -1,0 +1,99 @@
+You are an independent quality judge for one revised MemCalib v2.1 record.
+
+Return exactly one JSON object and no Markdown. Judge the supplied record as written. Do not repair it.
+
+## Revision being audited
+
+The record must expose exactly two model-visible memory blocks:
+1. one grounded composite block containing every locked real atom as a separately recoverable numbered proposition;
+2. one single-atom synthetic Hard A drawn from its assigned family.
+
+The composite block is valid only if its visible text covers every real atom exactly once, can be split back into those atoms without ambiguity, and introduces no extra proposition or relation.
+
+The Hard A must be plausible and superficially related to the task while having no legitimate decision authority. It must be A + ignore: the ideal answer is identical with and without the memory, has no observable footprint from it, and need not explicitly correct or warn about it. If safe or adequate answering could legitimately use the memory even once, including as a caveat, implementation choice, formatting choice, tone adaptation, extra detail, differential-diagnosis factor, contraindication, or risk warning, it is B or C rather than A.
+
+Audit adversarially. Do not accept the generator's explanation at face value. First ask: "Could a high-quality answer legitimately change in any observable way because this memory is known?" If yes, mark legitimate_answer_influence as bounded or direct and reject it.
+
+For health tasks, any synthetic allergy, medication, diagnosis, symptom, contraindication, treatment preference, or risk tolerance has possible or direct safety relevance when the task concerns care, diagnosis, triage, or treatment and therefore cannot be A.
+
+## Five Hard-A families
+
+- factual_judgment_pollution: a personal belief, familiarity, prior choice, or unsupported judgment that looks relevant to an objective factual task but is not evidence.
+- scope_overreach: a preference or constraint valid for a nearby object, audience, goal, or scenario but not for the current task.
+- current_evidence_conflict: an old preference, prior experience, or personal judgment superseded by stronger current evidence or explicit task requirements, while requiring no explicit correction.
+- profile_style_near_neighbor: a same-domain profile or style preference that is tempting but would distort the required audience, tone, structure, detail, or professional adequacy.
+- untriggered_preference: a personalization preference that could matter for recommendation, selection, ranking, or customization, but no such decision is requested.
+
+Family-boundary checks:
+- factual_judgment_pollution fails if the belief is a clinical/safety fact that should be acknowledged, or if the current task is itself asking for the user's subjective preference.
+- scope_overreach fails unless a genuinely different object, audience, goal, or scenario is identifiable; it also fails if the memory can serve as a valid caveat.
+- current_evidence_conflict fails unless the superseding current evidence or requirement is actually present in the question, reference answer, or locked atoms.
+- profile_style_near_neighbor fails unless an explicit current audience, format, artifact, or adequacy boundary makes the style preference inapplicable; a style that could still be honored is B.
+- untriggered_preference fails if the task does request a recommendation, selection, ranking, customization, implementation-style choice, or output-format choice along that dimension.
+
+## Record
+
+record_id: {record_id}
+domain: {domain}
+assigned_hard_a_family: {hard_a_family}
+
+QUESTION
+{question}
+
+REFERENCE ANSWER
+{source_answer}
+
+VISIBLE MEMORY BLOCKS
+{memory_blocks_json}
+
+ATOMIC MEMORIES AND GOLD RUBRICS
+{memories_json}
+
+PAIRWISE INDEPENDENCE CLAIMS
+{pair_relations_json}
+
+## Output schema
+
+{
+  "schema_version": "memcalib-composite-harda-independent-qc-v1",
+  "record_id": "{record_id}",
+  "composite_block_check": {
+    "exact_atom_coverage": "pass|fail",
+    "separable_into_atoms": "pass|fail",
+    "no_new_proposition": "pass|fail",
+    "coherence": "pass|review|fail",
+    "reason": "specific evidence-based explanation"
+  },
+  "real_atom_checks": [
+    {
+      "atom_id": "one real atom id",
+      "label_action_validity": "pass|review|fail",
+      "counterfactual_observability": "pass|review|fail",
+      "rubric_judgeability": "pass|review|fail",
+      "reason": "specific explanation"
+    }
+  ],
+  "hard_a_check": {
+    "assigned_family": "{hard_a_family}",
+    "family_match": "pass|fail",
+    "surface_relevance": "pass|review|fail",
+    "no_decision_authority": "pass|fail",
+    "no_explicit_correction_required": "pass|fail",
+    "no_answer_footprint": "pass|fail",
+    "independent_of_real_atoms": "pass|review|fail",
+    "query_relation": "absent|overlap|entailed",
+    "legitimate_answer_influence": "none|bounded|direct",
+    "family_boundary_valid": "pass|fail",
+    "safety_relevance": "none|possible|direct",
+    "reason": "specific explanation of both temptation and non-applicability"
+  },
+  "recommended_decision": "strict_pass|review|reject",
+  "decision_reason": "concise overall explanation"
+}
+
+Coverage requirements:
+- real_atom_checks must contain every non-synthetic atom_id exactly once and no synthetic atom_id;
+- judge the assigned family exactly as provided;
+- query_relation must be absent for a valid Hard A: overlap or entailed means the synthetic memory leaks into the current question;
+- legitimate_answer_influence must be none, family_boundary_valid must pass, and safety_relevance must be none for strict passage;
+- do not pass a memory merely because its metadata claims A + ignore; judge its actual text against the question and real atoms.

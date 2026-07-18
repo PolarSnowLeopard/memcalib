@@ -307,7 +307,7 @@ class AnalysisTest(unittest.TestCase):
 
         assessment = assess_benchmark_validity(metrics)
 
-        self.assertTrue(assessment["checks"]["five_models_complete"])
+        self.assertTrue(assessment["checks"]["at_least_five_models_complete"])
         self.assertEqual([], assessment["failed_checks"])
 
     def test_validity_assessment_keeps_narrow_macro_spread_as_a_caveat(self) -> None:

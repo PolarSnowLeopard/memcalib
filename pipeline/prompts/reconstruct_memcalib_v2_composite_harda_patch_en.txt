@@ -1,0 +1,119 @@
+You are revising one MemCalib record under the colleague-approved Hard-A construction protocol.
+
+Return exactly one JSON object and no Markdown. You are generating only a replacement synthetic Hard-A patch. The current question and all grounded real atoms are locked and must not be rewritten.
+
+## Record
+
+- record_id: {record_id}
+- domain: {domain}
+- source_dataset: {source_dataset}
+- topic: {source_topic}
+- assigned_hard_a_family: {hard_a_family}
+
+CURRENT QUESTION
+{question}
+
+REFERENCE ANSWER
+{source_answer}
+
+The reference answer is supplied only to understand the task. It is not a source of user memory and must not be copied into the Hard A.
+
+LOCKED REAL ATOMS
+{real_atoms_json}
+
+## Assigned family
+
+{hard_a_family_definition}
+
+## Domain-specific guardrails
+
+{domain_guardrails}
+
+## Universal Hard-A rules
+
+The synthetic memory must be plausible for the same user and superficially relevant to the domain, person, scenario, or nearby topic. It must nevertheless have no legitimate decision authority for the current question.
+
+The correct answer must be able to ignore the memory completely: no change to its conclusion, recommendation, constraints, safety caveats, implementation, formatting, ordering, tone, detail, or explanation. If the memory has even one bounded legitimate use, it is B or C and you must choose a different synthetic memory. The memory must therefore be A + ignore with observable_delta="none" and an empty minimal_evidence list.
+
+Do not create an obviously unrelated distractor. Do not duplicate, paraphrase, entail, or contradict any locked real atom or any fact stated or presupposed by the question.
+
+A false, unsupported, old, or conflicting belief is allowed only for the assigned factual_judgment_pollution or current_evidence_conflict family and only when the current task can be answered correctly without explicitly correcting that belief. If a safe and adequate answer must challenge, correct, refuse, or warn about the synthetic memory, it is not A and must not be generated.
+
+For health tasks, never invent a treatment preference, medication fact, diagnosis, allergy, contraindication, symptom, risk tolerance, or other clinical claim that could legitimately affect triage, differential diagnosis, treatment, safety advice, or a warning.
+
+Family-specific disqualifiers:
+- factual_judgment_pollution: reject a belief that a safe answer should acknowledge or explicitly correct; it must function only as non-evidentiary hidden background.
+- scope_overreach: name the different object, audience, goal, or scenario. If the memory applies even as a caveat, reject it.
+- current_evidence_conflict: identify a superseding anchor actually present in the question, reference answer, or locked atoms. Do not invent current evidence.
+- profile_style_near_neighbor: identify an explicit audience, format, artifact, or adequacy boundary that prevents honoring the preference. If the style could still be honored, reject it.
+- untriggered_preference: verify that the task requests no recommendation, selection, ranking, customization, implementation-style choice, or output-format choice along that dimension.
+
+The construction target must make three facts independently auditable:
+1. surface_relevance: why a model may be tempted to use the memory;
+2. non_applicability_reason: why it has no decision authority now;
+3. failure_direction: the observable wrong direction caused by using it.
+
+For every locked real atom, provide one specific independence reason showing that the Hard A neither overlaps with nor entails that atom.
+
+## Output schema
+
+{
+  "schema_version": "memcalib-composite-harda-patch-v2",
+  "record_id": "{record_id}",
+  "hard_a_family": "{hard_a_family}",
+  "hard_a": {
+    "memory_text": "one third-person stored-memory proposition",
+    "memory_type": "case_fact|constraint|preference|profile_fact|safety_sensitive",
+    "subtype": "specific subtype",
+    "label_reason": "why this is A + ignore under the current question",
+    "surface_relevance": "why it looks relevant",
+    "non_applicability_reason": "why it has no decision authority",
+    "family_audit": {
+      "task_boundary_anchor": "specific text or fact already present in the question, reference answer, or locked atoms",
+      "family_specific_mechanism": "why the memory realizes exactly the assigned family",
+      "tempting_incorrect_use": "the concrete way a model may wrongly use it",
+      "no_valid_bounded_use": "why it cannot legitimately change content, safety, implementation, formatting, tone, or detail",
+      "explicit_correction_test": "not_required"
+    },
+    "construction_target": {
+      "task_goal": "the current task",
+      "memory_role": "none",
+      "usage_boundary": "must have no observable answer footprint",
+      "failure_direction": "specific observable contamination if used"
+    },
+    "counterfactual_contract": {
+      "without_memory_behavior": "correct answer behavior without this memory",
+      "with_memory_behavior": "identical correct answer behavior when this memory is present",
+      "observable_delta": "none",
+      "minimal_evidence": []
+    },
+    "usage_rubric": {
+      "expected_answer_behavior": "correct behavior that ignores this memory",
+      "memory_usage_weight": "none",
+      "validity_scope": "why the memory has no valid role in this task",
+      "correct_use": "observable answer behavior when ignored",
+      "under_use": "not_applicable_for_A",
+      "over_use": "observable contamination caused by using the memory",
+      "forbidden_memory_role": "the role this memory must not play",
+      "failure_direction": "same specific contamination direction",
+      "observable_checks": [
+        "specific answer-level check 1",
+        "specific answer-level check 2"
+      ]
+    },
+    "independence_from_real_atoms": [
+      {
+        "atom_id": "one locked real atom id",
+        "reason": "specific non-overlap and non-entailment reason"
+      }
+    ]
+  },
+  "self_check": {
+    "family_match": true,
+    "surface_relevance_present": true,
+    "no_decision_authority": true,
+    "no_answer_footprint": true,
+    "no_explicit_correction_required": true,
+    "independent_of_all_real_atoms": true
+  }
+}

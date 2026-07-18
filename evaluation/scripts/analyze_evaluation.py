@@ -591,7 +591,7 @@ def assess_benchmark_validity(metrics: dict[str, Any]) -> dict[str, Any]:
     agreement_kappa = agreement.get("linear_weighted_kappa", agreement.get("kappa"))
     model_score_spread = max(scores) - min(scores) if scores else None
     checks = {
-        "five_models_complete": len(scores) >= 5,
+        "at_least_five_models_complete": len(scores) >= 5,
         "judge_exact_agreement_at_least_0.75": (agreement.get("exact_agreement") or 0) >= 0.75,
         "judge_kappa_at_least_0.60": (agreement_kappa or 0) >= 0.60,
     }
@@ -754,6 +754,7 @@ def render_report(metrics: dict[str, Any]) -> str:
     paired_available = ("full_memory" in conditions and "no_memory" in conditions) or any(
         (values.get("no_memory", {}).get("answers") or 0) > 0 for values in metrics["models"].values()
     )
+    model_count = len(metrics["models"])
     full_release = sample_count > 500 and not paired_available
     if full_release:
         report_title = f"MemCalib {sample_count:,} 全量评测报告"
@@ -762,9 +763,9 @@ def render_report(metrics: dict[str, Any]) -> str:
     else:
         report_title = f"MemCalib {sample_count:,} 试点评测报告"
     report_subtitle = (
-        "五个代表性模型在完整 Full-memory benchmark 上的原子级记忆使用校准结果。"
+        f"{model_count} 个代表性模型在完整 Full-memory benchmark 上的原子级记忆使用校准结果。"
         if full_release
-        else "五个代表性模型在 Full-memory 与 No-memory 配对条件下的记忆使用校准结果。"
+        else f"{model_count} 个代表性模型在 Full-memory 与 No-memory 配对条件下的记忆使用校准结果。"
     )
     paired_section = (
         f'<h2>配对因果诊断</h2><p class="section-note">Full-memory 与 No-memory 使用相同问题配对比较。记忆诱发 OPB 向右表示额外过度个性化；记忆减少 UPB 向右表示记忆有效缓解使用不足。</p><section class="effects">{"".join(effect_rows)}</section>'
@@ -787,9 +788,9 @@ def render_report(metrics: dict[str, Any]) -> str:
 <title>{html.escape(report_title)}</title><style>
 :root{{--ink:#182230;--muted:#667085;--line:#d5dce6;--paper:#fff;--bg:#f2f4f7;--nav:#17253d;--teal:#087d71;--blue:#2667a9;--red:#b42318;--amber:#a15c00}}
 *{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;letter-spacing:0}}header{{background:var(--nav);color:#fff;padding:46px max(24px,calc((100vw - 1180px)/2)) 38px;border-bottom:5px solid var(--teal)}}header p{{color:#c9d3e1;max-width:760px;margin:8px 0 0}}header .status{{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:6px 10px;border:1px solid #ffffff38;border-radius:4px}}header .status b{{color:#75e0d3}}
-main{{max-width:1180px;margin:0 auto;padding:26px 24px 64px}}h1{{font-size:32px;margin:0}}h2{{font-size:20px;margin:38px 0 6px}}.section-note{{color:var(--muted);margin:0 0 14px}}.cards{{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}}.model-card{{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:16px;min-width:0}}.model-card span,.model-card small{{display:block;color:var(--muted);overflow-wrap:anywhere}}.model-card strong{{display:block;font:700 28px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--teal);margin:10px 0 4px}}
+main{{max-width:1180px;margin:0 auto;padding:26px 24px 64px}}h1{{font-size:32px;margin:0}}h2{{font-size:20px;margin:38px 0 6px}}.section-note{{color:var(--muted);margin:0 0 14px}}.cards{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}}.model-card{{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:16px;min-width:0}}.model-card span,.model-card small{{display:block;color:var(--muted);overflow-wrap:anywhere}}.model-card strong{{display:block;font:700 28px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--teal);margin:10px 0 4px}}
 .panel{{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:16px;overflow:auto}}table{{width:100%;border-collapse:collapse;min-width:760px}}th,td{{padding:10px 11px;border-bottom:1px solid var(--line);text-align:right}}th:first-child,td:first-child{{text-align:left}}th{{color:var(--muted);font-size:12px}}tbody tr:last-child td{{border-bottom:0}}.effects{{display:grid;grid-template-columns:1fr 1fr;gap:10px}}.effect-group{{background:#fff;border:1px solid var(--line);border-radius:5px;padding:15px}}.effect-group h3{{font-size:14px;margin:0 0 10px}}.effect{{display:grid;grid-template-columns:82px 1fr 52px;gap:9px;align-items:center;margin:8px 0}}.effect-label{{font-size:12px;color:var(--muted)}}.rail{{height:10px;background:#e8ecf2;position:relative;border-radius:2px}}.rail:after{{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:#8793a5}}.marker{{position:absolute;top:-3px;width:5px;height:16px;transform:translateX(-50%);border-radius:1px}}.teal{{color:var(--teal)}}.blue{{color:var(--blue)}}.red{{color:var(--red)}}.marker.teal{{background:var(--teal)}}.marker.blue{{background:var(--blue)}}.marker.red{{background:var(--red)}}.effect strong{{font:650 12px ui-monospace,SFMono-Regular,Menlo,monospace;text-align:right}}.checks{{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}}.check{{font-size:12px;padding:4px 7px;background:#fff;border:1px solid var(--line);border-radius:4px}}.check.fail{{border-color:#f0b8b2;color:var(--red)}}details{{margin-top:34px}}pre{{white-space:pre-wrap;overflow-wrap:anywhere;background:#111827;color:#e5e7eb;padding:16px;border-radius:5px}}
-@media(max-width:820px){{.cards{{grid-template-columns:1fr 1fr}}.effects{{grid-template-columns:1fr}}header{{padding:30px 18px}}main{{padding:18px 14px}}}}
+@media(max-width:1000px){{.cards{{grid-template-columns:repeat(3,1fr)}}}}@media(max-width:820px){{.cards{{grid-template-columns:1fr 1fr}}.effects{{grid-template-columns:1fr}}header{{padding:30px 18px}}header h1{{font-size:28px;line-height:1.2}}main{{padding:18px 14px}}}}
 </style></head><body><header><h1>{html.escape(report_title)}</h1><p>{html.escape(report_subtitle)}</p><div class="status"><span>Benchmark 状态</span><b>{html.escape(status_label)}</b></div></header>
 <main><div class="checks">{''.join(f'<span class="check fail">{html.escape(item)}</span>' for item in failed_checks) if failed_checks else '<span class="check">核心自动检查通过</span>'}{''.join(f'<span class="check fail">限制：{html.escape(caveat_labels.get(item, item))}</span>' for item in caveats)}<span class="check">人工一致性：待完成</span></div>
 <h2>OPB / UPB 主指标</h2><p class="section-note">主指标使用 Full-memory 条件。OPB 和 UPB 是按真实标签宏平均的方向性错误率，越低越好；总分是两个方向抵抗能力的调和平均，越高越好。置信区间按样本聚类 bootstrap 2000 次计算。当前模型总分极差为 {_format_metric(assessment.get('model_score_spread'))}。</p><section class="cards">{''.join(score_cards)}</section><section class="panel" style="margin-top:10px"><table><thead><tr><th>模型</th><th>调和总分</th><th>总分 95% CI</th><th>OPB 错误↓</th><th>OPB 95% CI</th><th>UPB 错误↓</th><th>UPB 95% CI</th><th>样本严格</th><th>混合父记忆严格</th></tr></thead><tbody>{''.join(core_rows)}</tbody></table></section>
