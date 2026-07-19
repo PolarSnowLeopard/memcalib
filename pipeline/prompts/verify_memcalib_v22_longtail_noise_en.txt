@@ -1,0 +1,86 @@
+You are the independent semantic quality judge for MemCalib v2.2 auxiliary retrieval noise.
+
+The record contains locked source-grounded memories, one previously audited canonical Hard A, and newly generated
+auxiliary retrieval-noise atoms. Judge only the newly generated auxiliary atoms and the blocks that contain them. Do
+not repair or rewrite anything.
+
+The pass standard is strict:
+
+1. Each auxiliary atom must have query_relation "absent". It must not overlap, answer, entail, contradict, presuppose,
+   or supply evidence, constraints, methods, examples, or useful background for the current question.
+2. answer_footprint must be "none". Any legitimate change to content, recommendation, ranking, wording, language,
+   tone, ordering, detail, examples, caveats, formatting, implementation, compatibility, testing, safety advice, or
+   answer structure is a footprint.
+3. A wrong, stale, unsafe, or misleading atom that a responsible answer should correct or warn about fails.
+4. A preference that could govern any valid answer fails even when the current prompt makes that preference difficult
+   to follow. Scope labels and the producer's rationale are not evidence of irrelevance.
+5. Same-domain history, tools, methods, prior solutions, profile facts, or examples fail when they could reasonably
+   guide the answer. Surface similarity alone is allowed only when there is no legitimate bounded use.
+6. Every atom must be one independently meaningful proposition and must be plausible as a stored memory for the same
+   hypothetical user or project.
+7. For every block, jointly applying its auxiliary atoms must still have zero answer footprint. Two-atom blocks must
+   be coherent as one remembered episode, profile, or prior-work summary without duplication or entailment.
+8. The complete auxiliary set must not collectively imply a persona, preference, capability, risk, or history that a
+   good answer could legitimately use.
+9. Use "review" only for genuine ambiguity. Use "reject" for any substantive failure. Do not pass based on producer
+   explanations when the memory text itself creates a footprint.
+
+Return exactly one JSON object and no prose outside it:
+
+{
+  "schema_version": "memcalib-v22-longtail-independent-qc-v1",
+  "record_id": "...",
+  "atom_checks": [
+    {
+      "atom_id": "exact auxiliary atom ID",
+      "query_relation": "absent | overlap | entailed",
+      "answer_footprint": "none | content | presentation | implementation | safety",
+      "explicit_correction_required": false,
+      "atomicity": "pass | fail",
+      "same_user_plausibility": "pass | review | fail",
+      "decision": "pass | review | reject",
+      "reason": "specific semantic reason"
+    }
+  ],
+  "block_checks": [
+    {
+      "parent_memory_id": "exact block ID containing auxiliary atoms",
+      "joint_answer_footprint": "none | content | presentation | implementation | safety",
+      "coherence": "pass | review | fail",
+      "decision": "pass | review | reject",
+      "reason": "specific joint-effect reason"
+    }
+  ],
+  "global_check": {
+    "all_auxiliary_zero_footprint": true,
+    "no_collective_persona_influence": true,
+    "all_locked_memories_unchanged": true,
+    "reason": "specific global reason"
+  },
+  "recommended_decision": "strict_pass | review | reject",
+  "decision_reason": "concise overall reason"
+}
+
+RECORD ID
+{record_id}
+
+DOMAIN
+{domain}
+
+CURRENT QUESTION
+{question}
+
+REFERENCE ANSWER
+{source_answer}
+
+LOCKED SOURCE-GROUNDED ATOMS
+{locked_atoms_json}
+
+LOCKED CANONICAL HARD A
+{canonical_hard_a_json}
+
+VISIBLE BLOCKS CONTAINING AUXILIARY NOISE
+{auxiliary_blocks_json}
+
+AUXILIARY RETRIEVAL-NOISE ATOMS TO JUDGE
+{auxiliary_atoms_json}

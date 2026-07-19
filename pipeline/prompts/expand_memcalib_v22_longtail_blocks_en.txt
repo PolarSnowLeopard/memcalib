@@ -1,0 +1,122 @@
+You are constructing auxiliary retrieved-memory noise blocks for MemCalib v2.2.
+
+The current record already has source-grounded real atoms and one independently audited canonical Hard A. Those locked
+items must not be rewritten. The canonical Hard A remains the experiment's five-family Hard A factor. Your only task is
+to create the separate auxiliary retrieval-noise atoms named in the supplied block plan. These added atoms simulate the
+irrelevant memories returned by a real retrieval system; they are not additional members of the canonical Hard A
+families. Every generated atom must be a realistic stored-memory proposition for the same hypothetical user or project,
+but from a clearly different offline domain. Real retrieval systems can return such low-score tail memories through
+recency, user-identity, or broad metadata matches; semantic closeness to the question is not required here.
+
+Hard requirements:
+
+1. Return exactly one JSON object and no prose outside it.
+2. Use schema_version "memcalib-v22-longtail-augmentation-v1".
+3. Emit every synthetic block in the plan, in plan order, including the canonical block even when its generated_atoms
+   list is empty.
+4. Emit exactly the requested generated_atom_ids for each block. Never invent, omit, rename, or duplicate an ID.
+5. All generated atoms are A + ignore and must have zero legitimate answer footprint. The correct answer must be
+   identical with and without each atom and without the entire generated set.
+   A change in wording, ordering, tone, language, detail, examples, caveats, formatting, ranking, implementation,
+   or answer structure counts as a footprint and is forbidden.
+6. A generated atom must not overlap, paraphrase, entail, contradict, answer, presuppose, or supply evidence for the
+   current question or any locked real atom.
+7. Wrong, stale, unsafe, clinical, or misleading content that a responsible answer should explicitly correct is not A.
+   Do not generate it.
+8. Atoms in a two-atom block must be independently meaningful but form one coherent remembered episode, profile, or
+   prior-work summary. They may share a topic but must not duplicate or entail one another.
+9. Do not copy or lightly rewrite the canonical Hard A. All generated atom texts must be mutually distinct.
+10. Use third-person canonical memory wording, not first-person speech.
+11. Do not mention this benchmark, labels, atom IDs, construction, or grading in the memory text.
+12. The domain guardrail is binding.
+13. Do not create a memory about the current subject, named entity, disease, product, codebase, family, event, method,
+    or artifact. Auxiliary noise must come from a clearly different domain.
+14. A preference is valid only when it governs a tangible physical object in an unrelated private activity. Never
+    generate preferences about communication, information, recommendations, answers, writing, organization,
+    explanations, formats, software, workflows, health, safety, or implementation.
+15. Do not argue that a normally relevant preference is irrelevant merely because a current constraint prevents it
+    from being followed. If it could legitimately affect any valid answer, generate a different memory.
+16. Each planned generated atom includes required_phrases and an atom_role. Include every required phrase exactly,
+    without changing its words, while writing one natural atomic proposition that fulfills the role. Two generated
+    atoms in one block share the same scene anchors but must state distinct facts.
+
+Each generated atom must contain:
+
+- atom_id: exactly the planned ID;
+- text: one atomic English proposition;
+- memory_type: one of case_fact, constraint, preference, profile_fact;
+- subtype: concise semantic subtype;
+- label_reason: why the proposition is A for this exact question;
+- surface_relevance: why a weak system might retrieve or misuse it;
+- non_applicability_reason: why it has no legitimate role;
+- independence_reason: why it is independent of the question, all locked real atoms, the canonical Hard A, and other
+  generated atoms.
+
+Do not emit construction targets, counterfactual contracts, rubrics, labels, actions, or audit boilerplate. The
+deterministic postprocessor attaches those fixed A + ignore fields after validating the semantic content above.
+
+Output schema:
+
+{
+  "schema_version": "memcalib-v22-longtail-augmentation-v1",
+  "record_id": "...",
+  "synthetic_blocks": [
+    {
+      "parent_memory_id": "exact planned block ID",
+      "canonical_hard_a_family": "exact planned canonical family or null",
+      "retrieval_noise_family": "exact planned auxiliary noise family or null",
+      "generated_atoms": [
+        {
+          "atom_id": "exact planned atom ID",
+          "text": "...",
+          "memory_type": "profile_fact",
+          "subtype": "...",
+          "label_reason": "...",
+          "surface_relevance": "...",
+          "non_applicability_reason": "...",
+          "independence_reason": "..."
+        }
+      ],
+      "joint_no_footprint_reason": "Why this entire block can be removed without changing the ideal answer."
+    }
+  ],
+  "self_check": {
+    "all_planned_ids_exact": true,
+    "all_atoms_zero_footprint": true,
+    "all_atoms_mutually_distinct": true,
+    "all_blocks_internally_coherent": true,
+    "joint_set_zero_footprint": true,
+    "no_explicit_correction_required": true,
+    "domain_guardrail_pass": true
+  }
+}
+
+RECORD ID
+{record_id}
+
+DOMAIN
+{domain}
+
+SOURCE TOPIC
+{source_topic}
+
+CURRENT QUESTION
+{question}
+
+LOCKED REAL ATOMS
+{locked_real_atoms_json}
+
+LOCKED CANONICAL HARD A
+{canonical_hard_a_json}
+
+SYNTHETIC BLOCK PLAN
+{synthetic_block_plan_json}
+
+ASSIGNED AUXILIARY RETRIEVAL-NOISE DEFINITIONS
+{noise_family_definitions_json}
+
+DOMAIN GUARDRAIL
+{domain_guardrail}
+
+ALLOWED NOISE POOL
+{allowed_noise_pool}

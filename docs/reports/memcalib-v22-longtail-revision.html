@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MemCalib v2.2 长尾记忆块修订与质检报告</title>
+  <style>
+    :root {
+      --ink:#17212b; --muted:#5e6b76; --line:#d8dee5; --paper:#fff;
+      --bg:#f3f5f7; --navy:#17324d; --blue:#246a9b; --teal:#16827c;
+      --green:#2d7d46; --amber:#9a6812; --red:#a13d3d; --violet:#6b4fa0;
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:var(--bg); font:15px/1.65 system-ui,-apple-system,sans-serif; }
+    header { background:var(--navy); color:#fff; padding:48px max(24px,calc((100vw - 1180px)/2)); }
+    header h1 { margin:0 0 10px; font-size:36px; letter-spacing:0; }
+    header p { max-width:900px; margin:8px 0; color:#dce8f2; font-size:17px; }
+    header .stamp { margin-top:20px; color:#a9c6da; font-size:13px; }
+    nav { position:sticky; top:0; z-index:5; background:#fff; border-bottom:1px solid var(--line); }
+    nav div { max-width:1180px; margin:auto; display:flex; gap:18px; overflow:auto; padding:10px 20px; }
+    nav a { white-space:nowrap; color:var(--navy); text-decoration:none; font-weight:650; font-size:13px; }
+    main { max-width:1180px; margin:auto; padding:28px 22px 70px; }
+    section { background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:26px; margin:18px 0; }
+    h2 { margin:0 0 16px; font-size:24px; color:var(--navy); }
+    h3 { margin:22px 0 10px; font-size:17px; }
+    p { max-width:980px; }
+    .lead { font-size:17px; color:#30414f; }
+    .metrics { display:grid; grid-template-columns:repeat(5,minmax(140px,1fr)); gap:12px; }
+    .metric { border:1px solid var(--line); border-top:4px solid var(--blue); padding:15px; background:#fbfcfd; }
+    .metric strong { display:block; font-size:25px; color:var(--navy); }
+    .metric span { color:var(--muted); font-size:13px; }
+    .flow { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+    .stage { border:1px solid var(--line); padding:16px; min-height:150px; background:#fbfcfd; }
+    .stage b { display:block; color:var(--blue); font-size:12px; margin-bottom:5px; }
+    .stage strong { display:block; font-size:17px; margin-bottom:6px; }
+    .stage p { margin:0; color:#435360; font-size:13px; }
+    .stage.pass { border-top:4px solid var(--green); }
+    .stage.qc { border-top:4px solid var(--violet); }
+    .stage.repair { border-top:4px solid var(--amber); }
+    .stage.release { border-top:4px solid var(--teal); }
+    .formula { border-left:4px solid var(--violet); background:#f7f4fb; padding:14px 18px; font:16px/1.6 ui-monospace,SFMono-Regular,monospace; }
+    .callout { border-left:4px solid var(--amber); background:#fff9ee; padding:12px 16px; }
+    .good { border-left-color:var(--green); background:#f3faf5; }
+    table { width:100%; border-collapse:collapse; margin:12px 0 20px; }
+    th,td { border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top; }
+    th { background:#eef3f6; color:#233847; }
+    td.num,th.num { text-align:right; font-variant-numeric:tabular-nums; }
+    .bar { display:flex; height:24px; width:100%; background:#e7ebee; overflow:hidden; border-radius:3px; }
+    .bar span { display:block; height:100%; }
+    .a { background:#7b8791; } .b { background:#2d7d46; } .c { background:#246a9b; }
+    .legend { display:flex; gap:18px; color:var(--muted); font-size:13px; }
+    .dot { display:inline-block; width:10px; height:10px; margin-right:5px; }
+    pre { white-space:pre-wrap; background:#17212b; color:#e9f0f5; padding:16px; border-radius:4px; overflow:auto; }
+    code { font-family:ui-monospace,SFMono-Regular,monospace; }
+    footer { color:var(--muted); text-align:center; padding:20px; }
+    @media(max-width:900px) {
+      .metrics { grid-template-columns:repeat(2,1fr); }
+      .flow { grid-template-columns:1fr 1fr; }
+    }
+    @media(max-width:560px) {
+      header h1 { font-size:28px; }
+      .metrics,.flow { grid-template-columns:1fr; }
+      main { padding:18px 10px 50px; }
+      section { padding:18px; }
+      table { display:block; max-width:100%; overflow-x:auto; }
+      .formula,pre { max-width:100%; overflow-x:auto; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>MemCalib v2.2 长尾记忆块修订与质检</h1>
+  <p>从锁定的 v2.1 基础集出发，将每条记录从固定两块扩展为 3–20 块长尾负载，同时保证每条记录至少一半可见块可拆成多个独立评分原子。</p>
+  <p>本报告只描述 v2.2 增量修订；公共数据源抽样、源语义质检、A/B/C 基础标注和 canonical Hard A 构造沿用 v2.1 锁定结果。</p>
+  <div class="stamp">Internal research release · 2026-07-19 · self-contained HTML</div>
+</header>
+<nav><div>
+  <a href="#result">最终结果</a><a href="#inherit">继承边界</a><a href="#distribution">长尾分配</a>
+  <a href="#construction">构造</a><a href="#validation">结构校验</a><a href="#qc">独立质检</a>
+  <a href="#repair">修复闭环</a><a href="#release">发布门</a><a href="#limitations">限制</a>
+</div></nav>
+<main>
+  <section id="result">
+    <h2>1. 最终结果</h2>
+    <div class="metrics">
+      <div class="metric"><strong>15,000</strong><span>最终记录</span></div>
+      <div class="metric"><strong>3–20</strong><span>每条可见记忆块</span></div>
+      <div class="metric"><strong>74,800</strong><span>模型可见记忆块</span></div>
+      <div class="metric"><strong>55.75%</strong><span>多原子可见块占比</span></div>
+      <div class="metric"><strong>118,819</strong><span>隐藏原子记忆</span></div>
+    </div>
+    <p class="lead">最终领域配额为 health 7,500、general 3,750、coding 3,750。独立 QC 后为 14,973 strict pass 与 27 non-blocking review；reject 和 invalid 均为 0。</p>
+    <div class="callout good"><b>关键结论：</b>v2.2 没有新增或替换基础问题，没有改变来源分布、真实 B/C 原子或 canonical Hard A。修改集中在模型可见块的负载结构和辅助检索噪声。</div>
+  </section>
+
+  <section id="inherit">
+    <h2>2. 从 v2.1 继承什么，重新构造什么</h2>
+    <table>
+      <thead><tr><th>对象</th><th>v2.2 处理</th><th>原因</th></tr></thead>
+      <tbody>
+        <tr><td>15,000 个问题与来源 ID</td><td>逐条冻结</td><td>维持领域、来源、主题和许可证谱系可比性。</td></tr>
+        <tr><td>真实原子及 A/B/C 标签</td><td>文本、证据、动作、rubric 冻结</td><td>避免结构修订改变任务语义。</td></tr>
+        <tr><td>canonical Hard A</td><td>每条保留一个独立单原子块</td><td>维持五类失败机制和各 3,000 条的精确平衡。</td></tr>
+        <tr><td>模型可见 memory blocks</td><td>重新分组为 3–20 块</td><td>模拟真实检索系统的变长上下文负载。</td></tr>
+        <tr><td>辅助 A 记忆</td><td>新增同用户、跨场景、零答案足迹原子</td><td>提供长尾负载，不稀释 B/C 的规范角色。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="distribution">
+    <h2>3. 3–20 块长尾分配</h2>
+    <p>设第 i 条记录的可见块数为 K<sub>i</sub>，其多原子块目标为 M<sub>i</sub>：</p>
+    <div class="formula">3 ≤ K<sub>i</sub> ≤ 20<br>M<sub>i</sub> = ceil(K<sub>i</sub> / 2)</div>
+    <p>这条约束逐记录成立，而不是只要求全局平均超过 50%。块数配额在每个领域内按同一比例分配，从而不让 health、general、coding 的任务差异与上下文长度混在一起。</p>
+    <table>
+      <thead><tr><th class="num">块数 K</th><th class="num">记录数</th><th class="num">全体占比</th><th class="num">每条多原子块 M</th></tr></thead>
+      <tbody>
+        <tr><td class="num">3</td><td class="num">4,200</td><td class="num">28.00%</td><td class="num">2</td></tr>
+        <tr><td class="num">4</td><td class="num">3,600</td><td class="num">24.00%</td><td class="num">2</td></tr>
+        <tr><td class="num">5</td><td class="num">2,700</td><td class="num">18.00%</td><td class="num">3</td></tr>
+        <tr><td class="num">6</td><td class="num">1,800</td><td class="num">12.00%</td><td class="num">3</td></tr>
+        <tr><td class="num">7</td><td class="num">1,052</td><td class="num">7.01%</td><td class="num">4</td></tr>
+        <tr><td class="num">8</td><td class="num">600</td><td class="num">4.00%</td><td class="num">4</td></tr>
+        <tr><td class="num">9</td><td class="num">376</td><td class="num">2.51%</td><td class="num">5</td></tr>
+        <tr><td class="num">10</td><td class="num">224</td><td class="num">1.49%</td><td class="num">5</td></tr>
+        <tr><td class="num">11–14</td><td class="num">372</td><td class="num">2.48%</td><td class="num">6–7</td></tr>
+        <tr><td class="num">15–20</td><td class="num">76</td><td class="num">0.51%</td><td class="num">8–10</td></tr>
+      </tbody>
+    </table>
+    <p>汇总：82.0% 的记录位于 3–6 块，15.01% 位于 7–10 块，2.99% 位于 11–20 块；均值 4.9867，中位数 4。</p>
+  </section>
+
+  <section id="construction">
+    <h2>4. 分层构造流程</h2>
+    <div class="flow">
+      <div class="stage pass"><b>STAGE 1</b><strong>冻结基础记录</strong><p>读取 v2.1 的 15,000 条记录，验证 ID、来源、领域和隐藏原子不变。</p></div>
+      <div class="stage pass"><b>STAGE 2</b><strong>领域内分配 K</strong><p>按锁定配额为每个领域分配完全相同比例的 3–20 块分布。</p></div>
+      <div class="stage pass"><b>STAGE 3</b><strong>重组真实原子</strong><p>把真实原子分配到单原子或多原子块，保持每个原子恰好映射一次。</p></div>
+      <div class="stage pass"><b>STAGE 4</b><strong>隔离 Hard A</strong><p>canonical Hard A 始终独占一个可见块，不与辅助噪声混合。</p></div>
+      <div class="stage repair"><b>STAGE 5</b><strong>补足辅助 A</strong><p>生成同一场景内的 1–2 个独立原子，直到达到 K 和 ceil(K/2)。</p></div>
+      <div class="stage qc"><b>STAGE 6</b><strong>确定性门</strong><p>检查 ID、短语锚点、域泄漏、映射、标签动作和原子对关系。</p></div>
+      <div class="stage qc"><b>STAGE 7</b><strong>独立语义 QC</strong><p>逐原子、逐块、全局检查 query relation、答案足迹、原子性和同用户合理性。</p></div>
+      <div class="stage release"><b>STAGE 8</b><strong>发布准入</strong><p>只接纳 strict 或明确 non-blocking review；reject/invalid 禁止进入。</p></div>
+    </div>
+    <h3>实现无关伪代码</h3>
+    <pre><code>for each domain:
+    assign block counts using the locked long-tail quota
+
+for each record:
+    freeze question, lineage, grounded atoms, labels, and canonical Hard A
+    K = assigned visible-block count
+    M = ceil(K / 2)
+    partition grounded atoms into coherent blocks
+    keep canonical Hard A as one singleton block
+    add same-user zero-footprint A blocks until:
+        visible_block_count == K
+        multi_atom_block_count == M
+    require every hidden atom to map to exactly one visible block
+    run deterministic validation
+
+run independent semantic QC on every accepted record
+retry only structurally invalid QC outputs
+directly repair the audited semantic tail
+admit strict and non-blocking review only</code></pre>
+  </section>
+
+  <section id="validation">
+    <h2>5. 构造 API 与确定性校验闭环</h2>
+    <table>
+      <thead><tr><th>阶段</th><th class="num">请求/处理</th><th class="num">累计通过</th><th class="num">剩余</th><th>处理边界</th></tr></thead>
+      <tbody>
+        <tr><td>主构造</td><td class="num">15,000</td><td class="num">14,660</td><td class="num">340</td><td>全部 API 请求成功；剩余为结构 validator 不通过。</td></tr>
+        <tr><td>定向 retry 1</td><td class="num">340</td><td class="num">14,959</td><td class="num">41</td><td>只替换 340 个失败 ID。</td></tr>
+        <tr><td>定向 retry 2</td><td class="num">41</td><td class="num">14,985</td><td class="num">15</td><td>只替换 41 个失败 ID。</td></tr>
+        <tr><td>词义边界修正</td><td class="num">14</td><td class="num">14,999</td><td class="num">1</td><td>消除 seashell 中 shell 被误判为编程术语的 validator 假阳性。</td></tr>
+        <tr><td>本地短语补全</td><td class="num">1 条 / 3 原子</td><td class="num">15,000</td><td class="num">0</td><td>只补规划中缺失的场景短语，保存前后文本和哈希。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><b>审计原则：</b>每轮只处理上一轮失败 ID；旧结果不覆盖，原始 API 输出、失败文件、重试输入、合并 manifest 和局部修改审计全部保留。</div>
+  </section>
+
+  <section id="qc">
+    <h2>6. 独立语义质检</h2>
+    <p>独立 QC 不重新判断已冻结的 B/C 或 canonical Hard A。它只验证新增加的辅助 A 原子是否同时满足以下条件：</p>
+    <ol>
+      <li>与当前问题的 query relation 为 absent；</li>
+      <li>正确回答中的 content、presentation、implementation 和 safety footprint 均为 none；</li>
+      <li>不需要显式纠正；</li>
+      <li>每个原子可独立判真或判假；</li>
+      <li>同一块内的多个原子构成一致场景；</li>
+      <li>全部辅助块合在一起不会形成可合法影响答案的用户人格。</li>
+    </ol>
+    <table>
+      <thead><tr><th>QC 阶段</th><th class="num">strict</th><th class="num">review</th><th class="num">reject</th><th class="num">invalid</th></tr></thead>
+      <tbody>
+        <tr><td>首轮 15,000 请求</td><td class="num">14,941</td><td class="num">27</td><td class="num">2</td><td class="num">30</td></tr>
+        <tr><td>30 条结构性 invalid 定向重试</td><td class="num">14,970</td><td class="num">27</td><td class="num">2</td><td class="num">1</td></tr>
+        <tr><td>1 条 record ID 字段审计修复</td><td class="num">14,971</td><td class="num">27</td><td class="num">2</td><td class="num">0</td></tr>
+        <tr><td>2 条语义尾部直接修复并独立复核</td><td class="num">14,973</td><td class="num">27</td><td class="num">0</td><td class="num">0</td></tr>
+      </tbody>
+    </table>
+    <p>27 条 review 全部来自辅助原子的 same-user plausibility 边界；它们仍满足 query relation absent、answer footprint none、无需纠正、块级 coherence 不失败和全局检查不失败，因此按 non-blocking review 进入内部研究 release。</p>
+  </section>
+
+  <section id="repair">
+    <h2>7. 两条语义尾部如何修复</h2>
+    <table>
+      <thead><tr><th>问题</th><th>诊断</th><th>修复</th><th>复核</th></tr></thead>
+      <tbody>
+        <tr><td>多个收藏场景形成过强“整理者人格”</td><td>各原子独立无足迹，但整体颜色与收藏行为过于相似。</td><td>保持块数、原子 ID 和 A 标签不变，将场景分散为鸟类观察与通勤记录。</td><td>strict pass</td></tr>
+        <tr><td>人类家居记忆与“海豚用户”冲突</td><td>辅助噪声触发必须纠正的身份矛盾，不再是零足迹 A。</td><td>保持结构不变，改为海洋研究围栏中的识别与 enrichment 历史。</td><td>strict pass</td></tr>
+      </tbody>
+    </table>
+    <p>两条修复逐原子记录 before/after 文本与 SHA-256，并由同一独立 QC 协议重新判定；没有手工把 reject 改成 pass。</p>
+  </section>
+
+  <section id="release">
+    <h2>8. 最终发布统计与门槛</h2>
+    <div class="legend"><span><i class="dot a"></i>A ignore</span><span><i class="dot b"></i>B bound</span><span><i class="dot c"></i>C control</span></div>
+    <div class="bar" aria-label="A B C atom distribution">
+      <span class="a" style="width:69.16%"></span><span class="b" style="width:16.02%"></span><span class="c" style="width:14.82%"></span>
+    </div>
+    <table>
+      <thead><tr><th>层级</th><th>统计项</th><th class="num">数量</th></tr></thead>
+      <tbody>
+        <tr><td>记录</td><td>health / general / coding</td><td class="num">7,500 / 3,750 / 3,750</td></tr>
+        <tr><td>块</td><td>可见块 / 多原子块</td><td class="num">74,800 / 41,700</td></tr>
+        <tr><td>块</td><td>多原子块占比</td><td class="num">55.7487%</td></tr>
+        <tr><td>原子</td><td>总原子</td><td class="num">118,819</td></tr>
+        <tr><td>原子</td><td>A / B / C</td><td class="num">82,171 / 19,032 / 17,616</td></tr>
+        <tr><td>原子</td><td>真实 / canonical Hard A / 辅助 A</td><td class="num">38,316 / 15,000 / 65,503</td></tr>
+        <tr><td>QC</td><td>strict / review / reject / invalid</td><td class="num">14,973 / 27 / 0 / 0</td></tr>
+        <tr><td>署名</td><td>Stack Exchange 完整署名</td><td class="num">805 / 805</td></tr>
+      </tbody>
+    </table>
+    <h3>发布门必须全部满足</h3>
+    <ul>
+      <li>15,000 个唯一 record ID 和 source ID；</li>
+      <li>精确领域配额与精确 3–20 块分布；</li>
+      <li>每条恰有 ceil(K/2) 个多原子块；</li>
+      <li>原子到可见块为双射；</li>
+      <li>每条一个 singleton canonical Hard A；</li>
+      <li>A 只能 ignore，B/C 只能 apply 或 correct；</li>
+      <li>Stack Exchange 署名完整；</li>
+      <li>reject 与 invalid 为 0。</li>
+    </ul>
+  </section>
+
+  <section id="limitations">
+    <h2>9. 审阅时应保留的限制</h2>
+    <ul>
+      <li>v2.2 的长尾负载是受控实验分布，不宣称等同于任一线上记忆系统的自然流量分布。</li>
+      <li>新增辅助 A 是模型辅助生成并经过确定性与独立模型 QC，不等同于完全人工标注。</li>
+      <li>A 原子显著增多是负载设计的直接结果。论文应同时报告块级上下文负载和原子级 A/B/C 分布，不能只报告一个比例。</li>
+      <li>现有七模型结果基于 v2.1 固定两块接口；不能直接当作 v2.2 长尾接口的模型结果。</li>
+      <li>医学来源仍包含许可证 unknown 的上游数据；当前 release 仅用于内部研究审阅和训练，不代表可公开再分发。</li>
+    </ul>
+  </section>
+</main>
+<footer>MemCalib v2.2 long-tail revision report · no external scripts, fonts, or formula renderer</footer>
+</body>
+</html>
