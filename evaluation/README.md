@@ -99,6 +99,18 @@ OpenAI API 裸模型结果。
 Kimi=0.294/0.198/0.751，名次反转。因此合理结论是两者总体接近、方向偏差
 不同，而不是 Codex 显著排名第一。
 
+### 候选综合指标研究
+
+同一批 8,000 条主 Judge 结果还计算了 MinCalib、算术/几何/乘积与 soft-min
+综合分、balanced accuracy、macro F1、multiclass MCC、未加权/线性/二次
+Kappa、NMI、Cramér V、有序距离和严重错误、样本级 CVaR、PMU 权重敏感性、
+28 组配对胜率、Bradley–Terry 能力，以及过用/少用双维 Rasch 1PL。正式 H
+定义没有因此改变。
+
+- [`candidate metric study`](analyses/memcalib-v21-multidomain-500-candidate-metrics/README.md)：可读汇总、公式边界与全部主要表格；
+- [`candidate-metrics.csv`](analyses/memcalib-v21-multidomain-500-candidate-metrics/candidate-metrics.csv)：模型级横向比较；
+- [`candidate-metrics.json`](analyses/memcalib-v21-multidomain-500-candidate-metrics/candidate-metrics.json)：完整指标、bootstrap 区间、pairwise、Rasch 和 Pareto 结果。
+
 ## Judge 配置与跨模型稳定性
 
 - 主 Judge：`qwen3.7-plus`，覆盖全部 8,000 条回答；
