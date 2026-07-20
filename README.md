@@ -132,6 +132,12 @@ No-memory 是同一批问题在不提供记忆块时的反事实基线，不是�
 
 八模型在 full-memory 下的宏平均 H 从 0.633 到 0.745，显示模型间存在稳定的“利用相关记忆”和“拒绝不该使用的记忆”权衡。Codex 与 Kimi 的 bootstrap 区间高度重叠；宏平均 H 下 Codex 高 0.0026，而按合作者提出的微平均方向错误定义，Kimi 的 H=0.751、Codex=0.748，次序反转。因此只能报告二者总体接近、偏差方向不同，不能宣称 Codex 显著领先。当前结果属于 500 条内部诊断，不应解释为 15,000 条全量公开 leaderboard，人工验证仍待扩展。
 
+### 候选综合指标与尾部风险诊断
+
+为检查 H 的数值区分度和排序稳健性，同一批 500 条样本、8 个模型和 8,000 条主 Judge 结果还计算了 MinCalib、算术/几何/乘积及 soft-min 综合分、balanced accuracy、macro F1、MCC、Kappa、NMI、有序距离与严重错误、样本级 CVaR、配对胜率、Bradley–Terry、双维 Rasch 及 PMU 权重敏感性。正式 H 定义没有因此改变；这些候选指标用于揭示不同聚合口径下的排序变化，而不是事后选择最有利的排行榜。
+
+CVaR90 先在每条 full-memory 样本内计算归一化有序误差，再对误差最高的 10% 样本取平均，因此衡量的是尾部失败，不是总体平均表现。它与 H 使用不同的聚合单位和评估子集，模型次序不完全一致是预期现象。完整公式、置信区间和解释边界见[候选指标研究](evaluation/analyses/memcalib-v21-multidomain-500-candidate-metrics/README.md)；[尾部、Pareto 与名次诊断图](evaluation/analyses/memcalib-v21-multidomain-500-candidate-metrics/candidate-metric-diagnostics.html)可直接在浏览器中打开。
+
 ### Judge 配置与稳定性
 
 全部 8,000 条回答由 `qwen3.7-plus` 按 `ordered-usage-v2.1` 协议进行主评审，temperature 为 0 且关闭 thinking。另有 400 条回答按回答模型、full/no-memory 条件、来源、主题和原子数分层抽取，交给不同模型家族独立复核：`deepseek-v4-pro` 复核 300 条回答，`kimi-k2.6` 复核 100 条回答。
