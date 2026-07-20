@@ -1,0 +1,193 @@
+{
+  "schema_version": "memcalib-v22-codex-pilot-release-v1",
+  "release": "memcalib-v22-codex-pilot-100",
+  "status": "internal_diagnostic",
+  "samples": 100,
+  "seed": 20260720,
+  "ordered_id_sha256": "0a2e367397788e5fdd0e6c2468f9912d6702695bc7269d0e9d09cc4ed2cb04a9",
+  "sampling": {
+    "method": "deterministic_stratified_without_replacement",
+    "fixed_margins": [
+      "domain",
+      "source_dataset",
+      "block_count_bucket"
+    ],
+    "within_stratum_proportional_by": [
+      "source_topic",
+      "hard_a_family",
+      "release_admission"
+    ],
+    "within_cell_order": "stable_seeded_hash"
+  },
+  "configured_block_bucket_counts": {
+    "health_seed": {
+      "3-4": 26,
+      "5-6": 15,
+      "7-10": 8,
+      "11-20": 1
+    },
+    "general": {
+      "3-4": 13,
+      "5-6": 8,
+      "7-10": 3,
+      "11-20": 1
+    },
+    "coding": {
+      "3-4": 13,
+      "5-6": 7,
+      "7-10": 4,
+      "11-20": 1
+    }
+  },
+  "configured_source_counts": {
+    "health_seed": {
+      "OpenMed/MedDialog": 25,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 25
+    },
+    "general": {
+      "HuggingFaceH4/ultrachat_200k": 16,
+      "OpenAssistant/oasst1": 3,
+      "OpenAssistant/oasst2": 6
+    },
+    "coding": {
+      "HuggingFaceH4/stack-exchange-preferences": 5,
+      "codeparrot/apps": 2,
+      "ise-uiuc/Magicoder-OSS-Instruct-75K": 18
+    }
+  },
+  "distribution": {
+    "domains": {
+      "coding": 25,
+      "general": 25,
+      "health_seed": 50
+    },
+    "block_counts": {
+      "10": 3,
+      "12": 1,
+      "14": 2,
+      "3": 27,
+      "4": 25,
+      "5": 17,
+      "6": 13,
+      "7": 6,
+      "8": 6
+    },
+    "block_count_buckets": {
+      "11-20": 3,
+      "3-4": 52,
+      "5-6": 30,
+      "7-10": 15
+    },
+    "atom_count_buckets": {
+      "11-15": 15,
+      "16+": 3,
+      "5-7": 52,
+      "8-10": 30
+    },
+    "sources": {
+      "HuggingFaceH4/stack-exchange-preferences": 5,
+      "HuggingFaceH4/ultrachat_200k": 16,
+      "OpenAssistant/oasst1": 3,
+      "OpenAssistant/oasst2": 6,
+      "OpenMed/MedDialog": 25,
+      "codeparrot/apps": 2,
+      "ise-uiuc/Magicoder-OSS-Instruct-75K": 18,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 25
+    },
+    "topics": {
+      "acute_symptoms": 3,
+      "api_library": 8,
+      "chronic_disease": 8,
+      "data_algorithm": 8,
+      "debugging": 8,
+      "digestive": 3,
+      "general_other": 1,
+      "implementation": 1,
+      "learning_explanation": 4,
+      "medication_treatment": 10,
+      "pediatrics": 5,
+      "planning_advice": 7,
+      "pregnancy_reproductive": 10,
+      "respiratory_ent": 5,
+      "skin_allergy": 5,
+      "travel_shopping_household": 2,
+      "writing_creative": 12
+    },
+    "hard_a_families": {
+      "current_evidence_conflict": 22,
+      "factual_judgment_pollution": 21,
+      "profile_style_near_neighbor": 21,
+      "scope_overreach": 19,
+      "untriggered_preference": 17
+    },
+    "release_admission": {
+      "admitted_strict": 100
+    },
+    "memory_labels": {
+      "A": 550,
+      "B": 111,
+      "C": 132
+    }
+  },
+  "source": {
+    "path": "pipeline/data/multidomain/full-v2/revision-longtail-blocks/release/memcalib_v22_multidomain_benchmark_15000.jsonl",
+    "rows": 15000,
+    "sha256": "04a3a3abf4d719e5e5ef72deecf979b40325068e6c137befc6649b3af52d2832"
+  },
+  "config": {
+    "path": "evaluation/configs/memcalib-v22-codex-pilot-100.json",
+    "sha256": "0c9af581e2056fe22ad9c5daded05c39bbf8e62670131fd55643c283783decd8"
+  },
+  "artifacts": {
+    "hidden": {
+      "path": "evaluation/releases/memcalib-v22-codex-pilot-100/hidden-evaluation.jsonl",
+      "bytes": 6284826,
+      "sha256": "10c664e6f2d9efff83db9a0093abfc07bdb05fc630e49721bc255b4f4ab7cf7b",
+      "rows": 100
+    },
+    "hidden_gzip": {
+      "path": "evaluation/releases/memcalib-v22-codex-pilot-100/hidden-evaluation.jsonl.gz",
+      "bytes": 1111226,
+      "sha256": "dcae5f6398388d0f288157db567755f897b0bf5e6267651e74021f7b23b15cb3"
+    },
+    "model_facing": {
+      "path": "evaluation/releases/memcalib-v22-codex-pilot-100/model-facing.jsonl",
+      "bytes": 164561,
+      "sha256": "99c084c37a1094c6a06cf2ac20cbb5e531216d548e3ae6df4c70444bd8abf5b3",
+      "rows": 100
+    },
+    "model_facing_gzip": {
+      "path": "evaluation/releases/memcalib-v22-codex-pilot-100/model-facing.jsonl.gz",
+      "bytes": 36181,
+      "sha256": "d899f724378616a12449175c5e217aae534b6dbc1d8b781ca76fff9e8da361f6"
+    },
+    "sample_ids": {
+      "path": "evaluation/releases/memcalib-v22-codex-pilot-100/sample-ids.txt",
+      "bytes": 3275,
+      "sha256": "ed2cfda99e363144b8a699975b631eed2aecb048c77f6421336fbbff9137f4ea",
+      "rows": 100
+    }
+  },
+  "privacy_contract": {
+    "model_facing_fields": [
+      "id",
+      "domain",
+      "panel",
+      "source_dataset",
+      "source_topic",
+      "question",
+      "memory_blocks.parent_memory_id",
+      "memory_blocks.memory_text"
+    ],
+    "hidden_only": [
+      "source_answer",
+      "memories",
+      "usage_rubric",
+      "raw_selection",
+      "semantic_qc",
+      "independent_qc",
+      "revision_release_admission",
+      "release_admission"
+    ]
+  }
+}

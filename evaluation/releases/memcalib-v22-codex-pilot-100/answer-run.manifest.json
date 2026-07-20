@@ -1,0 +1,112 @@
+{
+  "schema_version": "memcalib-answer-run-v1",
+  "status": "completed",
+  "completed_at": "2026-07-20T10:35:25+08:00",
+  "formal_answers": 200,
+  "models": [
+    {
+      "key": "codex-gpt56-sol",
+      "model": "gpt-5.6-sol"
+    }
+  ],
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "generation": {
+    "interface": "codex-cli",
+    "codex_cli_version": "0.145.0-alpha.18",
+    "reasoning_effort": "medium",
+    "ephemeral": true,
+    "sandbox": "read-only",
+    "tools_allowed": false,
+    "user_config_loaded": false,
+    "project_rules_loaded": false,
+    "structured_output": true
+  },
+  "aggregate_usage": {
+    "prompt_tokens": 3060416,
+    "completion_tokens": 66320,
+    "total_tokens": 3126736
+  },
+  "cells": {
+    "codex-gpt56-sol:full_memory": {
+      "model": "gpt-5.6-sol",
+      "condition": "full_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v22-codex-pilot-100/requests/answers/codex-gpt56-sol/full_memory.jsonl",
+        "sha256": "623f5f58c371908ef0d892333a4a8705ac72e7d4bc6f41ac0fb15948c6500a5f"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v22-codex-pilot-100/answers/codex-gpt56-sol/full_memory.jsonl",
+        "sha256": "81f45e0ed3f015161c11a1a6c12e12258a5c90f933a43e1d606f3c3a1a97cd79"
+      },
+      "validation": {
+        "expected": 100,
+        "output_rows": 100,
+        "unique_output_ids": 100,
+        "duplicate_ids": 0,
+        "valid": 100,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 100,
+        "returned_models": {
+          "gpt-5.6-sol": 100
+        },
+        "finish_reasons": {
+          "stop": 100
+        },
+        "usage": {
+          "prompt_tokens": 1541397,
+          "completion_tokens": 38228,
+          "total_tokens": 1579625
+        },
+        "response_chars": {
+          "min": 120,
+          "mean": 1170.41,
+          "max": 3497
+        }
+      }
+    },
+    "codex-gpt56-sol:no_memory": {
+      "model": "gpt-5.6-sol",
+      "condition": "no_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v22-codex-pilot-100/requests/answers/codex-gpt56-sol/no_memory.jsonl",
+        "sha256": "e58c6535f189e26805789fafd6dc653ae3192d6267c23ce0c5b625864f56d3b0"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v22-codex-pilot-100/answers/codex-gpt56-sol/no_memory.jsonl",
+        "sha256": "97ee4d45000245fd9fb6057153cac5c711c8546a513a1db6e567d422aa001c27"
+      },
+      "validation": {
+        "expected": 100,
+        "output_rows": 100,
+        "unique_output_ids": 100,
+        "duplicate_ids": 0,
+        "valid": 100,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 100,
+        "returned_models": {
+          "gpt-5.6-sol": 100
+        },
+        "finish_reasons": {
+          "stop": 100
+        },
+        "usage": {
+          "prompt_tokens": 1519019,
+          "completion_tokens": 28092,
+          "total_tokens": 1547111
+        },
+        "response_chars": {
+          "min": 74,
+          "mean": 910.53,
+          "max": 2721
+        }
+      }
+    }
+  }
+}

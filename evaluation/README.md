@@ -1,6 +1,33 @@
 # MemCalib evaluation
 
-本目录保存 MemCalib 的锁定评测样本、配置、聚合指标、可视化报告和可复现分析工具。当前默认入口是 MemCalib v2.1 的 500 条七模型配对诊断；v2.0、v0.1、早期 Judge 校准和跨领域 pilot 均作为历史归档保留。
+本目录保存 MemCalib 的锁定评测样本、配置、聚合指标、可视化报告和可复现分析工具。当前跨模型默认入口是 MemCalib v2.1 的 500 条七模型配对诊断；另有一项 MemCalib v2.2 的 100 条 Codex answer-only 配对 pilot。v2.0、v0.1、早期 Judge 校准和跨领域 pilot 均作为历史归档保留。
+
+## v2.2 Codex answer-only pilot
+
+从当前 15,000 条 v2.2 长尾发布集中确定性抽取 100 条，覆盖
+health/general/coding=50/25/25、全部 8 个来源、全部 5 类 Hard A，以及
+3–4/5–6/7–10/11–20 四档可见块数。评测配置为
+`codex-cli 0.145.0-alpha.18`、`gpt-5.6-sol`、medium reasoning；每个回答使用
+独立 ephemeral 会话、空临时目录和只读沙箱，禁用用户配置与项目规则，并从
+Codex JSON 事件流审计工具调用。
+
+200 条 full/no-memory 回答全部完成，0 失败、0 截断、0 工具事件。主
+Judge `qwen3.7-plus` 覆盖全部回答，`deepseek-v4-pro` 对预锁定的 40 条回答
+进行复核：
+
+| 条件 | OPB↓ | UPB↓ | H↑ |
+|---|---:|---:|---:|
+| Full memory | 0.057 | 0.239 | 0.842 |
+| No memory | 0.005 | 0.914 | 0.158 |
+
+325 个双判原子的有序等级 exact agreement 为 0.972，线性加权
+κ=0.935。按合作者提出的微平均方向错误定义复算，full-memory
+OPB/UPB/H=0.071/0.230/0.842，整体结论不变。该实验规模只有 100 条，不能
+与下方 v2.1 七模型 500 条表直接排名比较。
+
+- [`memcalib-v22-codex-pilot-100/README.md`](releases/memcalib-v22-codex-pilot-100/README.md)：配置、锁样、宏/微指标、分层诊断和限制；
+- [`memcalib-v22-codex-pilot-100/report.html`](releases/memcalib-v22-codex-pilot-100/report.html)：可视化报告；
+- [`memcalib-v22-codex-pilot-100/metrics.json`](releases/memcalib-v22-codex-pilot-100/metrics.json)：机器可读混淆矩阵、置信区间和 Judge 一致性。
 
 ## 当前 v2.1 七模型诊断
 

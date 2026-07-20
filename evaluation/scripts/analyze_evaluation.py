@@ -21,6 +21,7 @@ DEFAULT_METRICS = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "metr
 DEFAULT_REPORT = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "report.html"
 CORRECT_VERDICT = {"A": "correct_suppression", "B": "correct_bounded_use", "C": "correct_control"}
 MODEL_DISPLAY_NAMES = {
+    "codex-gpt56-sol": "Codex GPT-5.6 Sol",
     "deepseek": "DeepSeek-V4-Pro",
     "deepseek-flash": "DeepSeek-V4-Flash",
     "kimi": "Kimi-K2.6",

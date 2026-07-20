@@ -1,0 +1,61 @@
+{
+  "schema_version": "memcalib-answer-requests-v1",
+  "samples": 100,
+  "formal_requests": 200,
+  "smoke_requests": 4,
+  "models": [
+    {
+      "key": "codex-gpt56-sol",
+      "model": "gpt-5.6-sol"
+    }
+  ],
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "generation": {
+    "interface": "codex-cli",
+    "codex_cli_version": "0.145.0-alpha.18",
+    "reasoning_effort": "medium",
+    "ephemeral": true,
+    "sandbox": "read-only",
+    "tools_allowed": false,
+    "user_config_loaded": false,
+    "project_rules_loaded": false,
+    "structured_output": true
+  },
+  "artifacts": {
+    "codex-gpt56-sol/full_memory.jsonl": {
+      "rows": 100,
+      "sha256": "623f5f58c371908ef0d892333a4a8705ac72e7d4bc6f41ac0fb15948c6500a5f",
+      "model": "gpt-5.6-sol",
+      "condition": "full_memory"
+    },
+    "codex-gpt56-sol/no_memory.jsonl": {
+      "rows": 100,
+      "sha256": "e58c6535f189e26805789fafd6dc653ae3192d6267c23ce0c5b625864f56d3b0",
+      "model": "gpt-5.6-sol",
+      "condition": "no_memory"
+    },
+    "codex-gpt56-sol/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "f0eb84a90b5ca7877e3e74964a6e804d1e688e11283abefb84f12cf1d0a20954",
+      "model": "gpt-5.6-sol",
+      "condition": "smoke"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/configs/memcalib-v22-codex-pilot-100.json",
+      "sha256": "0c9af581e2056fe22ad9c5daded05c39bbf8e62670131fd55643c283783decd8"
+    },
+    "samples": {
+      "path": "evaluation/releases/memcalib-v22-codex-pilot-100/model-facing.jsonl",
+      "sha256": "99c084c37a1094c6a06cf2ac20cbb5e531216d548e3ae6df4c70444bd8abf5b3"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/answer-system.txt",
+      "sha256": "f52011f3a95e3be3a5692a128911c6eb3792c9aa4639af603613f859e516311f"
+    }
+  }
+}
