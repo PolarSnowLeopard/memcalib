@@ -1,0 +1,554 @@
+{
+  "schema_version": "memcalib-thinking-answer-audit-v1",
+  "status": "valid",
+  "expected_answers": 8000,
+  "models": [
+    {
+      "key": "qwen-max",
+      "model": "qwen3.7-max"
+    },
+    {
+      "key": "qwen-flash",
+      "model": "qwen3.6-flash"
+    },
+    {
+      "key": "deepseek",
+      "model": "deepseek-v4-pro"
+    },
+    {
+      "key": "deepseek-flash",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "key": "kimi",
+      "model": "kimi-k2.6"
+    },
+    {
+      "key": "qwen35-35b-a3b",
+      "model": "qwen3.5-35b-a3b"
+    },
+    {
+      "key": "qwen3-8b",
+      "model": "qwen3-8b"
+    },
+    {
+      "key": "glm52",
+      "model": "glm-5.2"
+    }
+  ],
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "generation": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "enable_thinking": true,
+    "transport_policy": {
+      "default": "non_streaming",
+      "stream_required_models": [
+        "qwen3-8b"
+      ],
+      "accept_equivalent_streaming_rows_from_initial_pass": true
+    }
+  },
+  "errors": [],
+  "cells": {
+    "deepseek-flash:full_memory": {
+      "rows": 500,
+      "missing_reasoning": 0,
+      "missing_reasoning_request_ids": [],
+      "finish_reasons": {
+        "stop": 500
+      },
+      "credential_roles": {
+        "preferred": 500
+      },
+      "reasoning_chars": {
+        "min": 225,
+        "p50": 1028,
+        "p90": 3359,
+        "max": 17055
+      },
+      "reasoning_tokens": {
+        "reported_rows": 500,
+        "sum": 175726,
+        "min": 43,
+        "p50": 207,
+        "p90": 721,
+        "max": 4573
+      },
+      "content_chars": {
+        "min": 6,
+        "p50": 1635,
+        "p90": 3677,
+        "max": 8272
+      }
+    },
+    "deepseek-flash:no_memory": {
+      "rows": 500,
+      "missing_reasoning": 0,
+      "missing_reasoning_request_ids": [],
+      "finish_reasons": {
+        "stop": 500
+      },
+      "credential_roles": {
+        "preferred": 500
+      },
+      "reasoning_chars": {
+        "min": 181,
+        "p50": 676,
+        "p90": 1822,
+        "max": 12344
+      },
+      "reasoning_tokens": {
+        "reported_rows": 500,
+        "sum": 110398,
+        "min": 37,
+        "p50": 138,
+        "p90": 397,
+        "max": 2812
+      },
+      "content_chars": {
+        "min": 22,
+        "p50": 1415,
+        "p90": 3286,
+        "max": 8770
+      }
+    },
+    "deepseek:full_memory": {
+      "rows": 500,
+      "missing_reasoning": 0,
+      "missing_reasoning_request_ids": [],
+      "finish_reasons": {
+        "stop": 500
+      },
+      "credential_roles": {
+        "preferred": 500
+      },
+      "reasoning_chars": {
+        "min": 417,
+        "p50": 2363,
+        "p90": 5994,
+        "max": 21397
+      },
+      "reasoning_tokens": {
+        "reported_rows": 500,
+        "sum": 337558,
+        "min": 85,
+        "p50": 492,
+        "p90": 1341,
+        "max": 5065
+      },
+      "content_chars": {
+        "min": 44,
+        "p50": 2244,
+        "p90": 4981,
+        "max": 13900
+      }
+    },
+    "deepseek:no_memory": {
+      "rows": 500,
+      "missing_reasoning": 0,
+      "missing_reasoning_request_ids": [],
+      "finish_reasons": {
+        "stop": 500
+      },
+      "credential_roles": {
+        "preferred": 500
+      },
+      "reasoning_chars": {
+        "min": 309,
+        "p50": 1422,
+        "p90": 3645,
+        "max": 16475
+      },
+      "reasoning_tokens": {
+        "reported_rows": 500,
+        "sum": 212531,
+        "min": 58,
+        "p50": 296,
+        "p90": 847,
+        "max": 3697
+      },
+      "content_chars": {
+        "min": 59,
+        "p50": 2343,
+        "p90": 4965,
+        "max": 13782
+      }
+    },
+    "glm52:full_memory": {
+      "rows": 500,
+      "missing_reasoning": 0,
+      "missing_reasoning_request_ids": [],
+      "finish_reasons": {
+        "stop": 500
+      },
+      "credential_roles": {
+        "fallback": 500
+      },
+      "reasoning_chars": {
+        "min": 346,
+        "p50": 2237,
+        "p90": 5830,
+        "max": 37643
+      },
+      "reasoning_tokens": {
+        "reported_rows": 500,
+        "sum": 363322,
+        "min": 77,
+        "p50": 469,
+        "p90": 1297,
+        "max": 7840
+      },
+      "content_chars": {
+        "min": 90,
+        "p50": 1873,
+        "p90": 3896,
+        "max": 20144
+      }
+    },
+    "glm52:no_memory": {
+      "rows": 500,
+      "missing_reasoning": 0,
+      "missing_reasoning_request_ids": [],
+      "finish_reasons": {
+        "stop": 500
+      },
+      "credential_roles": {
+        "fallback": 500
+      },
+      "reasoning_chars": {
+        "min": 193,
+        "p50": 2062,
+        "p90": 4440,
+        "max": 37709
+      },
+      "reasoning_tokens": {
+        "reported_rows": 500,
+        "sum": 319868,
+        "min": 39,
+        "p50": 454,
+        "p90": 1030,
+        "max": 8192
+      },
+      "content_chars": {
+        "min": 92,
+        "p50": 1913,
+        "p90": 4709,
+        "max": 20531
+      }
+    },
+    "kimi:full_memory": {
+      "rows": 500,
+      "missing_reasoning": 0,
+      "missing_reasoning_request_ids": [],
+      "finish_reasons": {
+        "stop": 500
+      },
+      "credential_roles": {
+        "preferred": 500
+      },
+      "reasoning_chars": {
+        "min": 1027,
+        "p50": 5997,
+        "p90": 16251,
+        "max": 71383
+      },
+      "reasoning_tokens": {
+        "reported_rows": 500,
+        "sum": 924355,
+        "min": 220,
+        "p50": 1283,
+        "p90": 3546,
+        "max": 17213
+      },
+      "content_chars": {
+        "min": 79,
+        "p50": 1778,
+        "p90": 3458,
+        "max": 14173
+      }
+    },
+    "kimi:no_memory": {
+      "rows": 500,
+      "missing_reasoning": 0,
+      "missing_reasoning_request_ids": [],
+      "finish_reasons": {
+        "stop": 500
+      },
+      "credential_roles": {
+        "preferred": 500
+      },
+      "reasoning_chars": {
+        "min": 506,
+        "p50": 2868,
+        "p90": 7052,
+        "max": 69422
+      },
+      "reasoning_tokens": {
+        "reported_rows": 500,
+        "sum": 450758,
+        "min": 98,
+        "p50": 619,
+        "p90": 1694,
+        "max": 16691
+      },
+      "content_chars": {
+        "min": 56,
+        "p50": 1911,
+        "p90": 3743,
+        "max": 12048
+      }
+    },
+    "qwen-flash:full_memory": {
+      "rows": 500,
+      "missing_reasoning": 0,
+      "missing_reasoning_request_ids": [],
+      "finish_reasons": {
+        "stop": 500
+      },
+      "credential_roles": {
+        "preferred": 500
+      },
+      "reasoning_chars": {
+        "min": 1927,
+        "p50": 6160,
+        "p90": 10929,
+        "max": 26213
+      },
+      "reasoning_tokens": {
+        "reported_rows": 500,
+        "sum": 798676,
+        "min": 400,
+        "p50": 1381,
+        "p90": 2541,
+        "max": 6121
+      },
+      "content_chars": {
+        "min": 198,
+        "p50": 2262,
+        "p90": 3927,
+        "max": 10276
+      }
+    },
+    "qwen-flash:no_memory": {
+      "rows": 500,
+      "missing_reasoning": 0,
+      "missing_reasoning_request_ids": [],
+      "finish_reasons": {
+        "stop": 500
+      },
+      "credential_roles": {
+        "preferred": 500
+      },
+      "reasoning_chars": {
+        "min": 1217,
+        "p50": 4850,
+        "p90": 8025,
+        "max": 33103
+      },
+      "reasoning_tokens": {
+        "reported_rows": 500,
+        "sum": 624296,
+        "min": 300,
+        "p50": 1123,
+        "p90": 1938,
+        "max": 8093
+      },
+      "content_chars": {
+        "min": 131,
+        "p50": 2349,
+        "p90": 4043,
+        "max": 12725
+      }
+    },
+    "qwen-max:full_memory": {
+      "rows": 500,
+      "missing_reasoning": 0,
+      "missing_reasoning_request_ids": [],
+      "finish_reasons": {
+        "stop": 500
+      },
+      "credential_roles": {
+        "preferred": 500
+      },
+      "reasoning_chars": {
+        "min": 1004,
+        "p50": 7112,
+        "p90": 11191,
+        "max": 22929
+      },
+      "reasoning_tokens": {
+        "reported_rows": 500,
+        "sum": 892010,
+        "min": 239,
+        "p50": 1662,
+        "p90": 2608,
+        "max": 6741
+      },
+      "content_chars": {
+        "min": 79,
+        "p50": 2380,
+        "p90": 4406,
+        "max": 10906
+      }
+    },
+    "qwen-max:no_memory": {
+      "rows": 500,
+      "missing_reasoning": 0,
+      "missing_reasoning_request_ids": [],
+      "finish_reasons": {
+        "stop": 500
+      },
+      "credential_roles": {
+        "preferred": 500
+      },
+      "reasoning_chars": {
+        "min": 1524,
+        "p50": 5184,
+        "p90": 7818,
+        "max": 18355
+      },
+      "reasoning_tokens": {
+        "reported_rows": 500,
+        "sum": 657906,
+        "min": 310,
+        "p50": 1248,
+        "p90": 1938,
+        "max": 4806
+      },
+      "content_chars": {
+        "min": 56,
+        "p50": 3373,
+        "p90": 5089,
+        "max": 9999
+      }
+    },
+    "qwen3-8b:full_memory": {
+      "rows": 500,
+      "missing_reasoning": 0,
+      "missing_reasoning_request_ids": [],
+      "finish_reasons": {
+        "stop": 500
+      },
+      "credential_roles": {
+        "fallback": 500
+      },
+      "reasoning_chars": {
+        "min": 849,
+        "p50": 1978,
+        "p90": 5215,
+        "max": 26575
+      },
+      "reasoning_tokens": {
+        "reported_rows": 500,
+        "sum": 301164,
+        "min": 167,
+        "p50": 401,
+        "p90": 1078,
+        "max": 6638
+      },
+      "content_chars": {
+        "min": 62,
+        "p50": 1023,
+        "p90": 1779,
+        "max": 5745
+      }
+    },
+    "qwen3-8b:no_memory": {
+      "rows": 500,
+      "missing_reasoning": 0,
+      "missing_reasoning_request_ids": [],
+      "finish_reasons": {
+        "stop": 500
+      },
+      "credential_roles": {
+        "fallback": 500
+      },
+      "reasoning_chars": {
+        "min": 527,
+        "p50": 1892,
+        "p90": 3942,
+        "max": 16539
+      },
+      "reasoning_tokens": {
+        "reported_rows": 500,
+        "sum": 254530,
+        "min": 104,
+        "p50": 383,
+        "p90": 808,
+        "max": 4669
+      },
+      "content_chars": {
+        "min": 95,
+        "p50": 1092,
+        "p90": 2058,
+        "max": 3549
+      }
+    },
+    "qwen35-35b-a3b:full_memory": {
+      "rows": 500,
+      "missing_reasoning": 0,
+      "missing_reasoning_request_ids": [],
+      "finish_reasons": {
+        "stop": 500
+      },
+      "credential_roles": {
+        "preferred": 500
+      },
+      "reasoning_chars": {
+        "min": 2708,
+        "p50": 7947,
+        "p90": 14885,
+        "max": 93860
+      },
+      "reasoning_tokens": {
+        "reported_rows": 500,
+        "sum": 1139709,
+        "min": 645,
+        "p50": 1818,
+        "p90": 3575,
+        "max": 49756
+      },
+      "content_chars": {
+        "min": 142,
+        "p50": 1616,
+        "p90": 3439,
+        "max": 12287
+      }
+    },
+    "qwen35-35b-a3b:no_memory": {
+      "rows": 500,
+      "missing_reasoning": 0,
+      "missing_reasoning_request_ids": [],
+      "finish_reasons": {
+        "stop": 500
+      },
+      "credential_roles": {
+        "preferred": 500
+      },
+      "reasoning_chars": {
+        "min": 299,
+        "p50": 4797,
+        "p90": 10811,
+        "max": 30859
+      },
+      "reasoning_tokens": {
+        "reported_rows": 500,
+        "sum": 685384,
+        "min": 64,
+        "p50": 1147,
+        "p90": 2523,
+        "max": 8557
+      },
+      "content_chars": {
+        "min": 56,
+        "p50": 1984,
+        "p90": 3624,
+        "max": 14178
+      }
+    }
+  }
+}

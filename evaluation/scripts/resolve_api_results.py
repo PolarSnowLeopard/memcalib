@@ -23,7 +23,7 @@ def complete_result(row: dict[str, Any], request: dict[str, Any], expected_model
         row.get("input_fingerprint") == request_fingerprint(request)
         and isinstance(row.get("response"), str)
         and bool(row["response"].strip())
-        and finish_reason(row) != "length"
+        and finish_reason(row) == "stop"
         and not row.get("error")
         and (not returned_model or returned_model == expected_model)
     )
@@ -57,6 +57,8 @@ def resolve_rows(
                     invalid_reasons["fingerprint"] += 1
                 elif finish_reason(row) == "length":
                     invalid_reasons["truncated"] += 1
+                elif finish_reason(row) != "stop":
+                    invalid_reasons["non_terminal_finish"] += 1
                 elif row.get("error"):
                     invalid_reasons["error"] += 1
                 elif not isinstance(row.get("response"), str) or not str(row.get("response") or "").strip():

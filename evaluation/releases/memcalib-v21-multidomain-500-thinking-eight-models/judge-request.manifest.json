@@ -1,0 +1,142 @@
+{
+  "schema_version": "memcalib-judge-requests-ordered-usage-v2.1",
+  "primary_requests": 8000,
+  "secondary_requests": 400,
+  "secondary_by_judge": {
+    "deepseek-v4-pro": 300,
+    "kimi-k2.6": 100
+  },
+  "human_random_ids": 0,
+  "secondary_sampling": {
+    "total": 400,
+    "per_model_per_condition": 25,
+    "stratify_by": [
+      "condition",
+      "source_dataset",
+      "source_topic",
+      "atom_count_bucket"
+    ]
+  },
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "artifacts": {
+    "primary.jsonl": {
+      "rows": 8000,
+      "sha256": "9151fb64a25c30160629d584400d4f0991b9ebf498ebc3edae14a0042e07f73f"
+    },
+    "secondary-deepseek.jsonl": {
+      "rows": 300,
+      "sha256": "8494c1001de98b2036ff13a57d4103802db56841b121148c7294b48e8a0290b2"
+    },
+    "secondary-kimi.jsonl": {
+      "rows": 100,
+      "sha256": "3be3afb0777ab815c09160f8088eb5064245a9b6bdce6bae3327420f86057b13"
+    },
+    "secondary-answer-ids.txt": {
+      "rows": 400,
+      "sha256": "715b5c988e49e0cdadc8a2f0ff744a6e9eca8ff2a9805e681de8ec5389ecee9e"
+    },
+    "human-random-answer-ids.txt": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/configs/memcalib-v21-multidomain-500-thinking-eight-models.json",
+      "sha256": "b6ec11d38db55d636bafcf6edd5ae33f1ac07a19bd2276e6772c262f592b7c95"
+    },
+    "hidden": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-thinking-eight-models/hidden-evaluation.jsonl",
+      "sha256": "2fca7b2a75a9b8f4f0fb0386a9ea1ef1b0d4e59173f84fa864d90372e77993e0"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/judge-system-v2.1.txt",
+      "sha256": "482899899ad089318068c562d909327bfee12f012eb266d3484a915244885dc6"
+    },
+    "answers": [
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/qwen-max/full_memory.jsonl",
+        "sha256": "c34904ba098ec23a3cb39e6d63844cab58503ec2c081239223ace4b422e11c55",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/qwen-max/no_memory.jsonl",
+        "sha256": "c9fa82489b4d27391133519062c9e3d91cc2cb108e4b603b4cad58ea0e2e9d71",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/qwen-flash/full_memory.jsonl",
+        "sha256": "59ed72f5e0b7a257c8e6170f15dcff83750b9422f482d46e1fae4daba41c461e",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/qwen-flash/no_memory.jsonl",
+        "sha256": "4f528668a26d922e03b22061736c00562c1ead36dc6d1ea2baa97a828be94c11",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/deepseek/full_memory.jsonl",
+        "sha256": "cff3f65d71624a038ff1b734b69a4860947cac6b0ddcd4366df3d0f54af8e2e1",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/deepseek/no_memory.jsonl",
+        "sha256": "674e7f434a1da328c54a972dfca65d61e14227d0c750cb6d176a6417fa240f67",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/deepseek-flash/full_memory.jsonl",
+        "sha256": "d685501203045d94b4c5a7b0b69767ba02ce53476c6f95dced707059b6259a0c",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/deepseek-flash/no_memory.jsonl",
+        "sha256": "f2229ef2f2f5e38a3c1e08aebbcd99375d26812b242e62334a0334cd64285aa3",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/kimi/full_memory.jsonl",
+        "sha256": "2f71990de5c7121ab5f8d370a8e4ff9744a3805c422ef8f987dcaab05cfaf233",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/kimi/no_memory.jsonl",
+        "sha256": "8b59c8789df75d4415178e8c56ce0eb6f00b533dee621ef6067d7b0e00c251e0",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/qwen35-35b-a3b/full_memory.jsonl",
+        "sha256": "667cffcbd97bec397b121c01a4dfd44b214dbdfdbdda55b44b11c509507006f9",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/qwen35-35b-a3b/no_memory.jsonl",
+        "sha256": "ba502f126fe9a6367a8b4708604eb3dea91d1c63d09ae6b51a5689187b06a54d",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/qwen3-8b/full_memory.jsonl",
+        "sha256": "5c1b0f0c8423b2190a2cfa61476a8575bbf2e14dec75dac2aa13352855dca2e6",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/qwen3-8b/no_memory.jsonl",
+        "sha256": "ef2268bf70ad87ef617df42e179ed6c2ab2beb2347dc44c1c9dd123979114f0c",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/glm52/full_memory.jsonl",
+        "sha256": "356a102b8b8406459b19990f0fda4c3dc176d5a7cf454d9e0e111433bc145f85",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/glm52/no_memory.jsonl",
+        "sha256": "1848fd48ce899454997ed9b2e4709229c7899696ddee128eef86d8de0dc4b95b",
+        "rows": 500
+      }
+    ]
+  }
+}

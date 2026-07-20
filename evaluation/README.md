@@ -1,6 +1,6 @@
 # MemCalib evaluation
 
-本目录保存 MemCalib 的锁定评测样本、配置、聚合指标、可视化报告和可复现分析工具。当前跨模型默认入口是 MemCalib v2.1 的 500 条八模型配对诊断；另有一项 MemCalib v2.2 的 100 条 Codex answer-only 配对 pilot。v2.0、v0.1、早期 Judge 校准和跨领域 pilot 均作为历史归档保留。
+本目录保存 MemCalib 的锁定评测样本、配置、聚合指标、可视化报告和可复现分析工具。当前跨模型入口包括 MemCalib v2.1 同一批 500 条样本上的非思考基线与思考模式重评；另有一项 MemCalib v2.2 的 100 条 Codex answer-only 配对 pilot。v2.0、v0.1、早期 Judge 校准和跨领域 pilot 均作为历史归档保留。
 
 ## v2.2 Codex answer-only pilot
 
@@ -29,7 +29,64 @@ OPB/UPB/H=0.071/0.230/0.842，整体结论不变。该实验规模只有 100 条
 - [`memcalib-v22-codex-pilot-100/report.html`](releases/memcalib-v22-codex-pilot-100/report.html)：可视化报告；
 - [`memcalib-v22-codex-pilot-100/metrics.json`](releases/memcalib-v22-codex-pilot-100/metrics.json)：机器可读混淆矩阵、置信区间和 Judge 一致性。
 
-## 当前 v2.1 八模型诊断
+## v2.1 思考模式八模型诊断
+
+在下方锁定的同一批 500 条 v2.1 样本上，七个已有百炼模型全部以
+`enable_thinking=true` 重新回答，并新增 GLM-5.2。Codex 不在本轮重跑范围内。
+每个模型分别运行 full-memory 和 no-memory，共 8,000 条回答；全部回答均有
+非空 reasoning、唯一请求 ID、`finish_reason=stop`，且无残余结构 invalid。
+回答 temperature=0、默认最大输出 8,192 tokens；Judge 继续关闭 thinking，
+避免同时改变回答模型与评分模型两个实验变量。
+
+### 思考模式 full-memory 结果
+
+| 模型 | OPB↓ | UPB↓ | H↑ |
+|---|---:|---:|---:|
+| Kimi-K2.6 | 0.307 | 0.207 | 0.740 |
+| Qwen3.5-35B-A3B | 0.347 | 0.181 | 0.727 |
+| GLM-5.2 | 0.372 | 0.156 | 0.720 |
+| DeepSeek-V4-Pro | 0.402 | 0.137 | 0.707 |
+| Qwen3.6-Flash | 0.384 | 0.189 | 0.700 |
+| DeepSeek-V4-Flash | 0.384 | 0.193 | 0.699 |
+| Qwen3.7-Max | 0.432 | 0.127 | 0.689 |
+| Qwen3-8B | 0.304 | 0.339 | 0.678 |
+
+### 思考模式 no-memory 对照
+
+| 模型 | OPB↓ | UPB↓ | H↑ |
+|---|---:|---:|---:|
+| GLM-5.2 | 0.054 | 0.904 | 0.174 |
+| Qwen3.7-Max | 0.063 | 0.906 | 0.171 |
+| DeepSeek-V4-Pro | 0.051 | 0.907 | 0.170 |
+| Qwen3.6-Flash | 0.058 | 0.912 | 0.161 |
+| Qwen3.5-35B-A3B | 0.054 | 0.914 | 0.157 |
+| DeepSeek-V4-Flash | 0.045 | 0.915 | 0.156 |
+| Kimi-K2.6 | 0.047 | 0.915 | 0.156 |
+| Qwen3-8B | 0.031 | 0.934 | 0.124 |
+
+对七个共享模型做同样本配对比较后，开启 thinking 的 full-memory H 变化为：
+Qwen3-8B +0.045、Qwen3.5-35B-A3B +0.042、Qwen3.6-Flash +0.011、
+DeepSeek-V4-Flash +0.008、DeepSeek-V4-Pro +0.007、Kimi-K2.6
+-0.003、Qwen3.7-Max -0.007。thinking 并非统一增益，常见变化是 OPB 与
+UPB 之间的偏差方向重新平衡。
+
+主 Judge 仍为 `qwen3.7-plus`，覆盖 8,000 条回答；DeepSeek-V4-Pro 和
+Kimi-K2.6 分层复核 400 条回答。在 1,493 个双判原子上，总体 exact
+agreement=0.914、Cohen κ=0.886；有序使用等级 exact agreement=0.884、
+线性加权 κ=0.840。全部结构 invalid 经定向重试后为 0。
+
+GLM-5.2 的 1,000 条回答中有 2 条 no-memory 请求在多次无界重试中无法正常
+终止，最终使用供应商支持的 `thinking_budget=8192`，仍保持 thinking
+开启；两条均正常结束并在 release 中单独记录哈希与合并审计。Qwen3-4B
+及 `qwen3-4b-instruct-2507` 对两套凭据均无可用在线推理端点，因此未以其他
+模型代替，也没有结果分数。
+
+- [`thinking eight-model README`](releases/memcalib-v21-multidomain-500-thinking-eight-models/README.md)：完整配置、结果、思考前后差值和限制；
+- [`thinking eight-model report`](releases/memcalib-v21-multidomain-500-thinking-eight-models/report.html)：可视化报告；
+- [`thinking audit`](releases/memcalib-v21-multidomain-500-thinking-eight-models/thinking-audit.json)：逐模型、逐条件 reasoning 与 finish-reason 审计；
+- [`metrics.json`](releases/memcalib-v21-multidomain-500-thinking-eight-models/metrics.json)：机器可读完整指标和 Judge 一致性。
+
+## v2.1 非思考基线与 Codex 诊断
 
 从 SHA-256 为
 `bd45f77534351cd096476080096ce9ba6250a375941a171ab561ad78704bed44`
@@ -157,6 +214,8 @@ manifest、聚合 `metrics.json` 和 `report.html`。若要在另一台机器上
 
 ## 当前结果入口
 
+- [`memcalib-v21-multidomain-500-thinking-eight-models/README.md`](releases/memcalib-v21-multidomain-500-thinking-eight-models/README.md)：七个共享模型思考模式重评与新增 GLM-5.2；
+- [`memcalib-v21-multidomain-500-thinking-eight-models/report.html`](releases/memcalib-v21-multidomain-500-thinking-eight-models/report.html)：思考模式八模型 full/no-memory 可视化报告；
 - [`memcalib-v21-multidomain-500-eight-models/README.md`](releases/memcalib-v21-multidomain-500-eight-models/README.md)：同一样本八模型摘要、宏/微口径和公平性限制；
 - [`memcalib-v21-multidomain-500-eight-models/report.html`](releases/memcalib-v21-multidomain-500-eight-models/report.html)：八模型 full/no-memory 可视化报告；
 - [`memcalib-v21-multidomain-500-eight-models/metrics.json`](releases/memcalib-v21-multidomain-500-eight-models/metrics.json)：机器可读指标、混淆矩阵、置信区间和分层结果；

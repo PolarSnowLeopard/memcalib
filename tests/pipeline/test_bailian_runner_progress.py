@@ -71,6 +71,54 @@ class BailianRunnerProgressTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "reserved fields"):
             self.runner.validate_extra_body({"model": "other-model"})
 
+    def test_parse_streaming_chat_completions_merges_reasoning_and_content(self) -> None:
+        chunks = [
+            {
+                "id": "chat-1",
+                "model": "qwen3-8b",
+                "choices": [
+                    {
+                        "index": 0,
+                        "delta": {"role": "assistant", "reasoning_content": "reason "},
+                        "finish_reason": None,
+                    }
+                ],
+            },
+            {
+                "id": "chat-1",
+                "model": "qwen3-8b",
+                "choices": [
+                    {
+                        "index": 0,
+                        "delta": {"reasoning_content": "done", "content": "answer"},
+                        "finish_reason": "stop",
+                    }
+                ],
+            },
+            {
+                "id": "chat-1",
+                "model": "qwen3-8b",
+                "choices": [],
+                "usage": {
+                    "completion_tokens": 7,
+                    "completion_tokens_details": {"reasoning_tokens": 4},
+                },
+            },
+        ]
+        body = "\n\n".join(f"data: {json.dumps(chunk)}" for chunk in chunks) + "\n\ndata: [DONE]\n"
+
+        response = self.runner.parse_streaming_chat_completions(body)
+
+        self.assertEqual("qwen3-8b", response["model"])
+        self.assertEqual("stop", response["choices"][0]["finish_reason"])
+        self.assertEqual("reason done", response["choices"][0]["message"]["reasoning_content"])
+        self.assertEqual("answer", response["choices"][0]["message"]["content"])
+        self.assertEqual(4, response["usage"]["completion_tokens_details"]["reasoning_tokens"])
+
+    def test_parse_streaming_chat_completions_rejects_empty_stream(self) -> None:
+        with self.assertRaisesRegex(ValueError, "no SSE"):
+            self.runner.parse_streaming_chat_completions("data: [DONE]\n")
+
     def test_resume_rejects_output_when_input_fingerprint_changes(self) -> None:
         current_input = {
             "request_id": "r1",
@@ -102,6 +150,42 @@ class BailianRunnerProgressTest(unittest.TestCase):
             self.assertEqual(set(), self.runner.load_done_ids(output, expected_fingerprints=expected))
             invalid_row = json.loads(invalid.read_text(encoding="utf-8").splitlines()[0])
             self.assertEqual("input_fingerprint_mismatch", invalid_row["_invalid_reason"])
+
+    def test_resume_rejects_output_without_terminal_finish_reason(self) -> None:
+        current_input = {
+            "request_id": "r1",
+            "prompt": [{"role": "user", "content": "new prompt"}],
+            "user_defined_params": {"id": "raw1"},
+        }
+        fingerprint = self.runner.request_fingerprint(current_input)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "out.jsonl"
+            invalid = Path(tmp) / "invalid.jsonl"
+            output.write_text(
+                json.dumps(
+                    {
+                        "request_id": "r1",
+                        "input_fingerprint": fingerprint,
+                        "response": "partial answer",
+                        "raw_response": {"choices": [{"finish_reason": None}]},
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            report = self.runner.repair_output_for_resume(
+                output,
+                invalid,
+                expected_fingerprints={"r1": fingerprint},
+            )
+
+            self.assertEqual(
+                {"valid": 0, "invalid": 1, "invalid_reasons": {"finish_reason_missing": 1}},
+                report,
+            )
 
     def test_run_one_records_input_fingerprint(self) -> None:
         row = {

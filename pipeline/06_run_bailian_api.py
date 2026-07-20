@@ -108,6 +108,57 @@ def parse_extra_body(value: str) -> dict[str, Any]:
     return validate_extra_body(parsed)
 
 
+def parse_streaming_chat_completions(body: bytes | str) -> dict[str, Any]:
+    text = body.decode("utf-8", errors="replace") if isinstance(body, bytes) else body
+    response: dict[str, Any] = {}
+    choices: dict[int, dict[str, Any]] = {}
+    chunks = 0
+    for line in text.splitlines():
+        line = line.strip()
+        if not line.startswith("data:"):
+            continue
+        payload = line[5:].strip()
+        if not payload or payload == "[DONE]":
+            continue
+        chunk = json.loads(payload)
+        if not isinstance(chunk, dict):
+            continue
+        chunks += 1
+        for key in ("id", "created", "model", "object", "system_fingerprint", "usage"):
+            if chunk.get(key) is not None:
+                response[key] = chunk[key]
+        for item in chunk.get("choices") or []:
+            if not isinstance(item, dict):
+                continue
+            index = int(item.get("index") or 0)
+            choice = choices.setdefault(
+                index,
+                {
+                    "index": index,
+                    "finish_reason": None,
+                    "message": {"role": "assistant", "content": "", "reasoning_content": ""},
+                },
+            )
+            delta = item.get("delta") or item.get("message") or {}
+            if isinstance(delta, dict):
+                message = choice["message"]
+                if delta.get("role"):
+                    message["role"] = delta["role"]
+                for key in ("content", "reasoning_content", "refusal"):
+                    value = delta.get(key)
+                    if isinstance(value, str):
+                        message[key] = str(message.get(key) or "") + value
+            if item.get("finish_reason") is not None:
+                choice["finish_reason"] = item["finish_reason"]
+    if not chunks:
+        raise ValueError("Provider returned no SSE chat completion chunks")
+    response["object"] = "chat.completion"
+    response["choices"] = [choices[index] for index in sorted(choices)]
+    if not response["choices"]:
+        raise ValueError("Provider returned no SSE chat completion choices")
+    return response
+
+
 def request_id(row: dict[str, Any]) -> str:
     explicit_id = row.get("request_id")
     if explicit_id:
@@ -166,6 +217,10 @@ def is_bad_output_row(row: dict[str, Any], *, allow_length_finish: bool = False)
     reason = finish_reason(row)
     if reason == "length" and not allow_length_finish:
         return True, "finish_reason_length"
+    if not reason:
+        return True, "finish_reason_missing"
+    if reason != "stop" and not (allow_length_finish and reason == "length"):
+        return True, f"finish_reason_{reason}"
     return False, ""
 
 
@@ -235,13 +290,14 @@ def call_chat_completions(
     timeout: int,
     extra_body: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    extra = validate_extra_body(extra_body or {})
     payload = {
         "model": model,
         "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
-    payload.update(validate_extra_body(extra_body or {}))
+    payload.update(extra)
     data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     req = urllib.request.Request(
         base_url,
@@ -253,7 +309,10 @@ def call_chat_completions(
         method="POST",
     )
     with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+        body = resp.read()
+        if extra.get("stream"):
+            return parse_streaming_chat_completions(body)
+        return json.loads(body.decode("utf-8"))
 
 
 def call_chat_completions_with_hard_timeout(
@@ -307,13 +366,14 @@ def call_chat_completions_with_curl(
     hard_timeout: int,
     extra_body: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    extra = validate_extra_body(extra_body or {})
     payload = {
         "model": model,
         "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
-    payload.update(validate_extra_body(extra_body or {}))
+    payload.update(extra)
     data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     with tempfile.TemporaryFile(mode="w+b") as header_file:
         header_file.write(f"Authorization: Bearer {api_key}\nContent-Type: application/json\n".encode("utf-8"))
@@ -372,6 +432,11 @@ def call_chat_completions_with_curl(
             f"CurlError {completed.returncode}: {stderr}",
             retryable=True,
         )
+    if extra.get("stream"):
+        try:
+            return parse_streaming_chat_completions(body)
+        except (ValueError, json.JSONDecodeError) as exc:
+            raise ProviderCallError("Provider returned invalid SSE JSON", retryable=True) from exc
     try:
         response = json.loads(body.decode("utf-8"))
     except json.JSONDecodeError as exc:
@@ -491,10 +556,15 @@ def extract_content(response: dict[str, Any]) -> str:
 
 def ensure_not_truncated(response: dict[str, Any]) -> None:
     choices = response.get("choices")
-    if isinstance(choices, list) and choices:
-        first = choices[0]
-        if isinstance(first, dict) and first.get("finish_reason") == "length":
-            raise LengthFinishError("finish_reason=length")
+    if not isinstance(choices, list) or not choices or not isinstance(choices[0], dict):
+        raise ValueError("No completion choice found in API response")
+    reason = str(choices[0].get("finish_reason") or "")
+    if reason == "length":
+        raise LengthFinishError("finish_reason=length")
+    if not reason:
+        raise ValueError("finish_reason is missing from API response")
+    if reason != "stop":
+        raise ValueError(f"unexpected finish_reason={reason}")
 
 
 def run_one(

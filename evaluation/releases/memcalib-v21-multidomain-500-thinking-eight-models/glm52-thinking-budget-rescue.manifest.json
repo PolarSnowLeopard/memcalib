@@ -1,0 +1,48 @@
+{
+  "schema_version": "memcalib-thinking-budget-rescue-audit-v1",
+  "model_key": "glm52",
+  "model": "glm-5.2",
+  "condition": "no_memory",
+  "reason": "Two requests repeatedly failed to terminate within the unrestricted retry limit.",
+  "generation_override": {
+    "enable_thinking": true,
+    "thinking_budget": 8192
+  },
+  "requests": 2,
+  "successful_results": 2,
+  "failures": 0,
+  "final_cell_merge": {
+    "expected": 500,
+    "resolved": 500,
+    "selected_result_group_counts": {
+      "main": 488,
+      "retry1": 8,
+      "retry2": 2,
+      "bounded_thinking_rescue": 2
+    }
+  },
+  "artifacts": {
+    "requests": {
+      "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/glm52/no_memory.thinking-budget-rescue.requests.jsonl",
+      "bytes": 2059,
+      "rows": 2,
+      "sha256": "b86641ebdc2ab9b4adca61042ab984955134ffb4b495492561f7cb7a5d7ee3f8"
+    },
+    "results": {
+      "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/glm52/no_memory.thinking-budget-rescue.jsonl",
+      "bytes": 114000,
+      "rows": 2,
+      "sha256": "5f0dc68ce5b63f23fc075ce1c431d50b841d8d9b5e9ddb7bf36a7df3a041eda4"
+    },
+    "resolution": {
+      "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/glm52/no_memory.thinking-budget-rescue.resolution.json",
+      "bytes": 165,
+      "sha256": "b8a25bc223aaad37449b9128a051c2f60c02c84a858f276d425e51c4ce0470bd"
+    },
+    "log": {
+      "path": "evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models/answers/glm52/no_memory.thinking-budget-rescue.log",
+      "bytes": 1025,
+      "sha256": "4513416e0bfaaac35f80eb2e4d228900ff4c399fa3dbf665ee91466e285bc27d"
+    }
+  }
+}

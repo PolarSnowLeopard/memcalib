@@ -16,7 +16,7 @@ def output_is_complete(row: dict[str, Any], expected_fingerprint: str) -> bool:
         row.get("input_fingerprint") == expected_fingerprint
         and isinstance(row.get("response"), str)
         and bool(row["response"].strip())
-        and finish_reason != "length"
+        and finish_reason == "stop"
         and not row.get("error")
     )
 

@@ -44,6 +44,7 @@ v2.2 审阅入口：
 - [v2.2 数据结构与长尾约束](docs/benchmark-schema-v2.2.md)
 - [v2.2 长尾修订与质检报告](docs/reports/memcalib-v22-longtail-revision.html)
 - [v2.1 基础集完整构建与质检方法报告](docs/reports/memcalib-v21-dataset-construction-methodology.html)
+- [v2.1 思考模式八模型同样本评测](evaluation/releases/memcalib-v21-multidomain-500-thinking-eight-models/)
 - [v2.1 八模型同样本抽样评测](evaluation/releases/memcalib-v21-multidomain-500-eight-models/)
 - [v2.0 历史七模型抽样评测报告](evaluation/releases/memcalib-v2-multidomain-500-seven-models/report.html)
 - [Qwen3.5-35B-A3B 增量评测审计](evaluation/releases/memcalib-v2-multidomain-500-qwen35/README.md)
@@ -131,6 +132,23 @@ v2.1 模型比较从最终 15,000 条数据中按正式领域比例、来源、�
 No-memory 是同一批问题在不提供记忆块时的反事实基线，不是独立排行榜。各模型几乎不会过度使用不存在的记忆，因此 OPB 很低；但无法获得 B/C 原子承载的必要信息，因此 UPB 普遍超过 0.90。八个模型在 full-memory 下均显著降低 UPB。Qwen3-8B 的 OPB 较低但 UPB 达到 0.452，表现为更保守、同时对相关记忆利用不足。
 
 八模型在 full-memory 下的宏平均 H 从 0.633 到 0.745，显示模型间存在稳定的“利用相关记忆”和“拒绝不该使用的记忆”权衡。Codex 与 Kimi 的 bootstrap 区间高度重叠；宏平均 H 下 Codex 高 0.0026，而按合作者提出的微平均方向错误定义，Kimi 的 H=0.751、Codex=0.748，次序反转。因此只能报告二者总体接近、偏差方向不同，不能宣称 Codex 显著领先。当前结果属于 500 条内部诊断，不应解释为 15,000 条全量公开 leaderboard，人工验证仍待扩展。
+
+### 思考模式八模型重评
+
+同一批 500 条锁定样本上，七个百炼模型全部开启 thinking 重新评测，并新增 GLM-5.2；Codex 不在本轮重跑范围。8 个模型、full/no-memory 两个条件共 8,000 条回答全部完成，均有非空 reasoning、唯一请求 ID 和 `finish_reason=stop`。Judge 配置保持不变且关闭 thinking，以隔离回答侧 thinking 的影响。
+
+| 模型 | Full-memory OPB↓ | Full-memory UPB↓ | Full-memory H↑ |
+|---|---:|---:|---:|
+| Kimi-K2.6 | 0.307 | 0.207 | 0.740 |
+| Qwen3.5-35B-A3B | 0.347 | 0.181 | 0.727 |
+| GLM-5.2 | 0.372 | 0.156 | 0.720 |
+| DeepSeek-V4-Pro | 0.402 | 0.137 | 0.707 |
+| Qwen3.6-Flash | 0.384 | 0.189 | 0.700 |
+| DeepSeek-V4-Flash | 0.384 | 0.193 | 0.699 |
+| Qwen3.7-Max | 0.432 | 0.127 | 0.689 |
+| Qwen3-8B | 0.304 | 0.339 | 0.678 |
+
+七个共享模型相对非思考基线的 H 变化范围为 -0.007 到 +0.045，说明 thinking 不产生统一增益，更多表现为 OPB/UPB 偏差方向的重新平衡。复核 Judge 在 1,493 个原子上的总体 exact agreement=0.914、κ=0.886。GLM-5.2 有 2 条 no-memory 请求使用供应商支持的受限 thinking budget 完成，已单列审计。Qwen3-4B 对当前两套凭据均没有可用在线推理端点，因此没有静默替换，也未加入结果表。完整结果、no-memory 对照、思考前后差值和中间结果保存边界见[思考模式八模型说明](evaluation/releases/memcalib-v21-multidomain-500-thinking-eight-models/README.md)及[可视化报告](evaluation/releases/memcalib-v21-multidomain-500-thinking-eight-models/report.html)。
 
 ### 候选综合指标与尾部风险诊断
 
