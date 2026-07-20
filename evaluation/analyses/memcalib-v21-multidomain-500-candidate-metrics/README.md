@@ -71,6 +71,25 @@ Numeric ranges across differently scaled metrics are not directly comparable. Us
 
 CVaR90 is the mean loss among the worst 10% of samples; CVaR95 uses the worst 5%. Sample loss is normalized absolute ordinal distance.
 
+### Why CVaR90 can reorder models
+
+| Model | H rank | Mean L1 rank | CVaR90 rank | CVaR90↓ |
+| --- | ---: | ---: | ---: | ---: |
+| Codex GPT-5.6 Sol | 1 | 1 | 1 | 0.601 |
+| Kimi-K2.6 | 2 | 2 | 5 | 0.643 |
+| DeepSeek-V4-Pro | 3 | 3 | 4 | 0.642 |
+| Qwen3.7-Max | 4 | 4 | 7 | 0.660 |
+| DeepSeek-V4-Flash | 5 | 5 | 2 | 0.621 |
+| Qwen3.6-Flash | 6 | 6 | 6 | 0.651 |
+| Qwen3.5-35B-A3B | 7 | 7 | 3 | 0.631 |
+| Qwen3-8B | 8 | 8 | 8 | 0.728 |
+
+For a full-memory sample `s` with `n_s` scorable atoms, `L_s = mean_i(|u_hat_si - u*_si| / 2)`. CVaR90 is the arithmetic mean of the largest 50 values of `L_s` among the locked 500 samples. It therefore changes both the aggregation unit (sample rather than gold-label macro average) and the evaluated population (only the worst decile).
+
+A model can make moderately sized errors across many samples and have worse H or mean loss but a less extreme worst decile. Conversely, errors concentrated within a smaller set of samples increase CVaR90. The ordering difference is expected and is not an arithmetic inconsistency.
+
+[Open the tail, Pareto, and metric-rank diagnostics](candidate-metric-diagnostics.html).
+
 ## Paired memory utility
 
 | Model | Induced OPB↓ | Reduced UPB↑ | PMU(0.5)↑ | PMU(1)↑ | PMU(2)↑ | Relative PMU(1)↑ |

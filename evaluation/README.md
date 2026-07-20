@@ -108,6 +108,7 @@ Kappa、NMI、Cramér V、有序距离和严重错误、样本级 CVaR、PMU 权
 定义没有因此改变。
 
 - [`candidate metric study`](analyses/memcalib-v21-multidomain-500-candidate-metrics/README.md)：可读汇总、公式边界与全部主要表格；
+- [`tail/Pareto/rank diagnostics`](analyses/memcalib-v21-multidomain-500-candidate-metrics/candidate-metric-diagnostics.html)：CVaR 尾部曲线、OPB–UPB Pareto 平面和跨指标名次变化；
 - [`candidate-metrics.csv`](analyses/memcalib-v21-multidomain-500-candidate-metrics/candidate-metrics.csv)：模型级横向比较；
 - [`candidate-metrics.json`](analyses/memcalib-v21-multidomain-500-candidate-metrics/candidate-metrics.json)：完整指标、bootstrap 区间、pairwise、Rasch 和 Pareto 结果。
 

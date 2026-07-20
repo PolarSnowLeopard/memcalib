@@ -1288,6 +1288,34 @@ def _write_markdown(result: dict[str, Any], path: Path) -> None:
     pareto_names = [
         models[model]["display_name"] for model in result["pareto"]["pareto_front"]
     ]
+    h_order = sorted(
+        models,
+        key=lambda model: models[model]["composites"]["harmonic_h"],
+        reverse=True,
+    )
+    mean_loss_order = sorted(
+        models,
+        key=lambda model: models[model]["sample_risk"]["linear_loss"]["mean"],
+    )
+    cvar_order = sorted(
+        models,
+        key=lambda model: models[model]["sample_risk"]["linear_loss"]["cvar90"],
+    )
+    h_rank = {model: index for index, model in enumerate(h_order, start=1)}
+    mean_loss_rank = {
+        model: index for index, model in enumerate(mean_loss_order, start=1)
+    }
+    cvar_rank = {model: index for index, model in enumerate(cvar_order, start=1)}
+    tail_rank_rows = [
+        [
+            models[model]["display_name"],
+            str(h_rank[model]),
+            str(mean_loss_rank[model]),
+            str(cvar_rank[model]),
+            _fmt(models[model]["sample_risk"]["linear_loss"]["cvar90"]),
+        ]
+        for model in order
+    ]
     lines = [
         "# MemCalib v2.1 candidate metric study",
         "",
@@ -1347,6 +1375,29 @@ def _write_markdown(result: dict[str, Any], path: Path) -> None:
         "",
         "CVaR90 is the mean loss among the worst 10% of samples; CVaR95 uses the "
         "worst 5%. Sample loss is normalized absolute ordinal distance.",
+        "",
+        "### Why CVaR90 can reorder models",
+        "",
+        _markdown_table(
+            ["Model", "H rank", "Mean L1 rank", "CVaR90 rank", "CVaR90↓"],
+            tail_rank_rows,
+        ),
+        "",
+        "For a full-memory sample `s` with `n_s` scorable atoms, "
+        "`L_s = mean_i(|u_hat_si - u*_si| / 2)`. CVaR90 is the arithmetic "
+        "mean of the largest 50 values of `L_s` among the locked 500 samples. "
+        "It therefore changes both the aggregation unit (sample rather than "
+        "gold-label macro average) and the evaluated population (only the "
+        "worst decile).",
+        "",
+        "A model can make moderately sized errors across many samples and have "
+        "worse H or mean loss but a less extreme worst decile. Conversely, "
+        "errors concentrated within a smaller set of samples increase CVaR90. "
+        "The ordering difference is expected and is not an arithmetic "
+        "inconsistency.",
+        "",
+        "[Open the tail, Pareto, and metric-rank diagnostics]"
+        "(candidate-metric-diagnostics.html).",
         "",
         "## Paired memory utility",
         "",

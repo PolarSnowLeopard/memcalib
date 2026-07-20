@@ -36,12 +36,12 @@
   },
   "script": {
     "path": "evaluation/scripts/analyze_candidate_metrics.py",
-    "sha256": "bd8988b369c260e2547e49ce7b1aa59f84a092f8bc807e6d3535849950422fe0"
+    "sha256": "aba8343e865e7cf719bb45c8ccab1271786d2576c5dd9fc213413e5a1f4d49fb"
   },
   "artifacts": {
     "README.md": {
-      "bytes": 10589,
-      "sha256": "a587f610f5aa366693a6cf513879f77d35386519ac985d875743dfeeeff22978"
+      "bytes": 11736,
+      "sha256": "5fe49967924f970fda3cb2e5c477796ff41f20bd620ebb763680e8e4984df4e6"
     },
     "candidate-metrics.csv": {
       "bytes": 4269,
