@@ -1,0 +1,72 @@
+{
+  "schema_version": "memcalib-judge-requests-ordered-usage-v2.1",
+  "primary_requests": 1000,
+  "secondary_requests": 50,
+  "secondary_by_judge": {
+    "deepseek-v4-pro": 50,
+    "kimi-k2.6": 0
+  },
+  "human_random_ids": 0,
+  "secondary_sampling": {
+    "total": 50,
+    "per_model_per_condition": 25,
+    "stratify_by": [
+      "condition",
+      "source_dataset",
+      "source_topic",
+      "atom_count_bucket"
+    ]
+  },
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "artifacts": {
+    "primary.jsonl": {
+      "rows": 1000,
+      "sha256": "b984e607b925794f4b9503609fbb2300f52244f1550befa65071d1c8dd5b59e6"
+    },
+    "secondary-deepseek.jsonl": {
+      "rows": 50,
+      "sha256": "c31fb22bbcef9f209d900d39190bc65730d0b99b1a35556e9b0f34d75619a323"
+    },
+    "secondary-kimi.jsonl": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "secondary-answer-ids.txt": {
+      "rows": 50,
+      "sha256": "7af4fa215e94cda738df70e80410fe45e4b518454c0dc0e1605a69767713b76e"
+    },
+    "human-random-answer-ids.txt": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/configs/memcalib-v21-multidomain-500-codex.json",
+      "sha256": "b2bdce520266b6059a15586276587b775f4fd6bba77ead4fabaf4950d239e1e5"
+    },
+    "hidden": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-seven-models/hidden-evaluation.jsonl",
+      "sha256": "2fca7b2a75a9b8f4f0fb0386a9ea1ef1b0d4e59173f84fa864d90372e77993e0"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/judge-system-v2.1.txt",
+      "sha256": "482899899ad089318068c562d909327bfee12f012eb266d3484a915244885dc6"
+    },
+    "answers": [
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-codex/results/answers/codex-gpt56-sol/full_memory.jsonl",
+        "sha256": "0fcb3feb28aeb2cbfdd05cbd3f32faeb94742717dd8316d986f68899af4cab79",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-codex/results/answers/codex-gpt56-sol/no_memory.jsonl",
+        "sha256": "b7e743f012d23efcfab214b6ff5e58ea46c7d16242a7e03faeca156a13d82b16",
+        "rows": 500
+      }
+    ]
+  }
+}

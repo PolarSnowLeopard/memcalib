@@ -1,0 +1,32 @@
+{
+  "schema_version": "memcalib-model-availability-release-v1",
+  "release": "memcalib-v21-multidomain-500-qwen38-max",
+  "status": "model_unavailable",
+  "requested_model": "qwen3.8-max",
+  "checked_on": "2026-07-20",
+  "credentials_tested": 2,
+  "formal_answers": 0,
+  "included_in_comparison": false,
+  "artifacts": {
+    "config": {
+      "path": "evaluation/configs/memcalib-v21-multidomain-500-qwen38-max.json",
+      "bytes": 1983,
+      "sha256": "1e1c9c049c32d1565671957f5697448ba69e0142912aa027aadc3b927622c6e1"
+    },
+    "readme": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-qwen38-max/README.md",
+      "bytes": 1348,
+      "sha256": "fd42fe6978e8d846e70fb73bdbeeabbcded20d7bd310c220e7d1fe84d6b2f30e"
+    },
+    "availability_check": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-qwen38-max/availability-check.json",
+      "bytes": 827,
+      "sha256": "fb8dc249d59fccc57f01e34818e764cdf3cd188ed7bf39e0ea9a7b41144c5ab1"
+    },
+    "answer_request_manifest": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-qwen38-max/answer-request.manifest.json",
+      "bytes": 1573,
+      "sha256": "e6ff2c0b9f808e8a7cfb9dac5daab61a15f68d18e6c00c5234d8c1382303ac44"
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "schema_version": "memcalib-v21-multidomain-model-extension-config-v1",
+  "seed": 20260719,
+  "source_count": 15000,
+  "sample_count": 500,
+  "release": "memcalib-v21-multidomain-500-qwen38-max",
+  "source_inputs": {
+    "benchmark_sha256": "bd45f77534351cd096476080096ce9ba6250a375941a171ab561ad78704bed44",
+    "sample_ordered_id_sha256": "92292219c596e790720456754376354be30c5954bf7875085594fbce40c52d29",
+    "model_facing_sha256": "1e37ba0435f2ceb65d369c817660b0822c934d8318823c402fc657453ac127d8",
+    "hidden_evaluation_sha256": "2fca7b2a75a9b8f4f0fb0386a9ea1ef1b0d4e59173f84fa864d90372e77993e0"
+  },
+  "domain_counts": {
+    "health_seed": 250,
+    "general": 125,
+    "coding": 125
+  },
+  "sampling": {
+    "method": "reuse_memcalib_v21_multidomain_500",
+    "base_release": "memcalib-v21-multidomain-500-seven-models"
+  },
+  "evaluation_modes": {
+    "leaderboard_required_conditions": [
+      "full_memory"
+    ],
+    "official_research_conditions": [
+      "full_memory",
+      "no_memory"
+    ],
+    "primary_metrics_condition": "full_memory",
+    "counterfactual_condition": "no_memory"
+  },
+  "answer_models": [
+    {
+      "key": "qwen38-max",
+      "model": "qwen3.8-max"
+    }
+  ],
+  "answer_generation": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "enable_thinking": false
+  },
+  "judge_protocol": "ordered-usage-v2.1",
+  "judge_prompt": "evaluation/prompts/judge-system-v2.1.txt",
+  "primary_judge": {
+    "key": "qwen-judge",
+    "model": "qwen3.7-plus"
+  },
+  "secondary_judge": {
+    "key": "deepseek-judge",
+    "model": "deepseek-v4-pro"
+  },
+  "deepseek_secondary_judge": {
+    "key": "kimi-judge",
+    "model": "kimi-k2.6"
+  },
+  "judge_generation": {
+    "temperature": 0.0,
+    "max_tokens": 4096,
+    "enable_thinking": false
+  },
+  "secondary_judge_sampling": {
+    "total": 50,
+    "per_model_per_condition": 25,
+    "stratify_by": [
+      "condition",
+      "source_dataset",
+      "source_topic",
+      "atom_count_bucket"
+    ]
+  }
+}

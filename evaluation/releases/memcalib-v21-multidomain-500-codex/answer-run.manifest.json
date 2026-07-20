@@ -1,0 +1,114 @@
+{
+  "schema_version": "memcalib-answer-run-v1",
+  "status": "completed",
+  "completed_at": "2026-07-20T11:22:09+08:00",
+  "formal_answers": 1000,
+  "models": [
+    {
+      "key": "codex-gpt56-sol",
+      "model": "gpt-5.6-sol"
+    }
+  ],
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "generation": {
+    "interface": "codex-cli",
+    "codex_cli_version": "0.145.0-alpha.18",
+    "reasoning_effort": "none",
+    "ephemeral": true,
+    "sandbox": "read-only",
+    "tools_allowed": false,
+    "user_config_loaded": false,
+    "project_rules_loaded": false,
+    "structured_output": true,
+    "answer_prompt": "evaluation/prompts/answer-system.txt",
+    "comparison_note": "Codex system context remains and prevents claiming a direct OpenAI API GPT-5.6 measurement. The selected model explicitly accepts reasoning_effort=none, matching the non-thinking comparison setting as closely as this interface permits."
+  },
+  "aggregate_usage": {
+    "prompt_tokens": 15229204,
+    "completion_tokens": 216631,
+    "total_tokens": 15445835
+  },
+  "cells": {
+    "codex-gpt56-sol:full_memory": {
+      "model": "gpt-5.6-sol",
+      "condition": "full_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-codex/requests/answers/codex-gpt56-sol/full_memory.jsonl",
+        "sha256": "b60f90fe6496b0cbab68b539dbf4eec1bc8221554da55dd52edd386e0976ca55"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-codex/results/answers/codex-gpt56-sol/full_memory.jsonl",
+        "sha256": "0fcb3feb28aeb2cbfdd05cbd3f32faeb94742717dd8316d986f68899af4cab79"
+      },
+      "validation": {
+        "expected": 500,
+        "output_rows": 500,
+        "unique_output_ids": 500,
+        "duplicate_ids": 0,
+        "valid": 500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 500,
+        "returned_models": {
+          "gpt-5.6-sol": 500
+        },
+        "finish_reasons": {
+          "stop": 500
+        },
+        "usage": {
+          "prompt_tokens": 7635174,
+          "completion_tokens": 117438,
+          "total_tokens": 7752612
+        },
+        "response_chars": {
+          "min": 79,
+          "mean": 1034.962,
+          "max": 5250
+        }
+      }
+    },
+    "codex-gpt56-sol:no_memory": {
+      "model": "gpt-5.6-sol",
+      "condition": "no_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-codex/requests/answers/codex-gpt56-sol/no_memory.jsonl",
+        "sha256": "b8628fd322e000f6bcd4dd427aa95e85f5a4a308381f6aedd73a6bd2e29be2de"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v21-multidomain-500-codex/results/answers/codex-gpt56-sol/no_memory.jsonl",
+        "sha256": "b7e743f012d23efcfab214b6ff5e58ea46c7d16242a7e03faeca156a13d82b16"
+      },
+      "validation": {
+        "expected": 500,
+        "output_rows": 500,
+        "unique_output_ids": 500,
+        "duplicate_ids": 0,
+        "valid": 500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 500,
+        "returned_models": {
+          "gpt-5.6-sol": 500
+        },
+        "finish_reasons": {
+          "stop": 500
+        },
+        "usage": {
+          "prompt_tokens": 7594030,
+          "completion_tokens": 99193,
+          "total_tokens": 7693223
+        },
+        "response_chars": {
+          "min": 53,
+          "mean": 855.536,
+          "max": 5577
+        }
+      }
+    }
+  }
+}

@@ -200,6 +200,9 @@ class AnalysisTest(unittest.TestCase):
         self.assertEqual(1, condition["confusion_matrix"]["A"]["C"])
         self.assertEqual(1, condition["confusion_matrix"]["B"]["B"])
         self.assertEqual(1, condition["confusion_matrix"]["C"]["A"])
+        self.assertAlmostEqual(0.5, condition["micro_opb_error_rate"])
+        self.assertAlmostEqual(0.5, condition["micro_upb_error_rate"])
+        self.assertAlmostEqual(0.5, condition["micro_memcalib_h_score"])
 
     def test_cohen_kappa_handles_agreement_beyond_chance(self) -> None:
         first = ["pass", "pass", "fail", "fail"]

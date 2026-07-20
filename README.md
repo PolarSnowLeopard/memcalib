@@ -44,7 +44,7 @@ v2.2 审阅入口：
 - [v2.2 数据结构与长尾约束](docs/benchmark-schema-v2.2.md)
 - [v2.2 长尾修订与质检报告](docs/reports/memcalib-v22-longtail-revision.html)
 - [v2.1 基础集完整构建与质检方法报告](docs/reports/memcalib-v21-dataset-construction-methodology.html)
-- [v2.1 七模型抽样评测](evaluation/releases/memcalib-v21-multidomain-500-seven-models/)
+- [v2.1 八模型同样本抽样评测](evaluation/releases/memcalib-v21-multidomain-500-eight-models/)
 - [v2.0 历史七模型抽样评测报告](evaluation/releases/memcalib-v2-multidomain-500-seven-models/report.html)
 - [Qwen3.5-35B-A3B 增量评测审计](evaluation/releases/memcalib-v2-multidomain-500-qwen35/README.md)
 - [Qwen3-8B 增量评测报告](evaluation/releases/memcalib-v2-multidomain-500-qwen3-8b/report.html)
@@ -98,7 +98,7 @@ docs/                     数据结构、方法、数据来源与归档设计文
 
 v2.2 继承 v2.1 锁定的 15,000 条来源谱系、问题、真实原子、A/B/C 标签与 canonical Hard A，不重新抽样基础记录。在此基础上，按领域内相同比例分配 3–20 块长尾负载，重新组合真实原子，并添加同用户、跨场景、零答案足迹的辅助 A 记忆。每条记录先通过确定性结构门，再由独立模型逐原子、逐块和全局检查；失败项只做定向重试或带前后哈希的局部修复。v2.1 的完整基础构建见[基础集方法报告](docs/reports/memcalib-v21-dataset-construction-methodology.html)，v2.2 的增量流程与精确统计见[长尾修订报告](docs/reports/memcalib-v22-longtail-revision.html)。
 
-v2.1 模型比较从最终 15,000 条数据中按正式领域比例、来源、主题和原子数确定性抽取 500 条样本，其中 health 250、general 125、coding 125。七个模型分别运行 full-memory 与 no-memory 两个配对条件，共 7,000 条回答；主 Judge 评审全部回答，复核 Judge 对 350 条分层样本进行跨模型家族复核。每个模型在每个条件下均得到 500 条有效回答。
+v2.1 模型比较从最终 15,000 条数据中按正式领域比例、来源、主题和原子数确定性抽取 500 条样本，其中 health 250、general 125、coding 125。八个模型分别运行 full-memory 与 no-memory 两个配对条件，共 8,000 条回答；主 Judge 评审全部回答，复核 Judge 对 400 条分层样本进行跨模型家族复核。每个模型在每个条件下均得到 500 条有效回答。Codex 使用 `gpt-5.6-sol`、`reasoning_effort=none`，每个回答采用独立临时会话、空工作区和只读沙箱；1,000 条回答均无 reasoning token、工具调用或截断。
 
 协议采用 `ordered-usage-v2.1`，以 OPB 错误率、UPB 错误率及两个方向抵抗能力的调和平均 H 作为主指标。以下为当前 v2.1 抽样结果：
 
@@ -106,6 +106,7 @@ v2.1 模型比较从最终 15,000 条数据中按正式领域比例、来源、�
 
 | 模型 | OPB↓ | UPB↓ | H↑ |
 |---|---:|---:|---:|
+| Codex GPT-5.6 Sol | 0.212 | 0.294 | 0.745 |
 | Kimi-K2.6 | 0.311 | 0.196 | 0.742 |
 | DeepSeek-V4-Pro | 0.383 | 0.193 | 0.699 |
 | Qwen3.7-Max | 0.384 | 0.201 | 0.696 |
@@ -124,17 +125,20 @@ v2.1 模型比较从最终 15,000 条数据中按正式领域比例、来源、�
 | Kimi-K2.6 | 0.048 | 0.913 | 0.160 |
 | Qwen3.5-35B-A3B | 0.055 | 0.913 | 0.159 |
 | Qwen3.6-Flash | 0.065 | 0.915 | 0.155 |
+| Codex GPT-5.6 Sol | 0.024 | 0.918 | 0.151 |
 | Qwen3-8B | 0.024 | 0.944 | 0.105 |
 
-No-memory 是同一批问题在不提供记忆块时的反事实基线，不是独立排行榜。各模型几乎不会过度使用不存在的记忆，因此 OPB 很低；但无法获得 B/C 原子承载的必要信息，因此 UPB 普遍超过 0.90。七个模型在 full-memory 下均显著降低 UPB。Qwen3-8B 的 OPB 较低但 UPB 达到 0.452，表现为更保守、同时对相关记忆利用不足。
+No-memory 是同一批问题在不提供记忆块时的反事实基线，不是独立排行榜。各模型几乎不会过度使用不存在的记忆，因此 OPB 很低；但无法获得 B/C 原子承载的必要信息，因此 UPB 普遍超过 0.90。八个模型在 full-memory 下均显著降低 UPB。Qwen3-8B 的 OPB 较低但 UPB 达到 0.452，表现为更保守、同时对相关记忆利用不足。
 
-七模型在 full-memory 下的 H 从 0.633 到 0.742，显示模型间存在稳定的“利用相关记忆”和“拒绝不该使用的记忆”权衡。当前结果属于 500 条内部诊断，不应解释为 15,000 条全量公开 leaderboard，人工验证仍待扩展。
+八模型在 full-memory 下的宏平均 H 从 0.633 到 0.745，显示模型间存在稳定的“利用相关记忆”和“拒绝不该使用的记忆”权衡。Codex 与 Kimi 的 bootstrap 区间高度重叠；宏平均 H 下 Codex 高 0.0026，而按合作者提出的微平均方向错误定义，Kimi 的 H=0.751、Codex=0.748，次序反转。因此只能报告二者总体接近、偏差方向不同，不能宣称 Codex 显著领先。当前结果属于 500 条内部诊断，不应解释为 15,000 条全量公开 leaderboard，人工验证仍待扩展。
 
 ### Judge 配置与稳定性
 
-全部 7,000 条回答由 `qwen3.7-plus` 按 `ordered-usage-v2.1` 协议进行主评审，temperature 为 0 且关闭 thinking。另有 350 条回答按回答模型、full/no-memory 条件、来源、主题和原子数分层抽取，交给不同模型家族独立复核：`deepseek-v4-pro` 复核 250 条回答、950 个原子，`kimi-k2.6` 复核 100 条回答、372 个原子。
+全部 8,000 条回答由 `qwen3.7-plus` 按 `ordered-usage-v2.1` 协议进行主评审，temperature 为 0 且关闭 thinking。另有 400 条回答按回答模型、full/no-memory 条件、来源、主题和原子数分层抽取，交给不同模型家族独立复核：`deepseek-v4-pro` 复核 300 条回答，`kimi-k2.6` 复核 100 条回答。
 
-相对主 Judge，1,309 个复核原子的总体 exact agreement 为 0.898、Cohen κ 为 0.864；有序 A/B/C 等级 exact agreement 为 0.861、线性加权 κ 为 0.804。DeepSeek 与 Kimi 复核分别得到 κ=0.864 和 κ=0.863。主 Judge 的 7,000 条和复核 Judge 的 350 条结构化判定均覆盖完整，残余 invalid 为 0。该结果支持模型间判定稳定性，但不替代盲法人工专家验证。
+相对主 Judge，1,494 个复核原子的总体 exact agreement 为 0.902、Cohen κ 为 0.868；有序 A/B/C 等级 exact agreement 为 0.865、线性加权 κ 为 0.808。DeepSeek 与 Kimi 复核分别得到 κ=0.869 和 κ=0.863。主 Judge 的 8,000 条和复核 Judge 的 400 条结构化判定均覆盖完整，残余 invalid 为 0。该结果支持模型间判定稳定性，但不替代盲法人工专家验证。
+
+`qwen3.8-max` 在 2026-07-20 使用两套百炼凭据做了关闭 thinking 的[可用性预检](evaluation/releases/memcalib-v21-multidomain-500-qwen38-max/README.md)，两套凭据均返回 HTTP 404 `model_not_found`；百炼公开模型目录当时也未列出该模型 ID。因此没有发起 500 条正式评测，也没有将其加入结果表。
 
 ### 中间结果与保存边界
 
@@ -142,7 +146,7 @@ No-memory 是同一批问题在不提供记忆块时的反事实基线，不是�
 
 `evaluation/runs/` 被 Git 忽略，也不进入协作者数据 ZIP。远程仓库的 `evaluation/releases/<release>/` 保存锁定输入映射、行数和 SHA-256 manifest、聚合指标与 HTML 报告，使结果可核对但不分发大体积原始响应。如需异机复算或长期归档，必须单独备份对应 `evaluation/runs/` 目录，并继续排除 API Key。
 
-实验说明见 [evaluation/README.md](evaluation/README.md)，正式协议见 [v2.1 评测协议](docs/evaluation_protocol_v2.1.md)。当前 v2.1 的完整混淆矩阵、置信区间和领域结果见 [v2.1 七模型报告](evaluation/releases/memcalib-v21-multidomain-500-seven-models/report.html)；v2.0 历史结果保留在[旧版七模型报告](evaluation/releases/memcalib-v2-multidomain-500-seven-models/report.html)中。历史 v0.1 的 15,526 条全量评测仍保留在[原全量报告](evaluation/releases/memcalib-ordered-v2.1-full-15526/report.html)中。
+实验说明见 [evaluation/README.md](evaluation/README.md)，正式协议见 [v2.1 评测协议](docs/evaluation_protocol_v2.1.md)。当前 v2.1 的完整混淆矩阵、置信区间和领域结果见 [v2.1 八模型报告](evaluation/releases/memcalib-v21-multidomain-500-eight-models/report.html)；Codex 的单模型控制与审计见 [Codex 评测说明](evaluation/releases/memcalib-v21-multidomain-500-codex/README.md)。v2.0 历史结果保留在[旧版七模型报告](evaluation/releases/memcalib-v2-multidomain-500-seven-models/report.html)中。历史 v0.1 的 15,526 条全量评测仍保留在[原全量报告](evaluation/releases/memcalib-ordered-v2.1-full-15526/report.html)中。
 
 ## 发布与许可状态
 

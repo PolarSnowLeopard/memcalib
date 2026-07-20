@@ -1,0 +1,94 @@
+{
+  "schema_version": "memcalib-v21-eight-model-evaluation-release-v1",
+  "release": "memcalib-v21-multidomain-500-eight-models",
+  "status": "internal_diagnostic",
+  "samples": 500,
+  "seed": 20260719,
+  "ordered_sample_id_sha256": "92292219c596e790720456754376354be30c5954bf7875085594fbce40c52d29",
+  "distribution": {
+    "domains": {
+      "health_seed": 250,
+      "general": 125,
+      "coding": 125
+    },
+    "memory_labels": {
+      "A": 556,
+      "B": 635,
+      "C": 570
+    }
+  },
+  "models": [
+    "codex-gpt56-sol",
+    "deepseek",
+    "deepseek-flash",
+    "kimi",
+    "qwen-flash",
+    "qwen-max",
+    "qwen3-8b",
+    "qwen35-35b-a3b"
+  ],
+  "completeness": {
+    "formal_answers": 8000,
+    "answers_per_model_per_condition": 500,
+    "primary_judgments": 8000,
+    "secondary_judgments": 400
+  },
+  "provenance": {
+    "unchanged_seven_model_release": "evaluation/releases/memcalib-v21-multidomain-500-seven-models",
+    "codex_extension_release": "evaluation/releases/memcalib-v21-multidomain-500-codex",
+    "merge_key": "answer_request_id",
+    "old_models_rerun": false
+  },
+  "qwen38_max_preflight": {
+    "requested_model": "qwen3.8-max",
+    "date": "2026-07-20",
+    "credentials_tested": 2,
+    "result": "http_404_model_not_found",
+    "formal_answers": 0,
+    "included": false
+  },
+  "artifacts": {
+    "readme": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-eight-models/README.md",
+      "sha256": "167b7e408fe804e8aad8886f4d8742ec00f44614de38d9d1a6b8eb93ed4fdb21"
+    },
+    "model_facing": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-eight-models/model-facing.jsonl",
+      "rows": 500,
+      "bytes": 422795,
+      "sha256": "1e37ba0435f2ceb65d369c817660b0822c934d8318823c402fc657453ac127d8"
+    },
+    "model_facing_gzip": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-eight-models/model-facing.jsonl.gz",
+      "bytes": 107023,
+      "sha256": "15f5986a57d8676cca4d0b8274282b7d056d7d6cb2654d9909c67454fd147ef0"
+    },
+    "hidden_evaluation": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-eight-models/hidden-evaluation.jsonl",
+      "rows": 500,
+      "bytes": 13832582,
+      "sha256": "2fca7b2a75a9b8f4f0fb0386a9ea1ef1b0d4e59173f84fa864d90372e77993e0"
+    },
+    "hidden_evaluation_gzip": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-eight-models/hidden-evaluation.jsonl.gz",
+      "bytes": 2695320,
+      "sha256": "f95e8873e5a38f6b281fc3b37fae2ae906b108e6ea9df9e436fc436875917447"
+    },
+    "sample_ids": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-eight-models/sample-ids.txt",
+      "rows": 500,
+      "bytes": 16375,
+      "sha256": "808c763dfd4aa5f93c04752cfca984d47e50d011490d47cc8707529b3318c2ed"
+    },
+    "metrics": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-eight-models/metrics.json",
+      "bytes": 180047,
+      "sha256": "851d3000c0e9dd8ccb4c6dfe409ef61b23ee8dbc166d29315892ac01d32201fb"
+    },
+    "report": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-eight-models/report.html",
+      "bytes": 174896,
+      "sha256": "b7da52db74ad06f555a60d6c8ece8f4b5bd5c5d59b646bc1c46a4f2dcc129cca"
+    }
+  }
+}

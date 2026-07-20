@@ -90,7 +90,7 @@ The coauthor ZIP contains:
 - `DATA_CARD.md` and `NOTICE.md`: use and attribution constraints;
 - `package-manifest.json`: package-level checksums.
 
-Existing seven-model evaluation results were produced on v2.1. They are not
+Existing eight-model evaluation results were produced on v2.1. They are not
 included as v2.2 results and must not be reported as if the models had been
 evaluated under the 3–20 block interface.
 

@@ -107,10 +107,11 @@ Every released record also passes exact domain quotas, exact Hard A family balan
 - `docs/evaluation_protocol_v2.1.md`: ordered-usage Judge protocol and metric definitions.
 - `evaluation/README.md`: model, Judge, intermediate-artifact, and reproducibility notes.
 - `NOTICE.md`: source attribution and redistribution boundary.
-- `evaluation/releases/memcalib-v21-multidomain-500-seven-models/report.html`: paired full-memory/no-memory seven-model report for the locked v2.1 500-record sample.
-- `evaluation/releases/memcalib-v21-multidomain-500-seven-models/metrics.json`: machine-readable evaluation metrics.
-- `evaluation/releases/memcalib-v21-multidomain-500-seven-models/README.md`: concise sample, model, Judge, completeness, and result summary.
-- `evaluation/releases/memcalib-v21-multidomain-500-seven-models/*manifest.json`: exact sample, answer, and judge run manifests.
+- `evaluation/releases/memcalib-v21-multidomain-500-eight-models/report.html`: paired full-memory/no-memory eight-model report for the locked v2.1 500-record sample.
+- `evaluation/releases/memcalib-v21-multidomain-500-eight-models/metrics.json`: machine-readable evaluation metrics, including macro and supplemental micro OPB/UPB/H.
+- `evaluation/releases/memcalib-v21-multidomain-500-eight-models/README.md`: sample, model, Judge, completeness, comparability, and result summary.
+- `evaluation/releases/memcalib-v21-multidomain-500-eight-models/release-manifest.json`: exact locked sample, model coverage, artifact hashes, and completeness checks.
+- `evaluation/releases/memcalib-v21-multidomain-500-codex/`: Codex GPT-5.6 Sol answer-only controls, manifests, metrics, and report.
 - `package-manifest.json`: per-file sizes and SHA-256 digests.
 
 The two sibling ZIP verification files are not inside the archive and should be

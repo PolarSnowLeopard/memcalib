@@ -1,0 +1,35 @@
+{
+  "schema_version": "memcalib-model-availability-check-v1",
+  "checked_on": "2026-07-20",
+  "provider": "Bailian",
+  "model": "qwen3.8-max",
+  "generation": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "enable_thinking": false
+  },
+  "credentials_tested": 2,
+  "checks": [
+    {
+      "credential_role": "preferred_fast",
+      "requests": 4,
+      "successes": 0,
+      "http_status": 404,
+      "error_code": "model_not_found"
+    },
+    {
+      "credential_role": "fallback_broad",
+      "requests": 1,
+      "successes": 0,
+      "http_status": 404,
+      "error_code": "model_not_found"
+    }
+  ],
+  "formal_evaluation": {
+    "started": false,
+    "answers": 0,
+    "judgments": 0,
+    "included_in_comparison": false
+  },
+  "public_catalog": "https://help.aliyun.com/zh/model-studio/text-generation-model/"
+}

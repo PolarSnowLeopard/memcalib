@@ -1,0 +1,63 @@
+{
+  "schema_version": "memcalib-answer-requests-v1",
+  "samples": 500,
+  "formal_requests": 1000,
+  "smoke_requests": 4,
+  "models": [
+    {
+      "key": "codex-gpt56-sol",
+      "model": "gpt-5.6-sol"
+    }
+  ],
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "generation": {
+    "interface": "codex-cli",
+    "codex_cli_version": "0.145.0-alpha.18",
+    "reasoning_effort": "none",
+    "ephemeral": true,
+    "sandbox": "read-only",
+    "tools_allowed": false,
+    "user_config_loaded": false,
+    "project_rules_loaded": false,
+    "structured_output": true,
+    "answer_prompt": "evaluation/prompts/answer-system.txt",
+    "comparison_note": "Codex system context remains and prevents claiming a direct OpenAI API GPT-5.6 measurement. The selected model explicitly accepts reasoning_effort=none, matching the non-thinking comparison setting as closely as this interface permits."
+  },
+  "artifacts": {
+    "codex-gpt56-sol/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "b60f90fe6496b0cbab68b539dbf4eec1bc8221554da55dd52edd386e0976ca55",
+      "model": "gpt-5.6-sol",
+      "condition": "full_memory"
+    },
+    "codex-gpt56-sol/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "b8628fd322e000f6bcd4dd427aa95e85f5a4a308381f6aedd73a6bd2e29be2de",
+      "model": "gpt-5.6-sol",
+      "condition": "no_memory"
+    },
+    "codex-gpt56-sol/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "1094a8012c3360bc7d7037669789a8f05b2dc01944ae625efe6cab2bdc403b01",
+      "model": "gpt-5.6-sol",
+      "condition": "smoke"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/configs/memcalib-v21-multidomain-500-codex.json",
+      "sha256": "b2bdce520266b6059a15586276587b775f4fd6bba77ead4fabaf4950d239e1e5"
+    },
+    "samples": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-seven-models/model-facing.jsonl",
+      "sha256": "1e37ba0435f2ceb65d369c817660b0822c934d8318823c402fc657453ac127d8"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/answer-system.txt",
+      "sha256": "f52011f3a95e3be3a5692a128911c6eb3792c9aa4639af603613f859e516311f"
+    }
+  }
+}

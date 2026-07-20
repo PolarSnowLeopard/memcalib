@@ -1,0 +1,70 @@
+{
+  "schema_version": "memcalib-v21-codex-evaluation-release-v1",
+  "release": "memcalib-v21-multidomain-500-codex",
+  "status": "internal_diagnostic",
+  "samples": 500,
+  "formal_answers": 1000,
+  "primary_judgments": 1000,
+  "secondary_judgments": 50,
+  "model": {
+    "key": "codex-gpt56-sol",
+    "model": "gpt-5.6-sol",
+    "interface": "codex-cli",
+    "codex_cli_version": "0.145.0-alpha.18",
+    "reasoning_effort": "none"
+  },
+  "locked_sample": {
+    "base_release": "evaluation/releases/memcalib-v21-multidomain-500-seven-models",
+    "benchmark_sha256": "bd45f77534351cd096476080096ce9ba6250a375941a171ab561ad78704bed44",
+    "model_facing_sha256": "1e37ba0435f2ceb65d369c817660b0822c934d8318823c402fc657453ac127d8",
+    "hidden_evaluation_sha256": "2fca7b2a75a9b8f4f0fb0386a9ea1ef1b0d4e59173f84fa864d90372e77993e0",
+    "ordered_sample_id_sha256": "92292219c596e790720456754376354be30c5954bf7875085594fbce40c52d29"
+  },
+  "answer_protocol_audit": {
+    "unique_request_ids": 1000,
+    "matching_input_fingerprints": 1000,
+    "finish_reason_stop": 1000,
+    "reasoning_output_tokens": 0,
+    "tool_protocol_violations": 0,
+    "missing": 0,
+    "truncated": 0
+  },
+  "artifacts": {
+    "readme": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-codex/README.md",
+      "bytes": 3650,
+      "sha256": "895a26f79a142c13a151b844c1a14393019045e625894856de77d1f6bf9c029c"
+    },
+    "answer_request_manifest": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-codex/answer-request.manifest.json",
+      "bytes": 2118,
+      "sha256": "36073c37a1c78ef756c0d0689ff55ef9c85e5f4f4c46bf4848f89e5c5f048008"
+    },
+    "answer_run_manifest": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-codex/answer-run.manifest.json",
+      "bytes": 3429,
+      "sha256": "eb007ddb0afc11b66695607e85d2f48597e0ab2cd485b0e7fa7362a07924e766"
+    },
+    "judge_request_manifest": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-codex/judge-request.manifest.json",
+      "bytes": 2285,
+      "sha256": "e432d616b9d9e28d83e83f79a2a2f065bc2516f7bf0648ce940a3248902250a1"
+    },
+    "judge_run_manifest": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-codex/judge-run.manifest.json",
+      "bytes": 3323,
+      "sha256": "f04ec63f5f6d538a5655d8fc19d2286da4587eb129dc2b8095bb217d97e1139e"
+    },
+    "metrics": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-codex/metrics.json",
+      "bytes": 24769,
+      "sha256": "a4c9b60f0d9e33f5f57814bee0437e71851ff3e3c1ece90fa070489d1965a13e"
+    },
+    "report": {
+      "path": "evaluation/releases/memcalib-v21-multidomain-500-codex/report.html",
+      "bytes": 29662,
+      "sha256": "d074e41525649009f0fe161f16e0bdac7a544b980baf9a866a005019d0a308bf"
+    }
+  },
+  "comparison_boundary": "Codex fixed system context remains; this is not a direct OpenAI API GPT-5.6 measurement."
+}

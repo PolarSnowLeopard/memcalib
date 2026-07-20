@@ -1,0 +1,96 @@
+{
+  "schema_version": "memcalib-judge-run-v1",
+  "status": "completed",
+  "completed_at": "2026-07-20T11:25:44+08:00",
+  "generation": {
+    "temperature": 0.0,
+    "max_tokens": 4096,
+    "enable_thinking": false
+  },
+  "primary_judge": {
+    "key": "qwen-judge",
+    "model": "qwen3.7-plus"
+  },
+  "secondary_judges": [
+    {
+      "key": "deepseek-judge",
+      "model": "deepseek-v4-pro"
+    },
+    {
+      "key": "kimi-judge",
+      "model": "kimi-k2.6"
+    }
+  ],
+  "request_manifest": {
+    "path": "evaluation/releases/memcalib-v21-multidomain-500-codex/judge-request.manifest.json",
+    "sha256": "e432d616b9d9e28d83e83f79a2a2f065bc2516f7bf0648ce940a3248902250a1"
+  },
+  "normalized": {
+    "primary": {
+      "path": "evaluation/runs/memcalib-v21-multidomain-500-codex/judgments/primary.valid.jsonl",
+      "sha256": "97ded680751ca402087319d0ed4b64e710087185daa791b48024f1b441e1e488",
+      "rows": 1000,
+      "summary": {
+        "rows": 1000,
+        "unique_answer_request_ids": 1000,
+        "atoms": 3522,
+        "judge_models": {
+          "qwen3.7-plus": 1000
+        },
+        "rows_with_warnings": 38,
+        "warning_counts": {
+          "invalid_confidence": 19,
+          "ungrounded_evidence_quote": 36
+        },
+        "rows_with_schema_repairs": 0,
+        "schema_repairs": 0
+      }
+    },
+    "secondary": {
+      "path": "evaluation/runs/memcalib-v21-multidomain-500-codex/judgments/secondary.valid.jsonl",
+      "sha256": "eda1c70d19fab8f8e6c3f6dc37a4e6c20ca44c2fa48fc584cd5920a890455c17",
+      "rows": 50,
+      "summary": {
+        "rows": 50,
+        "unique_answer_request_ids": 50,
+        "atoms": 185,
+        "judge_models": {
+          "deepseek-v4-pro": 50
+        },
+        "rows_with_warnings": 1,
+        "warning_counts": {
+          "ungrounded_evidence_quote": 1
+        },
+        "rows_with_schema_repairs": 0,
+        "schema_repairs": 0
+      }
+    }
+  },
+  "targeted_retry_outputs": {
+    "requests/judges/primary.structural-retry1.jsonl": {
+      "path": "evaluation/runs/memcalib-v21-multidomain-500-codex/requests/judges/primary.structural-retry1.jsonl",
+      "sha256": "dd371e7f378fa710095718330be7f5ab543297ffd0f502aee5353c002a235ce6",
+      "rows": 1
+    },
+    "api/primary.structural-retry1.jsonl": {
+      "path": "evaluation/runs/memcalib-v21-multidomain-500-codex/api/primary.structural-retry1.jsonl",
+      "sha256": "e80fe33e35fcaab65c7eb84e2b05707883963de06b4efbea9d5976e8ec1c5920",
+      "rows": 2
+    },
+    "api/primary.structural-retry1.resolved.jsonl": {
+      "path": "evaluation/runs/memcalib-v21-multidomain-500-codex/api/primary.structural-retry1.resolved.jsonl",
+      "sha256": "bda3614a6b3975048a67d3f0ab8bbb61eb89f78f25c2c00e943165f7ee2c3c6a",
+      "rows": 1
+    },
+    "judgments/primary.structural-retry1.invalid.jsonl": {
+      "path": "evaluation/runs/memcalib-v21-multidomain-500-codex/judgments/primary.structural-retry1.invalid.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "judgments/primary.structural-retry1.valid.jsonl": {
+      "path": "evaluation/runs/memcalib-v21-multidomain-500-codex/judgments/primary.structural-retry1.valid.jsonl",
+      "sha256": "56fbaffbdea1b21baef3cca807c1d3c013359aa34f3d526e778b322201322a09",
+      "rows": 1
+    }
+  }
+}

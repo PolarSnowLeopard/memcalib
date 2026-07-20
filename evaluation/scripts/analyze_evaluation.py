@@ -92,16 +92,56 @@ def _directional_metrics(atoms: list[dict[str, Any]]) -> dict[str, Any]:
 
     full_confusion = bool(scorable) and all(atom["predicted_usage_level"] in ("A", "B", "C") for atom in scorable)
     confusion = None
+    micro_opb_error = None
+    micro_upb_error = None
+    micro_harmonic = None
     if full_confusion:
         confusion = {gold: {predicted: 0 for predicted in ("A", "B", "C")} for gold in ("A", "B", "C")}
         for atom in scorable:
             confusion[atom["label"]][atom["predicted_usage_level"]] += 1
+        gold_a = sum(confusion["A"].values())
+        gold_b = sum(confusion["B"].values())
+        gold_c = sum(confusion["C"].values())
+        opb_denominator = gold_a + gold_b
+        upb_denominator = gold_b + gold_c
+        micro_opb_error = (
+            (
+                confusion["A"]["B"]
+                + confusion["A"]["C"]
+                + confusion["B"]["C"]
+            )
+            / opb_denominator
+            if opb_denominator
+            else None
+        )
+        micro_upb_error = (
+            (
+                confusion["B"]["A"]
+                + confusion["C"]["A"]
+                + confusion["C"]["B"]
+            )
+            / upb_denominator
+            if upb_denominator
+            else None
+        )
+        if micro_opb_error is not None and micro_upb_error is not None:
+            micro_opb_resistance = 1 - micro_opb_error
+            micro_upb_resistance = 1 - micro_upb_error
+            denominator = micro_opb_resistance + micro_upb_resistance
+            micro_harmonic = (
+                2 * micro_opb_resistance * micro_upb_resistance / denominator
+                if denominator
+                else 0.0
+            )
     return {
         "opb_error_rate": opb_error,
         "upb_error_rate": upb_error,
         "opb_resistance": opb_resistance,
         "upb_resistance": upb_resistance,
         "memcalib_h_score": harmonic,
+        "micro_opb_error_rate": micro_opb_error,
+        "micro_upb_error_rate": micro_upb_error,
+        "micro_memcalib_h_score": micro_harmonic,
         "directional_components": {
             "A_over_rate": a_over,
             "B_over_rate": b_over,
