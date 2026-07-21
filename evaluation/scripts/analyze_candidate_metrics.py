@@ -32,12 +32,26 @@ DEFAULT_OUTPUT_DIR = (
     / "analyses"
     / "memcalib-v21-multidomain-500-candidate-metrics"
 )
+DEFAULT_OFFICIAL_METRICS = (
+    ROOT
+    / "evaluation"
+    / "releases"
+    / "memcalib-v21-multidomain-500-eight-models"
+    / "metrics.json"
+)
+DEFAULT_STUDY_TITLE = "MemCalib v2.1 candidate metric study"
+DEFAULT_STUDY_DESCRIPTION = (
+    "This diagnostic uses the same locked 500 records and all 8,000 primary-Judge "
+    "rows from the eight-model full/no-memory comparison. It does not change the "
+    "official metric definition."
+)
 LABELS = ("A", "B", "C")
 RANK = {"A": 0, "B": 1, "C": 2}
 MODEL_DISPLAY_NAMES = {
     "codex-gpt56-sol": "Codex GPT-5.6 Sol",
     "deepseek": "DeepSeek-V4-Pro",
     "deepseek-flash": "DeepSeek-V4-Flash",
+    "glm52": "GLM-5.2",
     "kimi": "Kimi-K2.6",
     "qwen-flash": "Qwen3.6-Flash",
     "qwen-max": "Qwen3.7-Max",
@@ -1317,11 +1331,9 @@ def _write_markdown(result: dict[str, Any], path: Path) -> None:
         for model in order
     ]
     lines = [
-        "# MemCalib v2.1 candidate metric study",
+        f"# {result.get('study', {}).get('title', DEFAULT_STUDY_TITLE)}",
         "",
-        "This diagnostic uses the same locked 500 records and all 8,000 primary-Judge "
-        "rows from the eight-model full/no-memory comparison. It does not change the "
-        "official metric definition.",
+        result.get("study", {}).get("description", DEFAULT_STUDY_DESCRIPTION),
         "",
         "## Headline comparison",
         "",
@@ -1481,8 +1493,11 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--primary", type=Path, default=DEFAULT_PRIMARY)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument("--official-metrics", type=Path, default=DEFAULT_OFFICIAL_METRICS)
     parser.add_argument("--bootstrap-replicates", type=int, default=2000)
     parser.add_argument("--seed", type=int, default=20260720)
+    parser.add_argument("--study-title", default=DEFAULT_STUDY_TITLE)
+    parser.add_argument("--study-description", default=DEFAULT_STUDY_DESCRIPTION)
     return parser.parse_args()
 
 
@@ -1494,21 +1509,23 @@ def main() -> None:
         bootstrap_replicates=args.bootstrap_replicates,
         seed=args.seed,
     )
+    result["study"] = {
+        "title": args.study_title,
+        "description": args.study_description,
+    }
     result["source"]["primary_judgments"] = (
         str(args.primary.resolve().relative_to(ROOT))
         if args.primary.resolve().is_relative_to(ROOT)
         else str(args.primary.resolve())
     )
     result["source"]["primary_sha256"] = _sha256(args.primary)
-    official_metrics = (
-        ROOT
-        / "evaluation"
-        / "releases"
-        / "memcalib-v21-multidomain-500-eight-models"
-        / "metrics.json"
-    )
+    official_metrics = args.official_metrics.resolve()
     if official_metrics.is_file():
-        result["source"]["official_metrics"] = str(official_metrics.relative_to(ROOT))
+        result["source"]["official_metrics"] = (
+            str(official_metrics.relative_to(ROOT))
+            if official_metrics.is_relative_to(ROOT)
+            else str(official_metrics)
+        )
         result["source"]["official_metrics_sha256"] = _sha256(official_metrics)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     write_json(args.output_dir / "candidate-metrics.json", result)

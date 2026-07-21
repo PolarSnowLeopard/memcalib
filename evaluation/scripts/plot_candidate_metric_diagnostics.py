@@ -37,6 +37,7 @@ SHORT_NAMES = {
     "codex-gpt56-sol": "Codex",
     "deepseek": "DS-Pro",
     "deepseek-flash": "DS-Flash",
+    "glm52": "GLM-5.2",
     "kimi": "Kimi",
     "qwen-flash": "Qwen-Flash",
     "qwen-max": "Qwen-Max",

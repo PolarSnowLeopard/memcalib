@@ -79,6 +79,28 @@ the balance between over-use and under-use rather than moving both directions
 together. These are paired descriptive deltas; model serving snapshots and
 provider-side implementations remain potential confounds.
 
+## Extended candidate metrics
+
+The same 8,000 primary-Judge rows were also evaluated with the complete
+candidate-metric suite used for the non-thinking study: MinCalib,
+arithmetic/geometric/product/soft-min composites, balanced accuracy, macro F1,
+MCC, unweighted/linear/quadratic Kappa, NMI, Cramer V, ordinal distance and
+severe-error measures, CVaR90/95, PMU weight sensitivity, 28 pairwise win
+shares, Bradley-Terry ability, two-dimensional Rasch 1PL, Pareto analysis, and
+2,000 sample-cluster bootstrap replicates.
+
+H spans only 0.062 across the eight models. Quadratic Kappa and MCC span about
+0.138 and 0.137, while PMU(1), MinCalib, and CVaR90 span 0.126, 0.124, and
+0.105. H ranks Kimi first, Qwen3.5-35B-A3B second, and GLM-5.2 third; CVaR90
+ranks Qwen3.5-35B-A3B first, GLM-5.2 second, and Kimi third. The rank change is
+expected because CVaR evaluates the worst 50 of 500 samples rather than the
+overall directional average.
+
+- [Candidate-metric study](../../analyses/memcalib-v21-multidomain-500-thinking-candidate-metrics/README.md)
+- [Tail, Pareto, and rank diagnostics](../../analyses/memcalib-v21-multidomain-500-thinking-candidate-metrics/candidate-metric-diagnostics.html)
+- [Machine-readable metrics](../../analyses/memcalib-v21-multidomain-500-thinking-candidate-metrics/candidate-metrics.json)
+- [Flat comparison table](../../analyses/memcalib-v21-multidomain-500-thinking-candidate-metrics/candidate-metrics.csv)
+
 ## Completeness and controlled exceptions
 
 - 8 models x 2 conditions x 500 samples = 8,000 final answers;

@@ -70,6 +70,15 @@ DeepSeek-V4-Flash +0.008、DeepSeek-V4-Pro +0.007、Kimi-K2.6
 -0.003、Qwen3.7-Max -0.007。thinking 并非统一增益，常见变化是 OPB 与
 UPB 之间的偏差方向重新平衡。
 
+同一批 8,000 条主 Judge 结果还完整重算了候选指标：MinCalib、算术/几何/
+乘积/soft-min 综合分、balanced accuracy、macro F1、MCC、未加权/线性/二次
+Kappa、NMI、Cramér V、有序距离、严重错误、CVaR90/95、PMU 权重敏感性、
+28 组配对胜率、Bradley–Terry、双维 Rasch 1PL、Pareto 和 2,000 次样本聚类
+bootstrap。H 的八模型范围为 0.062；MCC、二次 Kappa、PMU(1)、MinCalib
+的范围分别为 0.137、0.138、0.126、0.124。H 排名前三为 Kimi、
+Qwen3.5-35B-A3B、GLM-5.2；CVaR90 则为 Qwen3.5-35B-A3B、GLM-5.2、
+Kimi，说明尾部风险与总体方向平均不能互相替代。
+
 主 Judge 仍为 `qwen3.7-plus`，覆盖 8,000 条回答；DeepSeek-V4-Pro 和
 Kimi-K2.6 分层复核 400 条回答。在 1,493 个双判原子上，总体 exact
 agreement=0.914、Cohen κ=0.886；有序使用等级 exact agreement=0.884、
@@ -85,6 +94,8 @@ GLM-5.2 的 1,000 条回答中有 2 条 no-memory 请求在多次无界重试中
 - [`thinking eight-model report`](releases/memcalib-v21-multidomain-500-thinking-eight-models/report.html)：可视化报告；
 - [`thinking audit`](releases/memcalib-v21-multidomain-500-thinking-eight-models/thinking-audit.json)：逐模型、逐条件 reasoning 与 finish-reason 审计；
 - [`metrics.json`](releases/memcalib-v21-multidomain-500-thinking-eight-models/metrics.json)：机器可读完整指标和 Judge 一致性。
+- [`thinking candidate metric study`](analyses/memcalib-v21-multidomain-500-thinking-candidate-metrics/README.md)：扩展指标、置信区间、配对、Rasch 与 Pareto；
+- [`thinking tail/Pareto/rank diagnostics`](analyses/memcalib-v21-multidomain-500-thinking-candidate-metrics/candidate-metric-diagnostics.html)：尾部风险与跨指标排名图。
 
 ## v2.1 非思考基线与 Codex 诊断
 
@@ -214,6 +225,7 @@ manifest、聚合 `metrics.json` 和 `report.html`。若要在另一台机器上
 
 ## 当前结果入口
 
+- [`thinking candidate metric study`](analyses/memcalib-v21-multidomain-500-thinking-candidate-metrics/README.md)：思考模式八模型扩展候选指标；
 - [`memcalib-v21-multidomain-500-thinking-eight-models/README.md`](releases/memcalib-v21-multidomain-500-thinking-eight-models/README.md)：七个共享模型思考模式重评与新增 GLM-5.2；
 - [`memcalib-v21-multidomain-500-thinking-eight-models/report.html`](releases/memcalib-v21-multidomain-500-thinking-eight-models/report.html)：思考模式八模型 full/no-memory 可视化报告；
 - [`memcalib-v21-multidomain-500-eight-models/README.md`](releases/memcalib-v21-multidomain-500-eight-models/README.md)：同一样本八模型摘要、宏/微口径和公平性限制；

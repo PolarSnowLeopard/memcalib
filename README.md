@@ -150,6 +150,8 @@ No-memory 是同一批问题在不提供记忆块时的反事实基线，不是�
 
 七个共享模型相对非思考基线的 H 变化范围为 -0.007 到 +0.045，说明 thinking 不产生统一增益，更多表现为 OPB/UPB 偏差方向的重新平衡。复核 Judge 在 1,493 个原子上的总体 exact agreement=0.914、κ=0.886。GLM-5.2 有 2 条 no-memory 请求使用供应商支持的受限 thinking budget 完成，已单列审计。Qwen3-4B 对当前两套凭据均没有可用在线推理端点，因此没有静默替换，也未加入结果表。完整结果、no-memory 对照、思考前后差值和中间结果保存边界见[思考模式八模型说明](evaluation/releases/memcalib-v21-multidomain-500-thinking-eight-models/README.md)及[可视化报告](evaluation/releases/memcalib-v21-multidomain-500-thinking-eight-models/report.html)。
 
+思考模式结果也已完整重算候选指标，包括 MinCalib、MCC、各类 Kappa、NMI、Cramér V、有序严重度、CVaR90/95、PMU 权重敏感性、28 组配对胜率、Bradley–Terry、双维 Rasch 1PL、Pareto 和 2,000 次样本聚类 bootstrap。H 的八模型范围只有 0.062，而 MCC、二次 Kappa、PMU(1)、MinCalib 的范围分别为 0.137、0.138、0.126、0.124。H 排名前三为 Kimi、Qwen3.5-35B-A3B、GLM-5.2；CVaR90 前三则为 Qwen3.5-35B-A3B、GLM-5.2、Kimi。完整表格见[思考模式候选指标研究](evaluation/analyses/memcalib-v21-multidomain-500-thinking-candidate-metrics/README.md)，图形诊断见[尾部、Pareto 与名次图](evaluation/analyses/memcalib-v21-multidomain-500-thinking-candidate-metrics/candidate-metric-diagnostics.html)。
+
 ### 候选综合指标与尾部风险诊断
 
 为检查 H 的数值区分度和排序稳健性，同一批 500 条样本、8 个模型和 8,000 条主 Judge 结果还计算了 MinCalib、算术/几何/乘积及 soft-min 综合分、balanced accuracy、macro F1、MCC、Kappa、NMI、有序距离与严重错误、样本级 CVaR、配对胜率、Bradley–Terry、双维 Rasch 及 PMU 权重敏感性。正式 H 定义没有因此改变；这些候选指标用于揭示不同聚合口径下的排序变化，而不是事后选择最有利的排行榜。
