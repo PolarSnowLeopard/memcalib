@@ -1,5 +1,11 @@
 # MemCalib v2.1 Construction Pipeline
 
+> This document preserves the v2.1 foundation lineage. The current v2.3
+> release freezes this foundation and applies the v2.2 long-tail block revision
+> plus the v2.3 composite-atom and natural-paragraph revision. See the
+> [complete v2.3 methodology report](reports/memcalib-v23-composite-block-revision.html)
+> and [v2.3 schema](benchmark-schema-v2.3.md) for the current release contract.
+
 ## End-to-End Overview
 
 ```text
@@ -270,3 +276,28 @@ For a readable paper-oriented treatment with diagrams and pseudocode, see the [M
 ## Historical Versions
 
 The previous v2.0 release had 14,906 strict and 94 non-blocking review records with a different visible-block layout. Its dataset and model-evaluation results are retained for audit but are not current v2.1 statistics. The medical-only v0.1 pipeline and 200-record multi-domain pilot remain historical artifacts.
+
+## Current V2.3 Revision
+
+The v2.2 revision expanded each record from two visible blocks to a fixed,
+domain-balanced 3-20 block long-tail allocation while preserving questions,
+lineage, original atoms, labels, actions, and canonical Hard A. The v2.3
+revision keeps those block counts and expands each block to 1-20 hidden atoms.
+Added atoms are auxiliary `A+ignore` only, and no record-level total-atom cap is
+imposed. Multi-atom blocks are rewritten as natural paragraphs, then checked by
+an independent atom-, block-, and record-level judge.
+
+The final v2.3 release has:
+
+| Quantity | Count |
+|---|---:|
+| Records | 15,000 |
+| Visible blocks | 74,800 |
+| Multi-atom blocks | 59,800 |
+| Blocks with at least three atoms | 48,548 |
+| Hidden atoms | 234,221 |
+| Level 1 / 2 / 3 | 3,751 / 7,500 / 3,749 |
+| Strict / review / reject / invalid | 13,923 / 1,077 / 0 / 0 |
+
+The complete end-to-end source, sampling, construction, repair, and QC history
+is documented in the v2.3 methodology report linked at the top of this file.

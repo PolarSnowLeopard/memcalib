@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>MemCalib v2.3 数据集完整构建与质检流程</title>
+  <style>
+    :root {
+      --ink:#17212b;
+      --muted:#596773;
+      --line:#d7dee4;
+      --paper:#ffffff;
+      --bg:#f2f5f7;
+      --navy:#193449;
+      --blue:#246b92;
+      --teal:#167a76;
+      --green:#337b4d;
+      --amber:#986411;
+      --red:#a34040;
+      --violet:#675397;
+      --soft-blue:#eef6fa;
+      --soft-green:#f0f8f3;
+      --soft-amber:#fff8e9;
+      --soft-violet:#f6f3fa;
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      margin:0;
+      color:var(--ink);
+      background:var(--bg);
+      font:15px/1.7 system-ui,-apple-system,"Segoe UI",sans-serif;
+    }
+    header {
+      background:var(--navy);
+      color:#fff;
+      padding:54px max(24px,calc((100vw - 1180px)/2));
+    }
+    header h1 { margin:0 0 14px; max-width:980px; font-size:38px; line-height:1.22; letter-spacing:0; }
+    header p { max-width:980px; margin:8px 0; color:#dce7ed; font-size:17px; }
+    header .stamp { margin-top:22px; color:#aac4d3; font-size:13px; }
+    nav { position:sticky; top:0; z-index:8; background:#fff; border-bottom:1px solid var(--line); }
+    nav div { max-width:1180px; margin:auto; display:flex; gap:18px; overflow:auto; padding:10px 20px; }
+    nav a { white-space:nowrap; color:var(--navy); text-decoration:none; font-weight:700; font-size:13px; }
+    main { max-width:1180px; margin:auto; padding:28px 22px 72px; }
+    section { background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:28px; margin:18px 0; }
+    h2 { margin:0 0 16px; color:var(--navy); font-size:25px; line-height:1.3; }
+    h3 { margin:24px 0 10px; color:#274559; font-size:18px; }
+    h4 { margin:18px 0 8px; font-size:15px; }
+    p { max-width:1020px; }
+    a { color:var(--blue); }
+    .lead { color:#314653; font-size:17px; }
+    .kicker { color:var(--blue); font-weight:800; text-transform:uppercase; font-size:12px; }
+    .metrics { display:grid; grid-template-columns:repeat(5,minmax(140px,1fr)); gap:12px; margin:18px 0; }
+    .metric { border:1px solid var(--line); border-top:4px solid var(--blue); background:#fbfcfd; padding:15px; min-height:98px; }
+    .metric strong { display:block; color:var(--navy); font-size:25px; line-height:1.25; }
+    .metric span { display:block; color:var(--muted); font-size:13px; margin-top:5px; }
+    .callout { border-left:4px solid var(--amber); background:var(--soft-amber); padding:13px 17px; margin:16px 0; }
+    .callout.good { border-left-color:var(--green); background:var(--soft-green); }
+    .callout.info { border-left-color:var(--blue); background:var(--soft-blue); }
+    .callout.violet { border-left-color:var(--violet); background:var(--soft-violet); }
+    .formula-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:14px 0; }
+    .formula {
+      border:1px solid #d7d0e6;
+      border-left:4px solid var(--violet);
+      background:var(--soft-violet);
+      padding:15px 18px;
+      font:15px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;
+      overflow:auto;
+    }
+    .formula b { color:#4f3f78; font-family:system-ui,-apple-system,sans-serif; }
+    table { width:100%; border-collapse:collapse; margin:13px 0 22px; }
+    th,td { border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top; }
+    th { background:#edf3f6; color:#243c4c; }
+    td.num,th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    td.center,th.center { text-align:center; }
+    .small { color:var(--muted); font-size:13px; }
+    .flow { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin:18px 0; }
+    .flow-step { position:relative; border:1px solid var(--line); border-top:4px solid var(--blue); background:#fbfcfd; padding:16px; min-height:165px; }
+    .flow-step::after { content:"→"; position:absolute; right:-13px; top:66px; color:#81929e; font-weight:900; font-size:20px; z-index:2; }
+    .flow-step:nth-child(4n)::after, .flow-step:last-child::after { display:none; }
+    .flow-step .n { color:var(--blue); font-size:12px; font-weight:800; }
+    .flow-step strong { display:block; margin:5px 0 7px; color:var(--navy); font-size:17px; }
+    .flow-step p { margin:0; color:#465661; font-size:13px; }
+    .flow-step.qc { border-top-color:var(--violet); }
+    .flow-step.repair { border-top-color:var(--amber); }
+    .flow-step.release { border-top-color:var(--green); }
+    .funnel { display:grid; grid-template-columns:1fr; gap:7px; max-width:900px; margin:18px auto; }
+    .funnel-row { display:grid; grid-template-columns:240px 1fr 150px; gap:12px; align-items:center; }
+    .funnel-label { text-align:right; color:#344b5a; font-weight:700; }
+    .funnel-track { height:24px; background:#e5eaed; overflow:hidden; border-radius:3px; }
+    .funnel-fill { height:100%; background:var(--blue); }
+    .funnel-value { font-variant-numeric:tabular-nums; }
+    .stackbar { display:flex; width:100%; height:28px; overflow:hidden; border-radius:3px; background:#e5eaed; }
+    .stackbar span { display:block; height:100%; }
+    .a { background:#7b8791; } .b { background:var(--green); } .c { background:var(--blue); }
+    .l1 { background:#6e8ea2; } .l2 { background:#2f7a73; } .l3 { background:#765f9e; }
+    .legend { display:flex; flex-wrap:wrap; gap:18px; margin:8px 0; color:var(--muted); font-size:13px; }
+    .dot { display:inline-block; width:10px; height:10px; margin-right:5px; }
+    pre { white-space:pre-wrap; background:#17212b; color:#e7eff4; padding:18px; border-radius:4px; overflow:auto; }
+    code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .gate-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px 18px; padding:0; list-style:none; }
+    .gate-list li { border-left:3px solid var(--green); background:#f7faf8; padding:9px 12px; }
+    .timeline { border-left:3px solid var(--line); margin-left:10px; padding-left:24px; }
+    .timeline article { position:relative; margin:0 0 20px; }
+    .timeline article::before { content:""; position:absolute; width:11px; height:11px; border-radius:50%; background:var(--blue); left:-31px; top:7px; }
+    .timeline h4 { margin:0 0 5px; color:var(--navy); }
+    .tag { display:inline-block; border:1px solid var(--line); background:#f7f9fa; padding:2px 7px; margin:2px 3px 2px 0; font-size:12px; }
+    footer { color:var(--muted); text-align:center; padding:24px; }
+    @media(max-width:920px) {
+      .metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .flow { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .flow-step:nth-child(2n)::after { display:none; }
+      .flow-step:nth-child(odd)::after { display:block; }
+      .formula-grid { grid-template-columns:1fr; }
+    }
+    @media(max-width:620px) {
+      header { padding:36px 20px; }
+      header h1 { font-size:29px; }
+      main { padding:16px 9px 50px; }
+      section { padding:18px; }
+      .metrics,.flow,.gate-list { grid-template-columns:1fr; }
+      .flow-step::after { display:none !important; }
+      table { display:block; max-width:100%; overflow-x:auto; }
+      .funnel-row { grid-template-columns:1fr; gap:3px; }
+      .funnel-label { text-align:left; }
+    }
+    @media print {
+      nav { display:none; }
+      body { background:#fff; font-size:11pt; }
+      header { padding:28px; }
+      section { break-inside:avoid-page; border-color:#bbb; }
+      .flow-step { min-height:0; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>MemCalib v2.3 数据集完整构建与质检流程</h1>
+  <p>从八个公开数据源的候选筛选开始，经过领域分层抽样、语义准入、18,000 条过量构造、A/B/C 原子标注、长尾块与原子负载扩展、自然段改写、独立质检和定向修复，最终发布 15,000 条可审计记录。</p>
+  <p>本报告面向流程审查与论文方法章节撰写。描述以数据对象、约束、决策规则和实际计数为中心，避免依赖具体脚本或变量名。</p>
+  <div class="stamp">Internal research methodology report · MemCalib v2.3 · 2026-07-21 · standalone HTML</div>
+</header>
+<nav><div>
+  <a href="#summary">结论</a><a href="#map">全流程</a><a href="#sources">数据源</a>
+  <a href="#sampling">抽样准入</a><a href="#foundation">基础构造</a><a href="#revision">v2.3 修订</a>
+  <a href="#rewrite">自然段改写</a><a href="#qc">独立质检</a><a href="#repair">修复闭环</a>
+  <a href="#release">最终发布</a><a href="#formal">形式化描述</a><a href="#limits">边界</a>
+</div></nav>
+
+<main>
+  <section id="summary">
+    <div class="kicker">Technical summary</div>
+    <h2>1. 最终产物达到精确领域配额，并把多原子记忆提升为主体</h2>
+    <div class="metrics">
+      <div class="metric"><strong>15,000</strong><span>最终记录，ID 与来源 ID 均唯一</span></div>
+      <div class="metric"><strong>74,800</strong><span>模型可见记忆块</span></div>
+      <div class="metric"><strong>234,221</strong><span>隐藏原子记忆</span></div>
+      <div class="metric"><strong>79.95%</strong><span>多原子块占全部块</span></div>
+      <div class="metric"><strong>0 / 0</strong><span>最终 reject / invalid</span></div>
+    </div>
+    <p class="lead"><b>发布结论：</b>最终数据精确包含 health 7,500、general 3,750、coding 3,750 条；每条 3–20 个记忆块，每块 1–20 个隐藏原子，单条总原子数为 6–63。59,800 个块包含多个原子，其中 48,548 个包含至少三个原子；所有多原子块均已改写为不暴露编号边界的自然段。</p>
+    <div class="callout good"><b>质量结论：</b>最终 13,923 条为 strict pass，1,077 条为可审计的 non-blocking review，reject 和 invalid 均为 0。review 不代表放宽硬门：存在 query leakage、答案足迹、错误动作、关键值丢失、原子遗漏或不可解析输出的记录均不得发布。</div>
+    <div class="callout info"><b>版本关系：</b>v2.3 不替换 15,000 个问题、不改变来源谱系、不重标原有 A/B/C 及动作，也不改 canonical Hard A。它在 v2.2 的 3–20 块长尾接口上增加块内原子负载、三档难度和自然段表面形式。</div>
+  </section>
+
+  <section id="map">
+    <h2>2. 一张图读懂完整构建路径</h2>
+    <p>整个流程由八个不可跳过的门组成。每个门只接收上一步的合格对象；任何修复只作用于失败 ID，已通过项冻结。</p>
+    <div class="flow">
+      <div class="flow-step"><span class="n">01 · SOURCE</span><strong>公开源归一化</strong><p>统一问题、回答、上下文、来源、许可证和署名字段；保留原始来源 ID。</p></div>
+      <div class="flow-step"><span class="n">02 · SAMPLE</span><strong>分层候选抽样</strong><p>按领域、来源、主题和构造复杂度分层；先去重，再按稳定随机序确定配额。</p></div>
+      <div class="flow-step qc"><span class="n">03 · ADMISSION</span><strong>源语义准入</strong><p>判断问答一致性、可回答性、信息量和证据支撑；仅 strict 进入构造池。</p></div>
+      <div class="flow-step"><span class="n">04 · BUILD</span><strong>18,000 条过量构造</strong><p>生成原子记忆、A/B/C、动作、证据、反事实契约和可观察评分准则。</p></div>
+      <div class="flow-step repair"><span class="n">05 · REPAIR</span><strong>确定性校验与定向修复</strong><p>修复结构、证据逐字落地和语义边界；形成 15,583 条确定性通过池。</p></div>
+      <div class="flow-step"><span class="n">06 · EXPAND</span><strong>长尾块内原子扩展</strong><p>保留原有原子，增加 A+ignore 辅助原子，形成三档难度且每块最多 20 原子。</p></div>
+      <div class="flow-step qc"><span class="n">07 · QC</span><strong>改写与独立质检</strong><p>多原子块改写成自然段；另一模型逐原子、逐块、逐记录复核。</p></div>
+      <div class="flow-step release"><span class="n">08 · RELEASE</span><strong>精确配额发布</strong><p>只合并 strict 与允许的 review，恢复原顺序，验证哈希、唯一性与完整署名。</p></div>
+    </div>
+    <div class="callout violet"><b>核心隔离原则：</b>构造模型、表面改写模型和独立 QC 承担不同职责；确定性 validator 不依赖模型自评；发布门依据重算后的记录级决策，而不是相信任一阶段自报的通过状态。</div>
+  </section>
+
+  <section id="sources">
+    <h2>3. 八个公开数据源提供三个领域的真实问题骨架</h2>
+    <p>源数据只用于提供真实问题分布、上下文和构造锚点。源回答用于检查问答一致性和构造可行性，但不会被自动视为不可质疑的事实金标。</p>
+    <table>
+      <thead><tr><th>领域</th><th>数据源</th><th>主要覆盖</th><th class="num">最终发布数</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="2">Health</td><td>MedDialog</td><td>症状、用药、慢病管理和就医问答</td><td class="num">3,793</td></tr>
+        <tr><td>ChatDoctor HealthCareMagic</td><td>真实健康咨询风格、病程与护理问题</td><td class="num">3,707</td></tr>
+        <tr><td rowspan="3">General</td><td>UltraChat 200K</td><td>解释、规划、写作、生活与沟通任务</td><td class="num">2,377</td></tr>
+        <tr><td>OpenAssistant OASST1</td><td>开放域多轮助手请求</td><td class="num">470</td></tr>
+        <tr><td>OpenAssistant OASST2</td><td>开放域任务、建议和知识问答</td><td class="num">903</td></tr>
+        <tr><td rowspan="3">Coding</td><td>Magicoder OSS Instruct</td><td>实现、调试、API、系统与代码解释</td><td class="num">2,771</td></tr>
+        <tr><td>APPS</td><td>算法题、约束推理与程序实现</td><td class="num">174</td></tr>
+        <tr><td>Stack Exchange Preferences</td><td>工程问题、工具链、测试和实践判断</td><td class="num">805</td></tr>
+      </tbody>
+      <tfoot><tr><th colspan="3">总计</th><th class="num">15,000</th></tr></tfoot>
+    </table>
+    <h3>归一化后保留的谱系</h3>
+    <p>每个候选都保留数据集名、split、来源 ID、许可证元数据、原始问题、可用上下文、来源回答、主题和署名。随后执行语言、长度、模式、噪声、低信息、精确重复和近重复过滤。Stack Exchange 项还必须补全作者名及 CC-BY-SA 所需署名；署名不完整者不能进入最终 release。</p>
+    <div class="callout"><b>使用边界：</b>最终包面向内部研究审阅和受控训练。部分健康来源的上游卡片没有给出足够明确的公开再分发权限，因此发布数据集不应被直接视为可公开再分发资产。</div>
+  </section>
+
+  <section id="sampling">
+    <h2>4. 抽样先控制覆盖，再由语义准入决定能否用于构造</h2>
+    <h3>4.1 分层配额不是按原始数据量直接抽取</h3>
+    <p>候选选择按“领域 × 数据源 × 主题 × 构造复杂度”形成分层单元。大数据源不能仅凭体量占据全部配额；每个单元先获得按容量计算的初始配额，再用最大余数法离散化，只有单元自身容量不足时才在同一领域内重新分配。</p>
+    <div class="formula-grid">
+      <div class="formula"><b>分层初始配额</b><br>q(h) = n(d) × N(h) / Σ<sub>j∈d</sub>N(j)<br><span class="small">h 为分层单元，d 为领域，N 为可用容量。</span></div>
+      <div class="formula"><b>确定性排序</b><br>rank(x) = quality(x), stable_hash(seed, id(x))<br><span class="small">质量优先；同分时由固定种子与来源 ID 决定，便于复现。</span></div>
+    </div>
+    <p>该分布服务于能力覆盖和难度控制，不声称拟合真实线上流量。</p>
+
+    <h3>4.2 源语义 QC 的实际漏斗</h3>
+    <div class="funnel" aria-label="source admission funnel">
+      <div class="funnel-row"><div class="funnel-label">General/Coding 候选</div><div class="funnel-track"><div class="funnel-fill" style="width:100%"></div></div><div class="funnel-value">34,150</div></div>
+      <div class="funnel-row"><div class="funnel-label">有可用决策</div><div class="funnel-track"><div class="funnel-fill" style="width:98.31%"></div></div><div class="funnel-value">33,574</div></div>
+      <div class="funnel-row"><div class="funnel-label">General strict 容量</div><div class="funnel-track"><div class="funnel-fill" style="width:14.35%"></div></div><div class="funnel-value">4,901</div></div>
+      <div class="funnel-row"><div class="funnel-label">Coding strict 容量</div><div class="funnel-track"><div class="funnel-fill" style="width:14.70%"></div></div><div class="funnel-value">5,020</div></div>
+      <div class="funnel-row"><div class="funnel-label">最终 General/Coding 准入</div><div class="funnel-track"><div class="funnel-fill" style="width:27.82%"></div></div><div class="funnel-value">9,500</div></div>
+    </div>
+    <table>
+      <thead><tr><th>源准入检查</th><th>判定要求</th><th>失败后的处理</th></tr></thead>
+      <tbody>
+        <tr><td>问答一致性</td><td>问题、上下文与来源回答属于同一任务，不能错配。</td><td>reject</td></tr>
+        <tr><td>可回答性与信息量</td><td>不能是空洞寒暄、严重截断或缺少完成任务所需的信息。</td><td>reject</td></tr>
+        <tr><td>证据落地</td><td>语义判断必须能回指来源中的逐字证据。</td><td>结构 invalid 定向重试；语义不成立则 reject</td></tr>
+        <tr><td>来源合规</td><td>保留许可证元数据；Stack Exchange 署名必须完整。</td><td>排除公开 release</td></tr>
+      </tbody>
+    </table>
+    <p>34,150 个候选中得到 33,574 个 resolved 决策，残余 invalid 为 576。strict 容量为 general 4,901、coding 5,020；初次拟入选 Stack Exchange 的 950 条中有 67 条署名不完整，排除后 coding strict 容量仍为 4,953。最终 general 与 coding 各选 4,750 条，全部 strict，不跨领域挪配、不用 review 补位。它们与 15,577 条已准入 health 种子合并，形成 25,077 条构造种子池。</p>
+  </section>
+
+  <section id="foundation">
+    <h2>5. 基础版本先过量构造，再用确定性与语义门收敛</h2>
+    <h3>5.1 18,000 条构造请求保留下游拒绝余量</h3>
+    <table>
+      <thead><tr><th>领域</th><th class="num">构造请求</th><th>最终目标</th><th>过量构造目的</th></tr></thead>
+      <tbody>
+        <tr><td>health_seed</td><td class="num">8,500</td><td class="num">7,500</td><td>吸收确定性与独立 QC 拒绝</td></tr>
+        <tr><td>general</td><td class="num">4,750</td><td class="num">3,750</td><td>维持来源覆盖同时留出语义筛选余量</td></tr>
+        <tr><td>coding</td><td class="num">4,750</td><td class="num">3,750</td><td>吸收实现细节、证据落地和可观测性失败</td></tr>
+        <tr><th>总计</th><th class="num">18,000</th><th class="num">15,000</th><th>按领域独立满足最终配额</th></tr>
+      </tbody>
+    </table>
+    <h3>5.2 一个原子同时携带“影响强度”和“应采取动作”</h3>
+    <table>
+      <thead><tr><th>标签</th><th>规范含义</th><th>允许动作</th><th>例外说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>A</b></td><td>对当前回答没有合法影响</td><td>ignore</td><td>A+apply 或 A+correct 禁止</td></tr>
+        <tr><td><b>B</b></td><td>应改变局部内容、范围、呈现或安全处理</td><td>apply / correct</td><td>错误、陈旧或不安全记忆若需显式纠正，属于 B 或 C</td></tr>
+        <tr><td><b>C</b></td><td>应控制答案的主要方向、结论或关键实现</td><td>apply / correct</td><td>需要可观察的有记忆/无记忆差异</td></tr>
+      </tbody>
+    </table>
+    <p>每个 B/C 原子还必须提供反事实契约：明确“使用该记忆”和“不使用该记忆”时，答案中应出现什么可观察差异。标签与动作分离可以表达“必须纠正错误记忆”：它不是忽略记忆，而是对记忆作可见响应。</p>
+
+    <h3>5.3 确定性修复历史保留全部审计</h3>
+    <table>
+      <thead><tr><th>阶段</th><th class="num">新增或累计通过</th><th class="num">剩余</th><th>主要作用</th></tr></thead>
+      <tbody>
+        <tr><td>主构造确定性通过</td><td class="num">6,888</td><td class="num">11,112</td><td>模式、ID、动作、证据、隔离与 rubric 硬门</td></tr>
+        <tr><td>定向 repair 1</td><td class="num">+6,038；累计 12,926</td><td class="num">5,074</td><td>只修复首轮 reject</td></tr>
+        <tr><td>定向 repair 2</td><td class="num">累计 13,726</td><td class="num">4,274</td><td>继续修复残余确定性失败</td></tr>
+        <tr><td>定向 repair 3</td><td class="num">累计 13,959</td><td class="num">4,041</td><td>再次收敛，保留 residual reject</td></tr>
+        <tr><td>严格本地 grounding 修复</td><td class="num">+1,624；累计 15,583</td><td class="num">2,417</td><td>仅修逐字 evidence 与空 source；修后重跑全部 validator</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><b>本地修复不是规则放宽：</b>只处理“内容已存在但证据字符串未逐字落地”或声明来源为空的记录；不改 A/B/C、不改变语义、不把 validator 关闭。每条修改有前后值与审计，且修改后必须重新通过原完整 validator。</div>
+  </section>
+
+  <section id="revision">
+    <h2>6. v2.3 将块内原子数扩展到 1–20，并建立三档难度</h2>
+    <h3>6.1 冻结项与允许修改项</h3>
+    <table>
+      <thead><tr><th>对象</th><th>处理</th><th>理由</th></tr></thead>
+      <tbody>
+        <tr><td>15,000 个问题、来源 ID、领域与来源分布</td><td>冻结</td><td>确保与既有版本及模型评估可比</td></tr>
+        <tr><td>原有真实原子、A/B/C、动作、证据和 rubric</td><td>冻结</td><td>避免负载扩展改变金标任务</td></tr>
+        <tr><td>canonical Hard A</td><td>保持独立单原子块</td><td>不让新增噪声改变其失败机制</td></tr>
+        <tr><td>v2.2 的每条 3–20 个可见块</td><td>冻结块数</td><td>把版本差异集中在块内复杂度</td></tr>
+        <tr><td>每块隐藏原子数量</td><td>扩展至 1–20</td><td>提高原子筛选与组合推理负载</td></tr>
+        <tr><td>新增原子</td><td>仅允许 A+ignore</td><td>增加检索噪声而不改答案金标</td></tr>
+        <tr><td>多原子块的模型可见文本</td><td>自然段重写</td><td>消除编号列表直接暴露原子边界的问题</td></tr>
+      </tbody>
+    </table>
+
+    <h3>6.2 约束作用在“每块”，不对“每条总原子数”设上限</h3>
+    <div class="formula-grid">
+      <div class="formula"><b>块数</b><br>3 ≤ K<sub>i</sub> ≤ 20<br><span class="small">K<sub>i</sub>：第 i 条记录的模型可见块数。</span></div>
+      <div class="formula"><b>块内原子数</b><br>1 ≤ N<sub>i,b</sub> ≤ 20<br><span class="small">N<sub>i,b</sub>：记录 i 的第 b 个块包含的隐藏原子数。</span></div>
+      <div class="formula"><b>单条总原子数</b><br>T<sub>i</sub> = Σ<sub>b=1</sub><sup>K<sub>i</sub></sup>N<sub>i,b</sub><br><span class="small">不额外限制 T<sub>i</sub>；最终实际范围为 6–63。</span></div>
+      <div class="formula"><b>新增原子不改变目标</b><br>label(a<sub>new</sub>) = A<br>action(a<sub>new</sub>) = ignore<br>answer_footprint(a<sub>new</sub>) = none</div>
+    </div>
+
+    <h3>6.3 三档难度由块内负载定义</h3>
+    <table>
+      <thead><tr><th>难度</th><th>块内原子结构</th><th>目标能力</th><th class="num">最终记录</th></tr></thead>
+      <tbody>
+        <tr><td>Level 1</td><td>除 Hard A 外，各块最多 4 原子，且最多一个块超过 2 原子</td><td>基础相关性判断与少量组合</td><td class="num">3,751</td></tr>
+        <tr><td>Level 2</td><td>至少一个块含 3–7 原子，但不满足 Level 3</td><td>中等密度筛选、局部混合标签解析</td><td class="num">7,500</td></tr>
+        <tr><td>Level 3</td><td>至少一个块含 8 个以上原子，或至少两个块各含 5 个以上原子</td><td>高密度检索噪声与跨块控制</td><td class="num">3,749</td></tr>
+      </tbody>
+    </table>
+    <div class="legend"><span><i class="dot l1"></i>Level 1: 25.01%</span><span><i class="dot l2"></i>Level 2: 50.00%</span><span><i class="dot l3"></i>Level 3: 24.99%</span></div>
+    <div class="stackbar" aria-label="difficulty distribution"><span class="l1" style="width:25.0067%"></span><span class="l2" style="width:50%"></span><span class="l3" style="width:24.9933%"></span></div>
+
+    <h3>6.4 原子扩展的构造条件</h3>
+    <p>新增辅助原子必须能作为同一用户历史中合理出现的独立事实，但与当前问题的求解关系为 absent，不能在正确回答中留下内容、呈现、实现或安全足迹，也不需要被纠正。同一块内原子可以属于同一场景，但每个原子仍须可独立判真/判假，不能把一句复合事实伪装成多个原子。</p>
+    <p>扩展前共有 118,819 个隐藏原子；新增 115,402 个 A+ignore 后达到 234,221。新增量只增加负载，不改变原有 B/C 和答案约束。</p>
+  </section>
+
+  <section id="rewrite">
+    <h2>7. 自然段改写隐藏原子边界，但不允许改变原子集合</h2>
+    <p>v2.2 采用编号或显式分隔，虽然便于审计，却让模型直接看到原子边界。v2.3 在原子扩展完成后增加独立表面改写：多原子块被重写成一个连贯、自然、符合用户历史风格的段落；隐藏原子列表与块到原子的映射仍保留用于评分。</p>
+    <table>
+      <thead><tr><th>必须保持</th><th>必须消除</th><th>不允许新增</th></tr></thead>
+      <tbody>
+        <tr><td>每个原子的全部命题、关键实体、数字、否定和条件</td><td>数字编号、项目符号、Atom/Memory 等显式元标签</td><td>隐藏原子之外的新事实、因果、偏好或结论</td></tr>
+        <tr><td>原子间可恢复的一一覆盖关系</td><td>机械拼接和逐句模板重复</td><td>对当前问题的提示、答案线索或纠正</td></tr>
+        <tr><td>同一用户、同一记忆块的场景一致性</td><td>原子边界的表面提示</td><td>把多个独立原子合并为不可拆分的新主张</td></tr>
+      </tbody>
+    </table>
+    <div class="formula"><b>表面等价要求</b><br>Propositions(paragraph<sub>i,b</sub>) = { atom<sub>i,b,1</sub>, …, atom<sub>i,b,N</sub> }<br>Extra(paragraph<sub>i,b</sub>) = ∅<br>Missing(paragraph<sub>i,b</sub>) = ∅</div>
+    <p>确定性门先检查 ID、原子映射、关键 token、显式编号和模式完整性；语义门再判断段落是否确实覆盖全部原子且没有增加命题。两种检查互补：前者擅长捕获可机械验证的不变量，后者覆盖同义改写和隐含语义。</p>
+  </section>
+
+  <section id="qc">
+    <h2>8. 独立 QC 同时检查新增原子、自然段和整条记录</h2>
+    <p>QC 不是只给记录一个总分，而是先生成逐原子、逐块和全局检查，再由最严重的失败决定记录级状态。</p>
+    <h3>8.1 逐新增原子检查</h3>
+    <ul class="gate-list">
+      <li><b>Atomicity：</b>是否可独立判真/判假。</li>
+      <li><b>Same-user plausibility：</b>是否像同一用户可能拥有的历史。</li>
+      <li><b>Query relation：</b>与当前问题必须为 absent。</li>
+      <li><b>Answer footprint：</b>content、presentation、implementation、safety 均为 none。</li>
+      <li><b>Correction：</b>不能要求答案显式纠正。</li>
+      <li><b>Distinctness：</b>不能复制原有原子或同块新增原子。</li>
+    </ul>
+    <h3>8.2 逐块检查</h3>
+    <ul class="gate-list">
+      <li><b>Coverage：</b>段落覆盖块内每一个隐藏原子。</li>
+      <li><b>No extra proposition：</b>段落没有隐藏列表外的新命题。</li>
+      <li><b>Critical values：</b>数字、单位、否定和条件未丢失。</li>
+      <li><b>Naturalness：</b>是连贯自然段，不是伪装列表。</li>
+      <li><b>Coherence：</b>同块原子能形成合理记忆场景。</li>
+      <li><b>No contamination：</b>没有把当前问题或目标答案写回记忆。</li>
+    </ul>
+    <h3>8.3 记录级合并规则</h3>
+    <div class="formula-grid">
+      <div class="formula"><b>严重度顺序</b><br>strict_pass &lt; review &lt; reject &lt; invalid</div>
+      <div class="formula"><b>记录决策</b><br>decision(i) = max severity(all atom, block, global checks)</div>
+    </div>
+    <p><b>strict_pass</b> 表示所有硬门通过且无边界疑点；<b>review</b> 仅用于不影响答案、标签或可评分性的边界判断；<b>reject</b> 表示存在真实质量失败；<b>invalid</b> 表示 QC 输出结构不完整或无法解析。reject/invalid 不得进入发布。</p>
+  </section>
+
+  <section id="repair">
+    <h2>9. 334 条尾部记录经过定向修复，不重跑 14,666 条有效项</h2>
+    <table>
+      <thead><tr><th>阶段</th><th class="num">strict</th><th class="num">review</th><th class="num">reject</th><th class="num">invalid</th></tr></thead>
+      <tbody>
+        <tr><td>v2.3 首轮完整独立 QC</td><td class="num">13,606</td><td class="num">1,060</td><td class="num">334</td><td class="num">0</td></tr>
+        <tr><td>334 条修复子集最终结果</td><td class="num">317</td><td class="num">17</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr><th>最终 15,000</th><th class="num">13,923</th><th class="num">1,077</th><th class="num">0</th><th class="num">0</th></tr>
+      </tbody>
+    </table>
+    <h3>9.1 先分离语义修复与表面修复</h3>
+    <p>334 条 reject 中，326 条需要修正新增原子的 query relation、答案足迹、同用户合理性或原子独立性；另 8 条隐藏原子本身合格，只需重新生成自然段。这样避免为了表面问题重写正确原子，也避免只改段落掩盖真实语义失败。</p>
+    <div class="timeline">
+      <article><h4>扩展修复：326 条</h4><p>326/326 API 输出成功；两条出现结构错误，仅重试这两条后全部通过确定性门。</p></article>
+      <article><h4>自然段重写：334 条</h4><p>334/334 API 输出成功；两条分别缺失关键 token 和发生 record ID 不一致，仅重试这两条后全部通过。</p></article>
+      <article><h4>独立复核：334 条</h4><p>首轮得到 strict 313、review 17、reject 2、invalid 2。有效结果不再请求 API。</p></article>
+      <article><h4>四条审计尾部</h4><p>两条真实内容问题做最小人工修复并重新执行全部确定性检查；两条 invalid 是 judge 漏报检查项，通过字段级审计补全，不改变被审对象。</p></article>
+    </div>
+    <div class="callout info"><b>人工尾部的边界：</b>只在剩余量极小且失败原因可明确定位时使用；每条保留 before/after、原因和字段级审计。内容修复仍需重新过 validator；judge 漏项只补齐缺失判断，不能把真实 reject 改名为 pass。</div>
+  </section>
+
+  <section id="release">
+    <h2>10. 最终发布统计、准入门和可复核产物</h2>
+    <h3>10.1 记录、块和原子分布</h3>
+    <table>
+      <thead><tr><th>层级</th><th>统计项</th><th class="num">最终值</th></tr></thead>
+      <tbody>
+        <tr><td>记录</td><td>总记录 / 唯一记录 ID / 唯一来源 ID</td><td class="num">15,000 / 15,000 / 15,000</td></tr>
+        <tr><td>领域</td><td>health_seed / general / coding</td><td class="num">7,500 / 3,750 / 3,750</td></tr>
+        <tr><td>难度</td><td>Level 1 / Level 2 / Level 3</td><td class="num">3,751 / 7,500 / 3,749</td></tr>
+        <tr><td>块</td><td>总块 / 多原子块 / 至少 3 原子块</td><td class="num">74,800 / 59,800 / 48,548</td></tr>
+        <tr><td>块</td><td>混合标签块 / 自然段多原子块</td><td class="num">20,095 / 59,800</td></tr>
+        <tr><td>原子</td><td>总原子；每条最小 / 中位 / 均值 / 最大</td><td class="num">234,221；6 / 14 / 15.6147 / 63</td></tr>
+        <tr><td>标签</td><td>A / B / C</td><td class="num">197,573 / 19,032 / 17,616</td></tr>
+        <tr><td>QC</td><td>strict / review / reject / invalid</td><td class="num">13,923 / 1,077 / 0 / 0</td></tr>
+      </tbody>
+    </table>
+    <div class="legend"><span><i class="dot a"></i>A 84.35%</span><span><i class="dot b"></i>B 8.13%</span><span><i class="dot c"></i>C 7.52%</span></div>
+    <div class="stackbar" aria-label="A B C atom distribution"><span class="a" style="width:84.354%"></span><span class="b" style="width:8.126%"></span><span class="c" style="width:7.520%"></span></div>
+    <p class="small">A 占比上升是新增辅助检索噪声的直接结果。论文报告时应同时给出块级负载、原子级分布及原有 B/C 绝对数量，不能只报告标签百分比。</p>
+
+    <h3>10.2 发布硬门</h3>
+    <ul class="gate-list">
+      <li>精确 15,000 条且记录 ID、来源 ID 唯一。</li>
+      <li>领域配额精确为 7,500 / 3,750 / 3,750。</li>
+      <li>每条 3–20 块，每块 1–20 原子。</li>
+      <li>原有原子、标签、动作和 canonical Hard A 未改变。</li>
+      <li>A 仅允许 ignore；B/C 仅允许 apply 或 correct。</li>
+      <li>多原子段落与隐藏原子集合等价，无遗漏或新增。</li>
+      <li>Stack Exchange 入选项 805/805 署名完整。</li>
+      <li>reject=0、invalid=0；review 仅含 non-blocking 边界。</li>
+    </ul>
+
+    <h3>10.3 发布文件</h3>
+    <table>
+      <thead><tr><th>产物</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td><code>memcalib_v23_multidomain_benchmark_15000.jsonl</code></td><td>权威完整数据；15,000 行，未压缩 SHA-256 为 <code>e86d79545b44344b44337d8f9502dc69880daeb18c6513784344e33a06de8773</code></td></tr>
+        <tr><td><code>memcalib_v23_multidomain_benchmark_15000.manifest.json</code></td><td>发布不变量、文件哈希与来源信息</td></tr>
+        <tr><td><code>memcalib_v23_multidomain_benchmark_15000.statistics.json</code></td><td>领域、来源、难度、块、原子、标签和 QC 精确统计</td></tr>
+        <tr><td><code>memcalib_v23_multidomain_benchmark_review.html</code></td><td>面向人工抽样审查的记录浏览界面</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="formal">
+    <h2>11. 实现无关伪代码与可复现实验接口</h2>
+    <pre><code>normalize all public-source records while preserving lineage
+filter unusable, duplicate, and near-duplicate records
+stratify candidates by domain, source, topic, and construction complexity
+
+for each source candidate:
+    independently judge coherence, answerability, information, and evidence
+    admit only strict records; retry only structurally invalid decisions
+complete required attribution before construction admission
+
+over-generate 18,000 benchmark candidates under fixed domain quotas
+for each candidate:
+    construct hidden atoms, A/B/C labels, actions, evidence,
+    counterfactual contracts, and observable scoring rubrics
+    enforce deterministic schema, grounding, isolation, and action gates
+repair only rejected IDs; preserve every earlier output and audit
+
+select the locked 15,000-record foundation
+freeze questions, lineage, original atoms, labels, actions, and Hard A
+assign one of three atom-load difficulty strata
+
+for each visible memory block:
+    add only auxiliary A+ignore atoms with zero answer footprint
+    require 1 to 20 atoms in the block
+    rewrite multi-atom content as one natural paragraph
+    require paragraph propositions to equal the hidden atom set
+
+run independent atom-, block-, and record-level QC
+separate semantic repair from surface-only repair
+repair and rejudge rejected IDs only
+admit strict and audited non-blocking review records
+restore original order and enforce exact domain quotas
+verify IDs, hashes, counts, attribution, and zero reject/invalid</code></pre>
+    <h3>模型训练或评估时的输入投影</h3>
+    <p>完整 JSONL 同时包含模型可见输入与隐藏监督。给回答模型的输入只能投影为：</p>
+    <div class="formula"><b>model_input(i)</b> = { current_question<sub>i</sub>, ordered(memory_text<sub>i,1…K</sub>) }</div>
+    <p>不得向被评模型暴露隐藏原子、A/B/C、动作、反事实契约、usage rubric、pairwise audit 或 QC decision。隐藏字段只用于评分、辅助训练或方法审计，并应对 benchmark holdout 做显式防泄漏。</p>
+  </section>
+
+  <section id="limits">
+    <h2>12. 限制、稳健性与论文表述边界</h2>
+    <ul>
+      <li><b>受控分布而非流量估计：</b>领域、来源、块数和难度均为实验设计分布，不能解释为真实用户请求频率。</li>
+      <li><b>模型辅助标注：</b>新增原子、自然段和语义 QC 使用模型辅助，但以确定性不变量、独立 QC、定向修复和人工尾部审计约束。</li>
+      <li><b>review 的含义：</b>1,077 条 review 是无硬失败的边界案例。主要实验应报告是否纳入这些记录，并做 strict-only 敏感性分析。</li>
+      <li><b>A 数量的解释：</b>新增 115,402 个 A+ignore 是为构造高负载干扰上下文，不能据此声称自然记忆系统中 A 的真实先验为 84.35%。</li>
+      <li><b>来源事实边界：</b>来源回答用于构造锚定，不是医学或通用事实的最终权威；模型使用数据进行训练后仍需独立安全评估。</li>
+      <li><b>许可证与署名：</b>Stack Exchange 项已完成署名，但其他来源尤其健康数据仍需在公开再分发前做额外权利与隐私审查。</li>
+      <li><b>可比性：</b>与 v2.1/v2.2 比较时应保持问题集合、输入投影、解码设置和 judge 协议一致，并分别报告三档难度结果。</li>
+    </ul>
+    <h3>建议的论文报告最小集合</h3>
+    <p><span class="tag">领域与来源分布</span><span class="tag">难度分层</span><span class="tag">块数与原子数</span><span class="tag">A/B/C 与动作</span><span class="tag">strict/review 敏感性</span><span class="tag">有记忆/无记忆对照</span><span class="tag">构造模型与 judge 稳定性</span><span class="tag">失败类型分析</span></p>
+    <div class="callout good"><b>审查建议：</b>先使用随包的记录级 HTML 按领域、难度和 QC 决策分层抽样；再用本报告核对每一类样本从来源到发布所经过的门。发现问题时按记录 ID 回溯扩展、改写、QC 和修复审计，不应直接修改最终 JSONL。</div>
+  </section>
+</main>
+<footer>MemCalib v2.3 · complete construction and quality-control methodology · generated from locked release statistics</footer>
+</body>
+</html>

@@ -1,0 +1,48 @@
+You are rewriting already validated atomic memory propositions into natural model-facing memory paragraphs.
+
+You receive one or more memory blocks. Each block contains a fixed ordered set of independently scored propositions.
+Rewrite each block as one coherent English paragraph while preserving every proposition exactly in meaning. The hidden
+atom set is immutable: do not add, remove, weaken, strengthen, merge away, contradict, generalize, specialize, or infer
+any proposition.
+
+Hard requirements:
+
+1. Return exactly one JSON object and no Markdown or prose outside it.
+2. Use schema_version "memcalib-v23-surface-rewrite-v1" and copy record_id exactly.
+3. Return every requested parent_memory_id exactly once and in input order.
+4. Each memory_text must be a single natural paragraph. It may contain as many sentences as needed for readability.
+5. Do not use numbered clauses, bullets, headings, labels, semicolon-separated pseudo-lists, or explicit atom-boundary
+   markers. In particular, never emit forms such as "1.", "2)", "first atom", or "another memory".
+6. Preserve all names, entities, versions, quantities, units, dates, times, negations, modality, conditions, scope,
+   uncertainty, and preferences. Do not replace precise values with vague summaries.
+7. Natural connective wording and pronouns are allowed only when their referents are unambiguous and they add no fact.
+8. Do not mention atom IDs, hidden supervision, labels, actions, rubrics, construction, grading, or this benchmark.
+9. Do not tailor the paragraph to a question or answer. The current question is intentionally not supplied.
+10. Avoid repetitive sentence openings and mechanical concatenation, but fidelity is more important than elegance.
+
+Output schema:
+
+{
+  "schema_version": "memcalib-v23-surface-rewrite-v1",
+  "record_id": "...",
+  "blocks": [
+    {
+      "parent_memory_id": "exact requested ID",
+      "memory_text": "one coherent paragraph with no visible atom numbering"
+    }
+  ],
+  "self_check": {
+    "all_block_ids_exact": true,
+    "all_propositions_preserved": true,
+    "no_propositions_added": true,
+    "no_numbered_or_bulleted_atom_boundaries": true,
+    "critical_values_preserved": true,
+    "single_paragraph_per_block": true
+  }
+}
+
+RECORD ID
+{record_id}
+
+BLOCKS TO REWRITE
+{blocks_json}

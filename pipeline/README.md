@@ -1,6 +1,8 @@
 # MemCalib Construction Pipeline
 
-This directory contains the reproducible construction stages for MemCalib v0.1. The current source release uses:
+This directory contains the reproducible construction stages for MemCalib from
+the v0.1 lineage through the current v2.3 composite-block release. The original
+v0.1 source release uses:
 
 - `OpenMed/MedDialog`
 - `lavita/ChatDoctor-HealthCareMagic-100k`
@@ -14,6 +16,12 @@ The v0.2 multi-domain construction line additionally uses:
 - `codeparrot/apps`
 
 Raw source files, API requests and responses, logs, and large intermediates stay under `pipeline/data/` and are excluded from Git. The locked review release is under `release/memcalib-v0.1/`.
+
+The current v2.3 method, schema, and coauthor handoff are documented in:
+
+- [`docs/reports/memcalib-v23-composite-block-revision.html`](../docs/reports/memcalib-v23-composite-block-revision.html)
+- [`docs/benchmark-schema-v2.3.md`](../docs/benchmark-schema-v2.3.md)
+- [`docs/MEMCALIB_V23_COAUTHOR_HANDOFF.md`](../docs/MEMCALIB_V23_COAUTHOR_HANDOFF.md)
 
 ## Environment
 
@@ -56,6 +64,12 @@ All configured paths are resolved relative to `pipeline/config.json`.
 38 strict per-domain source-QA admission for construction
 39 merge locked medical and new-domain construction seeds
 40 strict-first, review-fallback final 15k release admission
+79-80 prepare and validate v2.3 atom-load expansion
+81-82 prepare and validate natural-paragraph surface rewriting
+83-84 prepare and recompute independent v2.3 semantic QC
+85 build the exact-quota v2.3 release and review artifact
+86-93 targeted structural retry, merge, and audited metadata completion
+94-101 targeted semantic repair, merge, and audited four-record tail completion
 ```
 
 Scripts 01-09 and 13-14 are retained as prototype and calibration lineage. They are not the final v0.1 construction path.
@@ -139,3 +153,33 @@ The completed 100-record pilot required one targeted construction-repair round: 
 `config.multidomain-v2.json` locks the first full multi-domain target. Source semantic QC uses 24,000 candidates: 12,000 General and 12,000 Coding. Construction oversamples 18,000 records (8,500 Health, 4,750 General, and 4,750 Coding) before independent QC. Final admission targets 15,000 records with a 7,500/3,750/3,750 domain split.
 
 The General/Coding source pool is built with script 37. It performs cross-source near-duplicate removal before quota sampling, preserves source-level provenance and licenses, and allows a source shortfall to be filled only within the same domain. Strict-pass records are admitted first; non-blocking review records are eligible only when a domain target cannot otherwise be met.
+
+## Composite-block Revision V2.3
+
+The v2.3 line freezes the selected 15,000 questions, source lineage, original
+atoms, labels, actions, canonical Hard A, and v2.2 visible-block counts. It adds
+only auxiliary `A+ignore` atoms, expands each visible block to 1-20 hidden
+atoms, assigns three atom-load difficulty strata, and rewrites every multi-atom
+block as a natural paragraph without visible atom boundaries. There is no
+record-level total-atom cap.
+
+The stage groups are:
+
+1. `79-80`: assign difficulty, construct auxiliary atoms, and enforce the
+   expansion contract;
+2. `81-82`: rewrite multi-atom blocks and verify proposition coverage, critical
+   values, and absence of extra claims;
+3. `83-84`: run independent atom-, block-, and record-level semantic QC;
+4. `86-93`: retry only structurally invalid API outputs and merge the audited
+   results;
+5. `94-101`: classify and repair the 334-record semantic tail, including an
+   explicit four-record manual audit when further API retries were no longer
+   justified;
+6. `85`: restore original order, enforce exact domain quotas, compute release
+   statistics, and build the record-review HTML.
+
+The locked v2.3 release contains 15,000 records, 74,800 visible blocks, and
+234,221 hidden atoms. Final independent QC is 13,923 strict pass, 1,077
+non-blocking review, zero reject, and zero invalid. Large data and API artifacts
+remain under ignored `pipeline/data/`; only code, prompts, tests, and method
+documentation belong in Git.

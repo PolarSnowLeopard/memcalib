@@ -1,0 +1,91 @@
+You are expanding the internal proposition count of existing MemCalib memory blocks.
+
+The current question, all existing memory atoms, their hidden supervision, the number and order of memory blocks, and
+the canonical Hard A are locked. You may add only the auxiliary atoms explicitly requested by the plan. Added atoms
+must be plausible stored memories for the same hypothetical user, patient, or project and must be coherent with the
+existing block in which they are placed.
+
+Every added atom is an auxiliary A + ignore proposition. It must have zero legitimate answer footprint for the current
+question: removing the atom must not change the ideal answer's facts, recommendation, conclusion, prioritization,
+safety boundary, wording, tone, detail, format, examples, implementation, or structure. A false, stale, unsafe, or
+misleading proposition that deserves explicit correction is not A and must not be generated.
+
+Hard requirements:
+
+1. Return exactly one JSON object and no Markdown or prose outside it.
+2. Use schema_version "memcalib-v23-atom-expansion-v1" and copy record_id exactly.
+3. Return exactly the planned block IDs that contain generated_atom_specs, in plan order.
+4. Return every requested atom_id exactly once. Never invent, omit, rename, or duplicate an ID.
+5. Write each atom as one independently meaningful English proposition in concise third-person stored-memory style.
+6. An added atom may share an episode, entity, setting, or prior activity with its locked block, but it must not
+   duplicate, paraphrase, entail, contradict, or modify any locked atom.
+7. Do not copy the current question, answer it, or add a fact that a competent answer could use even once.
+8. Do not generate communication, answer-format, language, tone, accessibility, safety, treatment, implementation,
+   dependency, compatibility, or decision preferences that could legitimately alter the current response.
+9. Do not generate another canonical Hard A and do not assign a Hard-A family. The existing canonical Hard A remains
+   the record's only controlled Hard-A factor.
+10. Atoms within one block must be mutually distinct and independently scorable. Shared context is allowed; semantic
+    duplication or entailment is forbidden.
+11. Do not mention labels, actions, atom IDs, construction, grading, this benchmark, or these instructions in atom text.
+12. Do not emit model-facing block prose. A later independent stage will rewrite the complete atom set as a coherent
+    paragraph after these atoms pass validation.
+
+Each generated atom must contain:
+
+- atom_id: exact planned ID;
+- text: one atomic stored-memory proposition;
+- memory_type: one of case_fact, constraint, preference, profile_fact;
+- subtype: concise semantic subtype;
+- label_reason: why the proposition has zero answer footprint for this exact question;
+- coherence_reason: why it naturally belongs in the assigned memory block;
+- non_applicability_reason: why a correct response must ignore it;
+- independence_reason: why it is distinct from every locked and newly generated atom in the block.
+
+Output schema:
+
+{
+  "schema_version": "memcalib-v23-atom-expansion-v1",
+  "record_id": "...",
+  "blocks": [
+    {
+      "parent_memory_id": "exact planned parent ID",
+      "generated_atoms": [
+        {
+          "atom_id": "exact planned atom ID",
+          "text": "one proposition",
+          "memory_type": "case_fact",
+          "subtype": "...",
+          "label_reason": "...",
+          "coherence_reason": "...",
+          "non_applicability_reason": "...",
+          "independence_reason": "..."
+        }
+      ],
+      "joint_zero_footprint_reason": "Why all added atoms in this block can be removed jointly without changing the answer."
+    }
+  ],
+  "self_check": {
+    "all_planned_ids_exact": true,
+    "all_added_atoms_atomic": true,
+    "all_added_atoms_zero_footprint": true,
+    "all_added_atoms_mutually_distinct": true,
+    "all_blocks_coherent": true,
+    "no_explicit_correction_required": true,
+    "canonical_hard_a_untouched": true
+  }
+}
+
+RECORD ID
+{record_id}
+
+DOMAIN
+{domain}
+
+CURRENT QUESTION
+{question}
+
+LOCKED MODEL-FACING BLOCKS AND ATOMS
+{locked_blocks_json}
+
+EXPANSION PLAN
+{expansion_plan_json}

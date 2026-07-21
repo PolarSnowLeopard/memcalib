@@ -1,10 +1,15 @@
-# MemCalib v2.1 Data Card
+# MemCalib v2.3 Data Card
 
 ## Dataset Summary
 
-MemCalib v2.1 is a 15,000-record English dataset for studying calibrated use of retrieved conversational memory. Each record contains a current question, two realistic memory blocks shown to the answer model, and hidden atomic annotations that specify expected influence strength, action, evidence, counterfactual behavior, and observable grading criteria.
+MemCalib v2.3 is a 15,000-record English dataset for studying calibrated use
+of retrieved conversational memory. Each record contains a current question,
+3–20 natural-language memory blocks shown to an answer model, and hidden
+atomic annotations that specify expected influence strength, action, evidence,
+counterfactual behavior, and observable grading criteria.
 
-The release is restricted to private coauthor research review and controlled internal training. It is not cleared for public redistribution.
+The release is restricted to private coauthor research review and controlled
+internal training. It is not cleared for public redistribution.
 
 ## Benchmark Task
 
@@ -13,9 +18,11 @@ Given a question and stored memory blocks, generate a useful response that:
 1. ignores memories that should leave no answer footprint;
 2. uses supporting memories only within their valid scope;
 3. lets controlling memories materially constrain the answer;
-4. explicitly corrects relevant memories that are wrong, stale, or unsafe when correction is required.
+4. explicitly corrects relevant memories that are wrong, stale, or unsafe when
+   correction is required.
 
-The answer model sees model-facing blocks, not hidden atoms or rubrics. Evaluation is performed at atomic granularity.
+The answer model sees natural paragraphs, not atom boundaries, labels, or
+rubrics. Evaluation is performed at atomic granularity.
 
 ## Dataset Composition
 
@@ -23,59 +30,77 @@ The answer model sees model-facing blocks, not hidden atoms or rubrics. Evaluati
 |---|---:|
 | Records | 15,000 |
 | Health / general / coding | 7,500 / 3,750 / 3,750 |
-| Model-facing memory blocks | 30,000 |
-| Multi-atom model-facing blocks | 15,000 (50.0%) |
-| Records containing a multi-atom block | 15,000 (100%) |
-| Hidden atomic memories | 53,316 |
-| Strict / review / reject / invalid | 15,000 / 0 / 0 / 0 |
+| Model-facing memory blocks | 74,800 |
+| Multi-atom blocks | 59,800 (79.95%) |
+| Blocks with at least three atoms | 48,548 (64.90%) |
+| Hidden atomic memories | 234,221 |
+| Atoms per record | 6–63 (mean 15.6147, median 14) |
+| Atoms per block | 1–20 |
+| Difficulty level 1 / 2 / 3 | 3,751 / 7,500 / 3,749 |
+| Strict / review / reject / invalid | 13,923 / 1,077 / 0 / 0 |
 | Upstream datasets | 8 |
 
-Every record has exactly two visible memory blocks:
-
-- one `composite_grounded` block containing all source-grounded real atoms for that record;
-- one single-atom synthetic Hard A block designed to look superficially usable while remaining normatively unusable.
-
-The composite block contains at least two hidden real atoms. This enforces the intended benchmark distinction between realistic non-atomic retrieval units shown to the model and atomic annotations used for evaluation.
+The visible-block count retains the v2.2 long-tail distribution. v2.3 adds an
+independent atom-count long tail inside blocks. Every multi-atom block is
+rendered as one natural paragraph without visible numbering or atom-boundary
+markers. The canonical Hard A remains a singleton block.
 
 ### Atomic labels and actions
 
 | Label | Meaning | Count |
 |---|---|---:|
-| A | no observable influence; suppress | 16,668 |
+| A | no observable influence; suppress | 197,573 |
 | B | bounded supporting influence | 19,032 |
 | C | controlling or materially constraining influence | 17,616 |
 
-A/B/C encode usage strength, not truthfulness. The independent `memory_action` field encodes direction:
-
 | Label-action | Meaning | Count |
 |---|---|---:|
-| A + `ignore` | leave no atom-specific footprint | 16,668 |
+| A + `ignore` | leave no atom-specific footprint | 197,573 |
 | B + `apply` | use as bounded support | 18,899 |
 | B + `correct` | correct relevant content with bounded influence | 133 |
 | C + `apply` | materially constrain the answer | 17,422 |
 | C + `correct` | explicitly correct a controlling wrong/stale/unsafe memory | 194 |
 
-Allowed combinations are A+ignore, B+apply/correct, and C+apply/correct. A+correct is forbidden. In particular, an incorrect memory that must be corrected is B or C, not A.
+A/B/C encode usage strength, not truthfulness. Allowed combinations are
+A+ignore, B+apply/correct, and C+apply/correct. A+correct is forbidden. v2.3
+adds 115,402 auxiliary atoms, all of which are A+ignore; original v2.2 atoms,
+labels, actions, questions, and source lineage are locked.
+
+### Three difficulty strata
+
+Difficulty is determined from hidden atoms per noncanonical block:
+
+- **level 1:** no noncanonical block exceeds four atoms and at most one exceeds
+  two atoms;
+- **level 2:** the largest noncanonical block contains three to seven atoms;
+- **level 3:** at least one noncanonical block contains eight or more atoms, or
+  at least two contain five or more atoms.
+
+The global target is approximately 25% / 50% / 25%, allocated separately
+within each domain. The one-record rounding difference is recorded in release
+statistics.
 
 ### Hard A families
 
-Each record contains exactly one synthetic Hard A atom. The five mechanisms are exactly balanced globally and within every domain.
+Each record contains exactly one canonical Hard A atom. The five mechanisms
+remain exactly balanced at 3,000 records each:
 
-| Family | Intended failure test | Total | Health | General | Coding |
-|---|---|---:|---:|---:|---:|
-| `factual_judgment_pollution` | a profile fact or prior belief biases an objective judgment | 3,000 | 1,500 | 750 | 750 |
-| `scope_overreach` | a valid fact from another scope is extended beyond its authority | 3,000 | 1,500 | 750 | 750 |
-| `current_evidence_conflict` | older memory competes with stronger current evidence but must not control | 3,000 | 1,500 | 750 | 750 |
-| `profile_style_near_neighbor` | a nearby profile/style fact appears relevant but has no decision authority | 3,000 | 1,500 | 750 | 750 |
-| `untriggered_preference` | a genuine preference is not triggered by the current task | 3,000 | 1,500 | 750 | 750 |
+1. factual-judgment pollution;
+2. scope overreach;
+3. current-evidence conflict;
+4. profile/style near-neighbor;
+5. untriggered preference.
 
-Hard A atoms must satisfy zero-footprint behavior: they may be surface-related, but cannot change the conclusion, prioritization, evidence weighting, recommendation, or wording in an atom-specific way. Wrong, stale, or unsafe content that should be corrected is excluded from Hard A and represented as B/C+correct.
+Hard A atoms may be surface-related but cannot change the conclusion,
+prioritization, evidence weighting, recommendation, or wording in an
+atom-specific way. Wrong, stale, or unsafe content that should be corrected is
+represented as B/C+correct, not Hard A.
 
 ### Source distribution
 
 | Domain | Source | Records | Recorded release license |
 |---|---|---:|---|
-| health | OpenMed/MedDialog | 3,793 | unknown in v2.1 release metadata |
+| health | OpenMed/MedDialog | 3,793 | unknown in release metadata |
 | health | lavita/ChatDoctor-HealthCareMagic-100k | 3,707 | unknown |
 | general | HuggingFaceH4/ultrachat_200k | 2,377 | MIT |
 | general | OpenAssistant/oasst1 | 470 | Apache-2.0 |
@@ -84,75 +109,123 @@ Hard A atoms must satisfy zero-footprint behavior: they may be surface-related, 
 | coding | codeparrot/apps | 174 | MIT |
 | coding | HuggingFaceH4/stack-exchange-preferences | 805 | CC-BY-SA-4.0 |
 
-All 805 selected Stack Exchange records have complete author attribution metadata. Source proportions are deliberate benchmark coverage choices, not estimates of natural traffic.
+All selected Stack Exchange records have complete author attribution metadata.
+Source proportions are benchmark coverage choices, not estimates of natural
+traffic.
 
 ## Record Structure
 
 Important top-level groups include:
 
 - stable record, source, split, topic, domain, and license lineage;
-- model-facing `question` and two `memory_blocks`;
-- hidden atomic `memories`, including label, action, evidence, counterfactual contract, and usage rubric;
-- pairwise atom relations and composite-block atom membership;
-- deterministic construction QC, independent semantic QC, targeted-repair provenance, and final release adjudication;
-- retained source question, answer, context, sampling, and source-admission audit.
+- model-facing `question` and ordered `memory_blocks`;
+- hidden atomic `memories`, including label, action, evidence,
+  counterfactual contract, and usage rubric;
+- pairwise atom relations and atom-to-block membership;
+- v2.1 construction, v2.2 block-layout, and v2.3 expansion/rewrite provenance;
+- deterministic construction QC, independent semantic QC, targeted repair,
+  and final release adjudication.
 
-See [the benchmark schema](docs/benchmark-schema.md) for the detailed contract.
+See [the v2.3 benchmark schema](docs/benchmark-schema-v2.3.md) for the detailed
+contract.
 
 ## Construction and Quality Control
 
-The release was produced through two linked layers.
+The release was produced through four versioned layers.
 
 ### Source-to-benchmark foundation
 
-1. inspect source rights and attribution, normalize schemas, filter language/length/noise, and remove exact and near duplicates;
-2. sample by domain, source, topic, and construction difficulty rather than raw source volume;
-3. run grounded semantic source-QA admission and complete Stack Exchange attribution;
-4. over-generate 18,000 benchmark candidates from 8,500 health, 4,750 general, and 4,750 coding seeds;
-5. assign hidden atoms, A/B/C labels, actions, evidence, pair relations, counterfactuals, and rubrics;
-6. run deterministic validation, targeted repair, independent QC, and exact-quota selection to form the 15,000-record v2 foundation.
+1. normalize eight public sources; filter language, length, noise, and exact or
+   near duplicates;
+2. sample by domain, source, topic, and construction difficulty;
+3. run grounded semantic source-QA admission and complete Stack Exchange
+   attribution;
+4. over-generate 18,000 benchmark candidates from 8,500 health, 4,750 general,
+   and 4,750 coding seeds;
+5. assign hidden atoms, A/B/C labels, actions, evidence, pair relations,
+   counterfactuals, and rubrics;
+6. run deterministic validation, targeted repair, independent QC, and
+   exact-quota selection.
 
-### v2.1 structural revision
+### v2.1 controlled block foundation
 
-1. reconstruct all 15,000 records into exactly one multi-atom grounded block and one single Hard A block;
-2. enforce an exact 3,000-per-family allocation for the five Hard A mechanisms;
-3. accept 14,923 records in the initial deterministic pass and repair only the remaining 77;
-4. run independent QC on all 15,000 records, structurally retrying only malformed outputs;
-5. repair 461 Hard-A-specific semantic failures and independently recheck them;
-6. send 423 unresolved non-Hard-A disputes to a second model family;
-7. directly repair and audit the remaining 93 records, then rejudge only changed fingerprints with two independent judges;
-8. admit 79 tail records by dual strict consensus and 14 by explicit deterministic manual tiebreak where one judge was strict, the other was non-strict, and the full validator suite passed;
-9. revalidate all 15,000 records and enforce exact domain, family, structure, attribution, and uniqueness invariants.
+v2.1 locked the 15,000 questions and source-grounded supervision, reconstructed
+the controlled grounded/Hard-A interface, balanced the five Hard-A families,
+and resolved all records through deterministic validation and cross-family QC.
 
-No reject, review, or invalid record entered the final release. Full counts, repair boundaries, formulas, pseudocode, and diagrams are documented in the [v2.1 construction methodology report](docs/reports/memcalib-v21-dataset-construction-methodology.html).
+### v2.2 visible-block long tail
+
+v2.2 retained all v2.1 supervision while expanding each record to 3–20 visible
+blocks. The block-count distribution is identical by domain, and the canonical
+Hard A remains a singleton.
+
+### v2.3 atom-count long tail and natural surface form
+
+1. assign one of three difficulty levels and a deterministic target atom count
+   to every block;
+2. generate only auxiliary A+ignore atoms, with original atoms and supervision
+   locked;
+3. validate schema, IDs, counts, block membership, atom independence, and
+   canonical Hard-A preservation;
+4. independently rewrite each multi-atom set as one natural paragraph, without
+   access to labels or the current question;
+5. validate atom coverage, critical values, single-paragraph form, and absence
+   of visible boundaries;
+6. independently judge every added atom and every visible block with a
+   different model family;
+7. regenerate only rejected records, re-run rewriting and QC, and retain all
+   failed attempts and hashes;
+8. complete a four-record residual tail through explicit, field-level human
+   audit: two single-atom content repairs and two omitted-check completions;
+9. admit exactly 15,000 strict/review records and exclude all reject/invalid
+   records.
+
+The detailed flow, counts, formulas, and repair boundaries are in the
+[v2.3 construction report](docs/reports/memcalib-v23-composite-block-revision.html).
 
 ## Intended Uses
 
 - evaluating over-use and under-use of conversational memory;
 - supervised or preference/reward-model research using hidden atomic contracts;
-- controlled ablations by domain, source, label, action, memory type, Hard A family, and QC path;
+- controlled ablations by domain, source, label, action, memory type, Hard-A
+  family, difficulty stratum, block size, and QC path;
 - judge calibration and analysis of realistic non-atomic retrieval units.
 
-Researchers using records for training must keep benchmark evaluation splits disjoint and must not expose hidden labels or rubrics to an answer model being evaluated.
+Researchers using records for training must keep benchmark evaluation splits
+disjoint and must not expose hidden labels or rubrics to an answer model being
+evaluated.
 
 ## Out-of-Scope Uses
 
 - clinical decision support, diagnosis, or treatment recommendation;
 - estimating real-world user, disease, or programming-task prevalence;
 - treating source answers or generated annotations as factual gold standards;
-- public redistribution without a separate rights, attribution, privacy, and sensitive-content review.
+- public redistribution without rights, attribution, privacy, and
+  sensitive-content review.
 
 ## Known Limitations
 
-- The health subset has unresolved redistribution and privacy risk; all 7,500 health records are conservatively treated as license unknown in the release metadata.
-- Source answers and model-generated annotations may be inaccurate even after structural and semantic QC.
-- Independent QC is model-assisted. The 93-record tail received explicit deterministic repair and cross-family rejudging, but this does not replace blinded expert annotation.
-- Only 327 atoms require `correct`; conclusions about correction behavior have wider uncertainty than aggregate A/B/C results.
-- Every record contains one synthetic Hard A, which strengthens over-use testing but introduces a known construction prior.
-- A fixed two-block interface is useful for controlled evaluation but does not cover all retrieval-system layouts.
+- The health subset has unresolved redistribution and privacy risk; all 7,500
+  health records are conservatively treated as license unknown.
+- Source answers and model-generated annotations may remain inaccurate after
+  structural and semantic QC.
+- Independent QC is model-assisted. The 1,077 review records are admitted
+  boundary cases without hard failures, not human-confirmed strict cases.
+- Four residual records received explicit human completion or minimal repair;
+  all changes and before/after hashes are retained, but this does not replace a
+  blinded expert study.
+- Only 327 atoms require `correct`, so conclusions about correction behavior
+  have wider uncertainty than aggregate A/B/C results.
+- v2.3 increases context complexity synthetically while preserving a fixed set
+  of questions and original scored atoms; it does not evaluate retrieval itself.
 
 ## Maintenance and Versioning
 
-The release manifest, statistics, package manifest, and SHA-256 hashes are the source of truth. Any content change requires a new version and new hashes. Evaluations must reference the exact dataset digest, sample manifest, protocol version, answer-model snapshot, and judge configuration.
+The release manifest, statistics, package manifest, and SHA-256 hashes are the
+source of truth. Any content change requires a new version and new hashes.
+Evaluations must reference the exact dataset digest, sample manifest, protocol
+version, answer-model snapshot, and judge configuration.
 
-The historical v2.0 dataset and seven-model evaluation remain available for audit but must not be combined with v2.1 metrics. The medical-only v0.1 release and its 15,526-record evaluation remain archived under `release/memcalib-v0.1/` and `evaluation/releases/memcalib-ordered-v2.1-full-15526/`.
+Historical v2.1 and v2.2 artifacts remain available for audit but must not be
+combined with v2.3 metrics. The medical-only v0.1 release remains archived under
+`release/memcalib-v0.1/`.
