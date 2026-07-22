@@ -1,0 +1,120 @@
+{
+  "files": {
+    "memcalib-v23-review-sample-30.full.jsonl": {
+      "projection": "full audit record",
+      "records": 30,
+      "sha256": "80240ed512fde4a77220bcfc5f093cc47b0413283ac5e8398ebbb2dc4ea0ab05"
+    },
+    "memcalib-v23-review-sample-30.model-facing.jsonl": {
+      "projection": "model-facing fields only",
+      "records": 30,
+      "sha256": "58c490b1be7026ad6e7e973d17a7189e39c1361f4454ff3ed7a5910205177b93"
+    }
+  },
+  "observed": {
+    "atom_labels": {
+      "A": 397,
+      "B": 29,
+      "C": 40
+    },
+    "atoms_per_record": {
+      "max": 40,
+      "mean": 15.533333333333333,
+      "min": 6
+    },
+    "blocks_per_record": {
+      "max": 13,
+      "mean": 4.766666666666667,
+      "min": 3
+    },
+    "difficulty": {
+      "level_1": 9,
+      "level_2": 12,
+      "level_3": 9
+    },
+    "domain": {
+      "coding": 10,
+      "general": 10,
+      "health_seed": 10
+    },
+    "hard_a_family": {
+      "current_evidence_conflict": 6,
+      "factual_judgment_pollution": 6,
+      "profile_style_near_neighbor": 6,
+      "scope_overreach": 6,
+      "untriggered_preference": 6
+    },
+    "label_action": {
+      "A:ignore": 397,
+      "B:apply": 29,
+      "C:apply": 39,
+      "C:correct": 1
+    },
+    "source_dataset": {
+      "HuggingFaceH4/stack-exchange-preferences": 2,
+      "HuggingFaceH4/ultrachat_200k": 6,
+      "OpenAssistant/oasst1": 1,
+      "OpenAssistant/oasst2": 3,
+      "OpenMed/MedDialog": 3,
+      "codeparrot/apps": 1,
+      "ise-uiuc/Magicoder-OSS-Instruct-75K": 7,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 7
+    },
+    "v23_independent_qc_decision": {
+      "review": 5,
+      "strict_pass": 25
+    }
+  },
+  "purpose": "Balanced qualitative review sample; not an estimator of full-dataset prevalence.",
+  "record_ids": [
+    "crk2_v2_raw_fa57dc4a97d814c7",
+    "crk2_v2_raw_658437e87949f2e3",
+    "crk2_v2_raw_d73b61b51cc31491",
+    "crk2_v2_raw_5819a683b312fd4f",
+    "crk2_v2_raw_942a243271d85e72",
+    "crk2_v2_raw_502ed3cf028bf5b3",
+    "crk2_v2_raw_49d782ea332a600c",
+    "crk2_v2_raw_c8e8072b6738aa3c",
+    "crk2_v2_raw_8c36e23edab8b7e0",
+    "crk2_v2_raw_f239ccb6fb155de0",
+    "crk2_v2_raw_general_cb5b65bdf74e67a5",
+    "crk2_v2_raw_general_a04f34713dfa95d3",
+    "crk2_v2_raw_general_3cbc89e186c34acc",
+    "crk2_v2_raw_general_3688cc70a3da2b32",
+    "crk2_v2_raw_general_025e58829abec2df",
+    "crk2_v2_raw_general_00f518dc4dffb249",
+    "crk2_v2_raw_general_44860d791ccc92f8",
+    "crk2_v2_raw_general_bf631e766766cb17",
+    "crk2_v2_raw_general_e43ed23b4eb3aeef",
+    "crk2_v2_raw_general_0c6db8393f309b98",
+    "crk2_v2_raw_coding_137ba75240288815",
+    "crk2_v2_raw_coding_fa1bbbc136909a4b",
+    "crk2_v2_raw_coding_ca0d20ca3f0e6317",
+    "crk2_v2_raw_coding_01de68763595c4f1",
+    "crk2_v2_raw_coding_715c84258c39da24",
+    "crk2_v2_raw_coding_674fd3f5bb7ab3df",
+    "crk2_v2_raw_coding_f18a4d7bc84be82e",
+    "crk2_v2_raw_coding_25a8e944e538475a",
+    "crk2_v2_raw_coding_0c79b5e1fc93d02d",
+    "crk2_v2_raw_coding_c4bf7944b8300f90"
+  ],
+  "schema_version": "memcalib-v23-human-review-sample-v1",
+  "selection": {
+    "difficulty_target": {
+      "level_1": 9,
+      "level_2": 12,
+      "level_3": 9
+    },
+    "domain_target": {
+      "coding": 10,
+      "general": 10,
+      "health_seed": 10
+    },
+    "hard_a_target_per_family": 6,
+    "method": "Deterministic SHA-256 rank within domain x Hard-A-family x difficulty cells.",
+    "records": 30,
+    "review_policy": "Include at least one independent-QC review row per domain when available.",
+    "seed": "memcalib-v23-human-review-20260722"
+  },
+  "source": "pipeline/data/multidomain/full-v2/revision-composite-blocks-v23/release/memcalib_v23_multidomain_benchmark_15000.jsonl"
+}

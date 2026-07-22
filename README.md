@@ -46,6 +46,8 @@ v2.3 审阅入口：
 - [v2.3 15,000 条数据交付说明](docs/MEMCALIB_V23_COAUTHOR_HANDOFF.md)
 - [v2.3 数据结构、三档难度与原子长尾约束](docs/benchmark-schema-v2.3.md)
 - [v2.3 完整构建与质检流程报告](docs/reports/memcalib-v23-composite-block-revision.html)
+- [v2.3 最终集机器可读统计](pipeline/data/multidomain/full-v2/revision-composite-blocks-v23/release/memcalib_v23_multidomain_benchmark_15000.statistics.json)
+- [v2.3 30 条分层人工审阅样例](docs/samples/memcalib-v23-review-sample-30.README.md)
 - [v2.3 九模型思考模式评测](evaluation/releases/memcalib-v23-multidomain-500-nine-models/)
 - [v2.3 九模型非思考对照](evaluation/releases/memcalib-v23-multidomain-500-nonthinking-nine-models/)
 - [v2.3 思考/非思考同样本比较](evaluation/analyses/memcalib-v23-thinking-vs-nonthinking/)

@@ -52,6 +52,27 @@ internal complexity and model-facing surface form:
 The 1,077 review records contain no hard QC failure. They are retained as
 audited boundary cases; reject and invalid records are absent.
 
+The exact machine-readable distribution is stored in
+`pipeline/data/multidomain/full-v2/revision-composite-blocks-v23/release/memcalib_v23_multidomain_benchmark_15000.statistics.json`.
+The complete visual report is
+`docs/reports/memcalib-v23-composite-block-revision.html`.
+
+## Human-review sample
+
+For quick inspection without opening the 1.9 GB release file, use the
+deterministic 30-record sample under `docs/samples/`:
+
+- `memcalib-v23-review-sample-30.model-facing.jsonl`: question and visible
+  memory blocks exactly as presented to the answer model;
+- `memcalib-v23-review-sample-30.full.jsonl`: complete hidden atoms, labels,
+  actions, evidence, construction metadata, and QC records;
+- `memcalib-v23-review-sample-30.manifest.json`: selection strata, sample IDs,
+  distributions, and file hashes.
+
+The sample balances all three domains and all five Hard A families, covers all
+three difficulty levels, and includes audited `review` boundary cases. It is a
+qualitative coverage sample, not an estimator of release prevalence.
+
 ## Model-facing versus hidden fields
 
 For answer generation or supervised training, create an explicit projection
