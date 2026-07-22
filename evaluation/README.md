@@ -1,6 +1,32 @@
 # MemCalib evaluation
 
-本目录保存 MemCalib 的锁定评测样本、配置、聚合指标、可视化报告和可复现分析工具。当前跨模型入口包括 MemCalib v2.1 同一批 500 条样本上的非思考基线与思考模式重评；另有一项 MemCalib v2.2 的 100 条 Codex answer-only 配对 pilot。v2.0、v0.1、早期 Judge 校准和跨领域 pilot 均作为历史归档保留。
+本目录保存 MemCalib 的锁定评测样本、配置、聚合指标、可视化报告和可复现分析工具。当前主要入口是 MemCalib v2.3 同一批 500 条样本上的九模型思考评测与非思考对照；v2.1 同样本实验、v2.2 的 100 条 Codex answer-only pilot、v2.0、v0.1 和早期 Judge 校准均作为历史结果保留。
+
+## v2.3 九模型思考与非思考对照
+
+从 v2.3 最终 15,000 条中锁定 500 条，领域 health/general/coding 为 250/125/125，难度 level 1/2/3 为 125/250/125。两套运行使用完全相同的模型输入文件；八个百炼模型只切换回答侧 thinking，Codex GPT-5.6 Sol 始终使用 `reasoning_effort=none`，并复用同一批回答作为重复 Judge 控制。Judge 模型、提示词、关闭 thinking 的设置和 450 条分层复核设计保持一致。
+
+| 模型 | H 非思考 | H 思考 | Delta H |
+|---|---:|---:|---:|
+| Qwen3-8B | 0.657 | 0.760 | +0.103 |
+| GLM-5.2 | 0.839 | 0.872 | +0.033 |
+| Qwen3.7-Max | 0.838 | 0.870 | +0.032 |
+| DeepSeek-V4-Pro | 0.842 | 0.859 | +0.018 |
+| DeepSeek-V4-Flash | 0.834 | 0.850 | +0.016 |
+| Qwen3.5-35B-A3B | 0.849 | 0.853 | +0.004 |
+| Qwen3.6-Flash | 0.836 | 0.837 | +0.001 |
+| Kimi-K2.6 | 0.837 | 0.828 | -0.009 |
+| Codex GPT-5.6 Sol control | 0.797 | 0.801 | +0.004 |
+
+两套运行均完成 9,000/9,000 回答、9,000/9,000 主 Judge 和 450/450 副 Judge，定向结构重试后 residual invalid=0。思考/非思考主副 Judge Cohen kappa 分别为 0.9210/0.9259。八个百炼模型的 H 变化中位数为 +0.0168，但 OPB、UPB、CVaR 和 PMU 并非一致改善；完整解释见[同样本比较](analyses/memcalib-v23-thinking-vs-nonthinking/README.md)。
+
+v2.3 采样时优先保留了 388 个 v2.1 查询/来源 ID，以增加问题层面的可比性。该数字不是相同 benchmark 行数：对应的 388 条 v2.3 `memory_blocks` 全部重建，和 v2.1 相同的 `memory_blocks`、完整模型输入行均为 0。
+
+- [v2.3 thinking release](releases/memcalib-v23-multidomain-500-nine-models/README.md)
+- [v2.3 non-thinking release](releases/memcalib-v23-multidomain-500-nonthinking-nine-models/README.md)
+- [thinking candidate metrics](analyses/memcalib-v23-multidomain-500-nine-models-candidate-metrics/README.md)
+- [non-thinking candidate metrics](analyses/memcalib-v23-multidomain-500-nonthinking-nine-models-candidate-metrics/README.md)
+- [thinking versus non-thinking comparison](analyses/memcalib-v23-thinking-vs-nonthinking/README.md)
 
 ## v2.2 Codex answer-only pilot
 
@@ -225,6 +251,9 @@ manifest、聚合 `metrics.json` 和 `report.html`。若要在另一台机器上
 
 ## 当前结果入口
 
+- [`v2.3 thinking nine-model release`](releases/memcalib-v23-multidomain-500-nine-models/README.md)：当前 500 条、九模型思考模式主评测；
+- [`v2.3 non-thinking nine-model release`](releases/memcalib-v23-multidomain-500-nonthinking-nine-models/README.md)：完全相同 v2.3 输入上的非思考对照；
+- [`v2.3 thinking versus non-thinking`](analyses/memcalib-v23-thinking-vs-nonthinking/README.md)：同样本 Delta H、OPB、UPB、MinCalib、MCC、CVaR 与 PMU；
 - [`thinking candidate metric study`](analyses/memcalib-v21-multidomain-500-thinking-candidate-metrics/README.md)：思考模式八模型扩展候选指标；
 - [`memcalib-v21-multidomain-500-thinking-eight-models/README.md`](releases/memcalib-v21-multidomain-500-thinking-eight-models/README.md)：七个共享模型思考模式重评与新增 GLM-5.2；
 - [`memcalib-v21-multidomain-500-thinking-eight-models/report.html`](releases/memcalib-v21-multidomain-500-thinking-eight-models/report.html)：思考模式八模型 full/no-memory 可视化报告；

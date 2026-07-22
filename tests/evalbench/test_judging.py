@@ -127,6 +127,9 @@ class JudgingTest(unittest.TestCase):
                 "id": sample_id,
                 "source_dataset": "source-a" if index < 5 else "source-b",
                 "source_topic": f"topic-{index % 2}",
+                "composite_block_revision": {
+                    "difficulty_level": "level_1" if index < 3 else "level_2"
+                },
                 "memories": [{}] * (3 if index < 6 else 6),
             }
             for model in ("m1", "m2"):
@@ -154,6 +157,14 @@ class JudgingTest(unittest.TestCase):
             for condition in ("full_memory", "no_memory"):
                 prefix = f"answer:{model}:{condition}:"
                 self.assertEqual(4, sum(value.startswith(prefix) for value in selected))
+
+        selected_samples = {
+            value.rsplit(":", 1)[-1]
+            for value in selected
+            if value.startswith("answer:m1:full_memory:")
+        }
+        self.assertTrue(any(int(value.split("-")[-1]) < 3 for value in selected_samples))
+        self.assertTrue(any(int(value.split("-")[-1]) >= 3 for value in selected_samples))
 
     def test_calibration_selection_pairs_conditions_within_model_and_panel(self) -> None:
         primary = []

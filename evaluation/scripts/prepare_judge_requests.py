@@ -31,7 +31,9 @@ def atom_count_bucket(count: int) -> str:
     return "8+"
 
 
-def _proportional_quotas(counts: Counter[tuple[str, str, str]], total: int) -> dict[tuple[str, str, str], int]:
+def _proportional_quotas(
+    counts: Counter[tuple[str, ...]], total: int
+) -> dict[tuple[str, ...], int]:
     population = sum(counts.values())
     if total <= 0 or total > population:
         raise ValueError(f"invalid proportional sample size: {total} for population {population}")
@@ -54,7 +56,9 @@ def select_formal_secondary_answer_ids(
 ) -> set[str]:
     if (per_model is None) == (per_model_condition is None):
         raise ValueError("set exactly one of per_model or per_model_condition")
-    by_group_cell: dict[tuple[str, str | None], dict[tuple[str, str, str], list[dict[str, Any]]]] = defaultdict(
+    by_group_cell: dict[
+        tuple[str, str | None], dict[tuple[str, str, str, str], list[dict[str, Any]]]
+    ] = defaultdict(
         lambda: defaultdict(list)
     )
     for answer in answers:
@@ -63,6 +67,7 @@ def select_formal_secondary_answer_ids(
         cell = (
             str(sample["source_dataset"]),
             str(sample["source_topic"]),
+            str((sample.get("composite_block_revision") or {}).get("difficulty_level") or "unassigned"),
             atom_count_bucket(len(sample.get("memories") or [])),
         )
         condition = str(params["condition"]) if per_model_condition is not None else None

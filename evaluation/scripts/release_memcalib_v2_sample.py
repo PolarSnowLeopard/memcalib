@@ -40,18 +40,31 @@ def atom_count_bucket(row: dict[str, Any]) -> str:
 
 
 def admission_decision(row: dict[str, Any]) -> str:
-    for field in ("revision_release_admission", "release_admission", "semantic_admission"):
+    for field in (
+        "v23_independent_qc",
+        "revision_release_admission",
+        "release_admission",
+        "semantic_admission",
+    ):
         decision = str((row.get(field) or {}).get("decision") or "").strip()
         if decision:
             return decision
     return "unknown"
 
 
-def within_admission_stratum(row: dict[str, Any]) -> tuple[str, str, str]:
+def difficulty_level(row: dict[str, Any]) -> str:
+    return str(
+        (row.get("composite_block_revision") or {}).get("difficulty_level")
+        or "unassigned"
+    )
+
+
+def within_admission_stratum(row: dict[str, Any]) -> tuple[str, str, str, str]:
     return (
         str(row["source_dataset"]),
         str(row.get("source_topic") or "unknown"),
         atom_count_bucket(row),
+        difficulty_level(row),
     )
 
 
@@ -73,7 +86,10 @@ def select_sample(
     domain_counts: dict[str, int],
     *,
     seed: int,
+    domain_difficulty_counts: dict[str, dict[str, int]] | None = None,
+    preferred_ids: set[str] | None = None,
 ) -> list[dict[str, Any]]:
+    preferred_ids = preferred_ids or set()
     rows_by_domain: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for row in rows:
         rows_by_domain[str(row.get("domain") or "")].append(row)
@@ -86,32 +102,63 @@ def select_sample(
     selected: list[dict[str, Any]] = []
     for domain, target in domain_counts.items():
         domain_rows = rows_by_domain[domain]
-        rows_by_admission: dict[str, list[dict[str, Any]]] = defaultdict(list)
-        for row in domain_rows:
-            rows_by_admission[admission_decision(row)].append(row)
-        admission_quotas = proportional_quotas(
-            Counter({(key,): len(value) for key, value in rows_by_admission.items()}),
-            target,
-        )
-        for (admission,), admission_target in sorted(admission_quotas.items()):
-            if admission_target <= 0:
-                continue
-            cells: dict[tuple[str, ...], list[dict[str, Any]]] = defaultdict(list)
-            for row in rows_by_admission[admission]:
-                cells[within_admission_stratum(row)].append(row)
-            quotas = proportional_quotas(
-                Counter({key: len(value) for key, value in cells.items()}),
-                admission_target,
-            )
-            for cell, quota in sorted(quotas.items()):
-                ordered = sorted(
-                    cells[cell],
-                    key=lambda row: (
-                        stable_hash(seed, f"{domain}:{row['id']}"),
-                        str(row["id"]),
-                    ),
+        difficulty_targets = (domain_difficulty_counts or {}).get(domain)
+        if difficulty_targets is None:
+            partitions = [("all", domain_rows, target)]
+        else:
+            if sum(difficulty_targets.values()) != target:
+                raise ValueError(
+                    f"difficulty counts for {domain} must sum to its domain target"
                 )
-                selected.extend(ordered[:quota])
+            rows_by_difficulty: dict[str, list[dict[str, Any]]] = defaultdict(list)
+            for row in domain_rows:
+                rows_by_difficulty[difficulty_level(row)].append(row)
+            unavailable = {
+                level: level_target
+                for level, level_target in difficulty_targets.items()
+                if level_target > len(rows_by_difficulty[level])
+            }
+            if unavailable:
+                raise ValueError(
+                    f"insufficient difficulty capacity for {domain}: {unavailable}"
+                )
+            partitions = [
+                (level, rows_by_difficulty[level], level_target)
+                for level, level_target in sorted(difficulty_targets.items())
+                if level_target > 0
+            ]
+
+        for difficulty, partition_rows, partition_target in partitions:
+            rows_by_admission: dict[str, list[dict[str, Any]]] = defaultdict(list)
+            for row in partition_rows:
+                rows_by_admission[admission_decision(row)].append(row)
+            admission_quotas = proportional_quotas(
+                Counter({(key,): len(value) for key, value in rows_by_admission.items()}),
+                partition_target,
+            )
+            for (admission,), admission_target in sorted(admission_quotas.items()):
+                if admission_target <= 0:
+                    continue
+                cells: dict[tuple[str, ...], list[dict[str, Any]]] = defaultdict(list)
+                for row in rows_by_admission[admission]:
+                    cells[within_admission_stratum(row)].append(row)
+                quotas = proportional_quotas(
+                    Counter({key: len(value) for key, value in cells.items()}),
+                    admission_target,
+                )
+                for cell, quota in sorted(quotas.items()):
+                    ordered = sorted(
+                        cells[cell],
+                        key=lambda row: (
+                            str(row["id"]) not in preferred_ids,
+                            stable_hash(
+                                seed,
+                                f"{domain}:{difficulty}:{row['id']}",
+                            ),
+                            str(row["id"]),
+                        ),
+                    )
+                    selected.extend(ordered[:quota])
 
     selected = sorted(selected, key=lambda row: (stable_hash(seed, str(row["id"])), str(row["id"])))
     ids = [str(row.get("id") or "") for row in selected]
@@ -133,6 +180,7 @@ def hidden_row(row: dict[str, Any]) -> dict[str, Any]:
             "source_topic": str(row.get("source_topic") or "unknown"),
             "release_admission": admission_decision(row),
             "atom_count_bucket": atom_count_bucket(row),
+            "difficulty_level": difficulty_level(row),
         },
     }
     return value
@@ -145,6 +193,7 @@ def distribution(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "topics": dict(sorted(Counter(str(row.get("source_topic") or "unknown") for row in rows).items())),
         "release_admission": dict(sorted(Counter(admission_decision(row) for row in rows).items())),
         "atom_count_buckets": dict(sorted(Counter(atom_count_bucket(row) for row in rows).items())),
+        "difficulty_levels": dict(sorted(Counter(difficulty_level(row) for row in rows).items())),
         "memory_labels": dict(
             sorted(
                 Counter(
@@ -186,7 +235,34 @@ def build_release(
     if sum(domain_counts.values()) != int(config["sample_count"]):
         raise ValueError("configured domain counts must sum to sample_count")
 
-    selected = select_sample(rows, domain_counts, seed=int(config["seed"]))
+    raw_domain_difficulty_counts = config.get("domain_difficulty_counts")
+    domain_difficulty_counts = None
+    if raw_domain_difficulty_counts is not None:
+        domain_difficulty_counts = {
+            str(domain): {str(level): int(count) for level, count in levels.items()}
+            for domain, levels in raw_domain_difficulty_counts.items()
+        }
+        if set(domain_difficulty_counts) != set(domain_counts):
+            raise ValueError("domain_difficulty_counts must cover every configured domain")
+    preferred_ids: set[str] = set()
+    preferred_ids_path = None
+    if config.get("preferred_sample_ids"):
+        preferred_ids_path = (ROOT / str(config["preferred_sample_ids"])).resolve()
+        preferred_rows = [
+            value.strip()
+            for value in preferred_ids_path.read_text(encoding="utf-8").splitlines()
+            if value.strip()
+        ]
+        preferred_ids = set(preferred_rows)
+        if len(preferred_ids) != len(preferred_rows):
+            raise ValueError("preferred_sample_ids contains duplicate IDs")
+    selected = select_sample(
+        rows,
+        domain_counts,
+        seed=int(config["seed"]),
+        domain_difficulty_counts=domain_difficulty_counts,
+        preferred_ids=preferred_ids,
+    )
     hidden = [hidden_row(row) for row in selected]
     facing = [model_facing_row(row) for row in selected]
     for row in facing:
@@ -213,6 +289,15 @@ def build_release(
         "seed": int(config["seed"]),
         "ordered_id_sha256": ordered_id_sha256(selected),
         "sampling": config["sampling"],
+        "preferred_query_id_overlap": {
+            "path": display_path(preferred_ids_path, ROOT) if preferred_ids_path else None,
+            "preferred_query_ids": len(preferred_ids),
+            "selected_query_ids": sum(str(row["id"]) in preferred_ids for row in selected),
+            "semantics": (
+                "shared query/source identity only; benchmark memory blocks and model-facing "
+                "rows may differ across versions"
+            ),
+        },
         "distribution": distribution(selected),
         "source": {
             "path": display_path(input_path, ROOT),

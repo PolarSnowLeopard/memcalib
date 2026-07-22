@@ -1,0 +1,56 @@
+{
+  "schema_version": "memcalib-candidate-metrics-analysis-manifest-v1",
+  "source": {
+    "rows": 9000,
+    "models": 9,
+    "samples_per_model_per_condition": 500,
+    "bootstrap_replicates": 2000,
+    "seed": 20260722,
+    "basis": "ordered-usage-v2.1 primary Judge outputs",
+    "primary_judgments": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/judgments/primary.valid.jsonl",
+    "primary_sha256": "62511cf6279ad0ac3cc213e26e63813e458a8e90862e0175a22216f7431fe06a",
+    "official_metrics": "evaluation/releases/memcalib-v23-multidomain-500-nine-models/metrics.json",
+    "official_metrics_sha256": "0025319158733f157e01bfa34fb66988778ee8383160aa0c5b16d9a0ec9a656b"
+  },
+  "input_integrity": {
+    "rows": 9000,
+    "unique_answer_request_ids": 9000,
+    "models": [
+      "codex-gpt56-sol",
+      "deepseek",
+      "deepseek-flash",
+      "glm52",
+      "kimi",
+      "qwen-flash",
+      "qwen-max",
+      "qwen3-8b",
+      "qwen35-35b-a3b"
+    ],
+    "conditions": [
+      "full_memory",
+      "no_memory"
+    ],
+    "model_condition_buckets": 18,
+    "samples_per_bucket": 500,
+    "common_sample_ids": 500,
+    "atom_signatures_consistent": true
+  },
+  "script": {
+    "path": "evaluation/scripts/analyze_candidate_metrics.py",
+    "sha256": "f88cdf7ba9cf32a2bb9734f5a5d4332b9f074d1158289d4df4c692af4c062f44"
+  },
+  "artifacts": {
+    "README.md": {
+      "bytes": 12489,
+      "sha256": "d1104dc01d0febd7c4f62a804a83bd8b7faf89cc4b19bb08b1b5bcb88b613c08"
+    },
+    "candidate-metrics.csv": {
+      "bytes": 4770,
+      "sha256": "637eb159ebe7c12eb3452bfe7fb0dd678623b4ae668bf57aa2bc66f87607b15c"
+    },
+    "candidate-metrics.json": {
+      "bytes": 125775,
+      "sha256": "be5803324e532c1deeb57e9cbad25b5fc126969a99166a8fa7093d13765d1fd3"
+    }
+  }
+}

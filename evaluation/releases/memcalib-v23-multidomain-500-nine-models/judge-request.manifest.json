@@ -1,0 +1,153 @@
+{
+  "schema_version": "memcalib-judge-requests-ordered-usage-v2.1",
+  "primary_requests": 9000,
+  "secondary_requests": 450,
+  "secondary_by_judge": {
+    "deepseek-v4-pro": 350,
+    "kimi-k2.6": 100
+  },
+  "human_random_ids": 0,
+  "secondary_sampling": {
+    "total": 450,
+    "per_model_per_condition": 25,
+    "stratify_by": [
+      "condition",
+      "source_dataset",
+      "source_topic",
+      "composite_block_revision.difficulty_level",
+      "atom_count_bucket"
+    ]
+  },
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "artifacts": {
+    "primary.jsonl": {
+      "rows": 9000,
+      "sha256": "a82711a07d6bb6d387d1dee21fe0668791d7486beaf2cccd4079222db18c9c63"
+    },
+    "secondary-deepseek.jsonl": {
+      "rows": 350,
+      "sha256": "a45d5df0c4095341c0b08d1792557d129154f37faeb2f32ba491aaffdf0fef67"
+    },
+    "secondary-kimi.jsonl": {
+      "rows": 100,
+      "sha256": "1478480255cf0d2b3aff34f4c21e5a84c2b971c9af90832b056bbf6d10b715d4"
+    },
+    "secondary-answer-ids.txt": {
+      "rows": 450,
+      "sha256": "ca3d6a64ffcae68a658469b17a3c34765f29ef073a9afc75d06ac584de7deaad"
+    },
+    "human-random-answer-ids.txt": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/configs/memcalib-v23-multidomain-500-nine-models.json",
+      "sha256": "789491bb047927ddbe1fd2e57d4252ef8cb3a9adf4ff10ca3980d3c29f02f929"
+    },
+    "hidden": {
+      "path": "evaluation/releases/memcalib-v23-multidomain-500-nine-models/hidden-evaluation.jsonl",
+      "sha256": "6c6dd6e05a731c6aa26d064a8aadbab2c1946f3e4413901e55b289d830999fe2"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/judge-system-v2.1.txt",
+      "sha256": "482899899ad089318068c562d909327bfee12f012eb266d3484a915244885dc6"
+    },
+    "answers": [
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/qwen-max/full_memory.jsonl",
+        "sha256": "640301be77fe624caf9f06bf8399d8e3d67e3cf7de66731afd9053491e1a2d72",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/qwen-max/no_memory.jsonl",
+        "sha256": "0f0e4ab5ddecca4689e4176a014f2a175b8d706b987cbf6212ff36e792562d02",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/qwen-flash/full_memory.jsonl",
+        "sha256": "ffdf529371f87be0299d3ddfdf6dc3fb96104307fbc6413a174948be02856976",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/qwen-flash/no_memory.jsonl",
+        "sha256": "55b773581a7d18939a79e2d485650ba6c22e196fb81c3f7f39b635fc71a4dc83",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/deepseek/full_memory.jsonl",
+        "sha256": "da5484c9be8d2358d8a342d8cf16b794ab7b3b75c07e85892195183d9ece15bc",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/deepseek/no_memory.jsonl",
+        "sha256": "32d27aeaf1a1770f915dfc3bd8b00d29d2f7c330c01f3de9f18dfdf07f6bb3a1",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/deepseek-flash/full_memory.jsonl",
+        "sha256": "20edae8de2a5c257b0e60e89c338153833f64067a7cb6eea55d4d41011adb61a",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/deepseek-flash/no_memory.jsonl",
+        "sha256": "47d3381bc33764a7d997b421087d5784d2aedf6fa6d409df3fbb7327b9de4227",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/kimi/full_memory.jsonl",
+        "sha256": "95434ef256adfabc893c084dee4aa8b85456c107ec9ae593e488ad315d6c053d",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/kimi/no_memory.jsonl",
+        "sha256": "5965da04b87f5512936b6531e9368700e3a425b38ed673c82f098a161085febe",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/qwen35-35b-a3b/full_memory.jsonl",
+        "sha256": "97538d5c4361eabfbbe2121ec80ad2b497837c18c6c419ba6e749c2ea90b4883",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/qwen35-35b-a3b/no_memory.jsonl",
+        "sha256": "79c185a4668bfff6357afb083f66f7666a8e81dc7c8c4b4b6b85f7844a0df3ef",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/qwen3-8b/full_memory.jsonl",
+        "sha256": "4a1cef59504b260b8b2ee13fc624424aa7c1382d015e070b85fba6b7f52f1e17",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/qwen3-8b/no_memory.jsonl",
+        "sha256": "398949ce9573fd51db0d71118af752ca5e9063063966686d78f6c49b3087b803",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/glm52/full_memory.jsonl",
+        "sha256": "403ec1328ebb5317c3c90e8d065b95b2f1d5f8da3e2df89f212601e92917e4ce",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/glm52/no_memory.jsonl",
+        "sha256": "5369641501f3222a121b03263efad15cbdabb0c0014388c2d19a6a8fc272c805",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/codex-gpt56-sol/full_memory.jsonl",
+        "sha256": "f440fbee141b0f8d4e64ef37373d5b387c9df7c5b32324bf9111db4922be015b",
+        "rows": 500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-multidomain-500-nine-models/answers/codex-gpt56-sol/no_memory.jsonl",
+        "sha256": "d74dd9fe936730a9655560b85f8f253e8ae9892f8b3dc699454d6a6d43c31b15",
+        "rows": 500
+      }
+    ]
+  }
+}

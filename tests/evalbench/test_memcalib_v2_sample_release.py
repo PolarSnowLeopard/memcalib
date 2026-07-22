@@ -39,6 +39,9 @@ def source_row(domain: str, index: int) -> dict:
             }
         ],
         "independent_qc": {"private": True},
+        "composite_block_revision": {
+            "difficulty_level": ("level_1", "level_2", "level_3")[index % 3]
+        },
     }
 
 
@@ -54,6 +57,13 @@ class MemCalibV2SampleReleaseTest(unittest.TestCase):
             admission_decision({"release_admission": row["release_admission"]}),
         )
         self.assertEqual("unknown", admission_decision({}))
+
+    def test_v23_independent_qc_takes_precedence(self) -> None:
+        row = {
+            "v23_independent_qc": {"decision": "review"},
+            "revision_release_admission": {"decision": "strict_pass"},
+        }
+        self.assertEqual("review", admission_decision(row))
 
     def test_sample_is_reproducible_and_hides_private_fields(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -104,6 +114,80 @@ class MemCalibV2SampleReleaseTest(unittest.TestCase):
         self.assertNotIn("memories", facing[0])
         self.assertNotIn("release_admission", facing[0])
         self.assertEqual(facing[0]["domain"], facing[0]["panel"])
+        self.assertNotIn("preferred_sample_overlap", manifest)
+        self.assertEqual(
+            {
+                "path": None,
+                "preferred_query_ids": 0,
+                "selected_query_ids": 0,
+                "semantics": (
+                    "shared query/source identity only; benchmark memory blocks and model-facing "
+                    "rows may differ across versions"
+                ),
+            },
+            manifest["preferred_query_id_overlap"],
+        )
+
+    def test_exact_domain_difficulty_matrix_is_enforced(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            input_path = root / "benchmark.jsonl"
+            output_dir = root / "release"
+            config_path = root / "config.json"
+            rows = [
+                source_row(domain, index)
+                for domain, size in (("health_seed", 60), ("general", 30), ("coding", 30))
+                for index in range(size)
+            ]
+            input_path.write_text(
+                "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows),
+                encoding="utf-8",
+            )
+            matrix = {
+                "health_seed": {"level_1": 6, "level_2": 8, "level_3": 6},
+                "general": {"level_1": 3, "level_2": 4, "level_3": 3},
+                "coding": {"level_1": 2, "level_2": 5, "level_3": 3},
+            }
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "release": "test-v23-40",
+                        "seed": 42,
+                        "source_count": 120,
+                        "sample_count": 40,
+                        "domain_counts": {"health_seed": 20, "general": 10, "coding": 10},
+                        "domain_difficulty_counts": matrix,
+                        "sampling": {"method": "test"},
+                        "source_inputs": {"benchmark_sha256": sha256_file(input_path)},
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            manifest = build_release(input_path, output_dir, config_path)
+            hidden = [
+                json.loads(line)
+                for line in (output_dir / "hidden-evaluation.jsonl").read_text(
+                    encoding="utf-8"
+                ).splitlines()
+            ]
+
+        actual = Counter(
+            (row["domain"], row["composite_block_revision"]["difficulty_level"])
+            for row in hidden
+        )
+        expected = Counter(
+            {
+                (domain, level): count
+                for domain, levels in matrix.items()
+                for level, count in levels.items()
+            }
+        )
+        self.assertEqual(expected, actual)
+        self.assertEqual(
+            Counter({"level_1": 11, "level_2": 17, "level_3": 12}),
+            Counter(manifest["distribution"]["difficulty_levels"]),
+        )
 
 
 if __name__ == "__main__":

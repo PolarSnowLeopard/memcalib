@@ -46,6 +46,9 @@ v2.3 审阅入口：
 - [v2.3 15,000 条数据交付说明](docs/MEMCALIB_V23_COAUTHOR_HANDOFF.md)
 - [v2.3 数据结构、三档难度与原子长尾约束](docs/benchmark-schema-v2.3.md)
 - [v2.3 完整构建与质检流程报告](docs/reports/memcalib-v23-composite-block-revision.html)
+- [v2.3 九模型思考模式评测](evaluation/releases/memcalib-v23-multidomain-500-nine-models/)
+- [v2.3 九模型非思考对照](evaluation/releases/memcalib-v23-multidomain-500-nonthinking-nine-models/)
+- [v2.3 思考/非思考同样本比较](evaluation/analyses/memcalib-v23-thinking-vs-nonthinking/)
 - [v2.2 历史长尾块交付说明](docs/MEMCALIB_V22_COAUTHOR_HANDOFF.md)
 - [v2.2 历史数据结构与块数长尾约束](docs/benchmark-schema-v2.2.md)
 - [v2.2 长尾修订与质检报告](docs/reports/memcalib-v22-longtail-revision.html)
@@ -105,6 +108,26 @@ docs/                     数据结构、方法、数据来源与归档设计文
 ## 构建与评测进展
 
 v2.3 继承 v2.2 锁定的 15,000 条来源谱系、问题、真实原子、A/B/C 标签、动作、块数长尾与 canonical Hard A，不重新抽样基础记录。新增阶段先按三档难度为每个非 Hard-A 块分配 1–20 个原子目标，再生成同用户、块内连贯、对当前问题零答案足迹的辅助 `A+ignore` 原子；随后由独立阶段把完整原子集合改写成自然段落，隐藏数字分隔和原子边界。扩展、改写和独立 QC 分别使用独立请求与指纹，失败项只做定向重建或带前后哈希的最小局部修复。完整流程和精确计数见[v2.3 构建报告](docs/reports/memcalib-v23-composite-block-revision.html)；v2.1 基础构建与 v2.2 块数长尾仍分别保留在[基础集方法报告](docs/reports/memcalib-v21-dataset-construction-methodology.html)和[长尾修订报告](docs/reports/memcalib-v22-longtail-revision.html)中。
+
+### v2.3 九模型同样本评测
+
+当前 v2.3 评测从最终 15,000 条中锁定 500 条，按 health/general/coding=250/125/125 和难度 level 1/2/3=125/250/125 精确分层。八个百炼模型分别运行思考与非思考回答；Codex GPT-5.6 Sol 固定为 `reasoning_effort=none`，并在非思考运行中复用完全相同的回答作为重复 Judge 控制。两套运行各有 9,000 条回答、9,000 条主 Judge 和 450 条跨家族复核 Judge，结构重试后残余 invalid 均为 0。
+
+| 模型 | 非思考 H | 思考 H | Delta H |
+|---|---:|---:|---:|
+| Qwen3-8B | 0.657 | 0.760 | +0.103 |
+| GLM-5.2 | 0.839 | 0.872 | +0.033 |
+| Qwen3.7-Max | 0.838 | 0.870 | +0.032 |
+| DeepSeek-V4-Pro | 0.842 | 0.859 | +0.018 |
+| DeepSeek-V4-Flash | 0.834 | 0.850 | +0.016 |
+| Qwen3.5-35B-A3B | 0.849 | 0.853 | +0.004 |
+| Qwen3.6-Flash | 0.836 | 0.837 | +0.001 |
+| Kimi-K2.6 | 0.837 | 0.828 | -0.009 |
+| Codex GPT-5.6 Sol control | 0.797 | 0.801 | +0.004 |
+
+八个百炼模型的 H 变化均值为 +0.0247、中位数为 +0.0168；七个上升，一个下降，但改善并非跨指标一致。OPB 基本围绕零变化，UPB 的中位变化为 -0.0336，说明思考主要改变相关记忆的利用强度。Codex 回答完全相同但 H 仍变化 +0.0037，反映重复自动 Judge 本身的波动尺度；因此小幅差异不能直接解释为显著增益。完整 OPB/UPB、MinCalib、MCC、Kappa、CVaR、PMU、Rasch、pairwise 与 Pareto 结果见[v2.3 思考/非思考比较](evaluation/analyses/memcalib-v23-thinking-vs-nonthinking/README.md)、[思考模式候选指标](evaluation/analyses/memcalib-v23-multidomain-500-nine-models-candidate-metrics/README.md)和[非思考候选指标](evaluation/analyses/memcalib-v23-multidomain-500-nonthinking-nine-models-candidate-metrics/README.md)。
+
+采样 manifest 中的 388 表示与 v2.1 共享的查询/来源 ID，不表示数据行相同：这 388 条问题文本相同，但 `memory_blocks` 相同数为 0，完整模型输入行相同数也为 0。v2.1 与 v2.3 不是同一套 benchmark 数据，跨版本结果不得作为严格同样本回答模式对照。
 
 v2.1 模型比较从最终 15,000 条数据中按正式领域比例、来源、主题和原子数确定性抽取 500 条样本，其中 health 250、general 125、coding 125。八个模型分别运行 full-memory 与 no-memory 两个配对条件，共 8,000 条回答；主 Judge 评审全部回答，复核 Judge 对 400 条分层样本进行跨模型家族复核。每个模型在每个条件下均得到 500 条有效回答。Codex 使用 `gpt-5.6-sol`、`reasoning_effort=none`，每个回答采用独立临时会话、空工作区和只读沙箱；1,000 条回答均无 reasoning token、工具调用或截断。
 
