@@ -1,0 +1,248 @@
+{
+  "schema_version": "memcalib-v23-sft-split-v1",
+  "seed": 20260722,
+  "source": {
+    "path": "pipeline/data/multidomain/full-v2/revision-composite-blocks-v23/release/memcalib_v23_multidomain_benchmark_15000.jsonl",
+    "rows": 15000,
+    "sha256": "e86d79545b44344b44337d8f9502dc69880daeb18c6513784344e33a06de8773"
+  },
+  "locked_existing_test": {
+    "path": "evaluation/releases/memcalib-v23-multidomain-500-nine-models/hidden-evaluation.jsonl",
+    "rows": 500,
+    "sha256": "6c6dd6e05a731c6aa26d064a8aadbab2c1946f3e4413901e55b289d830999fe2",
+    "contained_in_test": true
+  },
+  "counts": {
+    "train": 12000,
+    "dev": 1500,
+    "test": 1500,
+    "pilot_train": 500
+  },
+  "distributions": {
+    "train": {
+      "records": 12000,
+      "domain": {
+        "coding": 3000,
+        "general": 3000,
+        "health_seed": 6000
+      },
+      "difficulty": {
+        "level_1": 3000,
+        "level_2": 6002,
+        "level_3": 2998
+      },
+      "domain_difficulty": {
+        "coding:level_1": 750,
+        "coding:level_2": 1501,
+        "coding:level_3": 749,
+        "general:level_1": 750,
+        "general:level_2": 1501,
+        "general:level_3": 749,
+        "health_seed:level_1": 1500,
+        "health_seed:level_2": 3000,
+        "health_seed:level_3": 1500
+      },
+      "source_dataset": {
+        "HuggingFaceH4/stack-exchange-preferences": 642,
+        "HuggingFaceH4/ultrachat_200k": 1903,
+        "OpenAssistant/oasst1": 377,
+        "OpenAssistant/oasst2": 720,
+        "OpenMed/MedDialog": 3036,
+        "codeparrot/apps": 141,
+        "ise-uiuc/Magicoder-OSS-Instruct-75K": 2217,
+        "lavita/ChatDoctor-HealthCareMagic-100k": 2964
+      },
+      "atom_bucket": {
+        "06-09": 2117,
+        "10-14": 4197,
+        "15-20": 3371,
+        "21+": 2315
+      },
+      "label_profile": {
+        "A": 14,
+        "AB": 1944,
+        "ABC": 8029,
+        "AC": 2013
+      },
+      "records_with_correct": 259,
+      "atoms": {
+        "min": 6,
+        "mean": 15.591,
+        "max": 63
+      }
+    },
+    "dev": {
+      "records": 1500,
+      "domain": {
+        "coding": 375,
+        "general": 375,
+        "health_seed": 750
+      },
+      "difficulty": {
+        "level_1": 375,
+        "level_2": 749,
+        "level_3": 376
+      },
+      "domain_difficulty": {
+        "coding:level_1": 94,
+        "coding:level_2": 187,
+        "coding:level_3": 94,
+        "general:level_1": 94,
+        "general:level_2": 187,
+        "general:level_3": 94,
+        "health_seed:level_1": 187,
+        "health_seed:level_2": 375,
+        "health_seed:level_3": 188
+      },
+      "source_dataset": {
+        "HuggingFaceH4/stack-exchange-preferences": 82,
+        "HuggingFaceH4/ultrachat_200k": 238,
+        "OpenAssistant/oasst1": 45,
+        "OpenAssistant/oasst2": 92,
+        "OpenMed/MedDialog": 379,
+        "codeparrot/apps": 17,
+        "ise-uiuc/Magicoder-OSS-Instruct-75K": 276,
+        "lavita/ChatDoctor-HealthCareMagic-100k": 371
+      },
+      "atom_bucket": {
+        "06-09": 266,
+        "10-14": 528,
+        "15-20": 415,
+        "21+": 291
+      },
+      "label_profile": {
+        "A": 1,
+        "AB": 244,
+        "ABC": 1004,
+        "AC": 251
+      },
+      "records_with_correct": 29,
+      "atoms": {
+        "min": 6,
+        "mean": 15.693333333333333,
+        "max": 57
+      }
+    },
+    "test": {
+      "records": 1500,
+      "domain": {
+        "coding": 375,
+        "general": 375,
+        "health_seed": 750
+      },
+      "difficulty": {
+        "level_1": 376,
+        "level_2": 749,
+        "level_3": 375
+      },
+      "domain_difficulty": {
+        "coding:level_1": 94,
+        "coding:level_2": 187,
+        "coding:level_3": 94,
+        "general:level_1": 94,
+        "general:level_2": 187,
+        "general:level_3": 94,
+        "health_seed:level_1": 188,
+        "health_seed:level_2": 375,
+        "health_seed:level_3": 187
+      },
+      "source_dataset": {
+        "HuggingFaceH4/stack-exchange-preferences": 81,
+        "HuggingFaceH4/ultrachat_200k": 236,
+        "OpenAssistant/oasst1": 48,
+        "OpenAssistant/oasst2": 91,
+        "OpenMed/MedDialog": 378,
+        "codeparrot/apps": 16,
+        "ise-uiuc/Magicoder-OSS-Instruct-75K": 278,
+        "lavita/ChatDoctor-HealthCareMagic-100k": 372
+      },
+      "atom_bucket": {
+        "06-09": 264,
+        "10-14": 522,
+        "15-20": 420,
+        "21+": 294
+      },
+      "label_profile": {
+        "A": 2,
+        "AB": 241,
+        "ABC": 1006,
+        "AC": 251
+      },
+      "records_with_correct": 32,
+      "atoms": {
+        "min": 6,
+        "mean": 15.726,
+        "max": 58
+      }
+    },
+    "pilot_train": {
+      "records": 500,
+      "domain": {
+        "coding": 125,
+        "general": 125,
+        "health_seed": 250
+      },
+      "difficulty": {
+        "level_1": 125,
+        "level_2": 251,
+        "level_3": 124
+      },
+      "domain_difficulty": {
+        "coding:level_1": 31,
+        "coding:level_2": 63,
+        "coding:level_3": 31,
+        "general:level_1": 31,
+        "general:level_2": 63,
+        "general:level_3": 31,
+        "health_seed:level_1": 63,
+        "health_seed:level_2": 125,
+        "health_seed:level_3": 62
+      },
+      "source_dataset": {
+        "HuggingFaceH4/stack-exchange-preferences": 28,
+        "HuggingFaceH4/ultrachat_200k": 79,
+        "OpenAssistant/oasst1": 14,
+        "OpenAssistant/oasst2": 32,
+        "OpenMed/MedDialog": 125,
+        "codeparrot/apps": 3,
+        "ise-uiuc/Magicoder-OSS-Instruct-75K": 94,
+        "lavita/ChatDoctor-HealthCareMagic-100k": 125
+      },
+      "atom_bucket": {
+        "06-09": 86,
+        "10-14": 173,
+        "15-20": 143,
+        "21+": 98
+      },
+      "label_profile": {
+        "AB": 80,
+        "ABC": 337,
+        "AC": 83
+      },
+      "records_with_correct": 11,
+      "atoms": {
+        "min": 6,
+        "mean": 15.948,
+        "max": 58
+      }
+    }
+  },
+  "artifacts": {
+    "train-ids.txt": {
+      "rows": 12000,
+      "sha256": "34a47e52ada1da3299df64abd3cbdfd830671328288c417d84828cf1c683067a"
+    },
+    "dev-ids.txt": {
+      "rows": 1500,
+      "sha256": "a6bf7969b027345e5a20842a1cdfc1d4ab927c34d24665d5ac1e11d092c7a37d"
+    },
+    "test-ids.txt": {
+      "rows": 1500,
+      "sha256": "51a99036336873075331ea5746d6cadb993eb5e42782d4f3b03f3d812a80989d"
+    },
+    "pilot_train-ids.txt": {
+      "rows": 500,
+      "sha256": "a4f58b35b42d25e7abb8018d9f2c18847c668adbdf12c67de7ec26876929b33b"
+    }
+  }
+}

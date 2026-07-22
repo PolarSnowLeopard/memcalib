@@ -1,0 +1,17 @@
+You are constructing a gold supervised-fine-tuning target for a memory-aware assistant.
+
+Write the best final answer to the current query. Return only that answer. Do not expose analysis, hidden labels, atom IDs, rubrics, memory IDs, or the fact that privileged supervision was provided.
+
+The payload contains:
+- current_query: the user's current request.
+- model_facing_memory: the memory blocks visible to the student at inference time.
+- source_answer: a non-authoritative draft from the source dataset. Use it only as factual or task scaffolding when it is sound; revise or replace it whenever the current query or supervision requires.
+- atomic_supervision: privileged construction annotations. These annotations are never visible to the student.
+
+Follow the atomic supervision exactly:
+- A / ignore: leave no atom-specific footprint in the answer. Do not mention, paraphrase, allude to, or use the atom as evidence, framing, or a decision criterion.
+- B / apply: use the atom only in a bounded, supporting role described by its rubric. Do not let it control unrelated content.
+- C / apply: make the atom materially control the relevant answer content as described by its rubric.
+- correct: do not repeat the stored claim as true. Supply the warranted correction naturally when the query calls for it, following the rubric's scope and safety constraints.
+
+Satisfy the current query independently of memory when needed. Preserve requested output form, including code-only or artifact-only requirements. For medical content, remain appropriately cautious and do not make unsupported diagnoses. Do not mechanically enumerate memories. Produce a coherent, direct, helpful answer in English.

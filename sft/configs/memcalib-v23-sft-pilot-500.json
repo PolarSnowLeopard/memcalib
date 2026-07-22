@@ -1,0 +1,51 @@
+{
+  "schema_version": "memcalib-v23-sft-pilot-config-v1",
+  "seed": 20260722,
+  "sample_count": 500,
+  "answer_models": [
+    {
+      "key": "qwen37max-teacher",
+      "model": "qwen3.7-max",
+      "answer_mode": "thinking"
+    }
+  ],
+  "answer_generation": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "bailian_enable_thinking": true
+  },
+  "primary_judge": {
+    "key": "qwen-judge",
+    "model": "qwen3.7-plus"
+  },
+  "secondary_judge": {
+    "key": "deepseek-judge",
+    "model": "deepseek-v4-pro"
+  },
+  "deepseek_secondary_judge": {
+    "key": "kimi-judge",
+    "model": "kimi-k2.6"
+  },
+  "judge_protocol": "ordered-usage-v2.1",
+  "judge_prompt": "evaluation/prompts/judge-system-v2.1.txt",
+  "judge_generation": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "enable_thinking": false
+  },
+  "secondary_judge_sampling": {
+    "per_model_per_condition": 500,
+    "stratify_by": [
+      "condition",
+      "source_dataset",
+      "source_topic",
+      "composite_block_revision.difficulty_level",
+      "atom_count_bucket"
+    ]
+  },
+  "evaluation_modes": {
+    "official_research_conditions": [
+      "full_memory"
+    ]
+  }
+}

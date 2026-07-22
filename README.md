@@ -51,6 +51,7 @@ v2.3 审阅入口：
 - [v2.3 九模型思考模式评测](evaluation/releases/memcalib-v23-multidomain-500-nine-models/)
 - [v2.3 九模型非思考对照](evaluation/releases/memcalib-v23-multidomain-500-nonthinking-nine-models/)
 - [v2.3 思考/非思考同样本比较](evaluation/analyses/memcalib-v23-thinking-vs-nonthinking/)
+- [v2.3 SFT 数据拆分与 500 条目标生成 pilot](sft/README.md)
 - [v2.2 历史长尾块交付说明](docs/MEMCALIB_V22_COAUTHOR_HANDOFF.md)
 - [v2.2 历史数据结构与块数长尾约束](docs/benchmark-schema-v2.2.md)
 - [v2.2 长尾修订与质检报告](docs/reports/memcalib-v22-longtail-revision.html)
@@ -100,6 +101,7 @@ shasum -a 256 memcalib-v0.1.jsonl
 pipeline/                 可复现的数据构建阶段与提示词
 release/memcalib-v0.1/   已锁定的内部审阅数据版本
 evaluation/releases/     评测发布包、指标、manifest 与 HTML 报告
+sft/                     SFT 拆分清单、目标生成配置与确定性转换工具
 tools/                    确定性发布包构建与验证工具
 tests/                    流水线与发布工具测试
 docs/                     数据结构、方法、数据来源与归档设计文档
