@@ -27,6 +27,9 @@ v2.3 采样时优先保留了 388 个 v2.1 查询/来源 ID，以增加问题层
 - [thinking candidate metrics](analyses/memcalib-v23-multidomain-500-nine-models-candidate-metrics/README.md)
 - [non-thinking candidate metrics](analyses/memcalib-v23-multidomain-500-nonthinking-nine-models-candidate-metrics/README.md)
 - [thinking versus non-thinking comparison](analyses/memcalib-v23-thinking-vs-nonthinking/README.md)
+- [sample-level OPB/UPB and SCS distributions](analyses/memcalib-v23-sample-level-calibration/README.md)
+
+样本级分析不再让一条样本的每个原子分别占模型级权重。每条回答先累积有序过用/少用错误预算；`SCS(0.5)` 对一个单级错误计 0.5、两个单级错误或一个 A/C 两级错误计 0.25，再对 500 条样本等权平均。思考模式下 SCS(0.5) 范围为 0.257–0.427，任意 OPB 样本率为 49.0%–81.8%，任意 UPB 样本率为 30.8%–58.0%。该分析同时保留 `rho=0.25/0.5/0.75`、完整错误预算分布、三档负载分层和非思考对照。
 
 ## v2.2 Codex answer-only pilot
 

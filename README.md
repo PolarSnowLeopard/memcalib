@@ -129,6 +129,8 @@ v2.3 继承 v2.2 锁定的 15,000 条来源谱系、问题、真实原子、A/B/
 
 八个百炼模型的 H 变化均值为 +0.0247、中位数为 +0.0168；七个上升，一个下降，但改善并非跨指标一致。OPB 基本围绕零变化，UPB 的中位变化为 -0.0336，说明思考主要改变相关记忆的利用强度。Codex 回答完全相同但 H 仍变化 +0.0037，反映重复自动 Judge 本身的波动尺度；因此小幅差异不能直接解释为显著增益。完整 OPB/UPB、MinCalib、MCC、Kappa、CVaR、PMU、Rasch、pairwise 与 Pareto 结果见[v2.3 思考/非思考比较](evaluation/analyses/memcalib-v23-thinking-vs-nonthinking/README.md)、[思考模式候选指标](evaluation/analyses/memcalib-v23-multidomain-500-nine-models-candidate-metrics/README.md)和[非思考候选指标](evaluation/analyses/memcalib-v23-multidomain-500-nonthinking-nine-models-candidate-metrics/README.md)。
 
+同一批主 Judge 输出还增加了[样本级校准分布](evaluation/analyses/memcalib-v23-sample-level-calibration/README.md)：每条回答累积全部原子的过用/少用有序错误预算，并计算 `SCS_rho(s)=rho^(over_budget+under_budget)`，最终对 500 条样本等权平均。`rho=0.5` 时，思考模式 SCS 从 Codex 的 0.427 到 Qwen3.7-Max 的 0.257；任意 OPB 样本率分别为 49.0% 和 81.8%。这套指标明显惩罚错误散布到大量样本的模型，排名与原子宏平均 H 不同，因此作为整条回答可靠性的并行诊断，不替代 OPB/UPB 方向报告。
+
 采样 manifest 中的 388 表示与 v2.1 共享的查询/来源 ID，不表示数据行相同：这 388 条问题文本相同，但 `memory_blocks` 相同数为 0，完整模型输入行相同数也为 0。v2.1 与 v2.3 不是同一套 benchmark 数据，跨版本结果不得作为严格同样本回答模式对照。
 
 v2.1 模型比较从最终 15,000 条数据中按正式领域比例、来源、主题和原子数确定性抽取 500 条样本，其中 health 250、general 125、coding 125。八个模型分别运行 full-memory 与 no-memory 两个配对条件，共 8,000 条回答；主 Judge 评审全部回答，复核 Judge 对 400 条分层样本进行跨模型家族复核。每个模型在每个条件下均得到 500 条有效回答。Codex 使用 `gpt-5.6-sol`、`reasoning_effort=none`，每个回答采用独立临时会话、空工作区和只读沙箱；1,000 条回答均无 reasoning token、工具调用或截断。

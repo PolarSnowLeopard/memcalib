@@ -1,0 +1,106 @@
+import unittest
+
+from evaluation.scripts.analyze_sample_level_calibration import (
+    budget_distribution,
+    score_judgment_row,
+    summarize_scores,
+)
+
+
+class SampleLevelCalibrationTests(unittest.TestCase):
+    def test_score_judgment_row_accumulates_direction_and_severity(self) -> None:
+        row = {
+            "answer_request_id": "answer-1",
+            "sample_id": "sample-1",
+            "model_key": "model",
+            "condition": "full_memory",
+            "atom_judgments": [
+                {"u_star": "A", "predicted_usage_level": "B", "scorable": True},
+                {"u_star": "B", "predicted_usage_level": "C", "scorable": True},
+                {"u_star": "C", "predicted_usage_level": "A", "scorable": True},
+                {"u_star": "A", "predicted_usage_level": None, "scorable": False},
+            ],
+        }
+        scored = score_judgment_row(
+            row,
+            mode="thinking",
+            metadata={"sample-1": {"domain": "general", "difficulty": "level_2"}},
+            rhos=(0.25, 0.5, 0.75),
+        )
+        self.assertEqual(scored["atom_count"], 3)
+        self.assertEqual(scored["over_budget"], 2)
+        self.assertEqual(scored["under_budget"], 2)
+        self.assertEqual(scored["total_budget"], 4)
+        self.assertEqual(scored["sample_any_opb"], 1)
+        self.assertEqual(scored["sample_any_upb"], 1)
+        self.assertEqual(scored["sample_exact"], 0)
+        self.assertEqual(scored["severe_two_step"], 1)
+        self.assertAlmostEqual(scored["scs_rho_0_5"], 0.5**4)
+
+    def test_exact_answer_has_unit_score(self) -> None:
+        row = {
+            "answer_request_id": "answer-2",
+            "sample_id": "sample-2",
+            "model_key": "model",
+            "condition": "full_memory",
+            "atom_judgments": [
+                {"u_star": "A", "predicted_usage_level": "A"},
+                {"u_star": "B", "predicted_usage_level": "B"},
+                {"u_star": "C", "predicted_usage_level": "C"},
+            ],
+        }
+        scored = score_judgment_row(
+            row,
+            mode="thinking",
+            metadata={"sample-2": {"domain": "coding", "difficulty": "level_1"}},
+            rhos=(0.5,),
+        )
+        self.assertEqual(scored["sample_exact"], 1)
+        self.assertEqual(scored["sample_any_error"], 0)
+        self.assertEqual(scored["scs_rho_0_5"], 1.0)
+
+    def test_summary_uses_equal_sample_weight(self) -> None:
+        rows = [
+            {
+                "atom_count": 2,
+                "sample_any_opb": 0,
+                "sample_any_upb": 0,
+                "sample_any_error": 0,
+                "sample_exact": 1,
+                "severe_two_step": 0,
+                "over_budget": 0,
+                "under_budget": 0,
+                "total_budget": 0,
+                "scs_rho_0_5": 1.0,
+            },
+            {
+                "atom_count": 20,
+                "sample_any_opb": 1,
+                "sample_any_upb": 0,
+                "sample_any_error": 1,
+                "sample_exact": 0,
+                "severe_two_step": 0,
+                "over_budget": 1,
+                "under_budget": 0,
+                "total_budget": 1,
+                "scs_rho_0_5": 0.5,
+            },
+        ]
+        summary = summarize_scores(rows, (0.5,))
+        self.assertEqual(summary["samples"], 2)
+        self.assertEqual(summary["atoms"], 22)
+        self.assertEqual(summary["sample_any_opb_rate"], 0.5)
+        self.assertEqual(summary["sample_exact_accuracy"], 0.5)
+        self.assertEqual(summary["scs"]["0.5"]["mean"], 0.75)
+
+    def test_budget_distribution_has_stable_bins(self) -> None:
+        distribution = budget_distribution([0, 1, 2, 3, 4, 5, 9])
+        self.assertEqual(distribution["0"]["count"], 1)
+        self.assertEqual(distribution["5_plus"]["count"], 2)
+        self.assertAlmostEqual(
+            sum(value["share"] for value in distribution.values()), 1.0
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()
