@@ -116,6 +116,25 @@ class CandidateMetricsTest(unittest.TestCase):
         self.assertEqual(50, result["H"]["replicates"])
         self.assertLessEqual(result["H"]["ci_low"], result["H"]["ci_high"])
 
+    def test_bootstrap_candidate_intervals_supports_full_memory_only(self) -> None:
+        atoms = []
+        for sample_id, predicted in (("s1", "A"), ("s2", "C")):
+            atoms.extend(
+                {
+                    "sample_id": sample_id,
+                    "atom_id": atom_id,
+                    "condition": "full_memory",
+                    "gold": gold,
+                    "predicted": predicted if gold == "A" else gold,
+                }
+                for atom_id, gold in (("a", "A"), ("b", "B"), ("c", "C"))
+            )
+
+        result = bootstrap_candidate_intervals(atoms, replicates=50, seed=7)
+
+        self.assertEqual(2, result["H"]["clusters"])
+        self.assertNotIn("pmu_lambda_1_0", result)
+
     def test_validate_input_requires_identical_samples(self) -> None:
         rows = []
         for model in ("m1", "m2"):

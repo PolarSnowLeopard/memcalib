@@ -1,0 +1,82 @@
+{
+  "schema_version": "memcalib-v23-vllm-paired-answer-import-v1",
+  "status": "validated",
+  "condition": "full_memory",
+  "source_archive_sha256": "a0f0c2dbc9bf10d4dd073a8b26d6dfa33ac1162818cef6a19cc831b97e60d9ae",
+  "source_sample_count": 500,
+  "paired_sample_count": 496,
+  "model_summaries": {
+    "qwen35-a3b-base-vllm": {
+      "request_rows": 500,
+      "answer_rows": 498,
+      "unique_answer_request_ids": 498,
+      "unique_answer_sample_ids": 498,
+      "returned_model": "qwen35-a3b-base-vllm",
+      "finish_reasons": {
+        "stop": 498
+      },
+      "reasoning_trace_rows": 0,
+      "source_request_path": "requests/answers/qwen35-a3b-base-vllm/full_memory.jsonl",
+      "source_request_sha256": "9b909a9321317c9e86b474e8e707b5f5a99ee72716fc6d03fe3b45ef737eb19b",
+      "source_answer_path": "answers/qwen35-a3b-base-vllm/full_memory.jsonl",
+      "source_answer_sha256": "8390db89f504d3c3508dae9dc19b126b225cb6fe108bfab5efd3eba1779185df"
+    },
+    "qwen35-a3b-sft-vllm": {
+      "request_rows": 500,
+      "answer_rows": 498,
+      "unique_answer_request_ids": 498,
+      "unique_answer_sample_ids": 498,
+      "returned_model": "med_chat",
+      "finish_reasons": {
+        "stop": 498
+      },
+      "reasoning_trace_rows": 0,
+      "source_request_path": "requests/answers/qwen35-a3b-sft-vllm/full_memory.jsonl",
+      "source_request_sha256": "96b05e2099f8672376fe44bc90cc11bece3dfd09ca12bef3422718e9dec1a376",
+      "source_answer_path": "answers/qwen35-a3b-sft-vllm/full_memory.jsonl",
+      "source_answer_sha256": "87998ae25ab0ed3da2a30b0885976a1a3ba8aa7d7be53ea2494f78322bafb359"
+    }
+  },
+  "omitted_sample_ids_by_model": {
+    "qwen35-a3b-base-vllm": [
+      "crk2_v2_raw_coding_93a71744170d0baa",
+      "crk2_v2_raw_general_23cb4d49933ef0a9"
+    ],
+    "qwen35-a3b-sft-vllm": [
+      "crk2_v2_raw_general_bfb51b6f6dfb4a2b",
+      "crk2_v2_raw_general_d61f7cccd0602355"
+    ]
+  },
+  "common_sample_order": {
+    "path": "evaluation/releases/memcalib-v23-sft-base-full-only-paired/sample-ids.txt",
+    "sha256": "d2825d414fa31a3648b2cfeb23d7262dfb7e207859282682f595bf80efeeff36"
+  },
+  "artifacts": {
+    "config": {
+      "path": "evaluation/configs/memcalib-v23-sft-base-full-only-paired.json",
+      "sha256": "6b28f2c214d553ae1c621962364b53b801eae4571125dc9a9f933df93bc3292e"
+    },
+    "hidden": {
+      "path": "evaluation/releases/memcalib-v23-sft-base-full-only-paired/hidden-evaluation.jsonl.gz",
+      "sha256": "353497754ba67682131ed463fa6857fa087a7d86fd864f257ed00cefbfeac425",
+      "rows": 496
+    },
+    "model_facing": {
+      "path": "evaluation/releases/memcalib-v23-sft-base-full-only-paired/model-facing.jsonl.gz",
+      "sha256": "d544666488ce13c53a52e7ebae963cdd2ab49af096f4875dbd53e7529fb7a8f0",
+      "rows": 496
+    },
+    "answers": {
+      "qwen35-a3b-base-vllm": {
+        "path": "evaluation/runs/memcalib-v23-sft-base-full-only-paired/answers/qwen35-a3b-base-vllm/full_memory.jsonl",
+        "sha256": "4c1fc9e01cdf83af30f500401974d9a77ed3fc9a977bccca5edf68e27d8f07cb",
+        "rows": 496
+      },
+      "qwen35-a3b-sft-vllm": {
+        "path": "evaluation/runs/memcalib-v23-sft-base-full-only-paired/answers/qwen35-a3b-sft-vllm/full_memory.jsonl",
+        "sha256": "41ce3fe373b6d3221f6ade0c159dacb56f4487902572415a86c0982440e09947",
+        "rows": 496
+      }
+    }
+  }
+}

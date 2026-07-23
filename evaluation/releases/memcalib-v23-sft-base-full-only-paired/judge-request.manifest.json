@@ -1,0 +1,72 @@
+{
+  "schema_version": "memcalib-judge-requests-ordered-usage-v2.1",
+  "primary_requests": 992,
+  "secondary_requests": 50,
+  "secondary_by_judge": {
+    "deepseek-v4-pro": 50,
+    "kimi-k2.6": 0
+  },
+  "human_random_ids": 0,
+  "secondary_sampling": {
+    "total": 50,
+    "per_model_per_condition": 25,
+    "stratify_by": [
+      "condition",
+      "source_dataset",
+      "source_topic",
+      "composite_block_revision.difficulty_level",
+      "atom_count_bucket"
+    ]
+  },
+  "conditions": [
+    "full_memory"
+  ],
+  "artifacts": {
+    "primary.jsonl": {
+      "rows": 992,
+      "sha256": "2027fdb2aec8817d4265643de0af78fc1936812e80257e167ff7d0196dabc5f6"
+    },
+    "secondary-deepseek.jsonl": {
+      "rows": 50,
+      "sha256": "f9a8147d6ae73ba088307e8866c5ddbf6a59a4c0eb6d3c8873ff2a7ebe25c0e6"
+    },
+    "secondary-kimi.jsonl": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "secondary-answer-ids.txt": {
+      "rows": 50,
+      "sha256": "16a12528392f94c721f6ab0700bb1bd8d3f53ca70f4e1193d30c71ab3d54a148"
+    },
+    "human-random-answer-ids.txt": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/configs/memcalib-v23-sft-base-full-only-paired.json",
+      "sha256": "6b28f2c214d553ae1c621962364b53b801eae4571125dc9a9f933df93bc3292e"
+    },
+    "hidden": {
+      "path": "evaluation/releases/memcalib-v23-sft-base-full-only-paired/hidden-evaluation.jsonl.gz",
+      "sha256": "353497754ba67682131ed463fa6857fa087a7d86fd864f257ed00cefbfeac425"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/judge-system-v2.1.txt",
+      "sha256": "482899899ad089318068c562d909327bfee12f012eb266d3484a915244885dc6"
+    },
+    "answers": [
+      {
+        "path": "evaluation/runs/memcalib-v23-sft-base-full-only-paired/answers/qwen35-a3b-base-vllm/full_memory.jsonl",
+        "sha256": "4c1fc9e01cdf83af30f500401974d9a77ed3fc9a977bccca5edf68e27d8f07cb",
+        "rows": 496
+      },
+      {
+        "path": "evaluation/runs/memcalib-v23-sft-base-full-only-paired/answers/qwen35-a3b-sft-vllm/full_memory.jsonl",
+        "sha256": "41ce3fe373b6d3221f6ade0c159dacb56f4487902572415a86c0982440e09947",
+        "rows": 496
+      }
+    ]
+  }
+}

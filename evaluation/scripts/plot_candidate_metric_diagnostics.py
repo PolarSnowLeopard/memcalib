@@ -43,6 +43,8 @@ SHORT_NAMES = {
     "qwen-max": "Qwen-Max",
     "qwen3-8b": "Qwen-8B",
     "qwen35-35b-a3b": "Qwen-35B",
+    "qwen35-a3b-base-vllm": "Qwen-35B Base",
+    "qwen35-a3b-sft-vllm": "Qwen-35B SFT",
 }
 METRIC_COLUMNS = (
     ("h", "H", True),
@@ -159,12 +161,11 @@ def build_tail_profiles(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]
 
     if not sample_sets or any(values != sample_sets[0] for values in sample_sets[1:]):
         raise ValueError("models do not use identical full-memory sample IDs")
-    if len(sample_sets[0]) != 500:
-        raise ValueError(f"expected 500 samples per model, got {len(sample_sets[0])}")
     return profiles
 
 
-def _metric_values(model: dict[str, Any]) -> dict[str, float]:
+def _metric_values(model: dict[str, Any]) -> dict[str, float | None]:
+    pmu = model["paired_utility"]["pmu_lambda_1_0"]
     return {
         "h": float(model["composites"]["harmonic_h"]),
         "mincalib": float(model["composites"]["mincalib"]),
@@ -174,7 +175,7 @@ def _metric_values(model: dict[str, Any]) -> dict[str, float]:
             model["classification"]["quadratic_weighted_kappa"]
         ),
         "cvar90": float(model["sample_risk"]["linear_loss"]["cvar90"]),
-        "pmu1": float(model["paired_utility"]["pmu_lambda_1_0"]),
+        "pmu1": float(pmu) if pmu is not None else None,
         "strict_sample": float(model["sample_risk"]["strict_sample_accuracy"]),
     }
 
@@ -195,13 +196,18 @@ def build_visualization_data(
     ranks: dict[str, dict[str, int]] = {
         model_key: {} for model_key in metric_models
     }
-    for metric_key, _, higher_is_better in METRIC_COLUMNS:
+    metric_columns = [
+        column
+        for column in METRIC_COLUMNS
+        if any(values[model_key][column[0]] is not None for model_key in metric_models)
+    ]
+    for metric_key, _, higher_is_better in metric_columns:
         ordered = sorted(
             metric_models,
             key=lambda model_key: (
-                -values[model_key][metric_key]
+                -float(values[model_key][metric_key])
                 if higher_is_better
-                else values[model_key][metric_key],
+                else float(values[model_key][metric_key]),
                 model_key,
             ),
         )
@@ -234,13 +240,13 @@ def build_visualization_data(
                 "label": label,
                 "higher_is_better": higher_is_better,
             }
-            for key, label, higher_is_better in METRIC_COLUMNS
+            for key, label, higher_is_better in metric_columns
         ],
         "tail_definition": {
             "condition": "full_memory",
             "sample_loss": "mean absolute A/B/C ordinal distance divided by two",
             "alpha": 0.90,
-            "tail_samples_per_model": 50,
+            "tail_samples_per_model": next(iter(profiles.values()))["tail_samples"],
         },
     }
 

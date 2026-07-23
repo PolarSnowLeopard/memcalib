@@ -62,7 +62,7 @@ export VLLM_EVAL_RPM=0
 
 bash evaluation/cluster/memcalib-v23-sft-vllm-500/run_answer_model.sh \
   qwen35-a3b-base-vllm \
-  med_chat \
+  qwen35-a3b-base-vllm \
   http://127.0.0.1:8000/v1/chat/completions
 ```
 
@@ -74,7 +74,7 @@ After it finishes, stop the base vLLM service.
 vllm serve /cluster/local/path/to/merged-sft \
   --host 0.0.0.0 \
   --port 8000 \
-  --served-model-name qwen35-a3b-sft-vllm \
+  --served-model-name med_chat \
   --tensor-parallel-size 8 \
   --dtype bfloat16 \
   --max-model-len 32768 \
@@ -187,3 +187,11 @@ workspace. The local stage will:
    confidence intervals.
 
 Do not use the remaining 1,000 held-out test records during this pilot.
+
+## Completed Full-memory-only pilot
+
+The completed cluster run retained 498 valid Full-memory answers per
+checkpoint and did not generate No-memory answers. Because the two missing
+sets differed, the local analysis used the 496-record intersection and did not
+regenerate missing outputs. The completed release is available at
+[`evaluation/releases/memcalib-v23-sft-base-full-only-paired/`](../../releases/memcalib-v23-sft-base-full-only-paired/README.md).

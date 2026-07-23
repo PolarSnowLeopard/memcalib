@@ -57,6 +57,8 @@ MODEL_DISPLAY_NAMES = {
     "qwen-max": "Qwen3.7-Max",
     "qwen3-8b": "Qwen3-8B",
     "qwen35-35b-a3b": "Qwen3.5-35B-A3B",
+    "qwen35-a3b-base-vllm": "Qwen3.5-35B-A3B Base",
+    "qwen35-a3b-sft-vllm": "Qwen3.5-35B-A3B SFT",
 }
 
 
@@ -527,6 +529,9 @@ def bootstrap_candidate_intervals(
     for atom in atoms:
         by_sample_condition[atom["sample_id"]][atom["condition"]].append(atom)
     sample_ids = sorted(by_sample_condition)
+    has_no_memory = all(
+        bool(by_sample_condition[sample_id]["no_memory"]) for sample_id in sample_ids
+    )
     full_confusions = np.zeros((len(sample_ids), 3, 3), dtype=np.int64)
     no_confusions = np.zeros_like(full_confusions)
     linear_losses = np.zeros(len(sample_ids), dtype=float)
@@ -556,23 +561,13 @@ def bootstrap_candidate_intervals(
     for _ in range(replicates):
         indices = rng.integers(0, len(sample_ids), size=len(sample_ids))
         full_confusion = _matrix_to_confusion(full_confusions[indices].sum(axis=0))
-        no_confusion = _matrix_to_confusion(no_confusions[indices].sum(axis=0))
         full_directional = _directional_from_confusion(full_confusion)
-        no_directional = _directional_from_confusion(no_confusion)
         composites = composite_metrics(
             full_directional["opb_error_rate"],
             full_directional["upb_error_rate"],
         )
         classification = classification_metrics(full_confusion)
         ordinal = ordinal_metrics(full_confusion)
-        induced_opb = (
-            full_directional["opb_error_rate"]
-            - no_directional["opb_error_rate"]
-        )
-        reduced_upb = (
-            no_directional["upb_error_rate"]
-            - full_directional["upb_error_rate"]
-        )
         sampled_losses = [float(value) for value in linear_losses[indices]]
         values = {
             "opb_error_rate": full_directional["opb_error_rate"],
@@ -590,8 +585,19 @@ def bootstrap_candidate_intervals(
                 "severe_two_step_atom_error_rate"
             ],
             "cvar90_linear_loss": _tail_mean(sampled_losses, 0.90),
-            "pmu_lambda_1_0": reduced_upb - induced_opb,
         }
+        if has_no_memory:
+            no_confusion = _matrix_to_confusion(no_confusions[indices].sum(axis=0))
+            no_directional = _directional_from_confusion(no_confusion)
+            induced_opb = (
+                full_directional["opb_error_rate"]
+                - no_directional["opb_error_rate"]
+            )
+            reduced_upb = (
+                no_directional["upb_error_rate"]
+                - full_directional["upb_error_rate"]
+            )
+            values["pmu_lambda_1_0"] = reduced_upb - induced_opb
         for key, value in values.items():
             if value is not None:
                 samples[key].append(float(value))
@@ -608,7 +614,20 @@ def bootstrap_candidate_intervals(
 
 def paired_utility(
     full: dict[str, Any], no_memory: dict[str, Any]
-) -> dict[str, float]:
+) -> dict[str, float | None]:
+    if not no_memory or no_memory.get("opb_error_rate") is None:
+        return {
+            "memory_induced_opb": None,
+            "memory_reduced_upb": None,
+            "relative_upb_reduction": None,
+            "full_minus_no_memory_h": None,
+            "pmu_lambda_0_5": None,
+            "relative_pmu_lambda_0_5": None,
+            "pmu_lambda_1_0": None,
+            "relative_pmu_lambda_1_0": None,
+            "pmu_lambda_2_0": None,
+            "relative_pmu_lambda_2_0": None,
+        }
     induced_opb = full["opb_error_rate"] - no_memory["opb_error_rate"]
     reduced_upb = no_memory["upb_error_rate"] - full["upb_error_rate"]
     relative_upb_reduction = (
@@ -881,7 +900,14 @@ def _metric_spreads(model_metrics: dict[str, dict[str, Any]]) -> dict[str, Any]:
             value: Any = metrics
             for key in path:
                 value = value[key]
-            values.append(float(value))
+            if value is not None:
+                values.append(float(value))
+        if not values:
+            result[name] = {
+                "status": "not_computable",
+                "reason": "requires_no_memory_condition",
+            }
+            continue
         result[name] = {
             "minimum": min(values),
             "maximum": max(values),
@@ -903,6 +929,7 @@ def compute_candidate_metrics(
     standard = compute_metrics(rows)
     atoms = _flatten(rows)
     models = sorted(standard["models"])
+    has_no_memory = "no_memory" in input_integrity["conditions"]
     model_metrics: dict[str, dict[str, Any]] = {}
     losses_by_model: dict[str, dict[str, float]] = {}
     for model in models:
@@ -914,7 +941,7 @@ def compute_candidate_metrics(
         classification = classification_metrics(full_confusion)
         ordinal = ordinal_metrics(full_confusion)
         full_standard = standard["models"][model]["full_memory"]
-        no_standard = standard["models"][model]["no_memory"]
+        no_standard = standard["models"][model]["no_memory"] if has_no_memory else {}
         sample_risk, losses = sample_risk_metrics(full_atoms)
         losses_by_model[model] = losses
         model_metrics[model] = {
@@ -934,7 +961,7 @@ def compute_candidate_metrics(
                     )
                 },
                 "no_memory": {
-                    key: no_standard[key]
+                    key: no_standard.get(key)
                     for key in (
                         "opb_error_rate",
                         "upb_error_rate",
@@ -991,10 +1018,11 @@ def compute_candidate_metrics(
         "source": {
             "rows": len(rows),
             "models": len(models),
-            "samples_per_model_per_condition": 500,
+            "samples_per_model_per_condition": input_integrity["samples_per_bucket"],
             "bootstrap_replicates": bootstrap_replicates,
             "seed": seed,
             "basis": "ordered-usage-v2.1 primary Judge outputs",
+            "conditions": input_integrity["conditions"],
         },
         "input_integrity": input_integrity,
         "models": model_metrics,
@@ -1255,7 +1283,9 @@ def _write_markdown(result: dict[str, Any], path: Path) -> None:
         intervals = models[model]["bootstrap_ci95"]
 
         def interval(key: str) -> str:
-            values = intervals[key]
+            values = intervals.get(key)
+            if not values:
+                return "NA"
             return f"[{_fmt(values['ci_low'])}, {_fmt(values['ci_high'])}]"
 
         uncertainty_rows.append(
@@ -1294,11 +1324,18 @@ def _write_markdown(result: dict[str, Any], path: Path) -> None:
             _fmt(values["population_sd"]),
         ]
         for name, values in sorted(
-            result["metric_spreads"].items(),
+            (
+                (name, values)
+                for name, values in result["metric_spreads"].items()
+                if values.get("status") != "not_computable"
+            ),
             key=lambda item: item[1]["range"],
             reverse=True,
         )
     ]
+    sample_count = int(result["source"]["samples_per_model_per_condition"])
+    tail_count = max(1, math.ceil(0.10 * sample_count))
+    paired_available = "no_memory" in result["source"].get("conditions", [])
     pareto_names = [
         models[model]["display_name"] for model in result["pareto"]["pareto_front"]
     ]
@@ -1397,7 +1434,8 @@ def _write_markdown(result: dict[str, Any], path: Path) -> None:
         "",
         "For a full-memory sample `s` with `n_s` scorable atoms, "
         "`L_s = mean_i(|u_hat_si - u*_si| / 2)`. CVaR90 is the arithmetic "
-        "mean of the largest 50 values of `L_s` among the locked 500 samples. "
+        f"mean of the largest {tail_count} values of `L_s` among the locked "
+        f"{sample_count} samples. "
         "It therefore changes both the aggregation unit (sample rather than "
         "gold-label macro average) and the evaluated population (only the "
         "worst decile).",
@@ -1418,8 +1456,13 @@ def _write_markdown(result: dict[str, Any], path: Path) -> None:
             paired_rows,
         ),
         "",
-        "`PMU(λ) = reduced_UPB - λ × induced_OPB`. Its ranking is a policy choice, "
-        "so the weight sensitivity must remain visible.",
+        (
+            "`PMU(λ) = reduced_UPB - λ × induced_OPB`. Its ranking is a policy "
+            "choice, so the weight sensitivity must remain visible."
+            if paired_available
+            else "Not computable in this Full-memory-only run because no matched "
+            "No-memory responses were generated."
+        ),
         "",
         "## Latent and pairwise models",
         "",
@@ -1470,8 +1513,12 @@ def _write_markdown(result: dict[str, Any], path: Path) -> None:
             align_right_from=1,
         ),
         "",
-        "All intervals resample the same 500 sample IDs as clusters and preserve "
-        "their full/no-memory atom groups.",
+        f"All intervals resample the same {sample_count} sample IDs as clusters. "
+        + (
+            "Full/no-memory atom groups are preserved."
+            if paired_available
+            else "This run contains only Full-memory judgments."
+        ),
         "",
         "## Interpretation boundary",
         "",

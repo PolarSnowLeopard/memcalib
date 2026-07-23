@@ -1,0 +1,80 @@
+{
+  "schema_version": "memcalib-v23-vllm-sft-paired-full-only-config-v1",
+  "seed": 20260723,
+  "source_count": 15000,
+  "sample_count": 496,
+  "release": "memcalib-v23-sft-base-full-only-paired",
+  "source_inputs": {
+    "benchmark_sha256": "e86d79545b44344b44337d8f9502dc69880daeb18c6513784344e33a06de8773",
+    "locked_sample_ordered_id_sha256": "0f167e665807f1ed4bbbb0ab9f9ef11f28fd7cd388edd4be1d67660b8aaba0bf",
+    "paired_sample_ordered_id_sha256": "d2825d414fa31a3648b2cfeb23d7262dfb7e207859282682f595bf80efeeff36",
+    "source_hidden_sha256": "6c6dd6e05a731c6aa26d064a8aadbab2c1946f3e4413901e55b289d830999fe2"
+  },
+  "evaluation_modes": {
+    "leaderboard_required_conditions": [
+      "full_memory"
+    ],
+    "official_research_conditions": [
+      "full_memory"
+    ],
+    "primary_metrics_condition": "full_memory"
+  },
+  "answer_models": [
+    {
+      "key": "qwen35-a3b-base-vllm",
+      "model": "qwen35-a3b-base-vllm",
+      "answer_mode": "nonthinking",
+      "checkpoint_role": "base",
+      "served_model_name": "qwen35-a3b-base-vllm"
+    },
+    {
+      "key": "qwen35-a3b-sft-vllm",
+      "model": "qwen35-a3b-sft-vllm",
+      "answer_mode": "nonthinking",
+      "checkpoint_role": "sft",
+      "served_model_name": "med_chat"
+    }
+  ],
+  "answer_generation": {
+    "backend": "vllm-openai-compatible",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_tokens": 8192,
+    "seed": 20260723,
+    "enable_thinking": false,
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "generation_config": "vllm"
+  },
+  "judge_protocol": "ordered-usage-v2.1",
+  "judge_prompt": "evaluation/prompts/judge-system-v2.1.txt",
+  "primary_judge": {
+    "key": "qwen-judge",
+    "model": "qwen3.7-plus"
+  },
+  "secondary_judge": {
+    "key": "deepseek-judge",
+    "model": "deepseek-v4-pro"
+  },
+  "deepseek_secondary_judge": {
+    "key": "kimi-judge",
+    "model": "kimi-k2.6"
+  },
+  "judge_generation": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "enable_thinking": false
+  },
+  "secondary_judge_sampling": {
+    "total": 50,
+    "per_model_per_condition": 25,
+    "stratify_by": [
+      "condition",
+      "source_dataset",
+      "source_topic",
+      "composite_block_revision.difficulty_level",
+      "atom_count_bucket"
+    ]
+  }
+}
