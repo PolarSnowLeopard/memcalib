@@ -47,6 +47,7 @@ memory-reduced UPB therefore remain intentionally uncomputed.
 | Multiclass MCC | 0.557 | **0.752** | higher |
 | Linear weighted kappa | 0.558 | **0.782** | higher |
 | Strict sample accuracy | 0.107 | **0.387** | higher |
+| SCS(0.5) | 0.235 | **0.570** | higher |
 | Any A-to-C or C-to-A sample | 0.651 | **0.244** | lower |
 | Mean normalized ordinal loss | 0.130 | **0.049** | lower |
 | CVaR90 sample loss | 0.359 | **0.197** | lower |
@@ -62,6 +63,17 @@ worse on 47. Its tie-adjusted win share is 0.827. The Base-minus-SFT mean loss
 difference is 0.0804 with a paired sample-bootstrap 95% interval of
 [0.0709, 0.0896]. This supports a real reduction in aggregate ordinal error,
 but does not remove the observed SFT under-use bias.
+
+The sample-level calibration score tells the same aggregate-error story more
+directly. For each answer, all one-step ordered A/B/C errors are added to an
+error budget; an A-to-C or C-to-A error adds two units. The answer receives
+`SCS_rho = rho^budget`, and answers are then averaged with equal weight.
+At the fixed primary setting `rho=0.5`, SCS rises from 0.2348 to
+0.5704. The sensitivity values for `rho=0.25/0.5/0.75` are
+0.1430/0.2348/0.4519 for Base and 0.4600/0.5704/0.7393 for SFT. Any-OPB
+sample incidence falls from 83.3% to 24.2%, while any-UPB incidence rises
+from 37.1% to 50.4%. SCS therefore complements, rather than replaces, the
+directional OPB and UPB rates.
 
 ## Interpretation boundary
 
@@ -86,6 +98,8 @@ fewer total and severe ordinal mistakes. Both views must be reported.
 - [Compressed model-facing subset](model-facing.jsonl.gz)
 - [Candidate metric study](../../analyses/memcalib-v23-sft-base-full-only-paired-candidate-metrics/README.md)
 - [Tail, Pareto, and rank diagnostics](../../analyses/memcalib-v23-sft-base-full-only-paired-candidate-metrics/candidate-metric-diagnostics.html)
+- [Sample-level SCS analysis](../../analyses/memcalib-v23-sft-base-full-only-paired-sample-level/README.md)
+- [Sample-level SCS distributions](../../analyses/memcalib-v23-sft-base-full-only-paired-sample-level/sample-level-score-distributions.html)
 
 Raw cluster answers, raw Judge API outputs, targeted retry artifacts, and
 normalized per-answer judgments remain in the local ignored

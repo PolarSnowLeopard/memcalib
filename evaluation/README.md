@@ -30,8 +30,11 @@ v2.3 采样时优先保留了 388 个 v2.1 查询/来源 ID，以增加问题层
 - [sample-level OPB/UPB and SCS distributions](analyses/memcalib-v23-sample-level-calibration/README.md)
 - [Qwen3.5-35B-A3B base/SFT 集群 vLLM 评测说明](cluster/memcalib-v23-sft-vllm-500/README.md)
 - [Qwen3.5-35B-A3B base/SFT 496 条严格配对结果](releases/memcalib-v23-sft-base-full-only-paired/README.md)
+- [Qwen3.5-35B-A3B base/SFT 样本级 SCS 分析](analyses/memcalib-v23-sft-base-full-only-paired-sample-level/README.md)
 
 样本级分析不再让一条样本的每个原子分别占模型级权重。每条回答先累积有序过用/少用错误预算；`SCS(0.5)` 对一个单级错误计 0.5、两个单级错误或一个 A/C 两级错误计 0.25，再对 500 条样本等权平均。思考模式下 SCS(0.5) 范围为 0.257–0.427，任意 OPB 样本率为 49.0%–81.8%，任意 UPB 样本率为 30.8%–58.0%。该分析同时保留 `rho=0.25/0.5/0.75`、完整错误预算分布、三档负载分层和非思考对照。
+
+同一定义已用于 496 条 Base/SFT 严格配对结果：`SCS(0.5)` 从 0.235 提升到 0.570；Base 与 SFT 的平均样本错误预算分别为 3.540 和 1.290。方向上，任意 OPB 样本率从 83.3% 降至 24.2%，任意 UPB 样本率从 37.1% 升至 50.4%，因此 SCS 的总体改善必须与 OPB/UPB 一并解读。
 
 ## v2.2 Codex answer-only pilot
 

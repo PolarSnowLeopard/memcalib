@@ -145,9 +145,10 @@ Qwen3.5-35B-A3B Base 与 MemCalib SFT 合并模型通过同一套 vLLM 非思考
 | H↑ | **0.845** | 0.824 |
 | MCC↑ | 0.557 | **0.752** |
 | 严格样本准确率↑ | 0.107 | **0.387** |
+| SCS(0.5)↑ | 0.235 | **0.570** |
 | CVaR90↓ | 0.359 | **0.197** |
 
-SFT 明显降低了过用和严重有序错误，但同时增加了相关记忆使用不足，因此 H 小幅下降，而 MCC、Kappa、整条样本严格正确率和尾部风险显著改善。按同样本有序损失，SFT 在 371 条上更好、78 条持平、47 条更差，含平局胜率为 0.827；Base-SFT 平均损失差为 0.0804，样本聚类 bootstrap 95% 区间为 [0.0709, 0.0896]。该结果应解释为“总体错误显著减少但存在更强 under-use 偏置”，不能只用 H 或任一单指标概括。由于没有生成 No-memory 回答，PMU 等反事实指标不可计算。完整结果见[评测发布说明](evaluation/releases/memcalib-v23-sft-base-full-only-paired/README.md)和[候选指标研究](evaluation/analyses/memcalib-v23-sft-base-full-only-paired-candidate-metrics/README.md)。
+SFT 明显降低了过用和严重有序错误，但同时增加了相关记忆使用不足，因此 H 小幅下降，而 MCC、Kappa、整条样本严格正确率和尾部风险显著改善。按同样本有序损失，SFT 在 371 条上更好、78 条持平、47 条更差，含平局胜率为 0.827；Base-SFT 平均损失差为 0.0804，样本聚类 bootstrap 95% 区间为 [0.0709, 0.0896]。样本等权、累积全部原子有序错误的 `SCS(0.5)` 从 0.235 提升到 0.570；其中任意 OPB 样本率从 83.3% 降至 24.2%，任意 UPB 样本率从 37.1% 升至 50.4%。该结果应解释为“总体错误显著减少但存在更强 under-use 偏置”，不能只用 H 或任一单指标概括。由于没有生成 No-memory 回答，PMU 等反事实指标不可计算。完整结果见[评测发布说明](evaluation/releases/memcalib-v23-sft-base-full-only-paired/README.md)、[候选指标研究](evaluation/analyses/memcalib-v23-sft-base-full-only-paired-candidate-metrics/README.md)和[样本级 SCS 分析](evaluation/analyses/memcalib-v23-sft-base-full-only-paired-sample-level/README.md)。
 
 采样 manifest 中的 388 表示与 v2.1 共享的查询/来源 ID，不表示数据行相同：这 388 条问题文本相同，但 `memory_blocks` 相同数为 0，完整模型输入行相同数也为 0。v2.1 与 v2.3 不是同一套 benchmark 数据，跨版本结果不得作为严格同样本回答模式对照。
 

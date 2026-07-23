@@ -27,6 +27,8 @@ MODEL_DISPLAY_NAMES = {
     "qwen-max": "Qwen3.7-Max",
     "qwen3-8b": "Qwen3-8B",
     "qwen35-35b-a3b": "Qwen3.5-35B-A3B",
+    "qwen35-a3b-base-vllm": "Qwen3.5-35B-A3B Base",
+    "qwen35-a3b-sft-vllm": "Qwen3.5-35B-A3B SFT",
 }
 
 

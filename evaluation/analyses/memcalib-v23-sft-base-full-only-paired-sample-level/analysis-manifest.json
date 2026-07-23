@@ -1,0 +1,35 @@
+{
+  "schema_version": "memcalib-sample-level-calibration-manifest-v1",
+  "sources": {
+    "hidden": {
+      "path": "evaluation/releases/memcalib-v23-sft-base-full-only-paired/hidden-evaluation.jsonl.gz",
+      "sha256": "353497754ba67682131ed463fa6857fa087a7d86fd864f257ed00cefbfeac425",
+      "rows": 496
+    },
+    "judgments": {
+      "sft-pilot": {
+        "path": "evaluation/runs/memcalib-v23-sft-base-full-only-paired/judgments/primary.valid.jsonl",
+        "sha256": "a06e6a05ac372f43038d1fe1a61cd274e0e07c2a970de83ec5b8cd3d3087a984",
+        "rows": 992
+      }
+    }
+  },
+  "outputs": {
+    "sample-level-metrics.json": {
+      "sha256": "3139bce166ca96b8f23a0f6e50e9eae41791aca1a01fdf3d1a981a29e7e80631",
+      "bytes": 42264
+    },
+    "sample-level-scores.csv": {
+      "sha256": "ea7d6df5c87ed10708614c4048ae73805961176af600efe99d8afbef1149df9e",
+      "bytes": 204163
+    },
+    "README.md": {
+      "sha256": "b2cc6f8a703a0a7c2b0fe1d5482898391da4a0b8d097221b96f76f9984e88931",
+      "bytes": 2659
+    },
+    "sample-level-score-distributions.html": {
+      "sha256": "793ab3b8712d08138044c1046fa3991e317d8ac23c9b84696e0a212f640c225e",
+      "bytes": 3724
+    }
+  }
+}
