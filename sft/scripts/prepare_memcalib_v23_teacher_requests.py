@@ -105,6 +105,8 @@ def main() -> None:
     parser.add_argument("--ids", type=Path, default=DEFAULT_IDS)
     parser.add_argument("--prompt", type=Path, default=DEFAULT_PROMPT)
     parser.add_argument("--run-dir", type=Path, default=DEFAULT_RUN)
+    parser.add_argument("--hidden-output", type=Path)
+    parser.add_argument("--model-facing-output", type=Path)
     parser.add_argument("--model", default="qwen3.7-max")
     parser.add_argument("--model-key", default="qwen37max-teacher")
     args = parser.parse_args()
@@ -121,8 +123,8 @@ def main() -> None:
     requests = [build_request(row, system_prompt, args.model, args.model_key) for row in rows]
 
     request_path = args.run_dir / "requests/answers" / args.model_key / "full_memory.jsonl"
-    hidden_path = args.run_dir / "pilot.hidden.jsonl"
-    model_facing_path = args.run_dir / "pilot.model-facing.jsonl"
+    hidden_path = args.hidden_output or args.run_dir / "pilot.hidden.jsonl"
+    model_facing_path = args.model_facing_output or args.run_dir / "pilot.model-facing.jsonl"
     manifest_path = args.run_dir / "teacher-request.manifest.json"
     write_jsonl(request_path, requests)
     write_jsonl(hidden_path, rows)
