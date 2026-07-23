@@ -4,7 +4,13 @@ set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 cd "$ROOT"
 
-: "${PYTHON_BIN:?Set PYTHON_BIN to a non-Conda Python 3 executable}"
+if [[ -z "${PYTHON_BIN:-}" ]]; then
+  if command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN=python3
+  else
+    PYTHON_BIN=python
+  fi
+fi
 
 CONFIG=${MEMCALIB_CONFIG:-evaluation/configs/memcalib-v23-sft-base-500-vllm.json}
 RUN=${MEMCALIB_RUN:-evaluation/runs/memcalib-v23-sft-base-500-vllm}

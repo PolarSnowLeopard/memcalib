@@ -20,7 +20,13 @@ esac
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 cd "$ROOT"
 
-: "${PYTHON_BIN:?Set PYTHON_BIN to a non-Conda Python 3 executable}"
+if [[ -z "${PYTHON_BIN:-}" ]]; then
+  if command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN=python3
+  else
+    PYTHON_BIN=python
+  fi
+fi
 
 RUN=${MEMCALIB_RUN:-evaluation/runs/memcalib-v23-sft-base-500-vllm}
 REQUEST_ROOT="$RUN/requests/answers/$MODEL_ALIAS"

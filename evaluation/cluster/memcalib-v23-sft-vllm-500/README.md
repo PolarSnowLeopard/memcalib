@@ -26,7 +26,6 @@ is a counterfactual control, not a separate leaderboard.
 Run from a checkout of this repository:
 
 ```bash
-export PYTHON_BIN=/path/to/non-conda/python3
 bash evaluation/cluster/memcalib-v23-sft-vllm-500/prepare_requests.sh
 ```
 
@@ -58,7 +57,6 @@ vllm serve /cluster/local/path/to/base \
 ### Terminal 2: evaluate the base model
 
 ```bash
-export PYTHON_BIN=/path/to/non-conda/python3
 export VLLM_EVAL_WORKERS=128
 export VLLM_EVAL_RPM=0
 
@@ -135,7 +133,6 @@ The recommended merged-checkpoint commands are shown above. For a joint
 base-plus-LoRA endpoint, run both commands while the one service remains active:
 
 ```bash
-export PYTHON_BIN=/path/to/non-conda/python3
 export VLLM_EVAL_WORKERS=128
 export VLLM_EVAL_RPM=0
 
@@ -166,7 +163,6 @@ Before the formal run, inspect the smoke outputs and confirm:
 After all four 500-row cells complete:
 
 ```bash
-export PYTHON_BIN=/path/to/non-conda/python3
 bash evaluation/cluster/memcalib-v23-sft-vllm-500/package_results.sh
 ```
 
