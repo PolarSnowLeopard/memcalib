@@ -1,18 +1,19 @@
 #!/bin/bash
 set -euo pipefail
 
-if [[ "$#" -ne 2 ]]; then
-  printf 'Usage: %s MODEL_ALIAS CHAT_COMPLETIONS_URL\n' "$0" >&2
-  printf 'Example: %s qwen35-a3b-base-vllm http://127.0.0.1:8000/v1/chat/completions\n' "$0" >&2
+if [[ "$#" -ne 3 ]]; then
+  printf 'Usage: %s MODEL_KEY SERVED_MODEL_NAME CHAT_COMPLETIONS_URL\n' "$0" >&2
+  printf 'Example: %s qwen35-a3b-base-vllm med_chat http://127.0.0.1:8000/v1/chat/completions\n' "$0" >&2
   exit 2
 fi
 
-MODEL_ALIAS=$1
-CHAT_COMPLETIONS_URL=$2
-case "$MODEL_ALIAS" in
+MODEL_KEY=$1
+SERVED_MODEL_NAME=$2
+CHAT_COMPLETIONS_URL=$3
+case "$MODEL_KEY" in
   qwen35-a3b-base-vllm|qwen35-a3b-sft-vllm) ;;
   *)
-    printf 'Unsupported model alias: %s\n' "$MODEL_ALIAS" >&2
+    printf 'Unsupported model key: %s\n' "$MODEL_KEY" >&2
     exit 2
     ;;
 esac
@@ -29,8 +30,8 @@ if [[ -z "${PYTHON_BIN:-}" ]]; then
 fi
 
 RUN=${MEMCALIB_RUN:-evaluation/runs/memcalib-v23-sft-base-500-vllm}
-REQUEST_ROOT="$RUN/requests/answers/$MODEL_ALIAS"
-OUTPUT_ROOT="$RUN/answers/$MODEL_ALIAS"
+REQUEST_ROOT="$RUN/requests/answers/$MODEL_KEY"
+OUTPUT_ROOT="$RUN/answers/$MODEL_KEY"
 WORKERS=${VLLM_EVAL_WORKERS:-128}
 RPM=${VLLM_EVAL_RPM:-0}
 TIMEOUT=${VLLM_EVAL_TIMEOUT:-600}
@@ -42,6 +43,7 @@ EXTRA_BODY=$(printf '{"top_p":1.0,"seed":%s,"chat_template_kwargs":{"enable_thin
 # An unauthenticated vLLM endpoint still accepts an arbitrary bearer token.
 export MEMCALIB_VLLM_TOKEN=${MEMCALIB_VLLM_TOKEN:-EMPTY}
 mkdir -p "$OUTPUT_ROOT"
+printf '%s\n' "$SERVED_MODEL_NAME" > "$OUTPUT_ROOT/served-model-name.txt"
 
 run_cell() {
   local name=$1
@@ -56,7 +58,7 @@ run_cell() {
     --invalid-output "$base.invalid.jsonl" \
     --api-key-env "$TOKEN_ENV" \
     --base-url "$CHAT_COMPLETIONS_URL" \
-    --model "$MODEL_ALIAS" \
+    --model "$SERVED_MODEL_NAME" \
     --temperature 0 \
     --max-tokens "$MAX_TOKENS" \
     --extra-body-json "$EXTRA_BODY" \
@@ -71,7 +73,7 @@ run_cell() {
   PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/validate_api_results.py \
     --input "$input" \
     --output "$output" \
-    --model "$MODEL_ALIAS" \
+    --model "$SERVED_MODEL_NAME" \
     --report "$base.validation.json"
 
   "$PYTHON_BIN" \
@@ -83,4 +85,4 @@ run_cell smoke
 run_cell full_memory
 run_cell no_memory
 
-printf 'Completed %s under %s\n' "$MODEL_ALIAS" "$OUTPUT_ROOT"
+printf 'Completed %s using served model %s under %s\n' "$MODEL_KEY" "$SERVED_MODEL_NAME" "$OUTPUT_ROOT"

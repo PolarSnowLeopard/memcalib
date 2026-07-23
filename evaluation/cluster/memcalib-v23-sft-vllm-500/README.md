@@ -62,6 +62,7 @@ export VLLM_EVAL_RPM=0
 
 bash evaluation/cluster/memcalib-v23-sft-vllm-500/run_answer_model.sh \
   qwen35-a3b-base-vllm \
+  med_chat \
   http://127.0.0.1:8000/v1/chat/completions
 ```
 
@@ -86,6 +87,7 @@ vllm serve /cluster/local/path/to/merged-sft \
 ```bash
 bash evaluation/cluster/memcalib-v23-sft-vllm-500/run_answer_model.sh \
   qwen35-a3b-sft-vllm \
+  med_chat \
   http://127.0.0.1:8000/v1/chat/completions
 ```
 
@@ -138,9 +140,11 @@ export VLLM_EVAL_RPM=0
 
 bash evaluation/cluster/memcalib-v23-sft-vllm-500/run_answer_model.sh \
   qwen35-a3b-base-vllm \
+  qwen35-a3b-base-vllm \
   http://127.0.0.1:8000/v1/chat/completions
 
 bash evaluation/cluster/memcalib-v23-sft-vllm-500/run_answer_model.sh \
+  qwen35-a3b-sft-vllm \
   qwen35-a3b-sft-vllm \
   http://127.0.0.1:8000/v1/chat/completions
 ```
