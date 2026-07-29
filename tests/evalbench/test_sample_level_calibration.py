@@ -1,7 +1,9 @@
 import unittest
 
 from evaluation.scripts.analyze_sample_level_calibration import (
+    bootstrap_headline_metrics,
     budget_distribution,
+    harmonic_resistance,
     score_judgment_row,
     summarize_scores,
 )
@@ -92,6 +94,38 @@ class SampleLevelCalibrationTests(unittest.TestCase):
         self.assertEqual(summary["sample_any_opb_rate"], 0.5)
         self.assertEqual(summary["sample_exact_accuracy"], 0.5)
         self.assertEqual(summary["scs"]["0.5"]["mean"], 0.75)
+        self.assertEqual(summary["directional_risk"]["0.5"]["opb"], 0.25)
+        self.assertEqual(summary["directional_risk"]["0.5"]["upb"], 0.0)
+        self.assertEqual(summary["event_guardrail"]["opb"], 0.5)
+
+    def test_harmonic_resistance_uses_directional_resistance(self) -> None:
+        self.assertAlmostEqual(
+            harmonic_resistance(0.25, 0.5),
+            2 * 0.75 * 0.5 / (0.75 + 0.5),
+        )
+
+    def test_bootstrap_is_deterministic_and_contains_estimate(self) -> None:
+        rows = [
+            {
+                "over_budget": over,
+                "under_budget": under,
+                "sample_any_opb": int(over > 0),
+                "sample_any_upb": int(under > 0),
+                "sample_exact": int(over + under == 0),
+                "scs_rho_0_5": 0.5 ** (over + under),
+            }
+            for over, under in [(0, 0), (1, 0), (0, 2), (2, 1)]
+        ]
+        first = bootstrap_headline_metrics(
+            rows, rho=0.5, replicates=200, seed=17
+        )
+        second = bootstrap_headline_metrics(
+            rows, rho=0.5, replicates=200, seed=17
+        )
+        self.assertEqual(first, second)
+        for values in first.values():
+            self.assertLessEqual(values["ci_low"], values["estimate"])
+            self.assertGreaterEqual(values["ci_high"], values["estimate"])
 
     def test_budget_distribution_has_stable_bins(self) -> None:
         distribution = budget_distribution([0, 1, 2, 3, 4, 5, 9])

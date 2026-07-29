@@ -1,0 +1,3300 @@
+{
+  "schema_version": "memcalib-v23-three-layer-summary-v1",
+  "definition": {
+    "primary_rho": 0.5,
+    "overall_primary": "mean_s 0.5 ** (over_budget_s + under_budget_s)",
+    "directional_primary_opb": "mean_s (1 - 0.5 ** over_budget_s)",
+    "directional_primary_upb": "mean_s (1 - 0.5 ** under_budget_s)",
+    "event_guardrail_opb": "mean_s 1[over_budget_s > 0]",
+    "event_guardrail_upb": "mean_s 1[under_budget_s > 0]",
+    "bootstrap": "2000 sample-cluster replicates; percentile 95% interval"
+  },
+  "results": {
+    "nine_model": {
+      "modes": {
+        "nonthinking": {
+          "models": {
+            "codex-gpt56-sol": {
+              "display_name": "Codex GPT-5.6 Sol",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.41675982666015626,
+                    "directional_opb": 0.35981634521484374,
+                    "directional_upb": 0.3328125,
+                    "directional_h": 0.6534066942102018,
+                    "any_opb": 0.506,
+                    "any_upb": 0.512,
+                    "any_h": 0.4909816700610998,
+                    "exact": 0.23
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.41675982666015626,
+                      "ci_low": 0.38792458190917967,
+                      "ci_high": 0.44720283203124994,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.35981634521484374,
+                      "ci_low": 0.3272960342407226,
+                      "ci_high": 0.3929785140991211,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.3328125,
+                      "ci_low": 0.3020609375,
+                      "ci_high": 0.36213437499999995,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.6534066942102018,
+                      "ci_low": 0.6324716649951142,
+                      "ci_high": 0.6739277340756444,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.506,
+                      "ci_low": 0.462,
+                      "ci_high": 0.552,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.512,
+                      "ci_low": 0.468,
+                      "ci_high": 0.556,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.4909816700610998,
+                      "ci_low": 0.46094095698228016,
+                      "ci_high": 0.5201573896353167,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.23,
+                      "ci_low": 0.194,
+                      "ci_high": 0.266,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.178453125,
+                    "directional_opb": 0.024,
+                    "directional_upb": 0.81646875,
+                    "directional_h": 0.3089636437137852,
+                    "any_opb": 0.04,
+                    "any_upb": 0.962,
+                    "any_h": 0.07310621242484977,
+                    "exact": 0.038
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.178453125,
+                      "ci_low": 0.16097578125,
+                      "ci_high": 0.19671699218749997,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.024,
+                      "ci_low": 0.0145,
+                      "ci_high": 0.035,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.81646875,
+                      "ci_low": 0.7983107421875,
+                      "ci_high": 0.8338126953125,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.3089636437137852,
+                      "ci_low": 0.28410129130773176,
+                      "ci_high": 0.3343378544804973,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.04,
+                      "ci_low": 0.024,
+                      "ci_high": 0.058,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.962,
+                      "ci_low": 0.944,
+                      "ci_high": 0.978,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.07310621242484977,
+                      "ci_low": 0.04301224489795922,
+                      "ci_high": 0.10580237154150207,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.038,
+                      "ci_low": 0.022,
+                      "ci_high": 0.056,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            },
+            "deepseek": {
+              "display_name": "DeepSeek-V4-Pro",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.29238360691076376,
+                    "directional_opb": 0.59899523830408,
+                    "directional_upb": 0.24925,
+                    "directional_h": 0.5227750470072633,
+                    "any_opb": 0.76,
+                    "any_upb": 0.398,
+                    "any_h": 0.34318289786223277,
+                    "exact": 0.136
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.29238360691076376,
+                      "ci_low": 0.2642705222129822,
+                      "ci_high": 0.3221021774769397,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.59899523830408,
+                      "ci_low": 0.5666397145748139,
+                      "ci_high": 0.6304449819802074,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.24925,
+                      "ci_low": 0.2223109375,
+                      "ci_high": 0.27713437499999993,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.5227750470072633,
+                      "ci_low": 0.4958069013820135,
+                      "ci_high": 0.5498841834483927,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.76,
+                      "ci_low": 0.722,
+                      "ci_high": 0.796,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.398,
+                      "ci_low": 0.356,
+                      "ci_high": 0.442,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.34318289786223277,
+                      "ci_low": 0.30447115792608026,
+                      "ci_high": 0.38232846225069445,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.136,
+                      "ci_low": 0.106,
+                      "ci_high": 0.168,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.18923046875,
+                    "directional_opb": 0.0705,
+                    "directional_upb": 0.7942109375,
+                    "directional_h": 0.3369730933063577,
+                    "any_opb": 0.11,
+                    "any_upb": 0.938,
+                    "any_h": 0.11592436974789926,
+                    "exact": 0.056
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.18923046875,
+                      "ci_low": 0.1693953125,
+                      "ci_high": 0.20946748046875,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.0705,
+                      "ci_low": 0.0535,
+                      "ci_high": 0.09,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.7942109375,
+                      "ci_low": 0.77303515625,
+                      "ci_high": 0.8150314453124999,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.3369730933063577,
+                      "ci_low": 0.3086198324273359,
+                      "ci_high": 0.3648117900462473,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.11,
+                      "ci_low": 0.084,
+                      "ci_high": 0.14,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.938,
+                      "ci_low": 0.916,
+                      "ci_high": 0.958,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.11592436974789926,
+                      "ci_low": 0.08018181818181826,
+                      "ci_high": 0.15359999999999993,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.056,
+                      "ci_low": 0.038,
+                      "ci_high": 0.076,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            },
+            "deepseek-flash": {
+              "display_name": "DeepSeek-V4-Flash",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.2944785157442093,
+                    "directional_opb": 0.5768476560115814,
+                    "directional_upb": 0.2720625,
+                    "directional_h": 0.5351944698509018,
+                    "any_opb": 0.74,
+                    "any_upb": 0.43,
+                    "any_h": 0.3571084337349398,
+                    "exact": 0.136
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.2944785157442093,
+                      "ci_low": 0.2660328615665436,
+                      "ci_high": 0.32140659191310406,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.5768476560115814,
+                      "ci_low": 0.5441448723495006,
+                      "ci_high": 0.607460693091154,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.2720625,
+                      "ci_low": 0.242375,
+                      "ci_high": 0.3005,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.5351944698509018,
+                      "ci_low": 0.5080928401677156,
+                      "ci_high": 0.5602117318684291,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.74,
+                      "ci_low": 0.702,
+                      "ci_high": 0.778,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.43,
+                      "ci_low": 0.384,
+                      "ci_high": 0.472,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.3571084337349398,
+                      "ci_low": 0.318391959798995,
+                      "ci_high": 0.39214780600461896,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.136,
+                      "ci_low": 0.108,
+                      "ci_high": 0.166,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.1844375,
+                    "directional_opb": 0.05825,
+                    "directional_upb": 0.8038125,
+                    "directional_h": 0.32472711045202385,
+                    "any_opb": 0.092,
+                    "any_upb": 0.956,
+                    "any_h": 0.08393277310924377,
+                    "exact": 0.044
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.1844375,
+                      "ci_low": 0.16595078125,
+                      "ci_high": 0.20236171874999997,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.05825,
+                      "ci_low": 0.0425,
+                      "ci_high": 0.075,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.8038125,
+                      "ci_low": 0.785560546875,
+                      "ci_high": 0.8219927734375,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.32472711045202385,
+                      "ci_low": 0.29939783085295985,
+                      "ci_high": 0.34948484643553995,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.092,
+                      "ci_low": 0.068,
+                      "ci_high": 0.118,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.956,
+                      "ci_low": 0.938,
+                      "ci_high": 0.974,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.08393277310924377,
+                      "ci_low": 0.05056772059088132,
+                      "ci_high": 0.11609053497942397,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.044,
+                      "ci_low": 0.026,
+                      "ci_high": 0.062,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            },
+            "glm52": {
+              "display_name": "GLM-5.2",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.30943170166015627,
+                    "directional_opb": 0.5564511108398438,
+                    "directional_upb": 0.251875,
+                    "directional_h": 0.5569141284731887,
+                    "any_opb": 0.704,
+                    "any_upb": 0.398,
+                    "any_h": 0.3968641425389755,
+                    "exact": 0.15
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.30943170166015627,
+                      "ci_low": 0.28024776458740236,
+                      "ci_high": 0.3392820831298828,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.5564511108398438,
+                      "ci_low": 0.5214757675170898,
+                      "ci_high": 0.5889151718139648,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.251875,
+                      "ci_low": 0.221371875,
+                      "ci_high": 0.28113125,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.5569141284731887,
+                      "ci_low": 0.5298210747508503,
+                      "ci_high": 0.5835889061623241,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.704,
+                      "ci_low": 0.662,
+                      "ci_high": 0.744,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.398,
+                      "ci_low": 0.354,
+                      "ci_high": 0.442,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.3968641425389755,
+                      "ci_low": 0.35968735632183907,
+                      "ci_high": 0.4328162811356287,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.15,
+                      "ci_low": 0.118,
+                      "ci_high": 0.182,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.19609375,
+                    "directional_opb": 0.05125,
+                    "directional_upb": 0.7937734375,
+                    "directional_h": 0.3388076564053654,
+                    "any_opb": 0.082,
+                    "any_upb": 0.948,
+                    "any_h": 0.09842474226804132,
+                    "exact": 0.05
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.19609375,
+                      "ci_low": 0.17642929687499997,
+                      "ci_high": 0.216625,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.05125,
+                      "ci_low": 0.036,
+                      "ci_high": 0.06775,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.7937734375,
+                      "ci_low": 0.773230859375,
+                      "ci_high": 0.8138595703125001,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.3388076564053654,
+                      "ci_low": 0.31125331120225413,
+                      "ci_high": 0.36645604729528547,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.082,
+                      "ci_low": 0.058,
+                      "ci_high": 0.10604999999999973,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.948,
+                      "ci_low": 0.928,
+                      "ci_high": 0.9660499999999997,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.09842474226804132,
+                      "ci_low": 0.06541812166725922,
+                      "ci_high": 0.13346341463414627,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.05,
+                      "ci_low": 0.032,
+                      "ci_high": 0.07,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            },
+            "kimi": {
+              "display_name": "Kimi-K2.6",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.35912255860865117,
+                    "directional_opb": 0.4950854491889477,
+                    "directional_upb": 0.2595625,
+                    "directional_h": 0.6004047891079133,
+                    "any_opb": 0.636,
+                    "any_upb": 0.41,
+                    "any_h": 0.4502306079664571,
+                    "exact": 0.198
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.35912255860865117,
+                      "ci_low": 0.32814765626490117,
+                      "ci_high": 0.38980996704138815,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.4950854491889477,
+                      "ci_low": 0.45917953485324975,
+                      "ci_high": 0.5269176818557083,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.2595625,
+                      "ci_low": 0.2311859375,
+                      "ci_high": 0.291125,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.6004047891079133,
+                      "ci_low": 0.5755904023823716,
+                      "ci_high": 0.625305917746208,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.636,
+                      "ci_low": 0.592,
+                      "ci_high": 0.676,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.41,
+                      "ci_low": 0.368,
+                      "ci_high": 0.456,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.4502306079664571,
+                      "ci_low": 0.4163730654695765,
+                      "ci_high": 0.4837380835913686,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.198,
+                      "ci_low": 0.162,
+                      "ci_high": 0.234,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.18625390625,
+                    "directional_opb": 0.0475,
+                    "directional_upb": 0.8039140625,
+                    "directional_h": 0.32522051571565586,
+                    "any_opb": 0.076,
+                    "any_upb": 0.946,
+                    "any_h": 0.10203680981595101,
+                    "exact": 0.052
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.18625390625,
+                      "ci_low": 0.16627265625,
+                      "ci_high": 0.20599833984375,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.0475,
+                      "ci_low": 0.033,
+                      "ci_high": 0.06301249999999993,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.8039140625,
+                      "ci_low": 0.78348671875,
+                      "ci_high": 0.823945703125,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.32522051571565586,
+                      "ci_low": 0.29729194684497834,
+                      "ci_high": 0.3525935171097665,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.076,
+                      "ci_low": 0.053950000000000005,
+                      "ci_high": 0.102,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.946,
+                      "ci_low": 0.926,
+                      "ci_high": 0.966,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.10203680981595101,
+                      "ci_low": 0.06557639263252477,
+                      "ci_high": 0.13700401606425694,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.052,
+                      "ci_low": 0.032,
+                      "ci_high": 0.072,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            },
+            "qwen-flash": {
+              "display_name": "Qwen3.6-Flash",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.26813067626953124,
+                    "directional_opb": 0.6378297729492187,
+                    "directional_upb": 0.253625,
+                    "directional_h": 0.48769287281888063,
+                    "any_opb": 0.794,
+                    "any_upb": 0.406,
+                    "any_h": 0.30590999999999996,
+                    "exact": 0.126
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.26813067626953124,
+                      "ci_low": 0.24163040924072268,
+                      "ci_high": 0.2955869934082031,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.6378297729492187,
+                      "ci_low": 0.6072258651733399,
+                      "ci_high": 0.6672755676269531,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.253625,
+                      "ci_low": 0.22530312500000002,
+                      "ci_high": 0.28206875,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.48769287281888063,
+                      "ci_low": 0.45980118588618035,
+                      "ci_high": 0.5153986424988454,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.794,
+                      "ci_low": 0.758,
+                      "ci_high": 0.828,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.406,
+                      "ci_low": 0.362,
+                      "ci_high": 0.448,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.30590999999999996,
+                      "ci_low": 0.26769230769230773,
+                      "ci_high": 0.34542056074766353,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.126,
+                      "ci_low": 0.098,
+                      "ci_high": 0.156,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.1805859375,
+                    "directional_opb": 0.05975,
+                    "directional_upb": 0.8077578125,
+                    "directional_h": 0.31921759600990623,
+                    "any_opb": 0.094,
+                    "any_upb": 0.96,
+                    "any_h": 0.07661733615221994,
+                    "exact": 0.04
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.1805859375,
+                      "ci_low": 0.1632474609375,
+                      "ci_high": 0.19960429687499998,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.05975,
+                      "ci_low": 0.04424375,
+                      "ci_high": 0.07650624999999997,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.8077578125,
+                      "ci_low": 0.788552734375,
+                      "ci_high": 0.8248708984374999,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.31921759600990623,
+                      "ci_low": 0.2954623277154003,
+                      "ci_high": 0.3452064002920775,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.094,
+                      "ci_low": 0.07,
+                      "ci_high": 0.12,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.96,
+                      "ci_low": 0.942,
+                      "ci_high": 0.976,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.07661733615221994,
+                      "ci_low": 0.04675593952483806,
+                      "ci_high": 0.10912100538374868,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.04,
+                      "ci_low": 0.024,
+                      "ci_high": 0.058,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            },
+            "qwen-max": {
+              "display_name": "Qwen3.7-Max",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.28498388671875,
+                    "directional_opb": 0.591736328125,
+                    "directional_upb": 0.2569375,
+                    "directional_h": 0.5269843283221285,
+                    "any_opb": 0.742,
+                    "any_upb": 0.404,
+                    "any_h": 0.36011241217798595,
+                    "exact": 0.13
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.28498388671875,
+                      "ci_low": 0.2575733276367187,
+                      "ci_high": 0.3112749633789063,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.591736328125,
+                      "ci_low": 0.559708984375,
+                      "ci_high": 0.62467314453125,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.2569375,
+                      "ci_low": 0.229125,
+                      "ci_high": 0.2858765625,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.5269843283221285,
+                      "ci_low": 0.4989659491180199,
+                      "ci_high": 0.5534274336671979,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.742,
+                      "ci_low": 0.706,
+                      "ci_high": 0.7800499999999997,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.404,
+                      "ci_low": 0.36195,
+                      "ci_high": 0.446,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.36011241217798595,
+                      "ci_low": 0.3198983358309015,
+                      "ci_high": 0.39556073945273174,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.13,
+                      "ci_low": 0.1,
+                      "ci_high": 0.158,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.19294921875,
+                    "directional_opb": 0.0735,
+                    "directional_upb": 0.7921875,
+                    "directional_h": 0.33948013664664706,
+                    "any_opb": 0.118,
+                    "any_upb": 0.942,
+                    "any_h": 0.10884255319148946,
+                    "exact": 0.052
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.19294921875,
+                      "ci_low": 0.17296464843750003,
+                      "ci_high": 0.21294199218749998,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.0735,
+                      "ci_low": 0.0555,
+                      "ci_high": 0.093,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.7921875,
+                      "ci_low": 0.7712265625,
+                      "ci_high": 0.813373828125,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.33948013664664706,
+                      "ci_low": 0.3108663398697754,
+                      "ci_high": 0.36713967648638157,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.118,
+                      "ci_low": 0.09,
+                      "ci_high": 0.148,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.942,
+                      "ci_low": 0.92,
+                      "ci_high": 0.962,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.10884255319148946,
+                      "ci_low": 0.07282637362637369,
+                      "ci_high": 0.14652842986126396,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.052,
+                      "ci_low": 0.032,
+                      "ci_high": 0.072,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            },
+            "qwen3-8b": {
+              "display_name": "Qwen3-8B",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.3005566711425781,
+                    "directional_opb": 0.3276005554199219,
+                    "directional_upb": 0.50315625,
+                    "directional_h": 0.5714422167974451,
+                    "any_opb": 0.444,
+                    "any_upb": 0.704,
+                    "any_h": 0.3863286384976526,
+                    "exact": 0.132
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.3005566711425781,
+                      "ci_low": 0.2738452507019043,
+                      "ci_high": 0.32981430740356443,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.3276005554199219,
+                      "ci_low": 0.29437489547729495,
+                      "ci_high": 0.36105051269531246,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.50315625,
+                      "ci_low": 0.469871875,
+                      "ci_high": 0.5353125,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.5714422167974451,
+                      "ci_low": 0.5498783434828871,
+                      "ci_high": 0.5926830401066572,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.444,
+                      "ci_low": 0.398,
+                      "ci_high": 0.486,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.704,
+                      "ci_low": 0.662,
+                      "ci_high": 0.744,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.3863286384976526,
+                      "ci_low": 0.3502540939675853,
+                      "ci_high": 0.41852119208605065,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.132,
+                      "ci_low": 0.104,
+                      "ci_high": 0.162,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.15684375,
+                    "directional_opb": 0.0225,
+                    "directional_upb": 0.83853125,
+                    "directional_h": 0.27715545861113405,
+                    "any_opb": 0.036,
+                    "any_upb": 0.978,
+                    "any_h": 0.04301825557809334,
+                    "exact": 0.022
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.15684375,
+                      "ci_low": 0.1418330078125,
+                      "ci_high": 0.1727044921875,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.0225,
+                      "ci_low": 0.0125,
+                      "ci_high": 0.034,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.83853125,
+                      "ci_low": 0.8230228515624999,
+                      "ci_high": 0.8535949218750001,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.27715545861113405,
+                      "ci_low": 0.2547328774070814,
+                      "ci_high": 0.2998368180827951,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.036,
+                      "ci_low": 0.02,
+                      "ci_high": 0.054,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.978,
+                      "ci_low": 0.964,
+                      "ci_high": 0.99,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.04301825557809334,
+                      "ci_low": 0.019793814432989706,
+                      "ci_high": 0.06940812934131742,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.022,
+                      "ci_low": 0.01,
+                      "ci_high": 0.036,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            },
+            "qwen35-35b-a3b": {
+              "display_name": "Qwen3.5-35B-A3B",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.2561396942138672,
+                    "directional_opb": 0.6635448760986328,
+                    "directional_upb": 0.227125,
+                    "directional_h": 0.46881942224871853,
+                    "any_opb": 0.82,
+                    "any_upb": 0.38,
+                    "any_h": 0.2790000000000001,
+                    "exact": 0.11
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.2561396942138672,
+                      "ci_low": 0.2304877872467041,
+                      "ci_high": 0.2835321174621582,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.6635448760986328,
+                      "ci_low": 0.6319173152923585,
+                      "ci_high": 0.6933357292175293,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.227125,
+                      "ci_low": 0.200996875,
+                      "ci_high": 0.254375,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.46881942224871853,
+                      "ci_low": 0.43886619314130865,
+                      "ci_high": 0.49887076599292984,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.82,
+                      "ci_low": 0.786,
+                      "ci_high": 0.854,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.38,
+                      "ci_low": 0.336,
+                      "ci_high": 0.422,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.2790000000000001,
+                      "ci_low": 0.23762244897959184,
+                      "ci_high": 0.3189619047619047,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.11,
+                      "ci_low": 0.082,
+                      "ci_high": 0.13804999999999976,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.18253515625,
+                    "directional_opb": 0.05675,
+                    "directional_upb": 0.8038515625,
+                    "directional_h": 0.3247626248774367,
+                    "any_opb": 0.09,
+                    "any_upb": 0.952,
+                    "any_h": 0.09118997912317335,
+                    "exact": 0.044
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.18253515625,
+                      "ci_low": 0.163343359375,
+                      "ci_high": 0.20106357421874999,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.05675,
+                      "ci_low": 0.0415,
+                      "ci_high": 0.0735,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.8038515625,
+                      "ci_low": 0.7843345703125,
+                      "ci_high": 0.8225654296875,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.3247626248774367,
+                      "ci_low": 0.29848309496721276,
+                      "ci_high": 0.35106021350918587,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.09,
+                      "ci_low": 0.066,
+                      "ci_high": 0.116,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.952,
+                      "ci_low": 0.932,
+                      "ci_high": 0.97,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.09118997912317335,
+                      "ci_low": 0.0580768201284797,
+                      "ci_high": 0.1265444497308125,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.044,
+                      "ci_low": 0.026,
+                      "ci_high": 0.064,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "thinking": {
+          "models": {
+            "codex-gpt56-sol": {
+              "display_name": "Codex GPT-5.6 Sol",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.42679541015625,
+                    "directional_opb": 0.35301904296875,
+                    "directional_upb": 0.3295625,
+                    "directional_h": 0.6585004074667364,
+                    "any_opb": 0.49,
+                    "any_upb": 0.508,
+                    "any_h": 0.5008383233532934,
+                    "exact": 0.246
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.42679541015625,
+                      "ci_low": 0.39517916259765623,
+                      "ci_high": 0.46011370849609373,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.35301904296875,
+                      "ci_low": 0.31986436767578125,
+                      "ci_high": 0.3854390869140624,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.3295625,
+                      "ci_low": 0.3008734375,
+                      "ci_high": 0.3606890625,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.6585004074667364,
+                      "ci_low": 0.635888807349407,
+                      "ci_high": 0.680697410149661,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.49,
+                      "ci_low": 0.44795,
+                      "ci_high": 0.534,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.508,
+                      "ci_low": 0.466,
+                      "ci_high": 0.552,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.5008383233532934,
+                      "ci_low": 0.4699897872340425,
+                      "ci_high": 0.531248120300752,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.246,
+                      "ci_low": 0.208,
+                      "ci_high": 0.286,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.17998828125,
+                    "directional_opb": 0.024,
+                    "directional_upb": 0.8149296875,
+                    "directional_h": 0.3111415786888444,
+                    "any_opb": 0.042,
+                    "any_upb": 0.962,
+                    "any_h": 0.07310040160642577,
+                    "exact": 0.038
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.17998828125,
+                      "ci_low": 0.1617857421875,
+                      "ci_high": 0.1973966796875,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.024,
+                      "ci_low": 0.0145,
+                      "ci_high": 0.0345,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.8149296875,
+                      "ci_low": 0.7973859375000001,
+                      "ci_high": 0.8339076171875,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.3111415786888444,
+                      "ci_low": 0.2840709251098131,
+                      "ci_high": 0.33575300079996234,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.042,
+                      "ci_low": 0.026,
+                      "ci_high": 0.06,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.962,
+                      "ci_low": 0.944,
+                      "ci_high": 0.978,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.07310040160642577,
+                      "ci_low": 0.04301224489795922,
+                      "ci_high": 0.10581459566074959,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.038,
+                      "ci_low": 0.022,
+                      "ci_high": 0.056,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            },
+            "deepseek": {
+              "display_name": "DeepSeek-V4-Pro",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.27553810125589373,
+                    "directional_opb": 0.6484028014540673,
+                    "directional_upb": 0.1988125,
+                    "directional_h": 0.4887214080223937,
+                    "any_opb": 0.802,
+                    "any_upb": 0.32,
+                    "any_h": 0.3066970387243735,
+                    "exact": 0.136
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.27553810125589373,
+                      "ci_low": 0.2486493745073676,
+                      "ci_high": 0.30226028759330514,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.6484028014540673,
+                      "ci_low": 0.6183154265180231,
+                      "ci_high": 0.6785649864181876,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.1988125,
+                      "ci_low": 0.17199375,
+                      "ci_high": 0.22456406249999997,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.4887214080223937,
+                      "ci_low": 0.4584348233031695,
+                      "ci_high": 0.5172648289561294,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.802,
+                      "ci_low": 0.768,
+                      "ci_high": 0.838,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.32,
+                      "ci_low": 0.28,
+                      "ci_high": 0.358,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.3066970387243735,
+                      "ci_low": 0.2628236409319324,
+                      "ci_high": 0.34648035777873565,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.136,
+                      "ci_low": 0.106,
+                      "ci_high": 0.16404999999999975,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.1937578125,
+                    "directional_opb": 0.056,
+                    "directional_upb": 0.794484375,
+                    "directional_h": 0.3375452160556756,
+                    "any_opb": 0.088,
+                    "any_upb": 0.944,
+                    "any_h": 0.10552066115702488,
+                    "exact": 0.054
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.1937578125,
+                      "ci_low": 0.17374882812499998,
+                      "ci_high": 0.21478359375,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.056,
+                      "ci_low": 0.04,
+                      "ci_high": 0.073,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.794484375,
+                      "ci_low": 0.7729392578125,
+                      "ci_high": 0.815065234375,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.3375452160556756,
+                      "ci_low": 0.3092469880251158,
+                      "ci_high": 0.3661668877145862,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.088,
+                      "ci_low": 0.064,
+                      "ci_high": 0.114,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.944,
+                      "ci_low": 0.924,
+                      "ci_high": 0.964,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.10552066115702488,
+                      "ci_low": 0.06925423728813565,
+                      "ci_high": 0.1404940239043824,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.054,
+                      "ci_low": 0.034,
+                      "ci_high": 0.074,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            },
+            "deepseek-flash": {
+              "display_name": "DeepSeek-V4-Flash",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.32571997833251953,
+                    "directional_opb": 0.5681279220581055,
+                    "directional_upb": 0.2385625,
+                    "directional_h": 0.5511454888597125,
+                    "any_opb": 0.716,
+                    "any_upb": 0.382,
+                    "any_h": 0.38916186252771623,
+                    "exact": 0.178
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.32571997833251953,
+                      "ci_low": 0.2961733925819397,
+                      "ci_high": 0.35634761886596683,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.5681279220581055,
+                      "ci_low": 0.5350025632858275,
+                      "ci_high": 0.600587446975708,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.2385625,
+                      "ci_low": 0.20974687499999997,
+                      "ci_high": 0.2671875,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.5511454888597125,
+                      "ci_low": 0.5231392578894227,
+                      "ci_high": 0.5779990811741947,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.716,
+                      "ci_low": 0.678,
+                      "ci_high": 0.754,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.382,
+                      "ci_low": 0.34,
+                      "ci_high": 0.426,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.38916186252771623,
+                      "ci_low": 0.3502481176156465,
+                      "ci_high": 0.42532684301705753,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.178,
+                      "ci_low": 0.146,
+                      "ci_high": 0.214,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.1878984375,
+                    "directional_opb": 0.05,
+                    "directional_upb": 0.8008828125,
+                    "directional_h": 0.3292289597313154,
+                    "any_opb": 0.078,
+                    "any_upb": 0.944,
+                    "any_h": 0.10558691206543976,
+                    "exact": 0.052
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.1878984375,
+                      "ci_low": 0.16910957031249998,
+                      "ci_high": 0.2081126953125,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.05,
+                      "ci_low": 0.035,
+                      "ci_high": 0.06601249999999993,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.8008828125,
+                      "ci_low": 0.779881640625,
+                      "ci_high": 0.8203455078125,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.3292289597313154,
+                      "ci_low": 0.3023354391885102,
+                      "ci_high": 0.3572060158539915,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.078,
+                      "ci_low": 0.054,
+                      "ci_high": 0.102,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.944,
+                      "ci_low": 0.922,
+                      "ci_high": 0.962,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.10558691206543976,
+                      "ci_low": 0.07296590553769083,
+                      "ci_high": 0.1436366394571203,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.052,
+                      "ci_low": 0.034,
+                      "ci_high": 0.072,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            },
+            "glm52": {
+              "display_name": "GLM-5.2",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.30743603515625,
+                    "directional_opb": 0.60261669921875,
+                    "directional_upb": 0.1980625,
+                    "directional_h": 0.5314284060822999,
+                    "any_opb": 0.76,
+                    "any_upb": 0.328,
+                    "any_h": 0.35368421052631577,
+                    "exact": 0.148
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.30743603515625,
+                      "ci_low": 0.27897099609375,
+                      "ci_high": 0.3374063232421875,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.60261669921875,
+                      "ci_low": 0.5693520385742187,
+                      "ci_high": 0.6346905517578124,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.1980625,
+                      "ci_low": 0.1719359375,
+                      "ci_high": 0.22437812499999998,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.5314284060822999,
+                      "ci_low": 0.5025901284699429,
+                      "ci_high": 0.5600464269911936,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.76,
+                      "ci_low": 0.722,
+                      "ci_high": 0.796,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.328,
+                      "ci_low": 0.284,
+                      "ci_high": 0.37,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.35368421052631577,
+                      "ci_low": 0.31188196727861117,
+                      "ci_high": 0.39333445710157583,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.148,
+                      "ci_low": 0.118,
+                      "ci_high": 0.18,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.19095703125,
+                    "directional_opb": 0.058,
+                    "directional_upb": 0.79728125,
+                    "directional_h": 0.33363839371024534,
+                    "any_opb": 0.092,
+                    "any_upb": 0.946,
+                    "any_h": 0.10193762993763003,
+                    "exact": 0.05
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.19095703125,
+                      "ci_low": 0.171837109375,
+                      "ci_high": 0.21158994140625,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.058,
+                      "ci_low": 0.043,
+                      "ci_high": 0.07425624999999995,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.79728125,
+                      "ci_low": 0.7767111328125,
+                      "ci_high": 0.817173046875,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.33363839371024534,
+                      "ci_low": 0.3060502172643635,
+                      "ci_high": 0.3609233789994234,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.092,
+                      "ci_low": 0.068,
+                      "ci_high": 0.118,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.946,
+                      "ci_low": 0.926,
+                      "ci_high": 0.966,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.10193762993763003,
+                      "ci_low": 0.06563053448392905,
+                      "ci_high": 0.13689249492900601,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.05,
+                      "ci_low": 0.032,
+                      "ci_high": 0.07,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            },
+            "kimi": {
+              "display_name": "Kimi-K2.6",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.3491044998168945,
+                    "directional_opb": 0.49399413299560546,
+                    "directional_upb": 0.276625,
+                    "directional_h": 0.595473711798047,
+                    "any_opb": 0.638,
+                    "any_upb": 0.424,
+                    "any_h": 0.444588486140725,
+                    "exact": 0.182
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.3491044998168945,
+                      "ci_low": 0.3193542875289917,
+                      "ci_high": 0.3791193922042847,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.49399413299560546,
+                      "ci_low": 0.46024187221527096,
+                      "ci_high": 0.5290549730300902,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.276625,
+                      "ci_low": 0.2474359375,
+                      "ci_high": 0.3076875,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.595473711798047,
+                      "ci_low": 0.5701421303573448,
+                      "ci_high": 0.6191041362292866,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.638,
+                      "ci_low": 0.596,
+                      "ci_high": 0.68,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.424,
+                      "ci_low": 0.382,
+                      "ci_high": 0.47,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.444588486140725,
+                      "ci_low": 0.4093832364515291,
+                      "ci_high": 0.4768673821326865,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.182,
+                      "ci_low": 0.148,
+                      "ci_high": 0.216,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.18803125,
+                    "directional_opb": 0.052,
+                    "directional_upb": 0.79984375,
+                    "directional_h": 0.33052665959010374,
+                    "any_opb": 0.084,
+                    "any_upb": 0.946,
+                    "any_h": 0.10198762886597947,
+                    "exact": 0.05
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.18803125,
+                      "ci_low": 0.16902304687500003,
+                      "ci_high": 0.20780664062499998,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.052,
+                      "ci_low": 0.0375,
+                      "ci_high": 0.069,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.79984375,
+                      "ci_low": 0.7797562499999999,
+                      "ci_high": 0.8198126953125001,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.33052665959010374,
+                      "ci_low": 0.30299832530740867,
+                      "ci_high": 0.35719918437468,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.084,
+                      "ci_low": 0.062,
+                      "ci_high": 0.11,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.946,
+                      "ci_low": 0.926,
+                      "ci_high": 0.964,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.10198762886597947,
+                      "ci_low": 0.06926004228329816,
+                      "ci_high": 0.13693737373737364,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.05,
+                      "ci_low": 0.032,
+                      "ci_high": 0.07,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            },
+            "qwen-flash": {
+              "display_name": "Qwen3.6-Flash",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.3128511047363281,
+                    "directional_opb": 0.5657802429199219,
+                    "directional_upb": 0.255625,
+                    "directional_h": 0.5484876455368827,
+                    "any_opb": 0.716,
+                    "any_upb": 0.398,
+                    "any_h": 0.3859322799097066,
+                    "exact": 0.164
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.3128511047363281,
+                      "ci_low": 0.28225787506103517,
+                      "ci_high": 0.3424506652832031,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.5657802429199219,
+                      "ci_low": 0.5332260734558105,
+                      "ci_high": 0.6004856819152832,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.255625,
+                      "ci_low": 0.2279359375,
+                      "ci_high": 0.28581406249999997,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.5484876455368827,
+                      "ci_low": 0.5200085878960415,
+                      "ci_high": 0.5745889366421812,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.716,
+                      "ci_low": 0.678,
+                      "ci_high": 0.756,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.398,
+                      "ci_low": 0.356,
+                      "ci_high": 0.44,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.3859322799097066,
+                      "ci_low": 0.34556083898431494,
+                      "ci_high": 0.421300212314225,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.164,
+                      "ci_low": 0.132,
+                      "ci_high": 0.196,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.1905,
+                    "directional_opb": 0.0605,
+                    "directional_upb": 0.7978203125,
+                    "directional_h": 0.3327515037465358,
+                    "any_opb": 0.098,
+                    "any_upb": 0.944,
+                    "any_h": 0.10545302713987482,
+                    "exact": 0.052
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.1905,
+                      "ci_low": 0.1701015625,
+                      "ci_high": 0.211071875,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.0605,
+                      "ci_low": 0.0435,
+                      "ci_high": 0.0775,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.7978203125,
+                      "ci_low": 0.7768408203125,
+                      "ci_high": 0.818626953125,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.3327515037465358,
+                      "ci_low": 0.3039920703123757,
+                      "ci_high": 0.36092949024906457,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.098,
+                      "ci_low": 0.072,
+                      "ci_high": 0.124,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.944,
+                      "ci_low": 0.92395,
+                      "ci_high": 0.964,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.10545302713987482,
+                      "ci_low": 0.06922483940042833,
+                      "ci_high": 0.14071708492419427,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.052,
+                      "ci_low": 0.032,
+                      "ci_high": 0.072,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            },
+            "qwen-max": {
+              "display_name": "Qwen3.7-Max",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.2568515625,
+                    "directional_opb": 0.66947265625,
+                    "directional_upb": 0.181625,
+                    "directional_h": 0.4708760782200402,
+                    "any_opb": 0.818,
+                    "any_upb": 0.308,
+                    "any_h": 0.28820137299771176,
+                    "exact": 0.108
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.2568515625,
+                      "ci_low": 0.23015185546875,
+                      "ci_high": 0.2828288085937499,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.66947265625,
+                      "ci_low": 0.6378831787109375,
+                      "ci_high": 0.699706640625,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.181625,
+                      "ci_low": 0.1576234375,
+                      "ci_high": 0.20701249999999993,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.4708760782200402,
+                      "ci_low": 0.4399150785371053,
+                      "ci_high": 0.5008984831466191,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.818,
+                      "ci_low": 0.78395,
+                      "ci_high": 0.852,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.308,
+                      "ci_low": 0.268,
+                      "ci_high": 0.348,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.28820137299771176,
+                      "ci_low": 0.2448521783947224,
+                      "ci_high": 0.3295079763796048,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.108,
+                      "ci_low": 0.08,
+                      "ci_high": 0.136,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.1862578125,
+                    "directional_opb": 0.06025,
+                    "directional_upb": 0.80171875,
+                    "directional_h": 0.32746869593870986,
+                    "any_opb": 0.1,
+                    "any_upb": 0.954,
+                    "any_h": 0.08752642706131086,
+                    "exact": 0.046
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.1862578125,
+                      "ci_low": 0.1674404296875,
+                      "ci_high": 0.206476953125,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.06025,
+                      "ci_low": 0.04425,
+                      "ci_high": 0.07675,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.80171875,
+                      "ci_low": 0.7818599609375,
+                      "ci_high": 0.8201646484374999,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.32746869593870986,
+                      "ci_low": 0.30191141346888745,
+                      "ci_high": 0.35410532419296514,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.1,
+                      "ci_low": 0.074,
+                      "ci_high": 0.126,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.954,
+                      "ci_low": 0.934,
+                      "ci_high": 0.972,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.08752642706131086,
+                      "ci_low": 0.054321199143468994,
+                      "ci_high": 0.12305589970377342,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.046,
+                      "ci_low": 0.028,
+                      "ci_high": 0.066,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            },
+            "qwen3-8b": {
+              "display_name": "Qwen3-8B",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.30399610901251434,
+                    "directional_opb": 0.47674606322869656,
+                    "directional_upb": 0.386875,
+                    "directional_h": 0.5646357207120084,
+                    "any_opb": 0.622,
+                    "any_upb": 0.58,
+                    "any_h": 0.39789473684210525,
+                    "exact": 0.142
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.30399610901251434,
+                      "ci_low": 0.27563046455392615,
+                      "ci_high": 0.3337012695385143,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.47674606322869656,
+                      "ci_low": 0.44137331008166075,
+                      "ci_high": 0.5123303405723534,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.386875,
+                      "ci_low": 0.3546859375,
+                      "ci_high": 0.41732031249999996,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.5646357207120084,
+                      "ci_low": 0.5412907660673586,
+                      "ci_high": 0.5878885023851167,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.622,
+                      "ci_low": 0.58,
+                      "ci_high": 0.666,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.58,
+                      "ci_low": 0.534,
+                      "ci_high": 0.624,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.39789473684210525,
+                      "ci_low": 0.3657935699289766,
+                      "ci_high": 0.42933171296296296,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.142,
+                      "ci_low": 0.112,
+                      "ci_high": 0.174,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.166546875,
+                    "directional_opb": 0.03,
+                    "directional_upb": 0.825828125,
+                    "directional_h": 0.29531702787223285,
+                    "any_opb": 0.046,
+                    "any_upb": 0.968,
+                    "any_h": 0.06192292089249499,
+                    "exact": 0.032
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.166546875,
+                      "ci_low": 0.150053515625,
+                      "ci_high": 0.183937890625,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.03,
+                      "ci_low": 0.0185,
+                      "ci_high": 0.043012499999999926,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.825828125,
+                      "ci_low": 0.8084609375,
+                      "ci_high": 0.842617578125,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.29531702787223285,
+                      "ci_low": 0.2709133211072678,
+                      "ci_high": 0.3199228043987213,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.046,
+                      "ci_low": 0.02995,
+                      "ci_high": 0.066,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.968,
+                      "ci_low": 0.952,
+                      "ci_high": 0.984,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.06192292089249499,
+                      "ci_low": 0.03148175509768339,
+                      "ci_high": 0.09139222994011983,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.032,
+                      "ci_low": 0.016,
+                      "ci_high": 0.048,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            },
+            "qwen35-35b-a3b": {
+              "display_name": "Qwen3.5-35B-A3B",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.27068554878234863,
+                    "directional_opb": 0.6429931621551513,
+                    "directional_upb": 0.22925,
+                    "directional_h": 0.48798288963559827,
+                    "any_opb": 0.794,
+                    "any_upb": 0.38,
+                    "any_h": 0.30924939467312346,
+                    "exact": 0.128
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.27068554878234863,
+                      "ci_low": 0.24330971217155456,
+                      "ci_high": 0.29723507084846496,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.6429931621551513,
+                      "ci_low": 0.6120370341300965,
+                      "ci_high": 0.6726444663524628,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.22925,
+                      "ci_low": 0.203875,
+                      "ci_high": 0.256625,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.48798288963559827,
+                      "ci_low": 0.4586534007516922,
+                      "ci_high": 0.5165569646643657,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.794,
+                      "ci_low": 0.76,
+                      "ci_high": 0.828,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.38,
+                      "ci_low": 0.34,
+                      "ci_high": 0.422,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.30924939467312346,
+                      "ci_low": 0.26813375,
+                      "ci_high": 0.34692070517872375,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.128,
+                      "ci_low": 0.1,
+                      "ci_high": 0.158,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                },
+                "no_memory": {
+                  "metrics": {
+                    "scs": 0.17778515625,
+                    "directional_opb": 0.0585,
+                    "directional_upb": 0.8111015625,
+                    "directional_h": 0.3146640565066245,
+                    "any_opb": 0.096,
+                    "any_upb": 0.958,
+                    "any_h": 0.08027061310782248,
+                    "exact": 0.04
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.17778515625,
+                      "ci_low": 0.16014794921875,
+                      "ci_high": 0.19647226562499998,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_opb": {
+                      "estimate": 0.0585,
+                      "ci_low": 0.0435,
+                      "ci_high": 0.0745,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_upb": {
+                      "estimate": 0.8111015625,
+                      "ci_low": 0.7923076171875,
+                      "ci_high": 0.8292501953125001,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "directional_h": {
+                      "estimate": 0.3146640565066245,
+                      "ci_low": 0.28928426001619323,
+                      "ci_high": 0.3404019320972081,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_opb": {
+                      "estimate": 0.096,
+                      "ci_low": 0.072,
+                      "ci_high": 0.122,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_upb": {
+                      "estimate": 0.958,
+                      "ci_low": 0.94,
+                      "ci_high": 0.974,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "any_h": {
+                      "estimate": 0.08027061310782248,
+                      "ci_low": 0.05053362255965297,
+                      "ci_high": 0.11254658385093176,
+                      "replicates": 2000,
+                      "clusters": 500
+                    },
+                    "exact": {
+                      "estimate": 0.04,
+                      "ci_low": 0.024,
+                      "ci_high": 0.056,
+                      "replicates": 2000,
+                      "clusters": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "base_sft": {
+      "modes": {
+        "sft-pilot": {
+          "models": {
+            "qwen35-a3b-base-vllm": {
+              "display_name": "Qwen3.5-35B-A3B Base",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.23475646978664783,
+                    "directional_opb": 0.6872255878462907,
+                    "directional_upb": 0.2287046370967742,
+                    "directional_h": 0.44506628499308243,
+                    "any_opb": 0.8326612903225806,
+                    "any_upb": 0.3709677419354839,
+                    "any_h": 0.2643527970600245,
+                    "exact": 0.10685483870967742
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.23475646978664783,
+                      "ci_low": 0.20893453859664018,
+                      "ci_high": 0.2622082318614927,
+                      "replicates": 2000,
+                      "clusters": 496
+                    },
+                    "directional_opb": {
+                      "estimate": 0.6872255878462907,
+                      "ci_low": 0.656207611423827,
+                      "ci_high": 0.7169196282077821,
+                      "replicates": 2000,
+                      "clusters": 496
+                    },
+                    "directional_upb": {
+                      "estimate": 0.2287046370967742,
+                      "ci_low": 0.20072769657258066,
+                      "ci_high": 0.2565524193548387,
+                      "replicates": 2000,
+                      "clusters": 496
+                    },
+                    "directional_h": {
+                      "estimate": 0.44506628499308243,
+                      "ci_low": 0.41441375421240656,
+                      "ci_high": 0.47612545190766564,
+                      "replicates": 2000,
+                      "clusters": 496
+                    },
+                    "any_opb": {
+                      "estimate": 0.8326612903225806,
+                      "ci_low": 0.7983870967741935,
+                      "ci_high": 0.8649193548387096,
+                      "replicates": 2000,
+                      "clusters": 496
+                    },
+                    "any_upb": {
+                      "estimate": 0.3709677419354839,
+                      "ci_low": 0.3286290322580645,
+                      "ci_high": 0.4153225806451613,
+                      "replicates": 2000,
+                      "clusters": 496
+                    },
+                    "any_h": {
+                      "estimate": 0.2643527970600245,
+                      "ci_low": 0.22276760339745974,
+                      "ci_high": 0.3062130345059815,
+                      "replicates": 2000,
+                      "clusters": 496
+                    },
+                    "exact": {
+                      "estimate": 0.10685483870967742,
+                      "ci_low": 0.07862903225806452,
+                      "ci_high": 0.1350806451612903,
+                      "replicates": 2000,
+                      "clusters": 496
+                    }
+                  }
+                }
+              }
+            },
+            "qwen35-a3b-sft-vllm": {
+              "display_name": "Qwen3.5-35B-A3B SFT",
+              "conditions": {
+                "full_memory": {
+                  "metrics": {
+                    "scs": 0.5704227570564516,
+                    "directional_opb": 0.15891192036290322,
+                    "directional_upb": 0.3240927419354839,
+                    "directional_h": 0.7495046603895109,
+                    "any_opb": 0.24193548387096775,
+                    "any_upb": 0.5040322580645161,
+                    "any_h": 0.5996265947515819,
+                    "exact": 0.3870967741935484
+                  },
+                  "bootstrap_95_ci": {
+                    "scs": {
+                      "estimate": 0.5704227570564516,
+                      "ci_low": 0.5379559916834677,
+                      "ci_high": 0.6035219254032258,
+                      "replicates": 2000,
+                      "clusters": 496
+                    },
+                    "directional_opb": {
+                      "estimate": 0.15891192036290322,
+                      "ci_low": 0.1335027879284274,
+                      "ci_high": 0.1860843781502016,
+                      "replicates": 2000,
+                      "clusters": 496
+                    },
+                    "directional_upb": {
+                      "estimate": 0.3240927419354839,
+                      "ci_low": 0.29466985887096775,
+                      "ci_high": 0.3549678679435484,
+                      "replicates": 2000,
+                      "clusters": 496
+                    },
+                    "directional_h": {
+                      "estimate": 0.7495046603895109,
+                      "ci_low": 0.7273777218336029,
+                      "ci_high": 0.7705302911082252,
+                      "replicates": 2000,
+                      "clusters": 496
+                    },
+                    "any_opb": {
+                      "estimate": 0.24193548387096775,
+                      "ci_low": 0.2056451612903226,
+                      "ci_high": 0.28225806451612906,
+                      "replicates": 2000,
+                      "clusters": 496
+                    },
+                    "any_upb": {
+                      "estimate": 0.5040322580645161,
+                      "ci_low": 0.46169354838709675,
+                      "ci_high": 0.5484374999999997,
+                      "replicates": 2000,
+                      "clusters": 496
+                    },
+                    "any_h": {
+                      "estimate": 0.5996265947515819,
+                      "ci_low": 0.5628802722087554,
+                      "ci_high": 0.6334884545522883,
+                      "replicates": 2000,
+                      "clusters": 496
+                    },
+                    "exact": {
+                      "estimate": 0.3870967741935484,
+                      "ci_low": 0.34470766129032265,
+                      "ci_high": 0.4314516129032258,
+                      "replicates": 2000,
+                      "clusters": 496
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paired_deltas": {
+    "thinking_minus_nonthinking": {
+      "codex-gpt56-sol": {
+        "samples": 500,
+        "replicates": 2000,
+        "metrics": {
+          "scs": {
+            "estimate": 0.010035583496093736,
+            "ci_low": -0.0006102279663085865,
+            "ci_high": 0.02057465667724611
+          },
+          "directional_opb": {
+            "estimate": -0.0067973022460937615,
+            "ci_low": -0.018343955993652336,
+            "ci_high": 0.005125163269042958
+          },
+          "directional_upb": {
+            "estimate": -0.0032500000000000306,
+            "ci_low": -0.010503125000000009,
+            "ci_high": 0.0037499999999999756
+          },
+          "directional_h": {
+            "estimate": 0.005093713256534627,
+            "ci_low": -0.00223574915178755,
+            "ci_high": 0.012040720054770443
+          },
+          "any_opb": {
+            "estimate": -0.016000000000000014,
+            "ci_low": -0.03400000000000003,
+            "ci_high": 0.0020000000000000018
+          },
+          "any_upb": {
+            "estimate": -0.0040000000000000036,
+            "ci_low": -0.016000000000000014,
+            "ci_high": 0.008000000000000007
+          },
+          "any_h": {
+            "estimate": 0.009856653292193596,
+            "ci_low": -0.0011426222634149995,
+            "ci_high": 0.020890645916375062
+          },
+          "exact": {
+            "estimate": 0.015999999999999986,
+            "ci_low": 0.0,
+            "ci_high": 0.033999999999999975
+          }
+        }
+      },
+      "deepseek": {
+        "samples": 500,
+        "replicates": 2000,
+        "metrics": {
+          "scs": {
+            "estimate": -0.01684550565487003,
+            "ci_low": -0.04622677636450246,
+            "ci_high": 0.012382657457888123
+          },
+          "directional_opb": {
+            "estimate": 0.04940756314998729,
+            "ci_low": 0.017707016229686255,
+            "ci_high": 0.08115401593750429
+          },
+          "directional_upb": {
+            "estimate": -0.050437499999999996,
+            "ci_low": -0.07700312499999999,
+            "ci_high": -0.022995312500000017
+          },
+          "directional_h": {
+            "estimate": -0.03405363898486957,
+            "ci_low": -0.06380097937883072,
+            "ci_high": -0.004025542509531232
+          },
+          "any_opb": {
+            "estimate": 0.04200000000000004,
+            "ci_low": 0.0020000000000000018,
+            "ci_high": 0.08399999999999996
+          },
+          "any_upb": {
+            "estimate": -0.07800000000000001,
+            "ci_low": -0.118,
+            "ci_high": -0.03600000000000003
+          },
+          "any_h": {
+            "estimate": -0.03648585913785929,
+            "ci_low": -0.08324275316429966,
+            "ci_high": 0.009428058549279302
+          },
+          "exact": {
+            "estimate": 0.0,
+            "ci_low": -0.036000000000000004,
+            "ci_high": 0.034
+          }
+        }
+      },
+      "deepseek-flash": {
+        "samples": 500,
+        "replicates": 2000,
+        "metrics": {
+          "scs": {
+            "estimate": 0.03124146258831023,
+            "ci_low": 0.0011836915761232346,
+            "ci_high": 0.06108128510415549
+          },
+          "directional_opb": {
+            "estimate": -0.008719733953475917,
+            "ci_low": -0.041165112149715424,
+            "ci_high": 0.02372783263325685
+          },
+          "directional_upb": {
+            "estimate": -0.033499999999999974,
+            "ci_low": -0.061562499999999964,
+            "ci_high": -0.007810937500000036
+          },
+          "directional_h": {
+            "estimate": 0.015951019008810685,
+            "ci_low": -0.010260038670865368,
+            "ci_high": 0.042508577808702784
+          },
+          "any_opb": {
+            "estimate": -0.02400000000000002,
+            "ci_low": -0.06600000000000006,
+            "ci_high": 0.01604999999999974
+          },
+          "any_upb": {
+            "estimate": -0.04799999999999999,
+            "ci_low": -0.08800000000000002,
+            "ci_high": -0.008000000000000007
+          },
+          "any_h": {
+            "estimate": 0.03205342879277645,
+            "ci_low": -0.007311766632639163,
+            "ci_high": 0.07236283406271873
+          },
+          "exact": {
+            "estimate": 0.04199999999999998,
+            "ci_low": 0.00799999999999998,
+            "ci_high": 0.07799999999999999
+          }
+        }
+      },
+      "glm52": {
+        "samples": 500,
+        "replicates": 2000,
+        "metrics": {
+          "scs": {
+            "estimate": -0.001995666503906257,
+            "ci_low": -0.026653416442871097,
+            "ci_high": 0.021595312499999974
+          },
+          "directional_opb": {
+            "estimate": 0.046165588378906275,
+            "ci_low": 0.01796487731933603,
+            "ci_high": 0.07419277343749993
+          },
+          "directional_upb": {
+            "estimate": -0.05381250000000001,
+            "ci_low": -0.07694374999999996,
+            "ci_high": -0.031057812500000045
+          },
+          "directional_h": {
+            "estimate": -0.025485722390888754,
+            "ci_low": -0.04979597234240394,
+            "ci_high": -0.0018052603132405938
+          },
+          "any_opb": {
+            "estimate": 0.05600000000000005,
+            "ci_low": 0.018000000000000016,
+            "ci_high": 0.09399999999999997
+          },
+          "any_upb": {
+            "estimate": -0.07,
+            "ci_low": -0.10799999999999998,
+            "ci_high": -0.033999999999999975
+          },
+          "any_h": {
+            "estimate": -0.04317993201265974,
+            "ci_low": -0.08139748004233247,
+            "ci_high": -0.006251233380623525
+          },
+          "exact": {
+            "estimate": -0.0020000000000000018,
+            "ci_low": -0.032,
+            "ci_high": 0.027999999999999997
+          }
+        }
+      },
+      "kimi": {
+        "samples": 500,
+        "replicates": 2000,
+        "metrics": {
+          "scs": {
+            "estimate": -0.010018058791756657,
+            "ci_low": -0.038334631171449994,
+            "ci_high": 0.018380337319150553
+          },
+          "directional_opb": {
+            "estimate": -0.00109131619334224,
+            "ci_low": -0.03384649328067901,
+            "ci_high": 0.032197743855416745
+          },
+          "directional_upb": {
+            "estimate": 0.017062500000000036,
+            "ci_low": -0.008629687499999993,
+            "ci_high": 0.04194374999999995
+          },
+          "directional_h": {
+            "estimate": -0.004931077309866305,
+            "ci_low": -0.029009066876425897,
+            "ci_high": 0.019236520260444052
+          },
+          "any_opb": {
+            "estimate": 0.0020000000000000018,
+            "ci_low": -0.04005000000000003,
+            "ci_high": 0.04600000000000004
+          },
+          "any_upb": {
+            "estimate": 0.014000000000000012,
+            "ci_low": -0.02405000000000002,
+            "ci_high": 0.05204999999999978
+          },
+          "any_h": {
+            "estimate": -0.005642121825732094,
+            "ci_low": -0.041144149198259296,
+            "ci_high": 0.02972857817656833
+          },
+          "exact": {
+            "estimate": -0.016000000000000014,
+            "ci_low": -0.05199999999999999,
+            "ci_high": 0.01804999999999974
+          }
+        }
+      },
+      "qwen-flash": {
+        "samples": 500,
+        "replicates": 2000,
+        "metrics": {
+          "scs": {
+            "estimate": 0.04472042846679686,
+            "ci_low": 0.013397038269042939,
+            "ci_high": 0.07639832534790031
+          },
+          "directional_opb": {
+            "estimate": -0.07204953002929682,
+            "ci_low": -0.10479693832397458,
+            "ci_high": -0.03653170700073239
+          },
+          "directional_upb": {
+            "estimate": 0.0020000000000000018,
+            "ci_low": -0.02769218749999998,
+            "ci_high": 0.03213281249999995
+          },
+          "directional_h": {
+            "estimate": 0.060794772718002044,
+            "ci_low": 0.030166386728657343,
+            "ci_high": 0.08947337793874278
+          },
+          "any_opb": {
+            "estimate": -0.07800000000000007,
+            "ci_low": -0.1200000000000001,
+            "ci_high": -0.03200000000000003
+          },
+          "any_upb": {
+            "estimate": -0.008000000000000007,
+            "ci_low": -0.05399999999999999,
+            "ci_high": 0.03799999999999998
+          },
+          "any_h": {
+            "estimate": 0.08002227990970662,
+            "ci_low": 0.03360314228213336,
+            "ci_high": 0.12411374757187921
+          },
+          "exact": {
+            "estimate": 0.038000000000000006,
+            "ci_low": -4.9999999999996506e-05,
+            "ci_high": 0.07604999999999974
+          }
+        }
+      },
+      "qwen-max": {
+        "samples": 500,
+        "replicates": 2000,
+        "metrics": {
+          "scs": {
+            "estimate": -0.028132324218750004,
+            "ci_low": -0.055598876953125015,
+            "ci_high": -0.0023138427734375497
+          },
+          "directional_opb": {
+            "estimate": 0.07773632812499998,
+            "ci_low": 0.04838051757812501,
+            "ci_high": 0.10787839355468738
+          },
+          "directional_upb": {
+            "estimate": -0.07531249999999998,
+            "ci_low": -0.10075625,
+            "ci_high": -0.049493750000000024
+          },
+          "directional_h": {
+            "estimate": -0.05610825010208831,
+            "ci_low": -0.08386561357505037,
+            "ci_high": -0.028827200410226978
+          },
+          "any_opb": {
+            "estimate": 0.07599999999999996,
+            "ci_low": 0.03799999999999992,
+            "ci_high": 0.11399999999999999
+          },
+          "any_upb": {
+            "estimate": -0.09600000000000003,
+            "ci_low": -0.138,
+            "ci_high": -0.05399999999999999
+          },
+          "any_h": {
+            "estimate": -0.0719110391802742,
+            "ci_low": -0.11262604895843427,
+            "ci_high": -0.030401526513848004
+          },
+          "exact": {
+            "estimate": -0.022000000000000006,
+            "ci_low": -0.052000000000000005,
+            "ci_high": 0.008000000000000007
+          }
+        }
+      },
+      "qwen3-8b": {
+        "samples": 500,
+        "replicates": 2000,
+        "metrics": {
+          "scs": {
+            "estimate": 0.003439437869936224,
+            "ci_low": -0.02607405242556706,
+            "ci_high": 0.03160879936227576
+          },
+          "directional_opb": {
+            "estimate": 0.14914550780877467,
+            "ci_low": 0.11740734862908726,
+            "ci_high": 0.1835601669237949
+          },
+          "directional_upb": {
+            "estimate": -0.11628124999999995,
+            "ci_low": -0.14209765624999995,
+            "ci_high": -0.09012421875000003
+          },
+          "directional_h": {
+            "estimate": -0.0068064960854367085,
+            "ci_low": -0.030488854386629377,
+            "ci_high": 0.01604997913040233
+          },
+          "any_opb": {
+            "estimate": 0.178,
+            "ci_low": 0.13599999999999995,
+            "ci_high": 0.22204999999999975
+          },
+          "any_upb": {
+            "estimate": -0.124,
+            "ci_low": -0.16000000000000003,
+            "ci_high": -0.08599999999999997
+          },
+          "any_h": {
+            "estimate": 0.011566098344452658,
+            "ci_low": -0.024674462645045546,
+            "ci_high": 0.04794691671256071
+          },
+          "exact": {
+            "estimate": 0.009999999999999981,
+            "ci_low": -0.024000000000000007,
+            "ci_high": 0.045999999999999985
+          }
+        }
+      },
+      "qwen35-35b-a3b": {
+        "samples": 500,
+        "replicates": 2000,
+        "metrics": {
+          "scs": {
+            "estimate": 0.014545854568481453,
+            "ci_low": -0.012364140319824196,
+            "ci_high": 0.04009388384819025
+          },
+          "directional_opb": {
+            "estimate": -0.02055171394348143,
+            "ci_low": -0.04966298527717592,
+            "ci_high": 0.008754380846023539
+          },
+          "directional_upb": {
+            "estimate": 0.0021250000000000158,
+            "ci_low": -0.022128125000000005,
+            "ci_high": 0.028874999999999984
+          },
+          "directional_h": {
+            "estimate": 0.01916346738687974,
+            "ci_low": -0.009004354185755816,
+            "ci_high": 0.04694287115773406
+          },
+          "any_opb": {
+            "estimate": -0.025999999999999912,
+            "ci_low": -0.061999999999999944,
+            "ci_high": 0.011999999999999901
+          },
+          "any_upb": {
+            "estimate": 0.0,
+            "ci_low": -0.040000000000000036,
+            "ci_high": 0.043999999999999984
+          },
+          "any_h": {
+            "estimate": 0.030249394673123375,
+            "ci_low": -0.014001935954543604,
+            "ci_high": 0.07135170312696275
+          },
+          "exact": {
+            "estimate": 0.018000000000000002,
+            "ci_low": -0.01200000000000001,
+            "ci_high": 0.04799999999999999
+          }
+        }
+      }
+    },
+    "sft_minus_base": {
+      "samples": 496,
+      "replicates": 2000,
+      "metrics": {
+        "scs": {
+          "estimate": 0.3356662872698038,
+          "ci_low": 0.2966911546059794,
+          "ci_high": 0.36988631661440574
+        },
+        "directional_opb": {
+          "estimate": -0.5283136674833875,
+          "ci_low": -0.5605552948440514,
+          "ci_high": -0.4926886512387184
+        },
+        "directional_upb": {
+          "estimate": 0.09538810483870969,
+          "ci_low": 0.06312689012096775,
+          "ci_high": 0.12915826612903225
+        },
+        "directional_h": {
+          "estimate": 0.3044383753964285,
+          "ci_low": 0.2693876733014423,
+          "ci_high": 0.33723038687814966
+        },
+        "any_opb": {
+          "estimate": -0.5907258064516129,
+          "ci_low": -0.6350806451612904,
+          "ci_high": -0.5443548387096774
+        },
+        "any_upb": {
+          "estimate": 0.13306451612903225,
+          "ci_low": 0.08266129032258068,
+          "ci_high": 0.18548387096774194
+        },
+        "any_h": {
+          "estimate": 0.33527379769155735,
+          "ci_low": 0.28220790151549646,
+          "ci_high": 0.3847643816059531
+        },
+        "exact": {
+          "estimate": 0.28024193548387094,
+          "ci_low": 0.23382056451612898,
+          "ci_high": 0.32661290322580644
+        }
+      }
+    }
+  },
+  "trend_summary": {
+    "thinking_minus_nonthinking_eight_bailian_models": {
+      "models": 8,
+      "metrics": {
+        "scs": {
+          "mean_delta": 0.004619453540530227,
+          "median_delta": 0.0007218856830149833,
+          "improved_models": 4,
+          "worsened_models": 4,
+          "unchanged_models": 0
+        },
+        "directional_opb": {
+          "mean_delta": 0.027505336667883976,
+          "median_delta": 0.022537136092782017,
+          "improved_models": 4,
+          "worsened_models": 4,
+          "unchanged_models": 0
+        },
+        "directional_upb": {
+          "mean_delta": -0.03851953124999998,
+          "median_delta": -0.041968749999999985,
+          "improved_models": 5,
+          "worsened_models": 3,
+          "unchanged_models": 0
+        },
+        "any_opb": {
+          "mean_delta": 0.028250000000000004,
+          "median_delta": 0.02200000000000002,
+          "improved_models": 3,
+          "worsened_models": 5,
+          "unchanged_models": 0
+        },
+        "any_upb": {
+          "mean_delta": -0.051250000000000004,
+          "median_delta": -0.059,
+          "improved_models": 6,
+          "worsened_models": 1,
+          "unchanged_models": 1
+        }
+      }
+    }
+  }
+}

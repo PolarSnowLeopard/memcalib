@@ -7,6 +7,7 @@ import hashlib
 import html
 import json
 import math
+import random
 from collections import Counter, defaultdict
 from pathlib import Path
 from statistics import fmean, median, pstdev
@@ -47,6 +48,17 @@ def percentile(values: list[float], quantile: float) -> float:
 
 def rho_key(rho: float) -> str:
     return str(rho).replace(".", "_")
+
+
+def harmonic_resistance(opb: float, upb: float) -> float:
+    over_resistance = 1 - opb
+    under_resistance = 1 - upb
+    denominator = over_resistance + under_resistance
+    return (
+        2 * over_resistance * under_resistance / denominator
+        if denominator
+        else 0.0
+    )
 
 
 def score_judgment_row(
@@ -112,7 +124,79 @@ def budget_distribution(values: list[int]) -> dict[str, dict[str, float | int]]:
     }
 
 
-def summarize_scores(rows: list[dict[str, Any]], rhos: Iterable[float]) -> dict[str, Any]:
+def headline_metrics(rows: list[dict[str, Any]], rho: float) -> dict[str, float]:
+    if not rows:
+        raise ValueError("cannot summarize empty sample-score rows")
+    rho_suffix = rho_key(rho)
+    scs = fmean(float(row[f"scs_rho_{rho_suffix}"]) for row in rows)
+    directional_opb = fmean(
+        1 - rho ** int(row["over_budget"]) for row in rows
+    )
+    directional_upb = fmean(
+        1 - rho ** int(row["under_budget"]) for row in rows
+    )
+    any_opb = fmean(int(row["sample_any_opb"]) for row in rows)
+    any_upb = fmean(int(row["sample_any_upb"]) for row in rows)
+    return {
+        "scs": scs,
+        "directional_opb": directional_opb,
+        "directional_upb": directional_upb,
+        "directional_h": harmonic_resistance(directional_opb, directional_upb),
+        "any_opb": any_opb,
+        "any_upb": any_upb,
+        "any_h": harmonic_resistance(any_opb, any_upb),
+        "exact": fmean(int(row["sample_exact"]) for row in rows),
+    }
+
+
+def bootstrap_headline_metrics(
+    rows: list[dict[str, Any]],
+    *,
+    rho: float,
+    replicates: int,
+    seed: int,
+) -> dict[str, dict[str, float | int]]:
+    estimates = headline_metrics(rows, rho)
+    if replicates <= 0:
+        return {
+            key: {
+                "estimate": value,
+                "ci_low": value,
+                "ci_high": value,
+                "replicates": 0,
+                "clusters": len(rows),
+            }
+            for key, value in estimates.items()
+        }
+    rng = random.Random(seed)
+    metric_samples: dict[str, list[float]] = {
+        key: [] for key in estimates
+    }
+    row_count = len(rows)
+    for _ in range(replicates):
+        sampled = [rows[rng.randrange(row_count)] for _ in range(row_count)]
+        values = headline_metrics(sampled, rho)
+        for key, value in values.items():
+            metric_samples[key].append(value)
+    return {
+        key: {
+            "estimate": estimate,
+            "ci_low": percentile(metric_samples[key], 0.025),
+            "ci_high": percentile(metric_samples[key], 0.975),
+            "replicates": replicates,
+            "clusters": row_count,
+        }
+        for key, estimate in estimates.items()
+    }
+
+
+def summarize_scores(
+    rows: list[dict[str, Any]],
+    rhos: Iterable[float],
+    *,
+    bootstrap_replicates: int = 0,
+    bootstrap_seed: int = 0,
+) -> dict[str, Any]:
     if not rows:
         raise ValueError("cannot summarize empty sample-score rows")
     result: dict[str, Any] = {
@@ -131,6 +215,7 @@ def summarize_scores(rows: list[dict[str, Any]], rhos: Iterable[float]) -> dict[
             [int(row["total_budget"]) for row in rows]
         ),
         "scs": {},
+        "directional_risk": {},
     }
     for rho in rhos:
         key = f"scs_rho_{rho_key(rho)}"
@@ -146,6 +231,31 @@ def summarize_scores(rows: list[dict[str, Any]], rhos: Iterable[float]) -> dict[
             "p90": percentile(values, 0.90),
             "maximum": max(values),
         }
+        opb = fmean(
+            1 - rho ** int(row["over_budget"]) for row in rows
+        )
+        upb = fmean(
+            1 - rho ** int(row["under_budget"]) for row in rows
+        )
+        result["directional_risk"][str(rho)] = {
+            "opb": opb,
+            "upb": upb,
+            "harmonic": harmonic_resistance(opb, upb),
+        }
+    event_opb = float(result["sample_any_opb_rate"])
+    event_upb = float(result["sample_any_upb_rate"])
+    result["event_guardrail"] = {
+        "opb": event_opb,
+        "upb": event_upb,
+        "harmonic": harmonic_resistance(event_opb, event_upb),
+    }
+    if bootstrap_replicates:
+        result["headline_bootstrap_95_ci"] = bootstrap_headline_metrics(
+            rows,
+            rho=0.5,
+            replicates=bootstrap_replicates,
+            seed=bootstrap_seed,
+        )
     return result
 
 
@@ -185,13 +295,16 @@ def validate_coverage(rows: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def compute_analysis(
-    rows: list[dict[str, Any]], rhos: tuple[float, ...]
+    rows: list[dict[str, Any]],
+    rhos: tuple[float, ...],
+    *,
+    bootstrap_replicates: int = 0,
 ) -> dict[str, Any]:
     models = sorted({str(row["model_key"]) for row in rows})
     modes = sorted({str(row["mode"]) for row in rows})
     conditions = sorted({str(row["condition"]) for row in rows})
     result: dict[str, Any] = {
-        "schema_version": "memcalib-sample-level-calibration-v1",
+        "schema_version": "memcalib-sample-level-calibration-v2",
         "definition": {
             "rank": RANK,
             "over_budget": "sum(max(rank(predicted)-rank(gold), 0)) within one answer",
@@ -200,9 +313,15 @@ def compute_analysis(
             "sample_any_upb": "1 if under_budget > 0 else 0",
             "sample_exact": "1 if over_budget + under_budget == 0 else 0",
             "scs_rho": "rho ** (over_budget + under_budget)",
+            "sample_directional_opb_risk": "1 - rho ** over_budget",
+            "sample_directional_upb_risk": "1 - rho ** under_budget",
+            "directional_aggregation": "arithmetic mean of sample directional risks",
+            "event_guardrail": "arithmetic mean of 1[directional budget > 0]",
+            "directional_harmonic": "harmonic mean of (1 - OPB) and (1 - UPB)",
             "aggregation": "arithmetic mean over samples; every sample has equal model-level weight",
             "rhos": list(rhos),
             "primary_rho": 0.5,
+            "bootstrap_replicates": bootstrap_replicates,
         },
         "input_integrity": validate_coverage(rows),
         "modes": {},
@@ -218,8 +337,17 @@ def compute_analysis(
                 condition_rows = [
                     row for row in model_rows if row["condition"] == condition
                 ]
+                seed_material = f"{mode}\0{model}\0{condition}".encode("utf-8")
+                bootstrap_seed = int.from_bytes(
+                    hashlib.sha256(seed_material).digest()[:8], "big"
+                )
                 conditions_result[condition] = {
-                    "overall": summarize_scores(condition_rows, rhos),
+                    "overall": summarize_scores(
+                        condition_rows,
+                        rhos,
+                        bootstrap_replicates=bootstrap_replicates,
+                        bootstrap_seed=bootstrap_seed,
+                    ),
                     "by_domain": summarize_breakdown(condition_rows, "domain", rhos),
                     "by_difficulty": summarize_breakdown(
                         condition_rows, "difficulty", rhos
@@ -247,16 +375,21 @@ def markdown_table(headers: list[str], rows: list[list[str]]) -> str:
 
 def render_readme(analysis: dict[str, Any]) -> str:
     sections = [
-        "# MemCalib v2.3 sample-level calibration metrics",
+        "# MemCalib v2.3 three-layer sample-level metrics",
         "",
         "This analysis reuses the completed primary-Judge outputs. It makes no new model or Judge calls.",
-        "Each answer first receives one sample-level over-use budget, under-use budget, and bounded score:",
+        "The public evaluation uses three complementary layers at the answer-sample level:",
         "",
-        "`SCS_rho(s) = rho ** (over_budget(s) + under_budget(s))`.",
+        "1. **Overall primary:** `SCS_0.5(s) = 0.5 ** (over_budget(s) + under_budget(s))`.",
+        "2. **Directional primary:** `sOPB_0.5(s) = 1 - 0.5 ** over_budget(s)` and",
+        "   `sUPB_0.5(s) = 1 - 0.5 ** under_budget(s)`.",
+        "3. **Event guardrails:** `Any-OPB = 1[over_budget(s) > 0]` and",
+        "   `Any-UPB = 1[under_budget(s) > 0]`.",
         "",
-        "A one-step A/B/C error adds one budget unit; an A-to-C or C-to-A error adds two. The headline",
-        "sample score uses `rho=0.5`. Every sample has equal weight in the final model mean. Additional",
-        "atoms do not directly reduce a perfect score, but they create additional opportunities for error.",
+        "A one-step A/B/C error adds one budget unit; an A-to-C or C-to-A error adds two. All model-level",
+        "values are arithmetic means over samples, so each answer has equal weight. Directional primary",
+        "metrics preserve the number and severity of errors without growing unbounded; event guardrails",
+        "only answer whether a direction occurred at least once and therefore must not be used alone.",
     ]
     mode_order = [mode for mode in ("thinking", "nonthinking") if mode in analysis["modes"]]
     mode_order.extend(mode for mode in sorted(analysis["modes"]) if mode not in mode_order)
@@ -270,14 +403,62 @@ def render_readme(analysis: dict[str, Any]) -> str:
         rows = []
         for model in ordered:
             values = models[model]["conditions"]["full_memory"]["overall"]
-            dist = values["total_budget_distribution"]
+            directional = values["directional_risk"]["0.5"]
+            event = values["event_guardrail"]
             rows.append(
                 [
                     models[model]["display_name"],
                     fmt(values["scs"]["0.5"]["mean"]),
-                    fmt(values["sample_any_opb_rate"]),
-                    fmt(values["sample_any_upb_rate"]),
+                    fmt(directional["opb"]),
+                    fmt(directional["upb"]),
+                    fmt(directional["harmonic"]),
+                    fmt(event["opb"]),
+                    fmt(event["upb"]),
+                    fmt(event["harmonic"]),
                     fmt(values["sample_exact_accuracy"]),
+                ]
+            )
+        sections.extend(
+            [
+                "",
+                f"## {mode}: three-layer full-memory results",
+                "",
+                markdown_table(
+                    [
+                        "Model",
+                        "SCS(0.5) up",
+                        "sOPB(0.5) down",
+                        "sUPB(0.5) down",
+                        "Directional H up",
+                        "Any OPB down",
+                        "Any UPB down",
+                        "Event H up",
+                        "Exact up",
+                    ],
+                    rows,
+                ),
+            ]
+        )
+
+        bootstrap_rows = []
+        budget_rows = []
+        for model in ordered:
+            values = models[model]["conditions"]["full_memory"]["overall"]
+            intervals = values["headline_bootstrap_95_ci"]
+            dist = values["total_budget_distribution"]
+            bootstrap_rows.append(
+                [
+                    models[model]["display_name"],
+                    f"[{fmt(intervals['scs']['ci_low'])}, {fmt(intervals['scs']['ci_high'])}]",
+                    f"[{fmt(intervals['directional_opb']['ci_low'])}, {fmt(intervals['directional_opb']['ci_high'])}]",
+                    f"[{fmt(intervals['directional_upb']['ci_low'])}, {fmt(intervals['directional_upb']['ci_high'])}]",
+                    f"[{fmt(intervals['any_opb']['ci_low'])}, {fmt(intervals['any_opb']['ci_high'])}]",
+                    f"[{fmt(intervals['any_upb']['ci_low'])}, {fmt(intervals['any_upb']['ci_high'])}]",
+                ]
+            )
+            budget_rows.append(
+                [
+                    models[model]["display_name"],
                     fmt(values["mean_total_budget"]),
                     fmt(dist["0"]["share"]),
                     fmt(dist["1"]["share"]),
@@ -290,24 +471,25 @@ def render_readme(analysis: dict[str, Any]) -> str:
         sections.extend(
             [
                 "",
-                f"## {mode}: full-memory sample distribution",
+                f"### {mode}: sample-bootstrap 95% intervals",
                 "",
                 markdown_table(
                     [
                         "Model",
-                        "SCS(0.5) up",
-                        "Any OPB down",
-                        "Any UPB down",
-                        "Exact up",
-                        "Mean budget down",
-                        "B=0",
-                        "B=1",
-                        "B=2",
-                        "B=3",
-                        "B=4",
-                        "B>=5",
+                        "SCS",
+                        "sOPB",
+                        "sUPB",
+                        "Any OPB",
+                        "Any UPB",
                     ],
-                    rows,
+                    bootstrap_rows,
+                ),
+                "",
+                f"### {mode}: total error-budget distribution",
+                "",
+                markdown_table(
+                    ["Model", "Mean", "B=0", "B=1", "B=2", "B=3", "B=4", "B>=5"],
+                    budget_rows,
                 ),
             ]
         )
@@ -375,8 +557,10 @@ def render_readme(analysis: dict[str, Any]) -> str:
                     fmt(non_scs),
                     fmt(think_scs),
                     f"{think_scs - non_scs:+.3f}",
-                    f"{think['sample_any_opb_rate'] - non['sample_any_opb_rate']:+.3f}",
-                    f"{think['sample_any_upb_rate'] - non['sample_any_upb_rate']:+.3f}",
+                    f"{think['directional_risk']['0.5']['opb'] - non['directional_risk']['0.5']['opb']:+.3f}",
+                    f"{think['directional_risk']['0.5']['upb'] - non['directional_risk']['0.5']['upb']:+.3f}",
+                    f"{think['event_guardrail']['opb'] - non['event_guardrail']['opb']:+.3f}",
+                    f"{think['event_guardrail']['upb'] - non['event_guardrail']['upb']:+.3f}",
                     f"{think['sample_exact_accuracy'] - non['sample_exact_accuracy']:+.3f}",
                 ]
             )
@@ -391,6 +575,8 @@ def render_readme(analysis: dict[str, Any]) -> str:
                         "SCS non-think",
                         "SCS think",
                         "Delta SCS",
+                        "Delta sOPB",
+                        "Delta sUPB",
                         "Delta Any OPB",
                         "Delta Any UPB",
                         "Delta Exact",
@@ -398,7 +584,8 @@ def render_readme(analysis: dict[str, Any]) -> str:
                     comparison_rows,
                 ),
                 "",
-                "Negative deltas are improvements for Any OPB/UPB; positive deltas are improvements for SCS/Exact.",
+                "Negative deltas are improvements for sOPB/sUPB and Any OPB/UPB; positive deltas are",
+                "improvements for SCS/Exact.",
                 "Codex reuses identical answers and therefore remains a repeated-Judge control rather than an answer-mode effect.",
             ]
         )
@@ -407,13 +594,15 @@ def render_readme(analysis: dict[str, Any]) -> str:
             "",
             "## Interpretation",
             "",
-            "- `Any OPB` and `Any UPB` are family-wise sample event rates: one directional atom error is enough.",
-            "- `Exact` is the share of answers with no scorable atom error and is the hard endpoint of this family.",
-            "- `SCS(0.5)` preserves partial credit while compounding every one-step error; a two-step error has the",
-            "  same penalty as two one-step errors.",
-            "- Rankings can differ from atom-macro H because this metric rewards clean whole answers and penalizes",
-            "  errors spread across many records. It should be reported beside directional atom metrics, not used",
-            "  to erase the OPB/UPB trade-off.",
+            "- `SCS(0.5)` is the overall primary metric. It compounds over-use and under-use budgets within each",
+            "  answer, then gives each answer one equal model-level vote.",
+            "- `sOPB(0.5)` and `sUPB(0.5)` are the directional primary metrics. They distinguish one directional",
+            "  error from repeated or severe errors but asymptotically cap each sample at 1.",
+            "- `Any OPB` and `Any UPB` are event-rate guardrails. They reveal how widely errors are distributed",
+            "  across samples, but deliberately collapse one and many errors to the same event.",
+            "- `Directional H` and `Event H` summarize their paired resistance terms, but neither should replace",
+            "  the two directional columns in reporting.",
+            "- `Exact` is the share of answers with no scorable atom error and is the hardest event endpoint.",
             "- `rho` is a policy parameter. It is fixed before interpretation, and the sensitivity table remains",
             "  part of the release rather than selecting the value that creates the preferred ranking.",
             "",
@@ -475,10 +664,13 @@ def render_html(analysis: dict[str, Any]) -> str:
                 [
                     models[model]["display_name"],
                     fmt(overall["scs"]["0.5"]["mean"]),
-                    fmt(overall["sample_any_opb_rate"]),
-                    fmt(overall["sample_any_upb_rate"]),
+                    fmt(overall["directional_risk"]["0.5"]["opb"]),
+                    fmt(overall["directional_risk"]["0.5"]["upb"]),
+                    fmt(overall["directional_risk"]["0.5"]["harmonic"]),
+                    fmt(overall["event_guardrail"]["opb"]),
+                    fmt(overall["event_guardrail"]["upb"]),
+                    fmt(overall["event_guardrail"]["harmonic"]),
                     fmt(overall["sample_exact_accuracy"]),
-                    fmt(overall["mean_total_budget"]),
                 ]
             )
         content.append(
@@ -490,7 +682,17 @@ def render_html(analysis: dict[str, Any]) -> str:
             "The number at right is mean SCS(0.5).</p>"
             + "".join(bars)
             + html_table(
-                ["Model", "SCS(0.5)", "Any OPB", "Any UPB", "Exact", "Mean budget"],
+                [
+                    "Model",
+                    "SCS(0.5)",
+                    "sOPB(0.5)",
+                    "sUPB(0.5)",
+                    "Directional H",
+                    "Any OPB",
+                    "Any UPB",
+                    "Event H",
+                    "Exact",
+                ],
                 table_rows,
             )
             + "</section>"
@@ -510,7 +712,7 @@ p{color:var(--muted);max-width:900px}section{background:var(--panel);border:1px 
 table{width:100%;border-collapse:collapse;margin-top:24px;font-size:13px}th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}th:first-child,td:first-child{text-align:left}
 @media(max-width:700px){.bar-row{grid-template-columns:125px minmax(120px,1fr) 46px}header,main{padding:16px}section{padding:16px;overflow-x:auto}}
 </style></head><body><header><h1>MemCalib v2.3 sample-level score distributions</h1>
-<p>Existing primary-Judge outputs only. Each answer has one cumulative over/under error budget. SCS(0.5) = 0.5^(over budget + under budget), then averaged with equal sample weight.</p>
+<p>Existing primary-Judge outputs only. Overall SCS, exponential directional OPB/UPB, and Any-event guardrails are all averaged with equal sample weight.</p>
 </header><main>""" + "".join(content) + "</main></body></html>"
 
 
@@ -537,6 +739,7 @@ def main() -> None:
     parser.add_argument("--hidden", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--rhos", nargs="+", type=float, default=[0.25, 0.5, 0.75])
+    parser.add_argument("--bootstrap-replicates", type=int, default=2000)
     args = parser.parse_args()
     rhos = tuple(sorted(set(args.rhos)))
     if not rhos or any(not 0 < rho < 1 for rho in rhos) or 0.5 not in rhos:
@@ -566,7 +769,11 @@ def main() -> None:
             score_judgment_row(row, mode=mode, metadata=metadata, rhos=rhos)
             for row in judgments
         )
-    analysis = compute_analysis(sample_rows, rhos)
+    analysis = compute_analysis(
+        sample_rows,
+        rhos,
+        bootstrap_replicates=args.bootstrap_replicates,
+    )
     analysis["sources"] = {
         "hidden": {
             "path": str(args.hidden),
@@ -592,7 +799,7 @@ def main() -> None:
     html_path.write_text(render_html(analysis), encoding="utf-8")
     output_files = [metrics_path, scores_path, readme_path, html_path]
     manifest = {
-        "schema_version": "memcalib-sample-level-calibration-manifest-v1",
+        "schema_version": "memcalib-sample-level-calibration-manifest-v2",
         "sources": analysis["sources"],
         "outputs": {
             path.name: {"sha256": sha256_file(path), "bytes": path.stat().st_size}

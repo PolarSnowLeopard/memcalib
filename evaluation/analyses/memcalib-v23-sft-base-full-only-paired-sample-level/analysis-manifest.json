@@ -1,5 +1,5 @@
 {
-  "schema_version": "memcalib-sample-level-calibration-manifest-v1",
+  "schema_version": "memcalib-sample-level-calibration-manifest-v2",
   "sources": {
     "hidden": {
       "path": "evaluation/releases/memcalib-v23-sft-base-full-only-paired/hidden-evaluation.jsonl.gz",
@@ -16,20 +16,20 @@
   },
   "outputs": {
     "sample-level-metrics.json": {
-      "sha256": "3139bce166ca96b8f23a0f6e50e9eae41791aca1a01fdf3d1a981a29e7e80631",
-      "bytes": 42264
+      "sha256": "791a2aa89f1caab4f5f68f7855d4cc6f0871077e9659e6e98503224bf8ecbef5",
+      "bytes": 59400
     },
     "sample-level-scores.csv": {
       "sha256": "ea7d6df5c87ed10708614c4048ae73805961176af600efe99d8afbef1149df9e",
       "bytes": 204163
     },
     "README.md": {
-      "sha256": "b2cc6f8a703a0a7c2b0fe1d5482898391da4a0b8d097221b96f76f9984e88931",
-      "bytes": 2659
+      "sha256": "0f2e3afd3a67e255be6ae29e4d83c09e005aa2dcb7d15d5d1ed6e290523f4970",
+      "bytes": 3787
     },
     "sample-level-score-distributions.html": {
-      "sha256": "793ab3b8712d08138044c1046fa3991e317d8ac23c9b84696e0a212f640c225e",
-      "bytes": 3724
+      "sha256": "953e9d491ab6312b325f59c8487626dd461be2bd518612cd0c5c2e76752400fc",
+      "bytes": 3835
     }
   }
 }

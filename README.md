@@ -51,6 +51,7 @@ v2.3 审阅入口：
 - [v2.3 九模型思考模式评测](evaluation/releases/memcalib-v23-multidomain-500-nine-models/)
 - [v2.3 九模型非思考对照](evaluation/releases/memcalib-v23-multidomain-500-nonthinking-nine-models/)
 - [v2.3 思考/非思考同样本比较](evaluation/analyses/memcalib-v23-thinking-vs-nonthinking/)
+- [v2.3 三层样本级指标完整汇总](evaluation/analyses/memcalib-v23-three-layer-metrics/README.md)
 - [v2.3 SFT 数据拆分与 500 条目标生成 pilot](sft/README.md)
 - [v2.3 Qwen3.5-35B-A3B Base/SFT 严格配对评测](evaluation/releases/memcalib-v23-sft-base-full-only-paired/README.md)
 - [v2.2 历史长尾块交付说明](docs/MEMCALIB_V22_COAUTHOR_HANDOFF.md)
@@ -130,9 +131,9 @@ v2.3 继承 v2.2 锁定的 15,000 条来源谱系、问题、真实原子、A/B/
 | Kimi-K2.6 | 0.837 | 0.828 | -0.009 |
 | Codex GPT-5.6 Sol control | 0.797 | 0.801 | +0.004 |
 
-八个百炼模型的 H 变化均值为 +0.0247、中位数为 +0.0168；七个上升，一个下降，但改善并非跨指标一致。OPB 基本围绕零变化，UPB 的中位变化为 -0.0336，说明思考主要改变相关记忆的利用强度。Codex 回答完全相同但 H 仍变化 +0.0037，反映重复自动 Judge 本身的波动尺度；因此小幅差异不能直接解释为显著增益。完整 OPB/UPB、MinCalib、MCC、Kappa、CVaR、PMU、Rasch、pairwise 与 Pareto 结果见[v2.3 思考/非思考比较](evaluation/analyses/memcalib-v23-thinking-vs-nonthinking/README.md)、[思考模式候选指标](evaluation/analyses/memcalib-v23-multidomain-500-nine-models-candidate-metrics/README.md)和[非思考候选指标](evaluation/analyses/memcalib-v23-multidomain-500-nonthinking-nine-models-candidate-metrics/README.md)。
+上表的原子宏平均 H 作为历史结果和原子级诊断保留。当前样本级主报告改为三层口径：总体主指标 `SCS(0.5)`；方向主指标 `sOPB/sUPB(0.5)=mean_s(1-0.5^directional_budget_s)`；事件率护栏 `Any-OPB/Any-UPB`。三个层次都对样本等权，但分别回答总体可靠性、方向错误强度和错误覆盖面，内部使用的 A 子类型不进入公开指标。完整公式、20 个 Full-memory 配置、18 个 No-memory 配置、2,000 次样本 bootstrap 区间和配对差值见[三层指标完整汇总](evaluation/analyses/memcalib-v23-three-layer-metrics/README.md)；逐难度、逐领域和错误预算分布见[样本级明细](evaluation/analyses/memcalib-v23-sample-level-calibration/README.md)。
 
-同一批主 Judge 输出还增加了[样本级校准分布](evaluation/analyses/memcalib-v23-sample-level-calibration/README.md)：每条回答累积全部原子的过用/少用有序错误预算，并计算 `SCS_rho(s)=rho^(over_budget+under_budget)`，最终对 500 条样本等权平均。`rho=0.5` 时，思考模式 SCS 从 Codex 的 0.427 到 Qwen3.7-Max 的 0.257；任意 OPB 样本率分别为 49.0% 和 81.8%。这套指标明显惩罚错误散布到大量样本的模型，排名与原子宏平均 H 不同，因此作为整条回答可靠性的并行诊断，不替代 OPB/UPB 方向报告。
+在八个百炼模型上，Think 相对 Non-Think 的 SCS 平均变化为 +0.005、中位变化为 +0.001，只有 4/8 改善；sUPB 平均下降 0.039，但 sOPB 平均上升 0.028。这说明思考模式主要把错误从少用方向移向过用方向，而不是稳定提高整条回答的总体可靠性。Any-UPB 有 6/8 改善、Any-OPB 只有 3/8 改善，与方向主指标的趋势一致。Codex 两侧复用相同回答，其小幅差值只反映重复 Judge 波动。原子级 OPB/UPB、MinCalib、MCC、Kappa、CVaR、PMU、Rasch、pairwise 与 Pareto 仍见[v2.3 思考/非思考比较](evaluation/analyses/memcalib-v23-thinking-vs-nonthinking/README.md)、[思考模式候选指标](evaluation/analyses/memcalib-v23-multidomain-500-nine-models-candidate-metrics/README.md)和[非思考候选指标](evaluation/analyses/memcalib-v23-multidomain-500-nonthinking-nine-models-candidate-metrics/README.md)。
 
 ### v2.3 SFT pilot：Base 与 SFT 严格配对评测
 
@@ -148,7 +149,7 @@ Qwen3.5-35B-A3B Base 与 MemCalib SFT 合并模型通过同一套 vLLM 非思考
 | SCS(0.5)↑ | 0.235 | **0.570** |
 | CVaR90↓ | 0.359 | **0.197** |
 
-SFT 明显降低了过用和严重有序错误，但同时增加了相关记忆使用不足，因此 H 小幅下降，而 MCC、Kappa、整条样本严格正确率和尾部风险显著改善。按同样本有序损失，SFT 在 371 条上更好、78 条持平、47 条更差，含平局胜率为 0.827；Base-SFT 平均损失差为 0.0804，样本聚类 bootstrap 95% 区间为 [0.0709, 0.0896]。样本等权、累积全部原子有序错误的 `SCS(0.5)` 从 0.235 提升到 0.570；其中任意 OPB 样本率从 83.3% 降至 24.2%，任意 UPB 样本率从 37.1% 升至 50.4%。该结果应解释为“总体错误显著减少但存在更强 under-use 偏置”，不能只用 H 或任一单指标概括。由于没有生成 No-memory 回答，PMU 等反事实指标不可计算。完整结果见[评测发布说明](evaluation/releases/memcalib-v23-sft-base-full-only-paired/README.md)、[候选指标研究](evaluation/analyses/memcalib-v23-sft-base-full-only-paired-candidate-metrics/README.md)和[样本级 SCS 分析](evaluation/analyses/memcalib-v23-sft-base-full-only-paired-sample-level/README.md)。
+SFT 明显降低了过用和严重有序错误，但同时增加了相关记忆使用不足，因此 H 小幅下降，而 MCC、Kappa、整条样本严格正确率和尾部风险显著改善。按同样本有序损失，SFT 在 371 条上更好、78 条持平、47 条更差，含平局胜率为 0.827；Base-SFT 平均损失差为 0.0804，样本聚类 bootstrap 95% 区间为 [0.0709, 0.0896]。在三层样本级口径下，`SCS(0.5)` 从 0.235 提升到 0.570，sOPB 从 0.687 降到 0.159，sUPB 则从 0.229 升到 0.324；Any-OPB 从 83.3% 降至 24.2%，Any-UPB 从 37.1% 升至 50.4%。该结果应解释为“总体错误显著减少但存在更强 under-use 偏置”，不能只用 H 或任一单指标概括。由于没有生成 No-memory 回答，PMU 等反事实指标不可计算。完整结果见[评测发布说明](evaluation/releases/memcalib-v23-sft-base-full-only-paired/README.md)、[候选指标研究](evaluation/analyses/memcalib-v23-sft-base-full-only-paired-candidate-metrics/README.md)、[样本级明细](evaluation/analyses/memcalib-v23-sft-base-full-only-paired-sample-level/README.md)和[三层指标完整汇总](evaluation/analyses/memcalib-v23-three-layer-metrics/README.md)。
 
 采样 manifest 中的 388 表示与 v2.1 共享的查询/来源 ID，不表示数据行相同：这 388 条问题文本相同，但 `memory_blocks` 相同数为 0，完整模型输入行相同数也为 0。v2.1 与 v2.3 不是同一套 benchmark 数据，跨版本结果不得作为严格同样本回答模式对照。
 

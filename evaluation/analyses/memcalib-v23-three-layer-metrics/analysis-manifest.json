@@ -1,0 +1,39 @@
+{
+  "schema_version": "memcalib-v23-three-layer-summary-manifest-v1",
+  "sources": {
+    "nine_model_metrics": {
+      "path": "evaluation/analyses/memcalib-v23-sample-level-calibration/sample-level-metrics.json",
+      "sha256": "743b235adfd27212dac1230c74803be2e7d262f03e853c2b67e0eaa741dd50d4",
+      "bytes": 972083
+    },
+    "nine_model_scores": {
+      "path": "evaluation/analyses/memcalib-v23-sample-level-calibration/sample-level-scores.csv",
+      "sha256": "287f648a9b404e8d7e28a30b85c689571fb72a74f76ad8d4968933837d10b1fa",
+      "bytes": 3362795
+    },
+    "base_sft_metrics": {
+      "path": "evaluation/analyses/memcalib-v23-sft-base-full-only-paired-sample-level/sample-level-metrics.json",
+      "sha256": "791a2aa89f1caab4f5f68f7855d4cc6f0871077e9659e6e98503224bf8ecbef5",
+      "bytes": 59400
+    },
+    "base_sft_scores": {
+      "path": "evaluation/analyses/memcalib-v23-sft-base-full-only-paired-sample-level/sample-level-scores.csv",
+      "sha256": "ea7d6df5c87ed10708614c4048ae73805961176af600efe99d8afbef1149df9e",
+      "bytes": 204163
+    }
+  },
+  "outputs": {
+    "three-layer-metrics.json": {
+      "sha256": "d0f0644c17dcfb645e6ccead00da5b110cca45a8a84ac7ad4e55c37ff3716118",
+      "bytes": 124282
+    },
+    "README.md": {
+      "sha256": "66b7b7a3faeacb66253c74e85bbc54820828f74c97d6c702f8c83c39d5cfba7d",
+      "bytes": 10311
+    },
+    "three-layer-metrics.html": {
+      "sha256": "f5e6e75d65a0147ec04b560cbbfed8998b0eb5955e280d1aae2a2b2d3ef4cb07",
+      "bytes": 4885
+    }
+  }
+}
