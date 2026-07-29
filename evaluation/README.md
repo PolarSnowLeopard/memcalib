@@ -11,6 +11,7 @@ v2.4 将锁定 500 条中的全部 125 条 coding 任务替换为自然语言实
 主 Judge 8,892/8,892、副 Judge 450/450；结构重试后 residual invalid=0。样本级主报告采用 SCS、sOPB/sUPB 和 Any-OPB/Any-UPB 三层口径；原子宏平均 H、MinCalib、MCC、Kappa、CVaR、PMU、Rasch、pairwise 和 Pareto 作为诊断保留。
 
 - [v2.4 complete-case release](releases/memcalib-v24-multidomain-494-nine-models-complete-case/README.md)
+- [v2.4 中文三层样本级指标、公式与图表](analyses/memcalib-v23-three-layer-metrics/README.md)
 - [v2.4 candidate metrics](analyses/memcalib-v24-multidomain-494-nine-models-complete-case-candidate-metrics/README.md)
 - [v2.4 sample-level three-layer metrics](analyses/memcalib-v24-multidomain-494-nine-models-complete-case-sample-level/README.md)
 - [v2.4 candidate metric diagnostics](analyses/memcalib-v24-multidomain-494-nine-models-complete-case-candidate-metrics/candidate-metric-diagnostics.html)

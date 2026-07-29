@@ -48,10 +48,11 @@ v2.4 审阅入口：
 - [v2.4 15,000 条数据交付说明](docs/MEMCALIB_V24_COAUTHOR_HANDOFF.md)
 - [v2.4 数据结构与 coding 文本可观测性约束](docs/benchmark-schema-v2.4.md)
 - [v2.4 全量 3,750 条 coding 迭代与质检报告](docs/reports/memcalib-v24-coding-text-observability.md)
+- [v2.4 coding 三条分层中文审阅样本](docs/samples/memcalib-v24-coding-review-sample-3-zh.md)
 - [v2.4 30 条 coding 分层审阅样例](docs/samples/memcalib-v24-coding-review-sample-30.README.md)
 - [v2.4 九模型 494 条完全配对评测](evaluation/releases/memcalib-v24-multidomain-494-nine-models-complete-case/README.md)
 - [v2.4 原子级候选指标与诊断](evaluation/analyses/memcalib-v24-multidomain-494-nine-models-complete-case-candidate-metrics/README.md)
-- [v2.4 三层样本级指标与分布](evaluation/analyses/memcalib-v24-multidomain-494-nine-models-complete-case-sample-level/README.md)
+- [v2.4 中文三层样本级指标、公式与图表](evaluation/analyses/memcalib-v23-three-layer-metrics/README.md)
 
 v2.3 历史审阅入口：
 
@@ -152,7 +153,7 @@ v2.4 沿用 v2.3 锁定的 500 个样本 ID，因此 health/general/coding 的�
 
 该表显示原子宏平均 H 与样本级主指标会给出不同排序：Qwen3.7-Max 的原子宏平均 H 最高（84.9%），但错误广泛分布在样本中，SCS 仅 20.7%、Any-OPB 为 86.0%；Codex 的原子宏平均 H 为 79.2%，但样本级 SCS、Exact 和尾部 CVaR90 最优。正式报告因此继续采用“三层样本级主报告 + 原子级诊断”，不以 H 单独概括模型能力。
 
-完整结果见[评测发布说明](evaluation/releases/memcalib-v24-multidomain-494-nine-models-complete-case/README.md)、[候选指标研究](evaluation/analyses/memcalib-v24-multidomain-494-nine-models-complete-case-candidate-metrics/README.md)、[样本级分布](evaluation/analyses/memcalib-v24-multidomain-494-nine-models-complete-case-sample-level/README.md)和[诊断图](evaluation/analyses/memcalib-v24-multidomain-494-nine-models-complete-case-candidate-metrics/candidate-metric-diagnostics.html)。
+中文主报告见[三层样本级指标、公式与图表](evaluation/analyses/memcalib-v23-three-layer-metrics/README.md)。机器可读结果和补充诊断见[评测发布说明](evaluation/releases/memcalib-v24-multidomain-494-nine-models-complete-case/README.md)、[候选指标研究](evaluation/analyses/memcalib-v24-multidomain-494-nine-models-complete-case-candidate-metrics/README.md)、[样本级明细](evaluation/analyses/memcalib-v24-multidomain-494-nine-models-complete-case-sample-level/README.md)和[诊断图](evaluation/analyses/memcalib-v24-multidomain-494-nine-models-complete-case-candidate-metrics/candidate-metric-diagnostics.html)。
 
 ### v2.3 九模型同样本评测
 
