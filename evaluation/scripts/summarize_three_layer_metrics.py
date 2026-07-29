@@ -169,26 +169,25 @@ def paired_delta_bootstrap(
     }
 
 
-def fmt(value: float) -> str:
-    return f"{value:.3f}"
+def fmt_pct(value: float) -> str:
+    return f"{100 * value:.1f}%"
 
 
-def fmt_delta(value: float) -> str:
-    return f"{value:+.3f}"
+def fmt_pp(value: float) -> str:
+    return f"{100 * value:+.1f} pp"
 
 
-def fmt_ci(values: dict[str, float | int]) -> str:
+def fmt_pct_ci(values: dict[str, float | int]) -> str:
     return (
-        f"{fmt(float(values['estimate']))} "
-        f"[{fmt(float(values['ci_low']))}, {fmt(float(values['ci_high']))}]"
+        f"[{fmt_pct(float(values['ci_low']))}, "
+        f"{fmt_pct(float(values['ci_high']))}]"
     )
 
 
-def fmt_delta_ci(values: dict[str, float | int]) -> str:
+def fmt_pp_ci(values: dict[str, float | int]) -> str:
     return (
-        f"{fmt_delta(float(values['estimate']))} "
-        f"[{fmt_delta(float(values['ci_low']))}, "
-        f"{fmt_delta(float(values['ci_high']))}]"
+        f"[{fmt_pp(float(values['ci_low']))}, "
+        f"{fmt_pp(float(values['ci_high']))}]"
     )
 
 
@@ -214,45 +213,107 @@ def metric_table(
         key=lambda model: overall_values(analysis, mode, model, condition)["scs"],
         reverse=True,
     )
-    rows = []
+    overall_rows = []
+    directional_rows = []
+    event_rows = []
+    overall_ci_rows = []
+    directional_ci_rows = []
+    event_ci_rows = []
     for model in ordered:
         values = overall_values(analysis, mode, model, condition)
+        display_name = MODEL_DISPLAY_NAMES.get(model, model)
+        overall_rows.append(
+            [display_name, fmt_pct(values["scs"]), fmt_pct(values["exact"])]
+        )
+        directional_rows.append(
+            [
+                display_name,
+                fmt_pct(values["directional_opb"]),
+                fmt_pct(values["directional_upb"]),
+                fmt_pct(values["directional_h"]),
+            ]
+        )
+        event_rows.append(
+            [
+                display_name,
+                fmt_pct(values["any_opb"]),
+                fmt_pct(values["any_upb"]),
+                fmt_pct(values["any_h"]),
+            ]
+        )
         if include_intervals:
             intervals = overall_intervals(analysis, mode, model, condition)
-            rows.append(
+            overall_ci_rows.append(
                 [
-                    MODEL_DISPLAY_NAMES.get(model, model),
-                    fmt_ci(intervals["scs"]),
-                    fmt_ci(intervals["directional_opb"]),
-                    fmt_ci(intervals["directional_upb"]),
-                    fmt(values["directional_h"]),
-                    fmt_ci(intervals["any_opb"]),
-                    fmt_ci(intervals["any_upb"]),
-                    fmt(values["any_h"]),
-                    fmt(values["exact"]),
+                    display_name,
+                    fmt_pct_ci(intervals["scs"]),
+                    fmt_pct_ci(intervals["exact"]),
                 ]
             )
-        else:
-            rows.append(
+            directional_ci_rows.append(
                 [
-                    MODEL_DISPLAY_NAMES.get(model, model),
-                    *(fmt(values[key]) for key in METRIC_ORDER),
+                    display_name,
+                    fmt_pct_ci(intervals["directional_opb"]),
+                    fmt_pct_ci(intervals["directional_upb"]),
+                    fmt_pct_ci(intervals["directional_h"]),
                 ]
             )
-    return markdown_table(
-        [
-            "Model",
-            "SCS up",
-            "sOPB down",
-            "sUPB down",
-            "Directional H up",
-            "Any-OPB down",
-            "Any-UPB down",
-            "Event H up",
-            "Exact up",
-        ],
-        rows,
-    )
+            event_ci_rows.append(
+                [
+                    display_name,
+                    fmt_pct_ci(intervals["any_opb"]),
+                    fmt_pct_ci(intervals["any_upb"]),
+                    fmt_pct_ci(intervals["any_h"]),
+                ]
+            )
+    sections = [
+        "**第一层：总体主指标**",
+        "",
+        markdown_table(["模型", "SCS ↑", "严格准确率 ↑"], overall_rows),
+        "",
+        "**第二层：方向主指标**",
+        "",
+        markdown_table(
+            ["模型", "sOPB ↓", "sUPB ↓", "Directional H ↑"],
+            directional_rows,
+        ),
+        "",
+        "**第三层：事件率护栏**",
+        "",
+        markdown_table(
+            ["模型", "Any-OPB ↓", "Any-UPB ↓", "Event H ↑"],
+            event_rows,
+        ),
+    ]
+    if include_intervals:
+        sections.extend(
+            [
+                "",
+                "<details>",
+                "<summary>查看 2,000 次样本 bootstrap 的 95% 置信区间</summary>",
+                "",
+                "**总体指标区间**",
+                "",
+                markdown_table(["模型", "SCS", "严格准确率"], overall_ci_rows),
+                "",
+                "**方向指标区间**",
+                "",
+                markdown_table(
+                    ["模型", "sOPB", "sUPB", "Directional H"],
+                    directional_ci_rows,
+                ),
+                "",
+                "**事件护栏区间**",
+                "",
+                markdown_table(
+                    ["模型", "Any-OPB", "Any-UPB", "Event H"],
+                    event_ci_rows,
+                ),
+                "",
+                "</details>",
+            ]
+        )
+    return "\n".join(sections)
 
 
 def paired_table(
@@ -264,6 +325,7 @@ def paired_table(
         reverse=True,
     )
     rows = []
+    ci_rows = []
     for model in ordered:
         if not include_control and model == "codex-gpt56-sol":
             continue
@@ -271,23 +333,42 @@ def paired_table(
         rows.append(
             [
                 MODEL_DISPLAY_NAMES.get(model, model),
-                fmt_delta_ci(metrics["scs"]),
-                fmt_delta_ci(metrics["directional_opb"]),
-                fmt_delta_ci(metrics["directional_upb"]),
-                fmt_delta_ci(metrics["any_opb"]),
-                fmt_delta_ci(metrics["any_upb"]),
+                fmt_pp(float(metrics["scs"]["estimate"])),
+                fmt_pp(float(metrics["directional_opb"]["estimate"])),
+                fmt_pp(float(metrics["directional_upb"]["estimate"])),
+                fmt_pp(float(metrics["any_opb"]["estimate"])),
+                fmt_pp(float(metrics["any_upb"]["estimate"])),
             ]
         )
-    return markdown_table(
+        ci_rows.append(
+            [
+                MODEL_DISPLAY_NAMES.get(model, model),
+                fmt_pp_ci(metrics["scs"]),
+                fmt_pp_ci(metrics["directional_opb"]),
+                fmt_pp_ci(metrics["directional_upb"]),
+                fmt_pp_ci(metrics["any_opb"]),
+                fmt_pp_ci(metrics["any_upb"]),
+            ]
+        )
+    headers = [
+        "模型",
+        "Delta SCS",
+        "Delta sOPB",
+        "Delta sUPB",
+        "Delta Any-OPB",
+        "Delta Any-UPB",
+    ]
+    return "\n".join(
         [
-            "Model",
-            "Delta SCS",
-            "Delta sOPB",
-            "Delta sUPB",
-            "Delta Any-OPB",
-            "Delta Any-UPB",
-        ],
-        rows,
+            markdown_table(headers, rows),
+            "",
+            "<details>",
+            "<summary>查看配对差值的 95% bootstrap 置信区间</summary>",
+            "",
+            markdown_table(headers, ci_rows),
+            "",
+            "</details>",
+        ]
     )
 
 
@@ -310,24 +391,28 @@ def summarize_mode_deltas(deltas: dict[str, dict[str, Any]]) -> dict[str, Any]:
     return summary
 
 
+def math_block(expression: str) -> str:
+    return f"$$\n{expression}\n$$"
+
+
 def methodology_markdown() -> list[str]:
     transition_rows = [
-        ["A -> A", "correct", "0", "0"],
-        ["A -> B", "over-use", "1", "0"],
-        ["A -> C", "over-use", "2", "0"],
-        ["B -> A", "under-use", "0", "1"],
-        ["B -> B", "correct", "0", "0"],
-        ["B -> C", "over-use", "1", "0"],
-        ["C -> A", "under-use", "0", "2"],
-        ["C -> B", "under-use", "0", "1"],
-        ["C -> C", "correct", "0", "0"],
+        ["A → A", "正确", "0", "0"],
+        ["A → B", "过用", "1", "0"],
+        ["A → C", "过用", "2", "0"],
+        ["B → A", "少用", "0", "1"],
+        ["B → B", "正确", "0", "0"],
+        ["B → C", "过用", "1", "0"],
+        ["C → A", "少用", "0", "2"],
+        ["C → B", "少用", "0", "1"],
+        ["C → C", "正确", "0", "0"],
     ]
     risk_rows = [
-        ["0", "0.000", "1.000"],
-        ["1", "0.500", "0.500"],
-        ["2", "0.750", "0.250"],
-        ["3", "0.875", "0.125"],
-        ["4", "0.938", "0.063"],
+        ["0", "0.0%", "100.0%"],
+        ["1", "50.0%", "50.0%"],
+        ["2", "75.0%", "25.0%"],
+        ["3", "87.5%", "12.5%"],
+        ["4", "93.8%", "6.3%"],
     ]
     example_rows = [
         ["1", "A", "B", "1", "0"],
@@ -340,23 +425,26 @@ def methodology_markdown() -> list[str]:
         "",
         "### 1. 评分输入与等级映射",
         "",
-        "对样本 `s` 中每个可评分原子 `i`，记规范使用等级为 `u*_(s,i)`，主 Judge",
-        "判定的实际使用等级为 `u_hat_(s,i)`。不可评分原子不进入任何分母或预算。",
+        "对样本 $s$ 中每个可评分原子 $i$，记规范使用等级为 $u^*_{s,i}$，主 Judge",
+        "判定的实际使用等级为 $\\hat{u}_{s,i}$。不可评分原子不进入任何分母或预算。",
         "A 的内部构造子类型仅用于数据开发，不进入公开指标。统一等级映射为：",
         "",
-        "`r(A)=0, r(B)=1, r(C)=2`。",
+        math_block(r"r(A)=0,\qquad r(B)=1,\qquad r(C)=2"),
         "",
         "### 2. 原子级有序方向误差",
         "",
-        "`o_(s,i) = max(r(u_hat_(s,i)) - r(u*_(s,i)), 0)`",
+        math_block(
+            r"""\begin{aligned}
+o_{s,i} &= \max\!\left(r(\hat{u}_{s,i})-r(u^*_{s,i}),\,0\right),\\
+u_{s,i} &= \max\!\left(r(u^*_{s,i})-r(\hat{u}_{s,i}),\,0\right).
+\end{aligned}"""
+        ),
         "",
-        "`u_(s,i) = max(r(u*_(s,i)) - r(u_hat_(s,i)), 0)`",
-        "",
-        "其中 `o` 是过用预算，`u` 是少用预算。相邻等级错误计 1，A/C 跨两级",
+        "其中 $o_{s,i}$ 是过用预算，$u_{s,i}$ 是少用预算。相邻等级错误计 1，A/C 跨两级",
         "错误计 2；同一个原子不可能同时贡献过用和少用。",
         "",
         markdown_table(
-            ["Gold -> Predicted", "Direction", "Over budget", "Under budget"],
+            ["Gold → Predicted", "方向", "过用预算", "少用预算"],
             transition_rows,
         ),
         "",
@@ -364,88 +452,108 @@ def methodology_markdown() -> list[str]:
         "",
         "将一条回答涉及的所有记忆块和所有可评分原子放回同一个样本内累加：",
         "",
-        "`O_s = sum_i o_(s,i)`",
+        math_block(
+            r"""\begin{aligned}
+O_s &= \sum_{i\in s} o_{s,i},\\
+U_s &= \sum_{i\in s} u_{s,i},\\
+T_s &= O_s+U_s.
+\end{aligned}"""
+        ),
         "",
-        "`U_s = sum_i u_(s,i)`",
-        "",
-        "`T_s = O_s + U_s`",
-        "",
-        "`O_s`、`U_s` 和 `T_s` 分别是样本过用、少用和总有序错误预算。记忆块数",
+        "$O_s$、$U_s$ 和 $T_s$ 分别是样本过用、少用和总有序错误预算。记忆块数",
         "和原子数不会直接成为模型级权重，但更多原子会提供更多犯错机会。",
         "",
         "### 4. 总体主指标 SCS(0.5)",
         "",
         "单样本总体校准分：",
         "",
-        "`SCS_s(rho) = rho^(O_s + U_s)`，正式口径固定 `rho=0.5`。",
+        math_block(
+            r"""\begin{aligned}
+\mathrm{SCS}_s(\rho) &= \rho^{O_s+U_s},\\
+\mathrm{SCS}(\rho) &= \frac{1}{N}\sum_{s=1}^{N}\mathrm{SCS}_s(\rho),
+\qquad \rho=0.5.
+\end{aligned}"""
+        ),
         "",
-        "模型级总体主指标：",
-        "",
-        "`SCS(rho) = (1/N) * sum_s SCS_s(rho)`。",
-        "",
-        "因此总预算 0/1/2/3/4 对应样本分数 1/0.5/0.25/0.125/0.0625。",
+        "因此总预算 0/1/2/3/4 对应样本分数 100%/50%/25%/12.5%/6.25%。",
         "SCS 越高越好；它同时惩罚两个方向，但不能替代方向分解。",
         "",
         "### 5. 方向主指标 sOPB/sUPB(0.5)",
         "",
-        "`sOPB_s(rho) = 1 - rho^O_s`",
-        "",
-        "`sUPB_s(rho) = 1 - rho^U_s`",
-        "",
-        "`sOPB(rho) = (1/N) * sum_s sOPB_s(rho)`",
-        "",
-        "`sUPB(rho) = (1/N) * sum_s sUPB_s(rho)`",
+        math_block(
+            r"""\begin{aligned}
+\mathrm{sOPB}_s(\rho) &= 1-\rho^{O_s},&
+\mathrm{sUPB}_s(\rho) &= 1-\rho^{U_s},\\
+\mathrm{sOPB}(\rho) &= \frac{1}{N}\sum_{s=1}^{N}\mathrm{sOPB}_s(\rho),&
+\mathrm{sUPB}(\rho) &= \frac{1}{N}\sum_{s=1}^{N}\mathrm{sUPB}_s(\rho).
+\end{aligned}"""
+        ),
         "",
         "两者越低越好。它们区分一次、重复和跨两级错误，同时把每条样本的单方向",
-        "风险限制在 `[0,1)`，避免高原子数样本无限主导结果。`rho=0.5` 时：",
+        "风险限制在 $[0,1)$，避免高原子数样本无限主导结果。$\\rho=0.5$ 时：",
         "",
-        markdown_table(["Directional budget", "Risk = 1-0.5^budget", "Resistance"], risk_rows),
+        markdown_table(["方向预算", "风险", "抵抗能力"], risk_rows),
         "",
         "### 6. Directional H",
         "",
-        "先定义方向抵抗能力 `R_O=1-sOPB`、`R_U=1-sUPB`，再取调和平均：",
+        "先定义方向抵抗能力 $R_O=1-\\mathrm{sOPB}$、$R_U=1-\\mathrm{sUPB}$，再取调和平均：",
         "",
-        "`Directional H = 2*R_O*R_U/(R_O+R_U)`",
+        math_block(
+            r"""\begin{aligned}
+H_{\mathrm{directional}}
+&= \frac{2R_OR_U}{R_O+R_U}\\
+&= \frac{2(1-\mathrm{sOPB})(1-\mathrm{sUPB})}
+{2-\mathrm{sOPB}-\mathrm{sUPB}}.
+\end{aligned}"""
+        ),
         "",
-        "等价于 `2*(1-sOPB)*(1-sUPB)/(2-sOPB-sUPB)`。越高越好。它只用于",
+        "越高越好。它只用于",
         "紧凑比较；正式报告必须同时给出 sOPB 和 sUPB，避免掩盖方向取舍。",
         "",
         "### 7. 事件率护栏与严格准确率",
         "",
-        "`Any-OPB = (1/N) * sum_s 1[O_s > 0]`",
-        "",
-        "`Any-UPB = (1/N) * sum_s 1[U_s > 0]`",
-        "",
-        "`Exact = (1/N) * sum_s 1[O_s + U_s = 0]`",
+        math_block(
+            r"""\begin{aligned}
+\mathrm{AnyOPB} &= \frac{1}{N}\sum_{s=1}^{N}\mathbf{1}[O_s>0],\\
+\mathrm{AnyUPB} &= \frac{1}{N}\sum_{s=1}^{N}\mathbf{1}[U_s>0],\\
+\mathrm{Exact} &= \frac{1}{N}\sum_{s=1}^{N}\mathbf{1}[O_s+U_s=0].
+\end{aligned}"""
+        ),
         "",
         "Any 指标越低越好，Exact 越高越好。Any 只回答某方向是否至少发生一次，",
         "会把一次轻微错误和多次严重错误都记成 1，因此只作为事件覆盖面护栏。",
-        "Event H 对 `(1-Any-OPB)` 和 `(1-Any-UPB)` 使用与 Directional H 相同的",
+        "Event H 对 $(1-\\mathrm{AnyOPB})$ 和 $(1-\\mathrm{AnyUPB})$ 使用与 Directional H 相同的",
         "调和平均公式，也不能替代两个方向列。",
         "",
         "### 8. 聚合、配对差值和置信区间",
         "",
-        "所有模型级指标都先在样本内汇总，再对 `N` 条样本取算术平均；一条样本无论",
+        "所有模型级指标都先在样本内汇总，再对 $N$ 条样本取算术平均；一条样本无论",
         "包含多少块和原子，在模型级都只有一个等权观测。95% 区间使用 2,000 次",
-        "样本聚类 bootstrap：每次有放回抽取 `N` 个 sample ID，保留被抽中样本的",
+        "样本聚类 bootstrap：每次有放回抽取 $N$ 个 sample ID，保留被抽中样本的",
         "全部原子，再重算指标，最终取 2.5% 和 97.5% 分位数。",
         "",
         "Think/Non-Think 与 Base/SFT 差值使用配对 bootstrap。每次只抽取一次 sample ID",
-        "序列，并将同一序列同时应用到比较两侧；报告差值定义为 `after - before`。",
+        "序列，并将同一序列同时应用到比较两侧；报告差值定义为 $\\mathrm{after}-\\mathrm{before}$。",
         "因此 SCS/Exact 的正差值表示改善，sOPB/sUPB 和 Any 的负差值表示改善。",
         "",
         "### 9. 手算示例",
         "",
         "假设一条样本的四个可评分原子如下：",
         "",
-        markdown_table(["Atom", "Gold", "Predicted", "Over", "Under"], example_rows),
+        markdown_table(["原子", "Gold", "Predicted", "过用", "少用"], example_rows),
         "",
-        "该样本有 `O_s=2`、`U_s=2`、`T_s=4`，因此：",
+        "该样本有 $O_s=2$、$U_s=2$、$T_s=4$，因此：",
         "",
-        "- `SCS_s=0.5^4=0.0625`；",
-        "- `sOPB_s=1-0.5^2=0.75`；",
-        "- `sUPB_s=1-0.5^2=0.75`；",
-        "- `Any-OPB_s=1`、`Any-UPB_s=1`、`Exact_s=0`。",
+        math_block(
+            r"""\begin{aligned}
+\mathrm{SCS}_s &= 0.5^4 = 6.25\%,\\
+\mathrm{sOPB}_s &= 1-0.5^2 = 75.0\%,\\
+\mathrm{sUPB}_s &= 1-0.5^2 = 75.0\%,\\
+\mathrm{AnyOPB}_s &= 1,\quad
+\mathrm{AnyUPB}_s = 1,\quad
+\mathrm{Exact}_s = 0.
+\end{aligned}"""
+        ),
         "",
     ]
 
@@ -463,11 +571,11 @@ def methodology_html() -> str:
         ["C to C", "correct", "0", "0"],
     ]
     risk_rows = [
-        ["0", "0.000", "1.000"],
-        ["1", "0.500", "0.500"],
-        ["2", "0.750", "0.250"],
-        ["3", "0.875", "0.125"],
-        ["4", "0.938", "0.063"],
+        ["0", "0.0%", "100.0%"],
+        ["1", "50.0%", "50.0%"],
+        ["2", "75.0%", "25.0%"],
+        ["3", "87.5%", "12.5%"],
+        ["4", "93.8%", "6.3%"],
     ]
     example_rows = [
         ["1", "A", "B", "1", "0"],
@@ -495,8 +603,8 @@ def methodology_html() -> str:
         '<div class="method-step"><h3>3. Overall primary metric</h3>'
         '<code class="formula-block">SCS(s; rho) = rho^(O(s)+U(s))<br>'
         "SCS(rho) = mean_s SCS(s; rho)<br>Primary rho = 0.5</code>"
-        "<p>Total budgets 0, 1, 2, 3, and 4 receive scores 1, 0.5, 0.25, 0.125, "
-        "and 0.0625. Higher is better.</p></div>"
+        "<p>Total budgets 0, 1, 2, 3, and 4 receive scores 100%, 50%, 25%, "
+        "12.5%, and 6.25%. Higher is better.</p></div>"
         '<div class="method-step"><h3>4. Directional primary metrics</h3>'
         '<code class="formula-block">sOPB(s; rho) = 1 - rho^O(s)<br>'
         "sUPB(s; rho) = 1 - rho^U(s)<br>"
@@ -520,8 +628,8 @@ def methodology_html() -> str:
         '<div class="method-step"><h3>8. Worked example</h3>'
         + html_table(["Atom", "Gold", "Predicted", "Over", "Under"], example_rows)
         + "<p>Here <code>O(s)=2</code>, <code>U(s)=2</code>, so "
-        "<code>SCS(s)=0.0625</code>, <code>sOPB(s)=0.75</code>, "
-        "<code>sUPB(s)=0.75</code>, both Any events equal 1, and Exact equals 0.</p>"
+        "<code>SCS(s)=6.25%</code>, <code>sOPB(s)=75.0%</code>, "
+        "<code>sUPB(s)=75.0%</code>, both Any events equal 1, and Exact equals 0.</p>"
         "</div></section>"
     )
 
@@ -542,13 +650,13 @@ def render_readme(
         "",
         "## 统一口径",
         "",
-        "- **总体主指标 SCS(0.5)：** `mean_s 0.5^(O_s + U_s)`，越高越好。",
-        "- **方向主指标 sOPB/sUPB(0.5)：** `mean_s (1-0.5^O_s)` 与",
-        "  `mean_s (1-0.5^U_s)`，越低越好。它们区分一次与多次/严重错误，但每条",
+        "- **总体主指标 SCS(0.5)：** 汇总整条回答的双向有序错误，越高越好。",
+        "- **方向主指标 sOPB/sUPB(0.5)：** 分别衡量样本级过用和少用强度，",
+        "  越低越好。它们区分一次与多次/严重错误，但每条",
         "  样本的单方向风险上限为 1。",
-        "- **事件率护栏 Any-OPB/Any-UPB：** `mean_s 1[O_s>0]` 与",
-        "  `mean_s 1[U_s>0]`，越低越好。它们只描述错误覆盖面，不能单独作为主指标。",
-        "- `O_s`、`U_s` 是样本内所有可评分原子的有序过用/少用预算；相邻等级错误",
+        "- **事件率护栏 Any-OPB/Any-UPB：** 衡量发生至少一次方向错误的样本比例，",
+        "  越低越好。它们只描述错误覆盖面，不能单独作为主指标。",
+        "- $O_s$、$U_s$ 是样本内所有可评分原子的有序过用/少用预算；相邻等级错误",
         "  计 1，A/C 跨两级错误计 2。所有模型级值对样本等权。",
         "- 方括号为按样本聚类的 2,000 次 bootstrap 95% 区间。",
         "",
@@ -584,8 +692,8 @@ def render_readme(
     ):
         values = trend["metrics"][metric]
         sections.append(
-            f"- {label}: 平均变化 {fmt_delta(values['mean_delta'])}，中位变化 "
-            f"{fmt_delta(values['median_delta'])}，改善 {values['improved_models']}/8。"
+            f"- {label}: 平均变化 {fmt_pp(values['mean_delta'])}，中位变化 "
+            f"{fmt_pp(values['median_delta'])}，改善 {values['improved_models']}/8。"
         )
     sections.extend(
         [
@@ -654,33 +762,46 @@ def html_metric_table(
         key=lambda model: overall_values(analysis, mode, model, condition)["scs"],
         reverse=True,
     )
-    rows = []
+    overall_rows = []
+    directional_rows = []
+    event_rows = []
     for model in ordered:
         values = overall_values(analysis, mode, model, condition)
-        rows.append(
+        display_name = MODEL_DISPLAY_NAMES.get(model, model)
+        overall_rows.append(
             [
-                MODEL_DISPLAY_NAMES.get(model, model),
-                fmt(values["scs"]),
-                fmt(values["directional_opb"]),
-                fmt(values["directional_upb"]),
-                fmt(values["directional_h"]),
-                fmt(values["any_opb"]),
-                fmt(values["any_upb"]),
-                fmt(values["any_h"]),
+                display_name,
+                fmt_pct(values["scs"]),
+                fmt_pct(values["exact"]),
             ]
         )
-    return html_table(
-        [
-            "Model",
-            "SCS",
-            "sOPB",
-            "sUPB",
-            "Dir. H",
-            "Any-OPB",
-            "Any-UPB",
-            "Event H",
-        ],
-        rows,
+        directional_rows.append(
+            [
+                display_name,
+                fmt_pct(values["directional_opb"]),
+                fmt_pct(values["directional_upb"]),
+                fmt_pct(values["directional_h"]),
+            ]
+        )
+        event_rows.append(
+            [
+                display_name,
+                fmt_pct(values["any_opb"]),
+                fmt_pct(values["any_upb"]),
+                fmt_pct(values["any_h"]),
+            ]
+        )
+    return (
+        '<div class="layer-group"><h3>Layer 1: Overall</h3>'
+        + html_table(["Model", "SCS", "Exact"], overall_rows)
+        + '<h3>Layer 2: Directional</h3>'
+        + html_table(
+            ["Model", "sOPB", "sUPB", "Directional H"],
+            directional_rows,
+        )
+        + '<h3>Layer 3: Event guardrails</h3>'
+        + html_table(["Model", "Any-OPB", "Any-UPB", "Event H"], event_rows)
+        + "</div>"
     )
 
 
@@ -712,7 +833,7 @@ h1{font-size:32px;margin:0 0 10px;letter-spacing:0}h2{font-size:21px;margin:0 0 
 p{max-width:940px;color:var(--muted)}.formula{border-left:4px solid var(--accent);padding:10px 14px;background:#eef5f2;color:var(--ink)}
 section{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:22px;margin:18px 0}
 .method-step{padding:18px 0;border-top:1px solid var(--line)}.method-step:first-of-type{border-top:0;padding-top:4px}
-h3{font-size:16px;margin:0 0 8px;letter-spacing:0}.formula-block{display:block;background:#f2f5f4;padding:12px;overflow-x:auto;white-space:nowrap}
+h3{font-size:16px;margin:0 0 8px;letter-spacing:0}.layer-group h3{margin-top:22px}.formula-block{display:block;background:#f2f5f4;padding:12px;overflow-x:auto;white-space:nowrap}
 .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}
 th,td{padding:10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 th:first-child,td:first-child{text-align:left}th{color:#40505b;background:#f8f9f8}
