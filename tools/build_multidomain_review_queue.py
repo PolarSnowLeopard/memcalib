@@ -31,7 +31,7 @@ AUDIT = load_module("memcalib_canonical_audit", PIPELINE_DIR / "12_build_canonic
 VALIDATOR = load_module("memcalib_multidomain_validator", PIPELINE_DIR / "28_validate_multidomain_benchmark.py")
 
 SCHEMA_VERSION = "memcalib-multidomain-human-review-queue-v1"
-DEFAULT_RELEASE_DIR = ROOT / "release" / "memcalib-multidomain-pilot-v0.2"
+DEFAULT_RELEASE_DIR = ROOT / "release" / "archive" / "memcalib-multidomain-pilot-v0.2"
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:

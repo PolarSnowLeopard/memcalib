@@ -43,22 +43,35 @@ class MemCalibV21HandoffPackageTest(unittest.TestCase):
         )
 
         docs = self.root / "docs"
-        reports = docs / "reports"
+        archive = docs / "archive" / "versions"
+        v20 = archive / "v2.0"
+        v21 = archive / "v2.1"
+        reports = v21 / "reports"
         reports.mkdir(parents=True)
+        v20.mkdir(parents=True)
         (self.root / "README.md").write_text("# repository\n", encoding="utf-8")
         (self.root / "DATA_CARD.md").write_text("# data card\n", encoding="utf-8")
         (self.root / "NOTICE.md").write_text("# notice\n", encoding="utf-8")
-        (docs / "benchmark-schema.md").write_text("# schema\n", encoding="utf-8")
+        (v21 / "benchmark-schema.md").write_text("# schema\n", encoding="utf-8")
         (docs / "construction-pipeline.md").write_text("# pipeline\n", encoding="utf-8")
-        (docs / "evaluation_protocol_v2.1.md").write_text("# protocol\n", encoding="utf-8")
-        (docs / "MEMCALIB_V2_COAUTHOR_HANDOFF.md").write_text("# handoff\n", encoding="utf-8")
+        (v21 / "evaluation_protocol_v2.1.md").write_text(
+            "# protocol\n", encoding="utf-8"
+        )
+        (v20 / "MEMCALIB_V2_COAUTHOR_HANDOFF.md").write_text(
+            "# handoff\n", encoding="utf-8"
+        )
         (reports / "memcalib-v21-dataset-construction-methodology.html").write_text(
             "<!doctype html><title>method</title>\n", encoding="utf-8"
         )
 
-        self.evaluation = self.root / "evaluation"
+        evaluation_root = self.root / "evaluation"
+        evaluation_archive = evaluation_root / "archive"
+        evaluation_archive.mkdir(parents=True)
+        (evaluation_archive / "README.md").write_text(
+            "# evaluation archive\n", encoding="utf-8"
+        )
+        self.evaluation = evaluation_root / "release-fixture"
         self.evaluation.mkdir()
-        (self.evaluation / "README.md").write_text("# evaluation\n", encoding="utf-8")
         self.module = load_script()
         self.module.ROOT = self.root
         self.module.EVALUATION_DIR = self.evaluation

@@ -15,7 +15,7 @@ from evaluation.common import display_path, iter_jsonl, sha256_file, write_json,
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INPUT = ROOT / "pipeline" / "data" / "crk2_canonical_memory_benchmark_en_15528.jsonl"
-DEFAULT_OUTPUT = ROOT / "evaluation" / "releases" / "memcalib-v0.1-full-15526"
+DEFAULT_OUTPUT = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-full-15526"
 LABELS = {"A", "B", "C"}
 QC_KEYS = (
     "atomicity_pass",

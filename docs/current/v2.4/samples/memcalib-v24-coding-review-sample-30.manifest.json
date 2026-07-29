@@ -1,0 +1,65 @@
+{
+  "schema_version": "memcalib-v24-coding-review-sample-v1",
+  "selection": {
+    "method": "deterministic SHA-256 ordering within task family and admission channel; ten records per task family; one manual-adjudication record included when the family contains one",
+    "records": 30,
+    "task_family": {
+      "behavior_prediction": 10,
+      "debugging_diagnosis": 10,
+      "implementation_plan": 10
+    },
+    "admission_channel": {
+      "independent_qc_strict": 28,
+      "manual_adjudication": 2
+    },
+    "record_ids": [
+      "crk2_v2_raw_coding_dae99fe4ce884a4c",
+      "crk2_v2_raw_coding_96f417e93027c78a",
+      "crk2_v2_raw_coding_822b9a61f8d86532",
+      "crk2_v2_raw_coding_88a23cec35e4a751",
+      "crk2_v2_raw_coding_d578dbb80d8a230c",
+      "crk2_v2_raw_coding_8608aadc3da11130",
+      "crk2_v2_raw_coding_16673e919f36bc4e",
+      "crk2_v2_raw_coding_580bb1a631c21523",
+      "crk2_v2_raw_coding_bbcc1ac6f3dcb9d4",
+      "crk2_v2_raw_coding_5dc068e43f3b3707",
+      "crk2_v2_raw_coding_c41505b6a8a69549",
+      "crk2_v2_raw_coding_941c8328a0c619ec",
+      "crk2_v2_raw_coding_a8ee8ebbb854ea4e",
+      "crk2_v2_raw_coding_1b584c651997ca80",
+      "crk2_v2_raw_coding_8adf9638a6e7a2a3",
+      "crk2_v2_raw_coding_f852ad62b72abcbe",
+      "crk2_v2_raw_coding_9ce0c0c375206fc9",
+      "crk2_v2_raw_coding_5f6773a3e1c7a4b4",
+      "crk2_v2_raw_coding_ec69fcc6d3254980",
+      "crk2_v2_raw_coding_ad55f3350b4ba667",
+      "crk2_v2_raw_coding_32ed59ad77c090a7",
+      "crk2_v2_raw_coding_2cc19a2e03243c2a",
+      "crk2_v2_raw_coding_3a1442c24bbc4a6c",
+      "crk2_v2_raw_coding_fa7ddfb6fdf32514",
+      "crk2_v2_raw_coding_5f873a1c84d1cfee",
+      "crk2_v2_raw_coding_d69c61426ef59be8",
+      "crk2_v2_raw_coding_eb4d51312b751b17",
+      "crk2_v2_raw_coding_90a379f8813ddcb4",
+      "crk2_v2_raw_coding_776a277933505562",
+      "crk2_v2_raw_coding_49b203bfb7ccf86c"
+    ]
+  },
+  "inputs": {
+    "release": {
+      "path": "pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/release/memcalib_v24_multidomain_benchmark_15000.jsonl",
+      "sha256": "377770f0048114db4cf40e95783f05789f1a024d1e6c90ff77881e170c0e111b",
+      "records": 15000
+    }
+  },
+  "outputs": {
+    "full": {
+      "path": "docs/current/v2.4/samples/memcalib-v24-coding-review-sample-30.full.jsonl",
+      "sha256": "f8758db2cae5d4fc833a86cddb80d06c40f35d598370fbee7d188765ee4ada0e"
+    },
+    "model_facing": {
+      "path": "docs/current/v2.4/samples/memcalib-v24-coding-review-sample-30.model-facing.jsonl",
+      "sha256": "74d6feea7ef56f30baae08d5c1f824a3a9f8d98c8e6ce7d0864fd460633f1827"
+    }
+  }
+}

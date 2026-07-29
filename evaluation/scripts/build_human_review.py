@@ -12,14 +12,14 @@ from evaluation.scripts.prepare_judge_requests import load_answers
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_CONFIG = ROOT / "evaluation" / "configs" / "memcalib-v0.1-500.json"
-DEFAULT_HIDDEN = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "hidden-evaluation.jsonl"
+DEFAULT_CONFIG = ROOT / "evaluation" / "archive" / "configs" / "memcalib-v0.1-500.json"
+DEFAULT_HIDDEN = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-500" / "hidden-evaluation.jsonl"
 DEFAULT_ANSWERS = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "answers"
 DEFAULT_PRIMARY = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "judgments" / "primary.valid.jsonl"
 DEFAULT_SECONDARY = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "judgments" / "secondary.valid.jsonl"
 DEFAULT_RANDOM_IDS = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "requests" / "judges" / "human-random-answer-ids.txt"
-DEFAULT_JSONL = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "human-review-100.jsonl"
-DEFAULT_HTML = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "human-review-100.html"
+DEFAULT_JSONL = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-500" / "human-review-100.jsonl"
+DEFAULT_HTML = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-500" / "human-review-100.html"
 
 
 def _judgment_map(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:

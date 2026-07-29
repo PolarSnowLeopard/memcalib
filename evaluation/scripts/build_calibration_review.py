@@ -16,9 +16,9 @@ from evaluation.scripts.prepare_judge_requests import load_answers, select_strat
 
 ROOT = Path(__file__).resolve().parents[2]
 RUN_ROOT = ROOT / "evaluation" / "runs" / "memcalib-ordered-v2-500" / "calibration"
-RELEASE_ROOT = ROOT / "evaluation" / "releases" / "memcalib-ordered-v2-500"
-DEFAULT_CONFIG = ROOT / "evaluation" / "configs" / "memcalib-ordered-v2-500.json"
-DEFAULT_HIDDEN = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "hidden-evaluation.jsonl"
+RELEASE_ROOT = ROOT / "evaluation" / "archive" / "releases" / "memcalib-ordered-v2-500"
+DEFAULT_CONFIG = ROOT / "evaluation" / "archive" / "configs" / "memcalib-ordered-v2-500.json"
+DEFAULT_HIDDEN = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-500" / "hidden-evaluation.jsonl"
 DEFAULT_ANSWERS = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "answers"
 DEFAULT_PRIMARY = RUN_ROOT / "judgments" / "primary.valid.jsonl"
 DEFAULT_SECONDARY = RUN_ROOT / "judgments" / "secondary.valid.jsonl"

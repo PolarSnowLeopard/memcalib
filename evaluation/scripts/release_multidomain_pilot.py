@@ -14,9 +14,9 @@ from evaluation.common import display_path, iter_jsonl, sha256_file, write_json,
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_PILOT = ROOT / "release" / "memcalib-multidomain-pilot-v0.2" / "data"
-DEFAULT_OUTPUT = ROOT / "evaluation" / "releases" / "memcalib-ordered-v2.1-multidomain-pilot-200"
-DEFAULT_CONFIG = ROOT / "evaluation" / "configs" / "memcalib-ordered-v2.1-multidomain-pilot-200.json"
+DEFAULT_PILOT = ROOT / "release" / "archive" / "memcalib-multidomain-pilot-v0.2" / "data"
+DEFAULT_OUTPUT = ROOT / "evaluation" / "archive" / "releases" / "memcalib-ordered-v2.1-multidomain-pilot-200"
+DEFAULT_CONFIG = ROOT / "evaluation" / "archive" / "configs" / "memcalib-ordered-v2.1-multidomain-pilot-200.json"
 SCHEMA_VERSION = "memcalib-multidomain-evaluation-release-v1"
 
 

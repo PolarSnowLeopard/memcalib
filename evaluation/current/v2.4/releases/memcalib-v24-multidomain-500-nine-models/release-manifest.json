@@ -1,0 +1,149 @@
+{
+  "schema_version": "memcalib-v2-multidomain-sample-release-v1",
+  "release": "memcalib-v24-multidomain-500-nine-models",
+  "status": "internal_diagnostic",
+  "samples": 500,
+  "seed": 20260722,
+  "ordered_id_sha256": "0f167e665807f1ed4bbbb0ab9f9ef11f28fd7cd388edd4be1d67660b8aaba0bf",
+  "sampling": {
+    "method": "exact_v23_sample_id_projection_with_domain_difficulty_validation",
+    "stratify_by": [
+      "domain",
+      "composite_block_revision.difficulty_level",
+      "source_dataset",
+      "source_topic",
+      "v23_independent_qc.decision",
+      "atom_count_bucket"
+    ],
+    "within_cell_order": "prefer_locked_v23_sample_then_stable_seeded_hash"
+  },
+  "preferred_query_id_overlap": {
+    "path": "evaluation/archive/releases/memcalib-v23-multidomain-500-nine-models/sample-ids.txt",
+    "preferred_query_ids": 500,
+    "selected_query_ids": 500,
+    "semantics": "shared query/source identity only; benchmark memory blocks and model-facing rows may differ across versions"
+  },
+  "distribution": {
+    "domains": {
+      "coding": 125,
+      "general": 125,
+      "health_seed": 250
+    },
+    "sources": {
+      "HuggingFaceH4/stack-exchange-preferences": 25,
+      "HuggingFaceH4/ultrachat_200k": 82,
+      "OpenAssistant/oasst1": 15,
+      "OpenAssistant/oasst2": 28,
+      "OpenMed/MedDialog": 129,
+      "codeparrot/apps": 6,
+      "ise-uiuc/Magicoder-OSS-Instruct-75K": 94,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 121
+    },
+    "topics": {
+      "acute_symptoms": 22,
+      "api_library": 30,
+      "cardio": 6,
+      "career_productivity": 4,
+      "chronic_disease": 28,
+      "coding_other": 2,
+      "data_algorithm": 29,
+      "debugging": 27,
+      "digestive": 23,
+      "general_other": 27,
+      "implementation": 20,
+      "learning_explanation": 21,
+      "medication_treatment": 26,
+      "mental_sleep": 10,
+      "neuro": 11,
+      "pediatrics": 29,
+      "planning_advice": 29,
+      "pregnancy_reproductive": 27,
+      "relationships_communication": 11,
+      "respiratory_ent": 24,
+      "skin_allergy": 29,
+      "systems_devops": 9,
+      "testing_quality": 8,
+      "travel_shopping_household": 15,
+      "writing_creative": 33
+    },
+    "release_admission": {
+      "review": 36,
+      "strict_pass": 464
+    },
+    "atom_count_buckets": {
+      "6-7": 27,
+      "8+": 473
+    },
+    "difficulty_levels": {
+      "level_1": 125,
+      "level_2": 250,
+      "level_3": 125
+    },
+    "memory_labels": {
+      "A": 6813,
+      "B": 627,
+      "C": 574
+    }
+  },
+  "source": {
+    "path": "pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/release/memcalib_v24_multidomain_benchmark_15000.jsonl",
+    "rows": 15000,
+    "sha256": "377770f0048114db4cf40e95783f05789f1a024d1e6c90ff77881e170c0e111b"
+  },
+  "config": {
+    "path": "evaluation/current/v2.4/configs/memcalib-v24-multidomain-500-nine-models.json",
+    "sha256": "7003cf81f68b17e2f5b7a13596a3039451983bc8388f9993890eae4d53e9ba33"
+  },
+  "artifacts": {
+    "hidden": {
+      "path": "evaluation/current/v2.4/releases/memcalib-v24-multidomain-500-nine-models/hidden-evaluation.jsonl",
+      "bytes": 67613394,
+      "sha256": "d425c4e0643bd30ee4806ccd8f728f2bacdbea1cb11fd4f7c7bd2bb55644a7fa",
+      "rows": 500
+    },
+    "hidden_gzip": {
+      "path": "evaluation/current/v2.4/releases/memcalib-v24-multidomain-500-nine-models/hidden-evaluation.jsonl.gz",
+      "bytes": 8971813,
+      "sha256": "523376d373bdaa7ccdb79107d8f7f377bb4df0cf7edcee7917831339f3f4ae57"
+    },
+    "model_facing": {
+      "path": "evaluation/current/v2.4/releases/memcalib-v24-multidomain-500-nine-models/model-facing.jsonl",
+      "bytes": 1217581,
+      "sha256": "c8b3345329c0473fd461ad363c8bfc8c54b8b61b2f67afacc4cd630e2ff5e3de",
+      "rows": 500
+    },
+    "model_facing_gzip": {
+      "path": "evaluation/current/v2.4/releases/memcalib-v24-multidomain-500-nine-models/model-facing.jsonl.gz",
+      "bytes": 303856,
+      "sha256": "108b044866ad8876aefbc382034a04d20322d0fa5d671e77d1fa2602a38d45bb"
+    },
+    "sample_ids": {
+      "path": "evaluation/current/v2.4/releases/memcalib-v24-multidomain-500-nine-models/sample-ids.txt",
+      "bytes": 16375,
+      "sha256": "2c0ebdc8005ce5fa69a811b97d39af43f2e238d41535ffef06a5c6ffed356a43",
+      "rows": 500
+    }
+  },
+  "privacy_contract": {
+    "model_facing_fields": [
+      "id",
+      "domain",
+      "panel",
+      "source_dataset",
+      "source_topic",
+      "question",
+      "memory_blocks.parent_memory_id",
+      "memory_blocks.memory_text"
+    ],
+    "hidden_only": [
+      "source_answer",
+      "memories",
+      "usage_rubric",
+      "raw_selection",
+      "semantic_qc",
+      "independent_qc",
+      "revision_release_admission",
+      "release_admission"
+    ]
+  }
+}

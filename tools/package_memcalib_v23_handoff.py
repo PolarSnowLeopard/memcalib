@@ -132,23 +132,51 @@ def build_package(dataset: Path, output_root: Path) -> dict[str, object]:
         (ROOT / "DATA_CARD.md", package_dir / "DATA_CARD.md"),
         (ROOT / "NOTICE.md", package_dir / "NOTICE.md"),
         (
-            ROOT / "docs" / "MEMCALIB_V23_COAUTHOR_HANDOFF.md",
+            ROOT
+            / "docs"
+            / "archive"
+            / "versions"
+            / "v2.3"
+            / "MEMCALIB_V23_COAUTHOR_HANDOFF.md",
             package_dir / "README.md",
         ),
         (
-            ROOT / "docs" / "benchmark-schema-v2.3.md",
+            ROOT
+            / "docs"
+            / "archive"
+            / "versions"
+            / "v2.3"
+            / "benchmark-schema-v2.3.md",
             package_dir / "docs" / "benchmark-schema-v2.3.md",
         ),
         (
-            ROOT / "docs" / "reports" / "memcalib-v23-composite-block-revision.html",
+            ROOT
+            / "docs"
+            / "archive"
+            / "versions"
+            / "v2.3"
+            / "reports"
+            / "memcalib-v23-composite-block-revision.html",
             package_dir / "docs" / "reports" / "memcalib-v23-composite-block-revision.html",
         ),
         (
-            ROOT / "docs" / "reports" / "memcalib-v22-longtail-revision.html",
+            ROOT
+            / "docs"
+            / "archive"
+            / "versions"
+            / "v2.2"
+            / "reports"
+            / "memcalib-v22-longtail-revision.html",
             package_dir / "docs" / "reports" / "memcalib-v22-longtail-revision.html",
         ),
         (
-            ROOT / "docs" / "reports" / "memcalib-v21-dataset-construction-methodology.html",
+            ROOT
+            / "docs"
+            / "archive"
+            / "versions"
+            / "v2.1"
+            / "reports"
+            / "memcalib-v21-dataset-construction-methodology.html",
             package_dir
             / "docs"
             / "reports"

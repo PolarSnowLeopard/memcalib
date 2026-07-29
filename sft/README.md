@@ -1,6 +1,9 @@
 # MemCalib SFT
 
-This directory contains the reproducible MemCalib v2.3 SFT split and target-generation workflow.
+> Historical experiment line: this workflow is tied to MemCalib v2.3 and is
+> not part of the current v2.4 data release or leaderboard.
+
+This directory contains the reproducible MemCalib v2.3 SFT split and target-generation workflow. The corresponding evaluation artifacts are archived under [`evaluation/archive/`](../evaluation/archive/).
 
 The public student input must match evaluation-time input exactly: the answer system prompt, numbered model-facing memory blocks, and the current query. Hidden atomic labels, actions, rubrics, source answers, teacher reasoning, and judge outputs are construction-only artifacts and must never enter the student input.
 

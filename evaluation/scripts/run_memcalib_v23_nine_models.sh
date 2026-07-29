@@ -13,12 +13,12 @@ if [[ -z "${DASHSCOPE_API_KEY:-${BAILIAN_API_KEY:-}}" ]]; then
   exit 1
 fi
 
-CONFIG=${MEMCALIB_CONFIG:-evaluation/configs/memcalib-v23-multidomain-500-nine-models.json}
+CONFIG=${MEMCALIB_CONFIG:-evaluation/archive/configs/memcalib-v23-multidomain-500-nine-models.json}
 BENCHMARK=${MEMCALIB_BENCHMARK:-pipeline/data/multidomain/full-v2/revision-composite-blocks-v23/release/memcalib_v23_multidomain_benchmark_15000.jsonl}
-SAMPLE_RELEASE=${MEMCALIB_SAMPLE_RELEASE:-evaluation/releases/memcalib-v23-multidomain-500-nine-models}
+SAMPLE_RELEASE=${MEMCALIB_SAMPLE_RELEASE:-evaluation/archive/releases/memcalib-v23-multidomain-500-nine-models}
 RELEASE=${MEMCALIB_RELEASE:-$SAMPLE_RELEASE}
 RUN=${MEMCALIB_RUN:-evaluation/runs/memcalib-v23-multidomain-500-nine-models}
-ANALYSIS=${MEMCALIB_ANALYSIS:-evaluation/analyses/memcalib-v23-multidomain-500-nine-models-candidate-metrics}
+ANALYSIS=${MEMCALIB_ANALYSIS:-evaluation/archive/analyses/memcalib-v23-multidomain-500-nine-models-candidate-metrics}
 BAILIAN_ANSWER_THINKING=${BAILIAN_ANSWER_THINKING:-true}
 CODEX_REUSE_ROOT=${CODEX_REUSE_ROOT:-}
 JUDGE_GATE_PATTERN=${JUDGE_GATE_PATTERN:-}

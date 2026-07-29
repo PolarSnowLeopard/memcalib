@@ -129,7 +129,7 @@ Important top-level groups include:
 - deterministic construction QC, independent semantic QC, targeted repair,
   and final release adjudication.
 
-See [the v2.4 benchmark schema](docs/benchmark-schema-v2.4.md) for the detailed
+See [the v2.4 benchmark schema](docs/current/v2.4/benchmark-schema-v2.4.md) for the detailed
 contract.
 
 ## Construction and Quality Control
@@ -184,7 +184,7 @@ Hard A remains a singleton.
    records.
 
 The detailed flow, counts, formulas, and repair boundaries are in the
-[v2.3 construction report](docs/reports/memcalib-v23-composite-block-revision.html).
+[v2.3 construction report](docs/archive/versions/v2.3/reports/memcalib-v23-composite-block-revision.html).
 
 ### v2.4 coding answer-text observability
 
@@ -203,7 +203,7 @@ The detailed flow, counts, formulas, and repair boundaries are in the
 All 3,750 coding questions changed and contain the natural-language-only
 contract. Coding questions and reference answers contain zero code fences. The
 complete protocol and iteration counts are in the
-[v2.4 coding revision report](docs/reports/memcalib-v24-coding-text-observability.md).
+[v2.4 coding revision report](docs/current/v2.4/reports/memcalib-v24-coding-text-observability.md).
 
 ## Intended Uses
 
@@ -254,4 +254,4 @@ version, answer-model snapshot, and judge configuration.
 
 Historical v2.1, v2.2, and v2.3 artifacts remain available for audit but must
 not be combined with v2.4 metrics. The medical-only v0.1 release remains
-archived under `release/memcalib-v0.1/`.
+archived under `release/archive/memcalib-v0.1/`.

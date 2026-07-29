@@ -1121,18 +1121,18 @@ def main() -> None:
         "--nine-model-dir",
         type=Path,
         default=ROOT
-        / "evaluation/analyses/memcalib-v23-sample-level-calibration",
+        / "evaluation/archive/analyses/memcalib-v23-sample-level-calibration",
     )
     parser.add_argument(
         "--base-sft-dir",
         type=Path,
         default=ROOT
-        / "evaluation/analyses/memcalib-v23-sft-base-full-only-paired-sample-level",
+        / "evaluation/archive/analyses/memcalib-v23-sft-base-full-only-paired-sample-level",
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=ROOT / "evaluation/analyses/memcalib-v23-three-layer-metrics",
+        default=ROOT / "evaluation/current/v2.4/analyses/three-layer-metrics",
     )
     parser.add_argument("--bootstrap-replicates", type=int, default=2000)
     args = parser.parse_args()

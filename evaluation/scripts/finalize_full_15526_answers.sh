@@ -5,11 +5,11 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$ROOT"
 : "${PYTHON_BIN:?Set PYTHON_BIN to a non-Conda Python 3.10+ executable}"
 
-CONFIG=evaluation/configs/memcalib-ordered-v2.1-full-15526.json
+CONFIG=evaluation/archive/configs/memcalib-ordered-v2.1-full-15526.json
 ANSWER_RUN=evaluation/runs/memcalib-v0.1-full-15526
-ANSWER_RELEASE=evaluation/releases/memcalib-v0.1-full-15526
+ANSWER_RELEASE=evaluation/archive/releases/memcalib-v0.1-full-15526
 JUDGE_RUN=evaluation/runs/memcalib-ordered-v2.1-full-15526
-JUDGE_RELEASE=evaluation/releases/memcalib-ordered-v2.1-full-15526
+JUDGE_RELEASE=evaluation/archive/releases/memcalib-ordered-v2.1-full-15526
 
 PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/finalize_answer_run.py \
   --config "$CONFIG" \

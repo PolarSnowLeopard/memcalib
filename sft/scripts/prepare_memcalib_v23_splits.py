@@ -18,7 +18,8 @@ DEFAULT_INPUT = (
     / "memcalib_v23_multidomain_benchmark_15000.jsonl"
 )
 DEFAULT_LOCKED_TEST = (
-    ROOT / "evaluation/releases/memcalib-v23-multidomain-500-nine-models/hidden-evaluation.jsonl"
+    ROOT
+    / "evaluation/archive/releases/memcalib-v23-multidomain-500-nine-models/hidden-evaluation.jsonl"
 )
 DEFAULT_OUTPUT = ROOT / "sft/releases/memcalib-v23-sft-12000-1500-1500"
 DEFAULT_SEED = 20260722

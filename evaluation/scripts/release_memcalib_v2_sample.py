@@ -23,8 +23,8 @@ DEFAULT_INPUT = (
     / "full-v2"
     / "memcalib_v02_multidomain_benchmark_15000.jsonl"
 )
-DEFAULT_CONFIG = ROOT / "evaluation" / "configs" / "memcalib-v2-multidomain-500.json"
-DEFAULT_OUTPUT = ROOT / "evaluation" / "releases" / "memcalib-v2-multidomain-500"
+DEFAULT_CONFIG = ROOT / "evaluation" / "archive" / "configs" / "memcalib-v2-multidomain-500.json"
+DEFAULT_OUTPUT = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v2-multidomain-500"
 SCHEMA_VERSION = "memcalib-v2-multidomain-sample-release-v1"
 
 

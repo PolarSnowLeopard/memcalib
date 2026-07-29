@@ -16,9 +16,9 @@ from evaluation.common import iter_jsonl, write_json
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_PRIMARY = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "judgments" / "primary.valid.jsonl"
 DEFAULT_SECONDARY = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "judgments" / "secondary.valid.jsonl"
-DEFAULT_HIDDEN = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "hidden-evaluation.jsonl"
-DEFAULT_METRICS = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "metrics.json"
-DEFAULT_REPORT = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "report.html"
+DEFAULT_HIDDEN = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-500" / "hidden-evaluation.jsonl"
+DEFAULT_METRICS = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-500" / "metrics.json"
+DEFAULT_REPORT = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-500" / "report.html"
 CORRECT_VERDICT = {"A": "correct_suppression", "B": "correct_bounded_use", "C": "correct_control"}
 MODEL_DISPLAY_NAMES = {
     "codex-gpt56-sol": "Codex GPT-5.6 Sol",

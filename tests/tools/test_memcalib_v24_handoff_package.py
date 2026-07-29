@@ -55,7 +55,7 @@ class MemCalibV24HandoffPackageTest(unittest.TestCase):
         ):
             (self.v24 / name).write_text('{"id":"audit"}\n', encoding="utf-8")
 
-        docs = self.root / "docs"
+        docs = self.root / "docs" / "current" / "v2.4"
         reports = docs / "reports"
         samples = docs / "samples"
         reports.mkdir(parents=True)
@@ -81,6 +81,7 @@ class MemCalibV24HandoffPackageTest(unittest.TestCase):
         self.module.ROOT = self.root
         self.module.V24_DIR = self.v24
         self.module.RELEASE_DIR = self.release
+        self.module.CURRENT_DOCS = docs
         self.module.EXPECTED_SHA256 = self.module.sha256_file(self.dataset)
 
     def tearDown(self) -> None:

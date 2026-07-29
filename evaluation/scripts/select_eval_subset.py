@@ -12,10 +12,10 @@ from evaluation.common import display_path, load_release_records, sha256_file, s
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_RELEASE = ROOT / "release" / "memcalib-v0.1"
-DEFAULT_CONFIG = ROOT / "evaluation" / "configs" / "memcalib-v0.1-500.json"
+DEFAULT_RELEASE = ROOT / "release" / "archive" / "memcalib-v0.1"
+DEFAULT_CONFIG = ROOT / "evaluation" / "archive" / "configs" / "memcalib-v0.1-500.json"
 DEFAULT_METADATA = ROOT / "evaluation" / "metadata" / "memcalib-v0.1-seed-complexity.jsonl"
-DEFAULT_OUTPUT = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500"
+DEFAULT_OUTPUT = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-500"
 
 
 def largest_remainder_quotas(counts: dict[str, int], total: int) -> dict[str, int]:

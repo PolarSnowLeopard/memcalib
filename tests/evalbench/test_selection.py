@@ -75,7 +75,7 @@ def synthetic_records() -> list[dict]:
 
 class SelectionTest(unittest.TestCase):
     def test_load_release_records_supports_locked_manifest(self) -> None:
-        release_dir = Path(__file__).resolve().parents[2] / "release" / "memcalib-v0.1"
+        release_dir = Path(__file__).resolve().parents[2] / "release" / "archive" / "memcalib-v0.1"
 
         records, source_sha = load_release_records(release_dir)
 

@@ -13,10 +13,10 @@ if [[ -z "${DASHSCOPE_API_KEY:-${BAILIAN_API_KEY:-}}" ]]; then
   exit 1
 fi
 
-CONFIG=evaluation/configs/memcalib-v21-multidomain-500-thinking-eight-models.json
+CONFIG=evaluation/archive/configs/memcalib-v21-multidomain-500-thinking-eight-models.json
 BENCHMARK=pipeline/data/multidomain/full-v2/revision-composite-harda/release/memcalib_v21_multidomain_benchmark_15000.jsonl
-BASE_SAMPLE_IDS=evaluation/releases/memcalib-v21-multidomain-500-seven-models/sample-ids.txt
-RELEASE=evaluation/releases/memcalib-v21-multidomain-500-thinking-eight-models
+BASE_SAMPLE_IDS=evaluation/archive/releases/memcalib-v21-multidomain-500-seven-models/sample-ids.txt
+RELEASE=evaluation/archive/releases/memcalib-v21-multidomain-500-thinking-eight-models
 RUN=evaluation/runs/memcalib-v21-multidomain-500-thinking-eight-models
 ANSWER_REQ="$RUN/requests/answers"
 ANSWER_OUT="$RUN/answers"

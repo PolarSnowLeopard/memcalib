@@ -13,10 +13,10 @@ if [[ -z "${DASHSCOPE_API_KEY:-${BAILIAN_API_KEY:-}}" ]]; then
   exit 1
 fi
 
-CONFIG=evaluation/configs/memcalib-v23-sft-base-full-only-paired.json
-RELEASE=evaluation/releases/memcalib-v23-sft-base-full-only-paired
+CONFIG=evaluation/archive/configs/memcalib-v23-sft-base-full-only-paired.json
+RELEASE=evaluation/archive/releases/memcalib-v23-sft-base-full-only-paired
 RUN=evaluation/runs/memcalib-v23-sft-base-full-only-paired
-ANALYSIS=evaluation/analyses/memcalib-v23-sft-base-full-only-paired-candidate-metrics
+ANALYSIS=evaluation/archive/analyses/memcalib-v23-sft-base-full-only-paired-candidate-metrics
 JUDGE_REQ="$RUN/requests/judges"
 JUDGE_API="$RUN/api"
 JUDGMENTS="$RUN/judgments"

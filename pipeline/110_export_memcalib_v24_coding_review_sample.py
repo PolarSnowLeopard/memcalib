@@ -17,7 +17,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RELEASE = (
     V24_DIR / "release" / "memcalib_v24_multidomain_benchmark_15000.jsonl"
 )
-SAMPLE_DIR = REPO_ROOT / "docs" / "samples"
+SAMPLE_DIR = REPO_ROOT / "docs" / "current" / "v2.4" / "samples"
 DEFAULT_FULL = SAMPLE_DIR / "memcalib-v24-coding-review-sample-30.full.jsonl"
 DEFAULT_MODEL_FACING = (
     SAMPLE_DIR / "memcalib-v24-coding-review-sample-30.model-facing.jsonl"

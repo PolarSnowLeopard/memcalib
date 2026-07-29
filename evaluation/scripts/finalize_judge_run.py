@@ -12,10 +12,10 @@ from evaluation.common import display_path, iter_jsonl, sha256_file, write_json
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_CONFIG = ROOT / "evaluation" / "configs" / "memcalib-v0.1-500.json"
+DEFAULT_CONFIG = ROOT / "evaluation" / "archive" / "configs" / "memcalib-v0.1-500.json"
 DEFAULT_RUN = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500"
-DEFAULT_REQUEST_MANIFEST = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "judge-request.manifest.json"
-DEFAULT_MANIFEST = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "judge-run.manifest.json"
+DEFAULT_REQUEST_MANIFEST = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-500" / "judge-request.manifest.json"
+DEFAULT_MANIFEST = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-500" / "judge-run.manifest.json"
 
 
 def summarize_judgment_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:

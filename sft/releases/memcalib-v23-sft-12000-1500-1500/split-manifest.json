@@ -7,7 +7,7 @@
     "sha256": "e86d79545b44344b44337d8f9502dc69880daeb18c6513784344e33a06de8773"
   },
   "locked_existing_test": {
-    "path": "evaluation/releases/memcalib-v23-multidomain-500-nine-models/hidden-evaluation.jsonl",
+    "path": "evaluation/archive/releases/memcalib-v23-multidomain-500-nine-models/hidden-evaluation.jsonl",
     "rows": 500,
     "sha256": "6c6dd6e05a731c6aa26d064a8aadbab2c1946f3e4413901e55b289d830999fe2",
     "contained_in_test": true

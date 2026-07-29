@@ -25,8 +25,8 @@ DEFAULT_INPUT = (
     / "release"
     / "memcalib_v22_multidomain_benchmark_15000.jsonl"
 )
-DEFAULT_CONFIG = ROOT / "evaluation" / "configs" / "memcalib-v22-codex-pilot-100.json"
-DEFAULT_OUTPUT = ROOT / "evaluation" / "releases" / "memcalib-v22-codex-pilot-100"
+DEFAULT_CONFIG = ROOT / "evaluation" / "archive" / "configs" / "memcalib-v22-codex-pilot-100.json"
+DEFAULT_OUTPUT = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v22-codex-pilot-100"
 SCHEMA_VERSION = "memcalib-v22-codex-pilot-release-v1"
 BLOCK_BUCKETS = ("3-4", "5-6", "7-10", "11-20")
 

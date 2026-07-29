@@ -9,12 +9,12 @@ set -a
 source .env.local
 set +a
 
-CONFIG=evaluation/configs/memcalib-ordered-v2.1-full-15526.json
+CONFIG=evaluation/archive/configs/memcalib-ordered-v2.1-full-15526.json
 RUN=evaluation/runs/memcalib-ordered-v2.1-full-15526
 REQ="$RUN/requests/judges"
 API="$RUN/api"
 JUD="$RUN/judgments"
-RELEASE=evaluation/releases/memcalib-ordered-v2.1-full-15526
+RELEASE=evaluation/archive/releases/memcalib-ordered-v2.1-full-15526
 mkdir -p "$JUD"
 
 process_group() {
@@ -111,5 +111,5 @@ PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/finalize_judge_run.py \
 
 PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/analyze_evaluation.py \
   --primary "$JUD/primary.valid.jsonl" --secondary "$JUD/secondary.valid.jsonl" \
-  --hidden evaluation/releases/memcalib-v0.1-full-15526/hidden-evaluation.jsonl \
+  --hidden evaluation/archive/releases/memcalib-v0.1-full-15526/hidden-evaluation.jsonl \
   --metrics "$RELEASE/metrics.json" --report "$RELEASE/report.html"

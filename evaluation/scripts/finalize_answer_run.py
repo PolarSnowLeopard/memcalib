@@ -13,10 +13,10 @@ from evaluation.scripts.validate_api_results import validate_results
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_CONFIG = ROOT / "evaluation" / "configs" / "memcalib-v0.1-500.json"
+DEFAULT_CONFIG = ROOT / "evaluation" / "archive" / "configs" / "memcalib-v0.1-500.json"
 DEFAULT_REQUESTS = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "requests" / "answers"
 DEFAULT_RESULTS = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "answers"
-DEFAULT_MANIFEST = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "answer-run.manifest.json"
+DEFAULT_MANIFEST = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-500" / "answer-run.manifest.json"
 CONDITIONS = ("full_memory", "no_memory")
 
 

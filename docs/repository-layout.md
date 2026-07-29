@@ -1,38 +1,48 @@
 # Repository Layout
 
-## `pipeline/`
+## Current v2.4
 
-Executable benchmark-construction stages, prompts, configuration, utilities, and a local `data/` workspace. The `data/` directory is ignored because it can contain raw public datasets, API requests and responses, logs, and multi-gigabyte intermediates.
+| Path | Purpose |
+|---|---|
+| `docs/current/v2.4/` | Current schema, handoff, QC report, and review samples |
+| `evaluation/current/v2.4/` | Current configs, locked evaluation releases, and analyses |
+| `pipeline/current/v2.4/` | Index of active numbered construction stages |
+| `pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/` | Ignored local 15k dataset, API audit, and handoff ZIP |
 
-## Current v2.4 Local Release
+The complete dataset is intentionally local because it is large and contains
+construction intermediates. `tools/package_memcalib_v24_handoff.py` builds the
+deterministic DingTalk-ready coauthor ZIP.
 
-The current 15,000-record v2.4 dataset and large construction artifacts remain
-under ignored `pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/`.
-The DingTalk-ready coauthor ZIP is built there by
-`tools/package_memcalib_v24_handoff.py`. Reproducible code, prompts, tests,
-schemas, reports, and small review samples are tracked in Git.
+## Historical Archive
 
-## `release/memcalib-v0.1/`
+| Path | Purpose |
+|---|---|
+| `docs/archive/versions/` | v2.0-v2.3 reviewer-facing documentation |
+| `docs/archive/construction-designs/` | Early construction proposals |
+| `docs/archive/plans/` | Historical implementation plans |
+| `evaluation/archive/` | v0.1-v2.3 configs, releases, analyses, and cluster notes |
+| `release/archive/` | Early repository-tracked release packages |
+| `pipeline/archive/` | Lineage boundary for numbered stages 00-101 |
 
-This is the historical repository-tracked medical-only release. It contains
-deterministic compressed data shards, a release manifest, a 100-sample review
-subset, self-contained HTML reports, summary statistics, and provenance
-manifests.
+Historical machine manifests retain their creation-time paths. The archive
+move does not rewrite those snapshots or their content hashes.
 
-## `tools/`
+## Stable Executable Interfaces
 
-- `build_release.py`: builds deterministic gzip shards and release metadata from the locked formal JSONL.
-- `verify_release.py`: independently validates hashes, JSON structure, IDs, counts, and reconstructed source bytes.
+`pipeline/` keeps numbered scripts in one flat namespace because stage numbers
+and sibling imports are part of the reproducible command interface. Current
+v2.4 uses stages 102-110; earlier stages remain executable lineage, not current
+review entry points.
 
-## `tests/`
+`evaluation/scripts/`, `evaluation/prompts/`, and `evaluation/templates/` are
+shared executable code. Current shell wrappers target
+`evaluation/current/v2.4/`; historical wrappers target `evaluation/archive/`.
 
-- `tests/pipeline/`: construction-stage unit tests.
-- `tests/tools/`: release packaging and tamper-detection tests.
+## Local Data and Credentials
 
-## `docs/`
+`pipeline/data/`, `evaluation/runs/`, raw source snapshots, API requests,
+responses, logs, and large intermediates are ignored. They are not renamed by
+repository cleanup, so resumability and local audit trails remain intact.
 
-Current benchmark documentation and archived construction-design records. Implementation plans used during development are retained in Git history rather than the reviewer-facing tree.
-
-## Local Data
-
-Raw source snapshots should be placed according to `pipeline/config.json`. The repository never searches user home directories for API keys. API credentials are read only from environment variables at execution time.
+The repository never searches user home directories for API keys. Credentials
+are read only from environment variables at execution time.

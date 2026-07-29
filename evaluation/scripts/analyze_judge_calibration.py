@@ -16,10 +16,10 @@ RUN_ROOT = ROOT / "evaluation" / "runs" / "memcalib-ordered-v2-500" / "calibrati
 DEFAULT_PRIMARY = RUN_ROOT / "judgments" / "primary.valid.jsonl"
 DEFAULT_SECONDARY = RUN_ROOT / "judgments" / "secondary.valid.jsonl"
 DEFAULT_OUTPUT = (
-    ROOT / "evaluation" / "releases" / "memcalib-ordered-v2-500" / "calibration-summary.json"
+    ROOT / "evaluation" / "archive" / "releases" / "memcalib-ordered-v2-500" / "calibration-summary.json"
 )
 DEFAULT_REQUEST_MANIFEST = (
-    ROOT / "evaluation" / "releases" / "memcalib-ordered-v2-500" / "calibration-request.manifest.json"
+    ROOT / "evaluation" / "archive" / "releases" / "memcalib-ordered-v2-500" / "calibration-request.manifest.json"
 )
 
 

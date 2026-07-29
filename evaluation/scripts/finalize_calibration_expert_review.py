@@ -11,11 +11,11 @@ from evaluation.common import iter_jsonl, sha256_file, write_json
 
 
 ROOT = Path(__file__).resolve().parents[2]
-RELEASE = ROOT / "evaluation" / "releases" / "memcalib-ordered-v2-500"
+RELEASE = ROOT / "evaluation" / "archive" / "releases" / "memcalib-ordered-v2-500"
 DEFAULT_RECORDS = RELEASE / "calibration-human-review-30.jsonl"
 DEFAULT_ANNOTATIONS = RELEASE / "calibration-expert-review-30.json"
 DEFAULT_BASE_HTML = RELEASE / "calibration-human-review-30.html"
-DEFAULT_HIDDEN = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "hidden-evaluation.jsonl"
+DEFAULT_HIDDEN = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-500" / "hidden-evaluation.jsonl"
 DEFAULT_SUMMARY = RELEASE / "calibration-expert-review-30.summary.json"
 DEFAULT_HTML = RELEASE / "calibration-expert-review-30.html"
 

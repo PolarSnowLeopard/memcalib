@@ -13,9 +13,9 @@ from evaluation.scripts.prepare_judge_requests import load_answers
 
 
 ROOT = Path(__file__).resolve().parents[2]
-RELEASE = ROOT / "evaluation" / "releases" / "memcalib-ordered-v2.1-multidomain-pilot-200"
+RELEASE = ROOT / "evaluation" / "archive" / "releases" / "memcalib-ordered-v2.1-multidomain-pilot-200"
 RUN = ROOT / "evaluation" / "runs" / "memcalib-ordered-v2.1-multidomain-pilot-200"
-DEFAULT_CONFIG = ROOT / "evaluation" / "configs" / "memcalib-ordered-v2.1-multidomain-pilot-200.json"
+DEFAULT_CONFIG = ROOT / "evaluation" / "archive" / "configs" / "memcalib-ordered-v2.1-multidomain-pilot-200.json"
 DEFAULT_HIDDEN = RELEASE / "hidden-evaluation.jsonl"
 DEFAULT_ANSWERS = RUN / "answers"
 DEFAULT_PRIMARY = RUN / "judgments" / "primary.valid.jsonl"

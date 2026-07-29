@@ -11,7 +11,7 @@ from evaluation.common import iter_jsonl, sha256_file, write_json
 
 
 ROOT = Path(__file__).resolve().parents[2]
-RELEASE = ROOT / "evaluation" / "releases" / "memcalib-ordered-v2.1-multidomain-pilot-200"
+RELEASE = ROOT / "evaluation" / "archive" / "releases" / "memcalib-ordered-v2.1-multidomain-pilot-200"
 DEFAULT_RECORDS = RELEASE / "multidomain-human-review-30.jsonl"
 DEFAULT_ANNOTATIONS = RELEASE / "multidomain-expert-review-30.json"
 DEFAULT_BASE_HTML = RELEASE / "multidomain-human-review-30.html"

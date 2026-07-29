@@ -11,7 +11,7 @@ from evaluation.scripts.postprocess_judgments import extract_json_object
 
 
 ROOT = Path(__file__).resolve().parents[2]
-RELEASE_ROOT = ROOT / "evaluation" / "releases" / "memcalib-ordered-v2-500"
+RELEASE_ROOT = ROOT / "evaluation" / "archive" / "releases" / "memcalib-ordered-v2-500"
 RUN_ROOT = ROOT / "evaluation" / "runs" / "memcalib-ordered-v2-500" / "calibration" / "translation"
 DEFAULT_INPUT = RELEASE_ROOT / "calibration-human-review-30.jsonl"
 DEFAULT_REQUESTS = RUN_ROOT / "requests.zh.jsonl"

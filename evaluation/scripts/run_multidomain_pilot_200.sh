@@ -10,8 +10,8 @@ source .env.local
 set +a
 : "${DASHSCOPE_API_KEY:?DASHSCOPE_API_KEY is missing from .env.local}"
 
-CONFIG=evaluation/configs/memcalib-ordered-v2.1-multidomain-pilot-200.json
-RELEASE=evaluation/releases/memcalib-ordered-v2.1-multidomain-pilot-200
+CONFIG=evaluation/archive/configs/memcalib-ordered-v2.1-multidomain-pilot-200.json
+RELEASE=evaluation/archive/releases/memcalib-ordered-v2.1-multidomain-pilot-200
 RUN=evaluation/runs/memcalib-ordered-v2.1-multidomain-pilot-200
 ANSWER_REQ="$RUN/requests/answers"
 ANSWER_OUT="$RUN/answers"

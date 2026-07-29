@@ -20,7 +20,7 @@ DEFAULT_SECONDARY = (
 )
 DEFAULT_OUTPUT = RUN_ROOT / "calibration" / "requests"
 DEFAULT_MANIFEST = (
-    ROOT / "evaluation" / "releases" / "memcalib-ordered-v2-500" / "calibration-request.manifest.json"
+    ROOT / "evaluation" / "archive" / "releases" / "memcalib-ordered-v2-500" / "calibration-request.manifest.json"
 )
 CONDITIONS = ("full_memory", "no_memory")
 

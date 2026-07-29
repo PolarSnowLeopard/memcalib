@@ -20,6 +20,7 @@ V24_DIR = (
     / "revision-coding-text-observable-v24"
 )
 RELEASE_DIR = V24_DIR / "release"
+CURRENT_DOCS = ROOT / "docs" / "current" / "v2.4"
 DEFAULT_DATASET = RELEASE_DIR / "memcalib_v24_multidomain_benchmark_15000.jsonl"
 DEFAULT_OUTPUT = V24_DIR / "handoff"
 PACKAGE_NAME = "MemCalib-v2.4-coauthor-20260729"
@@ -140,26 +141,22 @@ def build_package(dataset: Path, output_root: Path) -> dict[str, object]:
         (ROOT / "DATA_CARD.md", package_dir / "DATA_CARD.md"),
         (ROOT / "NOTICE.md", package_dir / "NOTICE.md"),
         (
-            ROOT / "docs" / "MEMCALIB_V24_COAUTHOR_HANDOFF.md",
+            CURRENT_DOCS / "MEMCALIB_V24_COAUTHOR_HANDOFF.md",
             package_dir / "README.md",
         ),
         (
-            ROOT / "docs" / "benchmark-schema-v2.4.md",
+            CURRENT_DOCS / "benchmark-schema-v2.4.md",
             package_dir / "docs" / "benchmark-schema-v2.4.md",
         ),
         (
-            ROOT
-            / "docs"
-            / "reports"
-            / "memcalib-v24-coding-text-observability.md",
+            CURRENT_DOCS / "reports" / "memcalib-v24-coding-text-observability.md",
             package_dir
             / "docs"
             / "reports"
             / "memcalib-v24-coding-text-observability.md",
         ),
         (
-            ROOT
-            / "docs"
+            CURRENT_DOCS
             / "samples"
             / "memcalib-v24-coding-review-sample-30.full.jsonl",
             package_dir
@@ -167,8 +164,7 @@ def build_package(dataset: Path, output_root: Path) -> dict[str, object]:
             / "memcalib-v24-coding-review-sample-30.full.jsonl",
         ),
         (
-            ROOT
-            / "docs"
+            CURRENT_DOCS
             / "samples"
             / "memcalib-v24-coding-review-sample-30.model-facing.jsonl",
             package_dir
@@ -176,8 +172,7 @@ def build_package(dataset: Path, output_root: Path) -> dict[str, object]:
             / "memcalib-v24-coding-review-sample-30.model-facing.jsonl",
         ),
         (
-            ROOT
-            / "docs"
+            CURRENT_DOCS
             / "samples"
             / "memcalib-v24-coding-review-sample-30.manifest.json",
             package_dir
@@ -185,8 +180,7 @@ def build_package(dataset: Path, output_root: Path) -> dict[str, object]:
             / "memcalib-v24-coding-review-sample-30.manifest.json",
         ),
         (
-            ROOT
-            / "docs"
+            CURRENT_DOCS
             / "samples"
             / "memcalib-v24-coding-review-sample-30.README.md",
             package_dir / "samples" / "README.md",

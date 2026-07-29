@@ -1,7 +1,7 @@
 # MemCalib Construction Pipeline
 
 This directory contains the reproducible construction stages for MemCalib from
-the v0.1 lineage through the current v2.3 composite-block release. The original
+the v0.1 lineage through the current v2.4 coding text-observability release. The original
 v0.1 source release uses:
 
 - `OpenMed/MedDialog`
@@ -15,13 +15,18 @@ The v0.2 multi-domain construction line additionally uses:
 - `ise-uiuc/Magicoder-OSS-Instruct-75K`
 - `codeparrot/apps`
 
-Raw source files, API requests and responses, logs, and large intermediates stay under `pipeline/data/` and are excluded from Git. The locked review release is under `release/memcalib-v0.1/`.
+Raw source files, API requests and responses, logs, and large intermediates stay under `pipeline/data/` and are excluded from Git. Historical repository-tracked releases are under `release/archive/`.
 
-The current v2.3 method, schema, and coauthor handoff are documented in:
+The current v2.4 method, schema, and coauthor handoff are documented in:
 
-- [`docs/reports/memcalib-v23-composite-block-revision.html`](../docs/reports/memcalib-v23-composite-block-revision.html)
-- [`docs/benchmark-schema-v2.3.md`](../docs/benchmark-schema-v2.3.md)
-- [`docs/MEMCALIB_V23_COAUTHOR_HANDOFF.md`](../docs/MEMCALIB_V23_COAUTHOR_HANDOFF.md)
+- [`pipeline/current/v2.4/`](current/v2.4/)
+- [`docs/current/v2.4/reports/memcalib-v24-coding-text-observability.md`](../docs/current/v2.4/reports/memcalib-v24-coding-text-observability.md)
+- [`docs/current/v2.4/benchmark-schema-v2.4.md`](../docs/current/v2.4/benchmark-schema-v2.4.md)
+- [`docs/current/v2.4/MEMCALIB_V24_COAUTHOR_HANDOFF.md`](../docs/current/v2.4/MEMCALIB_V24_COAUTHOR_HANDOFF.md)
+
+Stages 00-101 remain in the flat executable namespace for reproducibility but
+belong to the archived v0.1-v2.3 lineage. See [`pipeline/archive/`](archive/)
+and [`docs/archive/versions/`](../docs/archive/versions/).
 
 ## Environment
 
@@ -123,11 +128,11 @@ Do not commit credentials or API outputs.
 
 ## Formal Release Lineage
 
-The completed v0.1 construction run admitted 15,577 strict-pass source records and accepted 15,528 final benchmark records. Prompt, configuration, implementation, input, output, and lineage hashes are stored in `release/memcalib-v0.1/provenance/`.
+The completed v0.1 construction run admitted 15,577 strict-pass source records and accepted 15,528 final benchmark records. Prompt, configuration, implementation, input, output, and lineage hashes are stored in `release/archive/memcalib-v0.1/provenance/`.
 
-See [construction-pipeline.md](../docs/construction-pipeline.md) for the research-method summary and [the release guide](../release/memcalib-v0.1/README.md) for the review package.
+See [construction-pipeline.md](../docs/construction-pipeline.md) for the research-method summary and [the release guide](../release/archive/memcalib-v0.1/README.md) for the review package.
 
-The multi-domain pilot and its one-sample-per-page review interfaces are under [`release/memcalib-multidomain-pilot-v0.2/`](../release/memcalib-multidomain-pilot-v0.2/README.md).
+The multi-domain pilot and its one-sample-per-page review interfaces are under [`release/archive/memcalib-multidomain-pilot-v0.2/`](../release/archive/memcalib-multidomain-pilot-v0.2/README.md).
 
 ## Construction Protocol V2 Repair Pilot
 
@@ -151,7 +156,7 @@ $PY pipeline/29_prepare_crk2_v2_generation.py
 
 API construction, deterministic postprocessing, and independent QC are separate stages. Only records that pass script 30 and receive `strict_pass` from the recomputed script-32 decision are eligible for benchmark admission.
 
-The completed 100-record pilot required one targeted construction-repair round: 74 records passed initially and all 26 deterministic rejects passed after repair. Independent QC produced 91 strict passes and 9 rejects after one structural-output retry. The complete review interface and locked result summary are under [`evaluation/releases/memcalib-v0.2-construction-pilot-100/`](../evaluation/releases/memcalib-v0.2-construction-pilot-100/README.md).
+The completed 100-record pilot required one targeted construction-repair round: 74 records passed initially and all 26 deterministic rejects passed after repair. Independent QC produced 91 strict passes and 9 rejects after one structural-output retry. The complete review interface and locked result summary are under [`evaluation/archive/releases/memcalib-v0.2-construction-pilot-100/`](../evaluation/archive/releases/memcalib-v0.2-construction-pilot-100/README.md).
 
 ## Multi-domain Full Construction
 
@@ -216,5 +221,5 @@ The stage groups are:
 The final coding set has 3,750 unique records, 3,750 changed questions, 3,750
 natural-language contracts, and zero code fences in questions or reference
 answers. See
-[`docs/reports/memcalib-v24-coding-text-observability.md`](../docs/reports/memcalib-v24-coding-text-observability.md)
+[`docs/current/v2.4/reports/memcalib-v24-coding-text-observability.md`](../docs/current/v2.4/reports/memcalib-v24-coding-text-observability.md)
 for exact iteration counts and admission accounting.

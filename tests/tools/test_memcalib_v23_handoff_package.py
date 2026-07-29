@@ -44,22 +44,29 @@ class MemCalibV23HandoffPackageTest(unittest.TestCase):
             "<!doctype html><title>review</title>\n", encoding="utf-8"
         )
 
-        docs = self.root / "docs"
-        reports = docs / "reports"
-        reports.mkdir(parents=True)
+        docs = self.root / "docs" / "archive" / "versions"
+        v21_reports = docs / "v2.1" / "reports"
+        v22_reports = docs / "v2.2" / "reports"
+        v23 = docs / "v2.3"
+        v23_reports = v23 / "reports"
+        for reports in (v21_reports, v22_reports, v23_reports):
+            reports.mkdir(parents=True)
         (self.root / "DATA_CARD.md").write_text("# data card\n", encoding="utf-8")
         (self.root / "NOTICE.md").write_text("# notice\n", encoding="utf-8")
-        (docs / "MEMCALIB_V23_COAUTHOR_HANDOFF.md").write_text(
+        (v23 / "MEMCALIB_V23_COAUTHOR_HANDOFF.md").write_text(
             "# handoff\n", encoding="utf-8"
         )
-        (docs / "benchmark-schema-v2.3.md").write_text("# schema\n", encoding="utf-8")
-        for name in (
-            "memcalib-v23-composite-block-revision.html",
-            "memcalib-v22-longtail-revision.html",
-            "memcalib-v21-dataset-construction-methodology.html",
-        ):
-            (reports / name).write_text(
-                f"<!doctype html><title>{name}</title>\n", encoding="utf-8"
+        (v23 / "benchmark-schema-v2.3.md").write_text(
+            "# schema\n", encoding="utf-8"
+        )
+        report_paths = (
+            v23_reports / "memcalib-v23-composite-block-revision.html",
+            v22_reports / "memcalib-v22-longtail-revision.html",
+            v21_reports / "memcalib-v21-dataset-construction-methodology.html",
+        )
+        for path in report_paths:
+            path.write_text(
+                f"<!doctype html><title>{path.name}</title>\n", encoding="utf-8"
             )
 
         self.module = load_script()

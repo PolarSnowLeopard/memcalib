@@ -30,7 +30,13 @@ DEFAULT_OUTPUT = (
     / "revision-composite-harda"
     / "handoff"
 )
-EVALUATION_DIR = ROOT / "evaluation" / "releases" / "memcalib-v21-multidomain-500-seven-models"
+EVALUATION_DIR = (
+    ROOT
+    / "evaluation"
+    / "archive"
+    / "releases"
+    / "memcalib-v21-multidomain-500-seven-models"
+)
 PACKAGE_NAME = "MemCalib-v2.1-coauthor-20260719"
 FIXED_ZIP_TIME = (2026, 7, 19, 0, 0, 0)
 EXPECTED_DATASET_ROWS = 15000
@@ -139,7 +145,7 @@ def build_package(dataset: Path, output_root: Path, *, require_evaluation: bool)
         (ROOT / "DATA_CARD.md", package_dir / "DATA_CARD.md"),
         (ROOT / "NOTICE.md", package_dir / "NOTICE.md"),
         (
-            ROOT / "docs" / "benchmark-schema.md",
+            ROOT / "docs" / "archive" / "versions" / "v2.1" / "benchmark-schema.md",
             package_dir / "docs" / "benchmark-schema.md",
         ),
         (
@@ -147,19 +153,35 @@ def build_package(dataset: Path, output_root: Path, *, require_evaluation: bool)
             package_dir / "docs" / "construction-pipeline.md",
         ),
         (
-            ROOT / "docs" / "evaluation_protocol_v2.1.md",
+            ROOT
+            / "docs"
+            / "archive"
+            / "versions"
+            / "v2.1"
+            / "evaluation_protocol_v2.1.md",
             package_dir / "docs" / "evaluation_protocol_v2.1.md",
         ),
         (
-            ROOT / "evaluation" / "README.md",
+            ROOT / "evaluation" / "archive" / "README.md",
             package_dir / "evaluation" / "README.md",
         ),
         (
-            ROOT / "docs" / "MEMCALIB_V2_COAUTHOR_HANDOFF.md",
+            ROOT
+            / "docs"
+            / "archive"
+            / "versions"
+            / "v2.0"
+            / "MEMCALIB_V2_COAUTHOR_HANDOFF.md",
             package_dir / "README.md",
         ),
         (
-            ROOT / "docs" / "reports" / "memcalib-v21-dataset-construction-methodology.html",
+            ROOT
+            / "docs"
+            / "archive"
+            / "versions"
+            / "v2.1"
+            / "reports"
+            / "memcalib-v21-dataset-construction-methodology.html",
             package_dir
             / "docs"
             / "reports"

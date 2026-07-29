@@ -82,7 +82,7 @@ evaluation/runs/
 sft/runs/
 
 # Full evaluation releases are committed as deterministic gzip packages.
-evaluation/releases/memcalib-v0.1-full-*/hidden-evaluation.jsonl
-evaluation/releases/memcalib-v0.1-full-*/model-facing.jsonl
-evaluation/releases/memcalib-v2-multidomain-500/hidden-evaluation.jsonl
-evaluation/releases/memcalib-v2-multidomain-500/model-facing.jsonl
+evaluation/archive/releases/memcalib-v0.1-full-*/hidden-evaluation.jsonl
+evaluation/archive/releases/memcalib-v0.1-full-*/model-facing.jsonl
+evaluation/archive/releases/memcalib-v2-multidomain-500/hidden-evaluation.jsonl
+evaluation/archive/releases/memcalib-v2-multidomain-500/model-facing.jsonl

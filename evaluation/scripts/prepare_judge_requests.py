@@ -12,12 +12,12 @@ from evaluation.common import display_path, iter_jsonl, sha256_file, stable_hash
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_CONFIG = ROOT / "evaluation" / "configs" / "memcalib-v0.1-500.json"
-DEFAULT_HIDDEN = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "hidden-evaluation.jsonl"
+DEFAULT_CONFIG = ROOT / "evaluation" / "archive" / "configs" / "memcalib-v0.1-500.json"
+DEFAULT_HIDDEN = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-500" / "hidden-evaluation.jsonl"
 DEFAULT_ANSWERS = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "answers"
 DEFAULT_PROMPT = ROOT / "evaluation" / "prompts" / "judge-system.txt"
 DEFAULT_OUTPUT = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "requests" / "judges"
-DEFAULT_MANIFEST = ROOT / "evaluation" / "releases" / "memcalib-v0.1-500" / "judge-request.manifest.json"
+DEFAULT_MANIFEST = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-500" / "judge-request.manifest.json"
 CONDITIONS = ("full_memory", "no_memory")
 
 
