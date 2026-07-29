@@ -6,9 +6,9 @@ MemCalib 用于评测模型在回答新问题时，能否恰当地调节检索�
 
 ## 当前版本
 
-MemCalib v2.3 是当前供论文合作者内部审阅和训练使用的多领域版本。最终发布集包含 15,000 条英文记录，严格按照 health、general、coding 三个领域的预定配额选取；其中 13,923 条为 strict pass，1,077 条为没有硬失败的 review，reject 和 invalid 均未进入发布集。
+MemCalib v2.4 是当前供论文合作者内部审阅和后续评测使用的多领域版本。最终发布集仍为 15,000 条英文记录，严格保持 health、general、coding=7,500/3,750/3,750 的领域配额、记录 ID、顺序、来源、记忆块、隐藏原子、A/B/C 标签和动作。
 
-v2.3 在 v2.2 的 3–20 个模型可见记忆块长尾基础上，进一步把每个块扩展到 1–20 个隐藏原子，并把多原子块统一改写为不显示原子边界的自然段落。全量数据分为三档难度：level 1 / 2 / 3 分别为 3,751 / 7,500 / 3,749 条，并在每个领域内按 25% / 50% / 25% 近似精确分配。canonical Hard A 继续保持独立单原子块；v2.2 的问题、来源、真实原子、A/B/C 标签和动作全部锁定，v2.3 只增加零答案足迹的 `A+ignore` 辅助原子。
+v2.4 在 v2.3 的复合记忆块和隐藏原子长尾基础上，对 **全部 3,750 条 coding 记录**重建问题、自然语言参考答案和原子级 answer-text rubric。coding 不再要求直接输出可执行代码，而是分为实现规划、行为预测和调试诊断三类自然语言任务，从而使 Judge 无需运行代码即可判断记忆是否被正确使用。3,735 条通过独立 QC strict，最后 15 条经逐条人工裁决并保留独立审计；两类准入不会混记。
 
 | 统计项 | 数量 |
 |---|---:|
@@ -21,7 +21,9 @@ v2.3 在 v2.2 的 3–20 个模型可见记忆块长尾基础上，进一步把�
 | 隐藏原子记忆 | 234,221 |
 | 每条记录隐藏原子 | 6–63（均值 15.6147，中位数 14） |
 | A / B / C 原子记忆 | 197,573 / 19,032 / 17,616 |
-| strict / review / reject / invalid | 13,923 / 1,077 / 0 / 0 |
+| v2.4 coding 独立 QC strict / 人工裁决 | 3,735 / 15 |
+| v2.4 coding 实现规划 / 行为预测 / 调试诊断 | 1,879 / 1,141 / 730 |
+| v2.4 coding 问题/参考答案代码围栏 | 0 / 0 |
 | level 1 / 2 / 3 | 3,751 / 7,500 / 3,749 |
 | 五类 Hard A | 各 3,000 |
 | 数据源 | 8 |
@@ -41,7 +43,15 @@ A/B/C 描述的是记忆对当前回答的**使用强度**，并不直接等同�
 
 ## 五分钟快速审阅
 
-v2.3 审阅入口：
+v2.4 审阅入口：
+
+- [v2.4 15,000 条数据交付说明](docs/MEMCALIB_V24_COAUTHOR_HANDOFF.md)
+- [v2.4 数据结构与 coding 文本可观测性约束](docs/benchmark-schema-v2.4.md)
+- [v2.4 全量 3,750 条 coding 迭代与质检报告](docs/reports/memcalib-v24-coding-text-observability.md)
+- [v2.4 30 条 coding 分层审阅样例](docs/samples/memcalib-v24-coding-review-sample-30.README.md)
+- v2.4 模型评测：待在锁定样本上重新生成回答与 Judge 结果；不得复用 v2.3 分数
+
+v2.3 历史审阅入口：
 
 - [v2.3 15,000 条数据交付说明](docs/MEMCALIB_V23_COAUTHOR_HANDOFF.md)
 - [v2.3 数据结构、三档难度与原子长尾约束](docs/benchmark-schema-v2.3.md)
@@ -92,7 +102,8 @@ shasum -a 256 memcalib-v0.1.jsonl
 - [100 条样本审阅页面](release/memcalib-v0.1/review/memcalib-v0.1-audit-100.html)
 - [完整统计分析报告](release/memcalib-v0.1/reports/memcalib-v0.1-statistics.html)
 - [数据卡](DATA_CARD.md)
-- [v2.3 Benchmark 数据结构](docs/benchmark-schema-v2.3.md)
+- [v2.4 Benchmark 数据结构](docs/benchmark-schema-v2.4.md)
+- [v2.3 历史 Benchmark 数据结构](docs/benchmark-schema-v2.3.md)
 - [v2.2 历史 Benchmark 数据结构](docs/benchmark-schema-v2.2.md)
 - [v2.1 历史 Benchmark 数据结构](docs/benchmark-schema.md)
 - [数据构建流程](docs/construction-pipeline.md)
@@ -113,7 +124,7 @@ docs/                     数据结构、方法、数据来源与归档设计文
 
 ## 构建与评测进展
 
-v2.3 继承 v2.2 锁定的 15,000 条来源谱系、问题、真实原子、A/B/C 标签、动作、块数长尾与 canonical Hard A，不重新抽样基础记录。新增阶段先按三档难度为每个非 Hard-A 块分配 1–20 个原子目标，再生成同用户、块内连贯、对当前问题零答案足迹的辅助 `A+ignore` 原子；随后由独立阶段把完整原子集合改写成自然段落，隐藏数字分隔和原子边界。扩展、改写和独立 QC 分别使用独立请求与指纹，失败项只做定向重建或带前后哈希的最小局部修复。完整流程和精确计数见[v2.3 构建报告](docs/reports/memcalib-v23-composite-block-revision.html)；v2.1 基础构建与 v2.2 块数长尾仍分别保留在[基础集方法报告](docs/reports/memcalib-v21-dataset-construction-methodology.html)和[长尾修订报告](docs/reports/memcalib-v22-longtail-revision.html)中。
+v2.4 锁定 v2.3 的 15,000 条记录及全部记忆监督，只改造 coding 的观测接口。完整 3,750 条 coding 均改成自然语言实现规划、行为预测或调试诊断；B/C 原子的最小证据必须逐字出现在参考答案中，A 原子必须保持零答案足迹，问题不得提前给出任何原子的具体值。多轮迭代只重做失败 ID，成功项冻结；最终 3,735 条独立 QC strict 和 15 条单独标记的人工裁决记录按原顺序合并。精确流程见[v2.4 coding 文本可观测性报告](docs/reports/memcalib-v24-coding-text-observability.md)。v2.3 的复合块构建仍见[历史构建报告](docs/reports/memcalib-v23-composite-block-revision.html)。
 
 ### v2.3 九模型同样本评测
 

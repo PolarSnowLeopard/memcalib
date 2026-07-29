@@ -70,6 +70,11 @@ All configured paths are resolved relative to `pipeline/config.json`.
 85 build the exact-quota v2.3 release and review artifact
 86-93 targeted structural retry, merge, and audited metadata completion
 94-101 targeted semantic repair, merge, and audited four-record tail completion
+102-105 prepare, validate, and independently QC the v2.4 coding text rewrite
+106 build and validate the full 15k v2.4 release
+107-108 bounded local repair and explicit manual adjudication of the residual
+109 merge all accepted v2.4 coding rounds with exact 3,750-record coverage
+110 export the deterministic v2.4 coding review sample
 ```
 
 Scripts 01-09 and 13-14 are retained as prototype and calibration lineage. They are not the final v0.1 construction path.
@@ -183,3 +188,33 @@ The locked v2.3 release contains 15,000 records, 74,800 visible blocks, and
 non-blocking review, zero reject, and zero invalid. Large data and API artifacts
 remain under ignored `pipeline/data/`; only code, prompts, tests, and method
 documentation belong in Git.
+
+## Coding Text-Observability Revision V2.4
+
+The v2.4 line keeps the complete v2.3 release selection and all memory
+supervision locked. It revises every one of the 3,750 coding records into one
+of three natural-language task families: implementation planning, behavior
+prediction, or debugging diagnosis. Coding questions prohibit executable code
+and code blocks; coding reference answers and atom rubrics are rebuilt so the
+Judge can decide memory use from answer text without running a program.
+
+The stage groups are:
+
+1. `102-103`: prepare rewrites and apply deterministic structure, fingerprint,
+   evidence-grounding, and no-code validation;
+2. `104-105`: independently verify record coherence, atom-level answer-text
+   observability, and absence of query-value leakage;
+3. `107`: locally reconstruct only the small residual while keeping memory
+   atoms, labels, actions, and blocks locked;
+4. `108`: explicitly adjudicate the final 15 records with separate provenance;
+5. `109`: merge 3,735 independent-QC strict records and 15 manual records into
+   exact source order;
+6. `106`: substitute all 3,750 coding records into the locked 15,000-record
+   sequence and validate the release;
+7. `110`: export a deterministic 30-record coding review sample.
+
+The final coding set has 3,750 unique records, 3,750 changed questions, 3,750
+natural-language contracts, and zero code fences in questions or reference
+answers. See
+[`docs/reports/memcalib-v24-coding-text-observability.md`](../docs/reports/memcalib-v24-coding-text-observability.md)
+for exact iteration counts and admission accounting.

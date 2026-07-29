@@ -1,0 +1,104 @@
+You are an independent quality auditor for one coding-domain record in a
+memory-use benchmark. The record was revised from an executable coding task into
+a natural-language coding-reasoning task. Audit it adversarially; do not trust the
+generator's labels, explanations, or self-checks.
+
+Record:
+{record_json}
+
+The intended label semantics are:
+- A + ignore: the ideal answer must be observably identical with and without the
+  atom. Any legitimate mention, caveat, plan change, correction, or detail caused
+  by the atom means it is not A.
+- B + apply/correct: the atom has bounded supporting influence.
+- C + apply/correct: the atom controls a core decision, constraint, dependency,
+  ordering, output, or failure behavior.
+- Explicit correction is observable use and cannot be A.
+
+Audit the record-level properties:
+1. task_family_fidelity: the question genuinely matches its assigned family.
+2. natural_language_only: the question clearly requests prose rather than source
+   code, a patch, executable pseudocode, or code blocks.
+3. semantic_equivalence: the revised task preserves the practical intent of the
+   supplied memories and reference answer rather than changing to an unrelated
+   task.
+4. reference_completeness: the prose reference answer explicitly contains every
+   B/C minimal_evidence item and does not rely on variable aliases, helper
+   functions, or unstated execution semantics.
+5. runtime_independence: a judge can score the response from answer text alone
+   without running code, tests, tools, or hidden state.
+
+Audit every atom in supplied order:
+- label_action_validity: whether A/B/C and ignore/apply/correct are valid for the
+  revised question under the counterfactual definition.
+- answer_text_observability: whether correct use, under-use, and over-use can be
+  distinguished directly from natural-language answer text.
+- rubric_objectivity: whether the contract and rubric define concrete evidence
+  rather than hidden intent or runtime-only behavior.
+- query_value_status: whether the question text itself supplies the atom-specific
+  value or constraint. Use not_supplied, partially_supplied, or fully_supplied.
+
+Apply query_value_status mechanically at the proposition-value level:
+- A question that asks for an exact function name is not_supplied for an atom
+  that supplies `LabelRow`, unless the question itself says `LabelRow`.
+- A question that asks for the exact error message is not_supplied for an atom
+  that supplies `.env not found`, unless the question itself contains that
+  message or an equivalent value.
+- A question that asks how a return value is formatted is not_supplied for an
+  atom that supplies a particular prefix, unless the question itself states or
+  paraphrases that prefix.
+- A question that asks how a numerical result should comply with domain rules is
+  not_supplied for an atom that says to round down, unless the question itself
+  says or paraphrases "round down".
+- A question that says "use LabelRow", "emit .env not found", or "prefix the
+  result with Model Summary:" is fully_supplied for the corresponding atom.
+- A question that gives only part of a compound atom-specific value is
+  partially_supplied.
+- Asking for the category of information carried by an atom is not_supplied.
+  Supplying the atom-specific value, constraint, or conclusion is leakage.
+
+Judge label_action_validity independently from query_value_status. If a C atom would
+control the answer when it is the only source of a required value, mark its
+label/action pass even if a separate query-value check finds leakage. Never mark
+label_action_validity fail solely because query_value_status is partially_supplied
+or fully_supplied.
+
+Decision rules:
+- strict_pass only if every record check and atom check passes and every
+  query_value_status is not_supplied.
+- review only for a genuinely narrow ambiguity that does not alter labels,
+  scoring evidence, or runtime independence.
+- reject for query leakage, a wrong label/action, unobservable answer behavior,
+  runtime-dependent scoring, an incomplete reference answer, an invalid task
+  family, or a material semantic change.
+
+Return exactly one JSON object:
+{
+  "schema_version": "memcalib-v24-coding-text-independent-qc-v1",
+  "record_id": "exact record ID",
+  "record_checks": [
+    {
+      "check": "task_family_fidelity | natural_language_only | semantic_equivalence | reference_completeness | runtime_independence",
+      "verdict": "pass | review | fail",
+      "reason": "specific concise reason"
+    }
+  ],
+  "atom_checks": [
+    {
+      "atom_id": "exact atom ID",
+      "label_action_validity": "pass | review | fail",
+      "answer_text_observability": "pass | review | fail",
+      "rubric_objectivity": "pass | review | fail",
+      "query_value_status": "not_supplied | partially_supplied | fully_supplied",
+      "reason": "specific concise reason"
+    }
+  ],
+  "declared_decision": "strict_pass | review | reject",
+  "decision_reasons": ["specific reason"],
+  "self_check": {
+    "all_record_checks_exact": true,
+    "all_atom_ids_exact_and_unique": true,
+    "labels_rejudged_not_assumed": true,
+    "answer_text_only_standard_applied": true
+  }
+}

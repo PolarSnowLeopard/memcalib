@@ -1,8 +1,8 @@
-# MemCalib v2.3 Data Card
+# MemCalib v2.4 Data Card
 
 ## Dataset Summary
 
-MemCalib v2.3 is a 15,000-record English dataset for studying calibrated use
+MemCalib v2.4 is a 15,000-record English dataset for studying calibrated use
 of retrieved conversational memory. Each record contains a current question,
 3–20 natural-language memory blocks shown to an answer model, and hidden
 atomic annotations that specify expected influence strength, action, evidence,
@@ -37,13 +37,15 @@ rubrics. Evaluation is performed at atomic granularity.
 | Atoms per record | 6–63 (mean 15.6147, median 14) |
 | Atoms per block | 1–20 |
 | Difficulty level 1 / 2 / 3 | 3,751 / 7,500 / 3,749 |
-| Strict / review / reject / invalid | 13,923 / 1,077 / 0 / 0 |
+| v2.3 block-QC strict / review | 13,923 / 1,077 |
+| v2.4 coding independent-QC strict / manual adjudication | 3,735 / 15 |
 | Upstream datasets | 8 |
 
 The visible-block count retains the v2.2 long-tail distribution. v2.3 adds an
 independent atom-count long tail inside blocks. Every multi-atom block is
 rendered as one natural paragraph without visible numbering or atom-boundary
-markers. The canonical Hard A remains a singleton block.
+markers. The canonical Hard A remains a singleton block. v2.4 keeps those
+memories locked and revises all coding tasks for answer-text observability.
 
 ### Atomic labels and actions
 
@@ -122,16 +124,17 @@ Important top-level groups include:
 - hidden atomic `memories`, including label, action, evidence,
   counterfactual contract, and usage rubric;
 - pairwise atom relations and atom-to-block membership;
-- v2.1 construction, v2.2 block-layout, and v2.3 expansion/rewrite provenance;
+- v2.1 construction, v2.2 block-layout, v2.3 expansion/rewrite provenance, and
+  v2.4 coding text-observability provenance;
 - deterministic construction QC, independent semantic QC, targeted repair,
   and final release adjudication.
 
-See [the v2.3 benchmark schema](docs/benchmark-schema-v2.3.md) for the detailed
+See [the v2.4 benchmark schema](docs/benchmark-schema-v2.4.md) for the detailed
 contract.
 
 ## Construction and Quality Control
 
-The release was produced through four versioned layers.
+The release was produced through five versioned layers.
 
 ### Source-to-benchmark foundation
 
@@ -183,6 +186,25 @@ Hard A remains a singleton.
 The detailed flow, counts, formulas, and repair boundaries are in the
 [v2.3 construction report](docs/reports/memcalib-v23-composite-block-revision.html).
 
+### v2.4 coding answer-text observability
+
+1. retain all 3,750 coding IDs, sources, memory blocks, atoms, labels, and
+   actions;
+2. rewrite every coding question into natural-language implementation
+   planning, behavior prediction, or debugging diagnosis;
+3. rebuild coding reference answers and atom rubrics so every scored behavior
+   is decidable from answer text without program execution;
+4. reject questions that partly or fully reveal any hidden atom value;
+5. retry only failed IDs and freeze successful records;
+6. admit 3,735 independent-QC strict records and separately mark 15
+   record-level manual adjudications;
+7. restore exact v2.3 order and validate the complete 15,000-record release.
+
+All 3,750 coding questions changed and contain the natural-language-only
+contract. Coding questions and reference answers contain zero code fences. The
+complete protocol and iteration counts are in the
+[v2.4 coding revision report](docs/reports/memcalib-v24-coding-text-observability.md).
+
 ## Intended Uses
 
 - evaluating over-use and under-use of conversational memory;
@@ -209,15 +231,19 @@ evaluated.
   health records are conservatively treated as license unknown.
 - Source answers and model-generated annotations may remain inaccurate after
   structural and semantic QC.
-- Independent QC is model-assisted. The 1,077 review records are admitted
-  boundary cases without hard failures, not human-confirmed strict cases.
-- Four residual records received explicit human completion or minimal repair;
-  all changes and before/after hashes are retained, but this does not replace a
-  blinded expert study.
+- Independent QC is model-assisted. The 1,077 v2.3 block-QC review records are
+  admitted boundary cases without hard failures, not human-confirmed strict
+  cases.
+- Four v2.3 residual records and 15 v2.4 coding residual records received
+  explicit human completion or adjudication. All paths are separately marked
+  and audited, but this does not replace a blinded expert study.
 - Only 327 atoms require `correct`, so conclusions about correction behavior
   have wider uncertainty than aggregate A/B/C results.
 - v2.3 increases context complexity synthetically while preserving a fixed set
-  of questions and original scored atoms; it does not evaluate retrieval itself.
+  of questions and original scored atoms; it does not evaluate retrieval
+  itself.
+- v2.4 changes every coding question and rubric. Existing v2.3 model answers,
+  Judge outputs, and scores are not valid v2.4 results and must be regenerated.
 
 ## Maintenance and Versioning
 
@@ -226,6 +252,6 @@ source of truth. Any content change requires a new version and new hashes.
 Evaluations must reference the exact dataset digest, sample manifest, protocol
 version, answer-model snapshot, and judge configuration.
 
-Historical v2.1 and v2.2 artifacts remain available for audit but must not be
-combined with v2.3 metrics. The medical-only v0.1 release remains archived under
-`release/memcalib-v0.1/`.
+Historical v2.1, v2.2, and v2.3 artifacts remain available for audit but must
+not be combined with v2.4 metrics. The medical-only v0.1 release remains
+archived under `release/memcalib-v0.1/`.

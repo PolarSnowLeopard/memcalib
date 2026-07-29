@@ -1,0 +1,125 @@
+You are revising one coding-domain record in a memory-use benchmark. The existing
+task asks for executable code, but the revised task must be judgeable from answer
+text alone. Rewrite the task as a natural-language coding-reasoning question while
+preserving the same practical goal and the same intended A/B/C supervision.
+
+Record ID: {record_id}
+Assigned task family: {task_family}
+
+Original question:
+{original_question}
+
+Original reference answer:
+{original_reference_answer}
+
+Retrieved memory blocks and locked atom supervision:
+{blocks_json}
+
+Prior-attempt feedback:
+{retry_feedback}
+
+If prior-attempt feedback is present, treat every listed issue as a required
+repair. Do not repeat or defend the failed wording. Return a complete replacement
+payload, not a patch.
+
+For retry feedback about query_value_status, query isolation, or leakage:
+- Delete the scored atom's concrete value from the task stem rather than merely
+  paraphrasing it.
+- Replace it with a neutral unresolved slot such as "the project-approved
+  operation", "the required failure response", "the supported environment", or
+  "the relevant compatibility constraint".
+- Do not retain distinctive synonyms, numbers, identifiers, literals, named
+  libraries, algorithms, platforms, or formats that let the answer recover the
+  scored value without using the memory.
+- Read the final task stem against every B/C atom one phrase at a time. If any
+  phrase states all or part of an atom's answer value, rewrite that phrase before
+  producing the JSON.
+
+The atom labels and actions are locked targets for this rewrite:
+- A + ignore: the ideal answer has no observable footprint from the atom.
+- B + apply/correct: the atom has bounded supporting influence.
+- C + apply/correct: the atom controls a core decision, constraint, dependency,
+  ordering, output, or failure behavior.
+- Explicitly correcting a false, stale, unsafe, or incompatible memory is
+  observable use and therefore remains B or C + correct, never A.
+
+Rewrite requirements:
+1. Preserve the original practical coding intent, but do not ask for source code,
+   executable code, a patch, a script, a function body, or a code block.
+2. Follow the assigned task family:
+   - implementation_plan: ask for a natural-language implementation plan.
+   - debugging_diagnosis: describe a plausible flawed approach and ask for a
+     natural-language diagnosis plus corrected behavior.
+   - behavior_prediction: ask for a natural-language explanation of expected
+     behavior, decision points, outputs, and failure paths.
+3. The task stem must not mention memories, retrieval, atoms, labels, rubrics, or
+   benchmark construction. It must not repeat any atom-specific A, B, or C fact.
+   B/C values must remain available only from the memory blocks, while A values
+   must remain absent so that ignoring them is observable.
+   - Remove atom-specific user profile facts, platforms, libraries, function or
+     variable names, numeric quantities, algorithms, configuration keys, output
+     formats, error literals, and operational constraints from the task stem.
+   - The task stem may ask the answer to identify or explain one of those
+     categories, but it must not supply the category's atom-specific value.
+   - For example, ask "which project-approved operation should be used", not
+     "use only basic Python and NumPy"; ask "assess the current include usage",
+     not "assess six include statements"; ask "state the required error
+     message", not "emit .env not found".
+4. The reference answer must be prose, not code or pseudocode syntax. Inline
+   identifiers and exact literals are allowed and encouraged.
+5. The reference answer must directly state every behavior needed to score every
+   B/C atom. A text-only judge must not need to execute code, infer variable
+   aliases, follow helper functions, or inspect hidden state.
+6. For each B/C atom, provide one to three short required_answer_elements. Every
+   element must appear VERBATIM in the reference answer and must be a
+   self-contained natural-language statement or exact externally visible literal.
+7. For each B/C atom, provide one to three overuse_signals describing unsupported
+   answer claims that would exceed that atom's scope.
+8. Do not output footprints for A atoms. Their zero-footprint rubrics are rebuilt
+   deterministically from the locked supervision.
+9. Include every B/C atom exactly once in applicable_atom_footprints. Copy
+   atom_id, u_star, and memory_action exactly. Prefer the supplied block order,
+   but atom_id is the authoritative join key.
+10. After drafting task_stem, check it against every A/B/C atom and remove any
+    atom-specific value or paraphrase. Then audit every B/C atom in
+    query_isolation_audit. query_supplies_atom_value must be false. If it would
+    be true, revise the task stem before returning the JSON.
+11. Do not use Markdown code fences anywhere in the output.
+
+Return exactly one JSON object with this schema:
+{
+  "schema_version": "memcalib-v24-coding-text-rewrite-payload-v1",
+  "record_id": "{record_id}",
+  "task_family": "{task_family}",
+  "task_stem": "the rewritten question before the standardized response contract",
+  "reference_answer": "complete natural-language reference answer containing every required element verbatim",
+  "applicable_atom_footprints": [
+    {
+      "atom_id": "exact B/C atom ID",
+      "u_star": "B or C copied exactly",
+      "memory_action": "apply or correct copied exactly",
+      "required_answer_elements": [
+        "short self-contained text that appears verbatim in reference_answer"
+      ],
+      "overuse_signals": [
+        "short unsupported extension that the answer must avoid"
+      ],
+      "label_justification": "why the locked B/C magnitude remains valid for the rewritten task"
+    }
+  ],
+  "query_isolation_audit": [
+    {
+      "atom_id": "exact B/C atom ID",
+      "query_supplies_atom_value": false,
+      "reason": "why the task asks for but does not state this atom-specific value"
+    }
+  ],
+  "self_check": {
+    "all_applicable_atom_ids_exact": true,
+    "locked_labels_actions_preserved": true,
+    "query_does_not_restate_scored_memories": true,
+    "answer_is_natural_language_only": true,
+    "all_required_evidence_visible_in_reference_answer": true,
+    "no_runtime_execution_needed_to_judge": true
+  }
+}
