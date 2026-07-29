@@ -49,7 +49,9 @@ v2.4 审阅入口：
 - [v2.4 数据结构与 coding 文本可观测性约束](docs/benchmark-schema-v2.4.md)
 - [v2.4 全量 3,750 条 coding 迭代与质检报告](docs/reports/memcalib-v24-coding-text-observability.md)
 - [v2.4 30 条 coding 分层审阅样例](docs/samples/memcalib-v24-coding-review-sample-30.README.md)
-- v2.4 模型评测：待在锁定样本上重新生成回答与 Judge 结果；不得复用 v2.3 分数
+- [v2.4 九模型 494 条完全配对评测](evaluation/releases/memcalib-v24-multidomain-494-nine-models-complete-case/README.md)
+- [v2.4 原子级候选指标与诊断](evaluation/analyses/memcalib-v24-multidomain-494-nine-models-complete-case-candidate-metrics/README.md)
+- [v2.4 三层样本级指标与分布](evaluation/analyses/memcalib-v24-multidomain-494-nine-models-complete-case-sample-level/README.md)
 
 v2.3 历史审阅入口：
 
@@ -125,6 +127,32 @@ docs/                     数据结构、方法、数据来源与归档设计文
 ## 构建与评测进展
 
 v2.4 锁定 v2.3 的 15,000 条记录及全部记忆监督，只改造 coding 的观测接口。完整 3,750 条 coding 均改成自然语言实现规划、行为预测或调试诊断；B/C 原子的最小证据必须逐字出现在参考答案中，A 原子必须保持零答案足迹，问题不得提前给出任何原子的具体值。多轮迭代只重做失败 ID，成功项冻结；最终 3,735 条独立 QC strict 和 15 条单独标记的人工裁决记录按原顺序合并。精确流程见[v2.4 coding 文本可观测性报告](docs/reports/memcalib-v24-coding-text-observability.md)。v2.3 的复合块构建仍见[历史构建报告](docs/reports/memcalib-v23-composite-block-revision.html)。
+
+### v2.4 九模型完全配对评测
+
+v2.4 沿用 v2.3 锁定的 500 个样本 ID，因此 health/general/coding 的原始抽样配额仍为 250/125/125；其中全部 125 条 coding 模型输入均已替换为 v2.4 自然语言任务，不能复用 v2.3 回答或 Judge 结果。八个百炼模型开启 thinking，Codex GPT-5.6 Sol 固定 `reasoning_effort=none`，Judge 全部关闭 thinking。
+
+回答阶段得到 8,994/9,000 条有效结果。唯一缺口是 GLM-5.2 no-memory 的 6 条回答在主轮和三轮定向重试中持续触发长度终止。遵循“不再为极小尾项追加 API”的决定，评测对所有模型和条件统一排除相同 6 个样本，形成 **494 个共同样本 × 9 模型 × 2 条件 = 8,892 条完全配对回答**。这不是只删除 GLM 的缺失行；所有 18 个模型-条件桶使用完全相同的 494 个样本 ID。排除列表、原失败审计和 complete-case manifest 均保留。
+
+主 Judge 完成 8,892/8,892，副 Judge 完成 450/450；24 条主判定和 2 条副判定经过结构定向重试，最终 residual invalid=0。副 Judge 与主 Judge 在 7,554 个双判原子上的有序 exact agreement 为 95.71%，线性加权 κ 为 85.04%。
+
+样本级三层 Full-memory 主结果如下。所有数值均为百分数；SCS 和 Exact 越高越好，其余四个方向/事件错误率越低越好。
+
+| 模型 | SCS↑ | sOPB↓ | sUPB↓ | Any-OPB↓ | Any-UPB↓ | Exact↑ |
+|---|---:|---:|---:|---:|---:|---:|
+| Codex GPT-5.6 Sol | **39.8%** | **38.5%** | 33.7% | **52.6%** | 51.4% | **21.9%** |
+| Kimi-K2.6 | 32.3% | 53.3% | 28.9% | 67.0% | 44.1% | 18.0% |
+| Qwen3-8B | 30.4% | 47.0% | 39.6% | 59.9% | 59.3% | 15.0% |
+| DeepSeek-V4-Flash | 28.6% | 60.9% | 24.9% | 75.9% | 39.9% | 14.2% |
+| Qwen3.6-Flash | 27.9% | 60.9% | 27.0% | 74.5% | 42.3% | 15.4% |
+| GLM-5.2 | 25.9% | 64.7% | 22.2% | 78.1% | 36.4% | 11.7% |
+| DeepSeek-V4-Pro | 24.4% | 67.8% | 20.9% | 81.4% | 33.4% | 11.7% |
+| Qwen3.5-35B-A3B | 21.0% | 70.0% | 26.1% | 84.4% | 41.1% | 8.5% |
+| Qwen3.7-Max | 20.7% | 71.8% | **19.9%** | 86.0% | **32.4%** | 6.7% |
+
+该表显示原子宏平均 H 与样本级主指标会给出不同排序：Qwen3.7-Max 的原子宏平均 H 最高（84.9%），但错误广泛分布在样本中，SCS 仅 20.7%、Any-OPB 为 86.0%；Codex 的原子宏平均 H 为 79.2%，但样本级 SCS、Exact 和尾部 CVaR90 最优。正式报告因此继续采用“三层样本级主报告 + 原子级诊断”，不以 H 单独概括模型能力。
+
+完整结果见[评测发布说明](evaluation/releases/memcalib-v24-multidomain-494-nine-models-complete-case/README.md)、[候选指标研究](evaluation/analyses/memcalib-v24-multidomain-494-nine-models-complete-case-candidate-metrics/README.md)、[样本级分布](evaluation/analyses/memcalib-v24-multidomain-494-nine-models-complete-case-sample-level/README.md)和[诊断图](evaluation/analyses/memcalib-v24-multidomain-494-nine-models-complete-case-candidate-metrics/candidate-metric-diagnostics.html)。
 
 ### v2.3 九模型同样本评测
 

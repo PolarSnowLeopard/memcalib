@@ -1,6 +1,19 @@
 # MemCalib evaluation
 
-本目录保存 MemCalib 的锁定评测样本、配置、聚合指标、可视化报告和可复现分析工具。当前主要入口是 MemCalib v2.3 同一批 500 条样本上的九模型思考评测与非思考对照；v2.1 同样本实验、v2.2 的 100 条 Codex answer-only pilot、v2.0、v0.1 和早期 Judge 校准均作为历史结果保留。
+本目录保存 MemCalib 的锁定评测样本、配置、聚合指标、可视化报告和可复现分析工具。当前主要入口是 MemCalib v2.4 在 494 条完全配对样本上的九模型评测；v2.3 的 500 条思考/非思考对照、v2.1 同样本实验、v2.2 的 100 条 Codex answer-only pilot、v2.0、v0.1 和早期 Judge 校准均作为历史结果保留。
+
+## v2.4 九模型 494 条完全配对评测
+
+v2.4 将锁定 500 条中的全部 125 条 coding 任务替换为自然语言实现规划、行为预测或调试诊断；health 和 general 模型输入保持不变。八个百炼回答模型开启 thinking，Codex GPT-5.6 Sol 使用 `reasoning_effort=none`，主/副 Judge 关闭 thinking。全部回答和 Judge 结果均重新生成，未复用 v2.3 分数。
+
+原始 9,000 个回答请求完成 8,994 个。GLM-5.2 no-memory 有 6 条在 8k、16k、32k 和最终 32k 定向轮次中持续长度终止。为保持模型间严格可比，同时遵循不再追加极小尾项 API 的决定，最终评测取所有 18 个模型-条件桶的共同样本交集：每桶 494 条，共 8,892 条回答。六条排除 ID 和逐轮失败均保留审计，不做插补。
+
+主 Judge 8,892/8,892、副 Judge 450/450；结构重试后 residual invalid=0。样本级主报告采用 SCS、sOPB/sUPB 和 Any-OPB/Any-UPB 三层口径；原子宏平均 H、MinCalib、MCC、Kappa、CVaR、PMU、Rasch、pairwise 和 Pareto 作为诊断保留。
+
+- [v2.4 complete-case release](releases/memcalib-v24-multidomain-494-nine-models-complete-case/README.md)
+- [v2.4 candidate metrics](analyses/memcalib-v24-multidomain-494-nine-models-complete-case-candidate-metrics/README.md)
+- [v2.4 sample-level three-layer metrics](analyses/memcalib-v24-multidomain-494-nine-models-complete-case-sample-level/README.md)
+- [v2.4 candidate metric diagnostics](analyses/memcalib-v24-multidomain-494-nine-models-complete-case-candidate-metrics/candidate-metric-diagnostics.html)
 
 ## v2.3 九模型思考与非思考对照
 

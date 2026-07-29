@@ -217,13 +217,52 @@ SHA-256 is:
 377770f0048114db4cf40e95783f05789f1a024d1e6c90ff77881e170c0e111b
 ```
 
-## 10. Interpretation and Remaining Evaluation Work
+## 10. Locked-Sample Evaluation
 
 v2.4 improves **measurement validity** for coding. It does not by itself prove
 that the benchmark is harder or that model rankings will change. Existing v2.3
-coding answers and Judge outputs are not directly reusable because the coding
-questions, reference answers, and rubrics changed. A v2.4 comparison must lock a
-new sample and regenerate both model answers and Judge decisions.
+coding answers and Judge outputs were not reused because the coding questions,
+reference answers, and rubrics changed.
+
+The evaluation projected the exact v2.3 locked 500 IDs onto v2.4. All 125 coding
+rows in that sample therefore use the revised natural-language interface, while
+the 375 health/general rows remain model-facing controls. Eight Bailian models
+used thinking mode; Codex GPT-5.6 Sol used reasoning effort `none`; all Judges
+used non-thinking generation.
+
+Of 9,000 requested answers, 8,994 completed. Six GLM-5.2 no-memory answers
+continued to terminate for output length after the main call and three targeted
+retry rounds. No additional API round was launched. Instead, the same six
+sample IDs were excluded from every model-condition cell, producing a strict
+complete-case design:
+
+```text
+locked parent sample = 500
+globally excluded samples = 6
+common samples per model-condition cell = 494
+model-condition cells = 9 x 2 = 18
+formal answers = 494 x 18 = 8,892
+```
+
+The primary Judge completed 8,892 decisions and the secondary panel completed
+450. Targeted structural retries reduced residual invalid judgments to zero.
+The secondary panel's ordered exact agreement was 95.71%, with linear weighted
+kappa 0.8504.
+
+The sample-level results show that the revision is not trivially solved. Exact
+all-atom accuracy ranges from 6.7% to 21.9%, and SCS(0.5) ranges from 20.7% to
+39.8%. Atomic macro H gives a different ranking because it gives each atom
+weight independently. The release therefore reports:
+
+1. SCS(0.5) as the overall sample-level primary metric;
+2. sOPB/sUPB(0.5) as directional primary metrics;
+3. Any-OPB/Any-UPB as event-rate guardrails;
+4. atomic H, MinCalib, MCC, Kappa, CVaR, PMU, Rasch, pairwise, and Pareto as
+   diagnostics.
+
+Complete results are in
+[`evaluation/releases/memcalib-v24-multidomain-494-nine-models-complete-case`](../../evaluation/releases/memcalib-v24-multidomain-494-nine-models-complete-case/)
+and the corresponding candidate- and sample-level analysis directories.
 
 The machine-readable release statistics, 30-record review sample, complete
 merge audit, and 15-record manual-adjudication audit are retained alongside the

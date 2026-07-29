@@ -364,6 +364,14 @@ def fmt(value: float) -> str:
     return f"{value:.3f}"
 
 
+def fmt_pct(value: float) -> str:
+    return f"{100 * value:.1f}%"
+
+
+def fmt_pp(value: float) -> str:
+    return f"{100 * value:+.1f} pp"
+
+
 def markdown_table(headers: list[str], rows: list[list[str]]) -> str:
     lines = [
         "| " + " | ".join(headers) + " |",
@@ -373,9 +381,9 @@ def markdown_table(headers: list[str], rows: list[list[str]]) -> str:
     return "\n".join(lines)
 
 
-def render_readme(analysis: dict[str, Any]) -> str:
+def render_readme(analysis: dict[str, Any], *, study_title: str) -> str:
     sections = [
-        "# MemCalib v2.3 three-layer sample-level metrics",
+        f"# {study_title}",
         "",
         "This analysis reuses the completed primary-Judge outputs. It makes no new model or Judge calls.",
         "The public evaluation uses three complementary layers at the answer-sample level:",
@@ -408,14 +416,14 @@ def render_readme(analysis: dict[str, Any]) -> str:
             rows.append(
                 [
                     models[model]["display_name"],
-                    fmt(values["scs"]["0.5"]["mean"]),
-                    fmt(directional["opb"]),
-                    fmt(directional["upb"]),
-                    fmt(directional["harmonic"]),
-                    fmt(event["opb"]),
-                    fmt(event["upb"]),
-                    fmt(event["harmonic"]),
-                    fmt(values["sample_exact_accuracy"]),
+                    fmt_pct(values["scs"]["0.5"]["mean"]),
+                    fmt_pct(directional["opb"]),
+                    fmt_pct(directional["upb"]),
+                    fmt_pct(directional["harmonic"]),
+                    fmt_pct(event["opb"]),
+                    fmt_pct(event["upb"]),
+                    fmt_pct(event["harmonic"]),
+                    fmt_pct(values["sample_exact_accuracy"]),
                 ]
             )
         sections.extend(
@@ -449,23 +457,23 @@ def render_readme(analysis: dict[str, Any]) -> str:
             bootstrap_rows.append(
                 [
                     models[model]["display_name"],
-                    f"[{fmt(intervals['scs']['ci_low'])}, {fmt(intervals['scs']['ci_high'])}]",
-                    f"[{fmt(intervals['directional_opb']['ci_low'])}, {fmt(intervals['directional_opb']['ci_high'])}]",
-                    f"[{fmt(intervals['directional_upb']['ci_low'])}, {fmt(intervals['directional_upb']['ci_high'])}]",
-                    f"[{fmt(intervals['any_opb']['ci_low'])}, {fmt(intervals['any_opb']['ci_high'])}]",
-                    f"[{fmt(intervals['any_upb']['ci_low'])}, {fmt(intervals['any_upb']['ci_high'])}]",
+                    f"[{fmt_pct(intervals['scs']['ci_low'])}, {fmt_pct(intervals['scs']['ci_high'])}]",
+                    f"[{fmt_pct(intervals['directional_opb']['ci_low'])}, {fmt_pct(intervals['directional_opb']['ci_high'])}]",
+                    f"[{fmt_pct(intervals['directional_upb']['ci_low'])}, {fmt_pct(intervals['directional_upb']['ci_high'])}]",
+                    f"[{fmt_pct(intervals['any_opb']['ci_low'])}, {fmt_pct(intervals['any_opb']['ci_high'])}]",
+                    f"[{fmt_pct(intervals['any_upb']['ci_low'])}, {fmt_pct(intervals['any_upb']['ci_high'])}]",
                 ]
             )
             budget_rows.append(
                 [
                     models[model]["display_name"],
                     fmt(values["mean_total_budget"]),
-                    fmt(dist["0"]["share"]),
-                    fmt(dist["1"]["share"]),
-                    fmt(dist["2"]["share"]),
-                    fmt(dist["3"]["share"]),
-                    fmt(dist["4"]["share"]),
-                    fmt(dist["5_plus"]["share"]),
+                    fmt_pct(dist["0"]["share"]),
+                    fmt_pct(dist["1"]["share"]),
+                    fmt_pct(dist["2"]["share"]),
+                    fmt_pct(dist["3"]["share"]),
+                    fmt_pct(dist["4"]["share"]),
+                    fmt_pct(dist["5_plus"]["share"]),
                 ]
             )
         sections.extend(
@@ -500,10 +508,10 @@ def render_readme(analysis: dict[str, Any]) -> str:
             sensitivity_rows.append(
                 [
                     models[model]["display_name"],
-                    fmt(values["scs"]["0.25"]["mean"]),
-                    fmt(values["scs"]["0.5"]["mean"]),
-                    fmt(values["scs"]["0.75"]["mean"]),
-                    f"[{fmt(values['scs']['0.5']['p10'])}, {fmt(values['scs']['0.5']['p90'])}]",
+                    fmt_pct(values["scs"]["0.25"]["mean"]),
+                    fmt_pct(values["scs"]["0.5"]["mean"]),
+                    fmt_pct(values["scs"]["0.75"]["mean"]),
+                    f"[{fmt_pct(values['scs']['0.5']['p10'])}, {fmt_pct(values['scs']['0.5']['p90'])}]",
                 ]
             )
         sections.extend(
@@ -524,9 +532,9 @@ def render_readme(analysis: dict[str, Any]) -> str:
             difficulty_rows.append(
                 [
                     models[model]["display_name"],
-                    fmt(by_level["level_1"]["scs"]["0.5"]["mean"]),
-                    fmt(by_level["level_2"]["scs"]["0.5"]["mean"]),
-                    fmt(by_level["level_3"]["scs"]["0.5"]["mean"]),
+                    fmt_pct(by_level["level_1"]["scs"]["0.5"]["mean"]),
+                    fmt_pct(by_level["level_2"]["scs"]["0.5"]["mean"]),
+                    fmt_pct(by_level["level_3"]["scs"]["0.5"]["mean"]),
                 ]
             )
         sections.extend(
@@ -554,14 +562,29 @@ def render_readme(analysis: dict[str, Any]) -> str:
             comparison_rows.append(
                 [
                     thinking[model]["display_name"],
-                    fmt(non_scs),
-                    fmt(think_scs),
-                    f"{think_scs - non_scs:+.3f}",
-                    f"{think['directional_risk']['0.5']['opb'] - non['directional_risk']['0.5']['opb']:+.3f}",
-                    f"{think['directional_risk']['0.5']['upb'] - non['directional_risk']['0.5']['upb']:+.3f}",
-                    f"{think['event_guardrail']['opb'] - non['event_guardrail']['opb']:+.3f}",
-                    f"{think['event_guardrail']['upb'] - non['event_guardrail']['upb']:+.3f}",
-                    f"{think['sample_exact_accuracy'] - non['sample_exact_accuracy']:+.3f}",
+                    fmt_pct(non_scs),
+                    fmt_pct(think_scs),
+                    fmt_pp(think_scs - non_scs),
+                    fmt_pp(
+                        think["directional_risk"]["0.5"]["opb"]
+                        - non["directional_risk"]["0.5"]["opb"]
+                    ),
+                    fmt_pp(
+                        think["directional_risk"]["0.5"]["upb"]
+                        - non["directional_risk"]["0.5"]["upb"]
+                    ),
+                    fmt_pp(
+                        think["event_guardrail"]["opb"]
+                        - non["event_guardrail"]["opb"]
+                    ),
+                    fmt_pp(
+                        think["event_guardrail"]["upb"]
+                        - non["event_guardrail"]["upb"]
+                    ),
+                    fmt_pp(
+                        think["sample_exact_accuracy"]
+                        - non["sample_exact_accuracy"]
+                    ),
                 ]
             )
         sections.extend(
@@ -627,7 +650,7 @@ def html_table(headers: list[str], rows: list[list[str]]) -> str:
     return f"<table><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table>"
 
 
-def render_html(analysis: dict[str, Any]) -> str:
+def render_html(analysis: dict[str, Any], *, study_title: str) -> str:
     colors = {
         "0": "#1b7f5a",
         "1": "#70a36b",
@@ -658,19 +681,19 @@ def render_html(analysis: dict[str, Any]) -> str:
             )
             bars.append(
                 f'<div class="bar-row"><strong>{html.escape(models[model]["display_name"])}</strong>'
-                f'<div class="bar">{segments}</div><b>{overall["scs"]["0.5"]["mean"]:.3f}</b></div>'
+                f'<div class="bar">{segments}</div><b>{fmt_pct(overall["scs"]["0.5"]["mean"])}</b></div>'
             )
             table_rows.append(
                 [
                     models[model]["display_name"],
-                    fmt(overall["scs"]["0.5"]["mean"]),
-                    fmt(overall["directional_risk"]["0.5"]["opb"]),
-                    fmt(overall["directional_risk"]["0.5"]["upb"]),
-                    fmt(overall["directional_risk"]["0.5"]["harmonic"]),
-                    fmt(overall["event_guardrail"]["opb"]),
-                    fmt(overall["event_guardrail"]["upb"]),
-                    fmt(overall["event_guardrail"]["harmonic"]),
-                    fmt(overall["sample_exact_accuracy"]),
+                    fmt_pct(overall["scs"]["0.5"]["mean"]),
+                    fmt_pct(overall["directional_risk"]["0.5"]["opb"]),
+                    fmt_pct(overall["directional_risk"]["0.5"]["upb"]),
+                    fmt_pct(overall["directional_risk"]["0.5"]["harmonic"]),
+                    fmt_pct(overall["event_guardrail"]["opb"]),
+                    fmt_pct(overall["event_guardrail"]["upb"]),
+                    fmt_pct(overall["event_guardrail"]["harmonic"]),
+                    fmt_pct(overall["sample_exact_accuracy"]),
                 ]
             )
         content.append(
@@ -697,9 +720,10 @@ def render_html(analysis: dict[str, Any]) -> str:
             )
             + "</section>"
         )
+    escaped_title = html.escape(study_title)
     return """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MemCalib v2.3 sample-level score distributions</title>
+<title>""" + escaped_title + """</title>
 <style>
 :root{--ink:#15202b;--muted:#5c6875;--line:#d8dee5;--paper:#f5f7f8;--panel:#fff}
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 Arial,sans-serif}
@@ -711,7 +735,7 @@ p{color:var(--muted);max-width:900px}section{background:var(--panel);border:1px 
 .bar-row strong{font-size:13px}.bar-row b{text-align:right;font-variant-numeric:tabular-nums}.bar{height:22px;display:flex;overflow:hidden;border-radius:3px;background:#edf0f2}.bar span{height:100%;display:block}
 table{width:100%;border-collapse:collapse;margin-top:24px;font-size:13px}th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}th:first-child,td:first-child{text-align:left}
 @media(max-width:700px){.bar-row{grid-template-columns:125px minmax(120px,1fr) 46px}header,main{padding:16px}section{padding:16px;overflow-x:auto}}
-</style></head><body><header><h1>MemCalib v2.3 sample-level score distributions</h1>
+</style></head><body><header><h1>""" + escaped_title + """</h1>
 <p>Existing primary-Judge outputs only. Overall SCS, exponential directional OPB/UPB, and Any-event guardrails are all averaged with equal sample weight.</p>
 </header><main>""" + "".join(content) + "</main></body></html>"
 
@@ -740,6 +764,10 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--rhos", nargs="+", type=float, default=[0.25, 0.5, 0.75])
     parser.add_argument("--bootstrap-replicates", type=int, default=2000)
+    parser.add_argument(
+        "--study-title",
+        default="MemCalib v2.3 three-layer sample-level metrics",
+    )
     args = parser.parse_args()
     rhos = tuple(sorted(set(args.rhos)))
     if not rhos or any(not 0 < rho < 1 for rho in rhos) or 0.5 not in rhos:
@@ -795,8 +823,14 @@ def main() -> None:
         writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(sample_rows)
-    readme_path.write_text(render_readme(analysis), encoding="utf-8")
-    html_path.write_text(render_html(analysis), encoding="utf-8")
+    readme_path.write_text(
+        render_readme(analysis, study_title=args.study_title),
+        encoding="utf-8",
+    )
+    html_path.write_text(
+        render_html(analysis, study_title=args.study_title),
+        encoding="utf-8",
+    )
     output_files = [metrics_path, scores_path, readme_path, html_path]
     manifest = {
         "schema_version": "memcalib-sample-level-calibration-manifest-v2",

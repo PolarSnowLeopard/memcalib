@@ -14,7 +14,7 @@ if [[ -z "${DASHSCOPE_API_KEY:-${BAILIAN_API_KEY:-}}" ]]; then
 fi
 
 CONFIG=${MEMCALIB_CONFIG:-evaluation/configs/memcalib-v23-multidomain-500-nine-models.json}
-BENCHMARK=pipeline/data/multidomain/full-v2/revision-composite-blocks-v23/release/memcalib_v23_multidomain_benchmark_15000.jsonl
+BENCHMARK=${MEMCALIB_BENCHMARK:-pipeline/data/multidomain/full-v2/revision-composite-blocks-v23/release/memcalib_v23_multidomain_benchmark_15000.jsonl}
 SAMPLE_RELEASE=${MEMCALIB_SAMPLE_RELEASE:-evaluation/releases/memcalib-v23-multidomain-500-nine-models}
 RELEASE=${MEMCALIB_RELEASE:-$SAMPLE_RELEASE}
 RUN=${MEMCALIB_RUN:-evaluation/runs/memcalib-v23-multidomain-500-nine-models}
@@ -24,6 +24,8 @@ CODEX_REUSE_ROOT=${CODEX_REUSE_ROOT:-}
 JUDGE_GATE_PATTERN=${JUDGE_GATE_PATTERN:-}
 ANSWER_REQ="$RUN/requests/answers"
 ANSWER_OUT="$RUN/answers"
+ANSWER_REQ=${MEMCALIB_ANSWER_REQ:-$ANSWER_REQ}
+ANSWER_OUT=${MEMCALIB_ANSWER_OUT:-$ANSWER_OUT}
 JUDGE_REQ="$RUN/requests/judges"
 JUDGE_API="$RUN/api"
 JUDGMENTS="$RUN/judgments"
@@ -247,29 +249,33 @@ if [[ "${SKIP_SAMPLE_RELEASE:-false}" != "true" ]]; then
   PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/release_memcalib_v2_sample.py \
     --input "$BENCHMARK" --config "$CONFIG" --output-dir "$SAMPLE_RELEASE"
 fi
-PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/prepare_answer_requests.py \
-  --config "$CONFIG" --input "$SAMPLE_RELEASE/model-facing.jsonl" \
-  --output-dir "$ANSWER_REQ" --manifest "$RELEASE/answer-request.manifest.json" \
-  --conditions full_memory no_memory
+if [[ "${SKIP_ANSWER_REQUEST_PREP:-false}" != "true" ]]; then
+  PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/prepare_answer_requests.py \
+    --config "$CONFIG" --input "$SAMPLE_RELEASE/model-facing.jsonl" \
+    --output-dir "$ANSWER_REQ" --manifest "$RELEASE/answer-request.manifest.json" \
+    --conditions full_memory no_memory
+fi
 
 phase answer_generation
-run_answer_model qwen-max qwen3.7-max 120 300 & p1=$!
-run_answer_model qwen-flash qwen3.6-flash 120 300 & p2=$!
-run_answer_model deepseek deepseek-v4-pro 120 240 & p3=$!
-run_answer_model deepseek-flash deepseek-v4-flash 120 300 & p4=$!
-run_answer_model kimi kimi-k2.6 120 240 & p5=$!
-run_answer_model qwen35-35b-a3b qwen3.5-35b-a3b 120 90 & p6=$!
-run_answer_model qwen3-8b qwen3-8b 120 90 & p7=$!
-run_answer_model glm52 glm-5.2 120 90 & p8=$!
-run_codex_condition full_memory & p9=$!
-run_codex_condition no_memory & p10=$!
-answer_code=0
-for pid in "$p1" "$p2" "$p3" "$p4" "$p5" "$p6" "$p7" "$p8" "$p9" "$p10"; do
-  wait "$pid" || answer_code=1
-done
-if [[ "$answer_code" -ne 0 ]]; then
-  phase answer_generation_failed
-  exit 1
+if [[ "${SKIP_ANSWER_GENERATION:-false}" != "true" ]]; then
+  run_answer_model qwen-max qwen3.7-max 120 300 & p1=$!
+  run_answer_model qwen-flash qwen3.6-flash 120 300 & p2=$!
+  run_answer_model deepseek deepseek-v4-pro 120 240 & p3=$!
+  run_answer_model deepseek-flash deepseek-v4-flash 120 300 & p4=$!
+  run_answer_model kimi kimi-k2.6 120 240 & p5=$!
+  run_answer_model qwen35-35b-a3b qwen3.5-35b-a3b 120 90 & p6=$!
+  run_answer_model qwen3-8b qwen3-8b 120 90 & p7=$!
+  run_answer_model glm52 glm-5.2 120 90 & p8=$!
+  run_codex_condition full_memory & p9=$!
+  run_codex_condition no_memory & p10=$!
+  answer_code=0
+  for pid in "$p1" "$p2" "$p3" "$p4" "$p5" "$p6" "$p7" "$p8" "$p9" "$p10"; do
+    wait "$pid" || answer_code=1
+  done
+  if [[ "$answer_code" -ne 0 ]]; then
+    phase answer_generation_failed
+    exit 1
+  fi
 fi
 
 phase answer_validation_and_judge_requests

@@ -1,0 +1,248 @@
+{
+  "schema_version": "memcalib-answer-requests-v1",
+  "samples": 500,
+  "formal_requests": 9000,
+  "smoke_requests": 36,
+  "models": [
+    {
+      "key": "qwen-max",
+      "model": "qwen3.7-max",
+      "answer_mode": "thinking"
+    },
+    {
+      "key": "qwen-flash",
+      "model": "qwen3.6-flash",
+      "answer_mode": "thinking"
+    },
+    {
+      "key": "deepseek",
+      "model": "deepseek-v4-pro",
+      "answer_mode": "thinking"
+    },
+    {
+      "key": "deepseek-flash",
+      "model": "deepseek-v4-flash",
+      "answer_mode": "thinking"
+    },
+    {
+      "key": "kimi",
+      "model": "kimi-k2.6",
+      "answer_mode": "thinking"
+    },
+    {
+      "key": "qwen35-35b-a3b",
+      "model": "qwen3.5-35b-a3b",
+      "answer_mode": "thinking"
+    },
+    {
+      "key": "qwen3-8b",
+      "model": "qwen3-8b",
+      "answer_mode": "thinking_streaming"
+    },
+    {
+      "key": "glm52",
+      "model": "glm-5.2",
+      "answer_mode": "thinking"
+    },
+    {
+      "key": "codex-gpt56-sol",
+      "model": "gpt-5.6-sol",
+      "answer_mode": "codex_answer_only_reasoning_none"
+    }
+  ],
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "generation": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "bailian_enable_thinking": true,
+    "codex_reasoning_effort": "none",
+    "transport_policy": {
+      "default": "non_streaming",
+      "stream_required_models": [
+        "qwen3-8b"
+      ],
+      "accept_equivalent_streaming_rows_from_initial_pass": true
+    }
+  },
+  "artifacts": {
+    "codex-gpt56-sol/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "e0ea1331c38208ffcc7bd70ad16fcf89348d92d09468d9cb5bb08bcc9b5ac91b",
+      "model": "gpt-5.6-sol",
+      "condition": "full_memory"
+    },
+    "codex-gpt56-sol/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "a9eec5896dfaf9192d85abbd90156e21a628caf8f7184e00d216cf23c18994c1",
+      "model": "gpt-5.6-sol",
+      "condition": "no_memory"
+    },
+    "codex-gpt56-sol/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "ed8973cdc724a4c54ef59408d807c0a060892363f4f712843eba40d8d48322a6",
+      "model": "gpt-5.6-sol",
+      "condition": "smoke"
+    },
+    "deepseek-flash/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "e023077373ab023969fa8ddc00600cff583bc9ebb4fd22962a22016088e3b0ec",
+      "model": "deepseek-v4-flash",
+      "condition": "full_memory"
+    },
+    "deepseek-flash/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "107f44a82f47f4079faac4e5d793935d137335ff2db216e6f57f76d6fc3fab64",
+      "model": "deepseek-v4-flash",
+      "condition": "no_memory"
+    },
+    "deepseek-flash/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "e323571a5e8e654b33b52c06804d7fba625101838ece1c8f0b1ecd00cf62813c",
+      "model": "deepseek-v4-flash",
+      "condition": "smoke"
+    },
+    "deepseek/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "998640f4baa3c9911f6db366a680f7de97e507a02eb4c47ef2ee247fdb112f3c",
+      "model": "deepseek-v4-pro",
+      "condition": "full_memory"
+    },
+    "deepseek/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "f15febb41508beb019478ec03662726507f0441f4142bf47914518fac76e95e1",
+      "model": "deepseek-v4-pro",
+      "condition": "no_memory"
+    },
+    "deepseek/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "52bf06c192c2be456dde32cb40f4d2c3ac4d6e8ca8acb14769f8975453213d4e",
+      "model": "deepseek-v4-pro",
+      "condition": "smoke"
+    },
+    "glm52/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "7947a734b54d37c41d81eab2d8f655b16999c5f4f7ea6b480417acf4f21921e2",
+      "model": "glm-5.2",
+      "condition": "full_memory"
+    },
+    "glm52/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "169ae023f9bfe02614abda47eb6bb14516a9c4ebf997f26a07a0bdd446e493bd",
+      "model": "glm-5.2",
+      "condition": "no_memory"
+    },
+    "glm52/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "8fe45605379aa251b3e065f4c36761d1f661bd96cffdfe55f62f6aea3d398602",
+      "model": "glm-5.2",
+      "condition": "smoke"
+    },
+    "kimi/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "9ad2162a21f926c6ea0cb1032014845cea75a1f194b9d0f50ff6fd58d2d6d166",
+      "model": "kimi-k2.6",
+      "condition": "full_memory"
+    },
+    "kimi/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "1b41c2031cb1255b907d5c3ac36a1a9a24f6bd30b6639b3d9ddf9fbb3037f4f1",
+      "model": "kimi-k2.6",
+      "condition": "no_memory"
+    },
+    "kimi/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "2c060b8a9816921bd7f2c30f728e6ec8ff02a339d8651cf8ff1f327daa5567ff",
+      "model": "kimi-k2.6",
+      "condition": "smoke"
+    },
+    "qwen-flash/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "c08190deb3e41201255b0b560be6e1ada168e1bc3e6fd9055a75d5d235d309b1",
+      "model": "qwen3.6-flash",
+      "condition": "full_memory"
+    },
+    "qwen-flash/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "0b524b954ca1940f76547cec04175a6e9006c69dea2b1c4fa9467000febab5dd",
+      "model": "qwen3.6-flash",
+      "condition": "no_memory"
+    },
+    "qwen-flash/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "8fbcb7df70e3bd03d240ef201abad4096d4bb546fb3bfddf112f1761ac00196b",
+      "model": "qwen3.6-flash",
+      "condition": "smoke"
+    },
+    "qwen-max/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "c7d24467eb18c9ca0679325b9ecf24f6cc23d2aa4e714cb390f9329a08fa7b2c",
+      "model": "qwen3.7-max",
+      "condition": "full_memory"
+    },
+    "qwen-max/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "22c1325b39a4942d4c00079b8e07c91a4352aa61163b4e6805510341b295b6e8",
+      "model": "qwen3.7-max",
+      "condition": "no_memory"
+    },
+    "qwen-max/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "39981e2a94ef7107fae0a48eeb5474f07e681969495df8e1df61766d2c45b44c",
+      "model": "qwen3.7-max",
+      "condition": "smoke"
+    },
+    "qwen3-8b/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "e1670e3ae9d460604b2ad9b85e3ed6ee02c6240ed7017965fec4dd3087269c16",
+      "model": "qwen3-8b",
+      "condition": "full_memory"
+    },
+    "qwen3-8b/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "92d7bc4f0e379a88114c5a0818522109e4460fda5c1e0c01223102eea1594709",
+      "model": "qwen3-8b",
+      "condition": "no_memory"
+    },
+    "qwen3-8b/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "b4a4b60d92b72fef00e67628f04fb816cdeac05d72e215279a9e0ac8b9b2791c",
+      "model": "qwen3-8b",
+      "condition": "smoke"
+    },
+    "qwen35-35b-a3b/full_memory.jsonl": {
+      "rows": 500,
+      "sha256": "4e9b8386f0aee3f1d7657f5f296405ac77ef4368c49f71666b493da3c87fe5c7",
+      "model": "qwen3.5-35b-a3b",
+      "condition": "full_memory"
+    },
+    "qwen35-35b-a3b/no_memory.jsonl": {
+      "rows": 500,
+      "sha256": "e75916dc445273790f84b620243224431e00bbc660fd34a819eea9fc379ba643",
+      "model": "qwen3.5-35b-a3b",
+      "condition": "no_memory"
+    },
+    "qwen35-35b-a3b/smoke.jsonl": {
+      "rows": 4,
+      "sha256": "7089c815469749726060ccffd8acd2d8e9a7efe5c276276ab78adeae7e51bb97",
+      "model": "qwen3.5-35b-a3b",
+      "condition": "smoke"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/configs/memcalib-v24-multidomain-500-nine-models.json",
+      "sha256": "2818bc04304340360c10547e1355c1f88674809f79bbae1caef585e642078050"
+    },
+    "samples": {
+      "path": "evaluation/releases/memcalib-v24-multidomain-500-nine-models/model-facing.jsonl",
+      "sha256": "c8b3345329c0473fd461ad363c8bfc8c54b8b61b2f67afacc4cd630e2ff5e3de"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/answer-system.txt",
+      "sha256": "f52011f3a95e3be3a5692a128911c6eb3792c9aa4639af603613f859e516311f"
+    }
+  }
+}
