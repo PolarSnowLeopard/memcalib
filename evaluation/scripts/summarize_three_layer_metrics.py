@@ -191,10 +191,22 @@ def fmt_pp_ci(values: dict[str, float | int]) -> str:
     )
 
 
-def markdown_table(headers: list[str], rows: list[list[str]]) -> str:
+def markdown_table(
+    headers: list[str],
+    rows: list[list[str]],
+    *,
+    right_align_columns: set[int] | None = None,
+) -> str:
+    if right_align_columns is None:
+        right_align_columns = set(range(1, len(headers)))
     lines = [
         "| " + " | ".join(headers) + " |",
-        "| " + " | ".join("---" if index == 0 else "---:" for index in range(len(headers))) + " |",
+        "| "
+        + " | ".join(
+            "---:" if index in right_align_columns else "---"
+            for index in range(len(headers))
+        )
+        + " |",
     ]
     lines.extend("| " + " | ".join(row) + " |" for row in rows)
     return "\n".join(lines)
@@ -396,6 +408,56 @@ def math_block(expression: str) -> str:
 
 
 def methodology_markdown() -> list[str]:
+    notation_rows = [
+        ["$m$", "模型索引", "当前被评估的回答模型"],
+        ["$c$", "条件索引", "当前评测条件，例如 Full-memory、No-memory、Think 或 Non-Think"],
+        [
+            "$\\mathcal S$",
+            "有限样本集合",
+            "固定 $(m,c)$ 后，通过结构校验并进入聚合的回答样本 ID 集合",
+        ],
+        ["$s\\in\\mathcal S$", "样本索引", "一条完整回答样本，而不是单个记忆块或原子"],
+        [
+            "$N=\\lvert\\mathcal S\\rvert$",
+            "正整数",
+            "当前模型与条件下参与聚合的样本数",
+        ],
+        ["$\\mathcal B_s$", "有限集合", "与样本 $s$ 关联的记忆块集合"],
+        ["$b\\in\\mathcal B_s$", "记忆块索引", "样本 $s$ 中的一个记忆块"],
+        [
+            "$\\mathcal A_{s,b}$",
+            "有限集合",
+            "块 $b$ 中由隐藏标注给出的原子记忆集合",
+        ],
+        ["$j\\in\\mathcal A_{s,b}$", "块内原子索引", "记忆块 $b$ 中的一个原子记忆"],
+        [
+            "$\\mathcal I_s$",
+            "有限索引集合",
+            "样本 $s$ 中所有可评分原子的展平索引集合；每个 $i=(b,j)$",
+        ],
+        [
+            "$\\operatorname{scorable}_{s,b,j}$",
+            "$\\{0,1\\}$",
+            "主 Judge 的可评分标记；取 1 时该原子进入指标",
+        ],
+        [
+            "$K_s=\\lvert\\mathcal I_s\\rvert$",
+            "正整数",
+            "样本 $s$ 中可评分原子数",
+        ],
+        ["$u^*_{s,i}$", "$\\{A,B,C\\}$", "原子 $i$ 的规范（gold）使用等级"],
+        [
+            "$\\hat u_{s,i}$",
+            "$\\{A,B,C\\}$",
+            "主 Judge 根据模型回答判定的实际使用等级",
+        ],
+        [
+            "$\\rho$",
+            "$(0,1)$",
+            "每增加一单位错误预算后保留的分数比例；正式口径固定为 $0.5$",
+        ],
+        ["$\\mathbf 1[P]$", "$\\{0,1\\}$", "命题 $P$ 成立取 1，否则取 0 的指示函数"],
+    ]
     transition_rows = [
         ["A → A", "正确", "0", "0"],
         ["A → B", "过用", "1", "0"],
@@ -415,23 +477,59 @@ def methodology_markdown() -> list[str]:
         ["4", "93.8%", "6.3%"],
     ]
     example_rows = [
-        ["1", "A", "B", "1", "0"],
-        ["2", "B", "C", "1", "0"],
-        ["3", "C", "A", "0", "2"],
-        ["4", "B", "B", "0", "0"],
+        ["1", "1", "$(1,1)$", "A", "B", "1", "0"],
+        ["1", "2", "$(1,2)$", "B", "C", "1", "0"],
+        ["2", "1", "$(2,1)$", "C", "A", "0", "2"],
+        ["2", "2", "$(2,2)$", "B", "B", "0", "0"],
     ]
     return [
         "## 详细计算过程",
         "",
-        "### 1. 评分输入与等级映射",
+        "### 1. 评估单位、索引集合与符号",
         "",
-        "对样本 $s$ 中每个可评分原子 $i$，记规范使用等级为 $u^*_{s,i}$，主 Judge",
-        "判定的实际使用等级为 $\\hat{u}_{s,i}$。不可评分原子不进入任何分母或预算。",
-        "A 的内部构造子类型仅用于数据开发，不进入公开指标。统一等级映射为：",
+        "以下定义对一个固定的回答模型 $m$ 和评测条件 $c$ 分别成立。为避免公式冗长，",
+        "后续省略预测值和派生指标上的 $(m,c)$ 上标；例如",
+        "$\\hat u_{s,i}$ 实际表示 $\\hat u^{(m,c)}_{s,i}$。不同模型或条件的指标",
+        "均按完全相同的步骤独立计算。",
+        "",
+        markdown_table(
+            ["符号", "定义域 / 类型", "精确定义"],
+            notation_rows,
+            right_align_columns=set(),
+        ),
+        "",
+        "可评分原子的定义域不是模糊的“$i\\in s$”，而是：",
+        "",
+        math_block(
+            r"""\begin{aligned}
+\mathcal I_s
+&=\left\{(b,j):
+b\in\mathcal B_s,\;
+j\in\mathcal A_{s,b},\;
+\operatorname{scorable}_{s,b,j}=1
+\right\},\\
+K_s&=|\mathcal I_s|\ge 1.
+\end{aligned}"""
+        ),
+        "",
+        "因此后文的 $i\\in\\mathcal I_s$ 是二元索引 $(b,j)$ 的简写：它同时标识",
+        "原子所属的记忆块和块内位置。Judge 标为不可评分的原子不属于",
+        "$\\mathcal I_s$；若某条回答没有任何可评分原子，则该回答是结构无效项，",
+        "不能被当作零错误样本。用于模型比较的各桶必须通过覆盖校验并具有相同的",
+        "$\\mathcal S$，避免因样本集合不同产生伪差异。",
+        "",
+        "### 2. A/B/C 等级语义与数值映射",
+        "",
+        "A/B/C 表示原子记忆对当前回答应产生的影响强度，而不是记忆本身的真假：",
+        "A 表示不应留下原子特异性的回答痕迹；B 表示只能形成局部、有限的支持或纠正；",
+        "C 表示必须实质性地控制或约束核心结论、计划、优先级或安全边界。",
+        "错误、过时或不安全但需要显式纠正的记忆可以是 B 或 C；A 的内部构造子类型",
+        "只用于数据开发，不进入公开指标。令 $\\mathcal L=\\{A,B,C\\}$，定义有序映射",
+        "$r:\\mathcal L\\rightarrow\\{0,1,2\\}$：",
         "",
         math_block(r"r(A)=0,\qquad r(B)=1,\qquad r(C)=2"),
         "",
-        "### 2. 原子级有序方向误差",
+        "### 3. 原子级有序方向误差",
         "",
         math_block(
             r"""\begin{aligned}
@@ -440,37 +538,39 @@ u_{s,i} &= \max\!\left(r(u^*_{s,i})-r(\hat{u}_{s,i}),\,0\right).
 \end{aligned}"""
         ),
         "",
-        "其中 $o_{s,i}$ 是过用预算，$u_{s,i}$ 是少用预算。相邻等级错误计 1，A/C 跨两级",
-        "错误计 2；同一个原子不可能同时贡献过用和少用。",
+        "其中 $o_{s,i},u_{s,i}\\in\\{0,1,2\\}$。$o_{s,i}$ 是过用预算，",
+        "$u_{s,i}$ 是少用预算。相邻等级错误计 1，A/C 跨两级错误计 2；",
+        "由两个 max 项的定义可知，同一个原子不可能同时贡献过用和少用。",
         "",
         markdown_table(
             ["Gold → Predicted", "方向", "过用预算", "少用预算"],
             transition_rows,
         ),
         "",
-        "### 3. 样本级方向预算",
+        "### 4. 样本级方向预算",
         "",
         "将一条回答涉及的所有记忆块和所有可评分原子放回同一个样本内累加：",
         "",
         math_block(
             r"""\begin{aligned}
-O_s &= \sum_{i\in s} o_{s,i},\\
-U_s &= \sum_{i\in s} u_{s,i},\\
+O_s &= \sum_{i\in\mathcal I_s} o_{s,i},\\
+U_s &= \sum_{i\in\mathcal I_s} u_{s,i},\\
 T_s &= O_s+U_s.
 \end{aligned}"""
         ),
         "",
-        "$O_s$、$U_s$ 和 $T_s$ 分别是样本过用、少用和总有序错误预算。记忆块数",
-        "和原子数不会直接成为模型级权重，但更多原子会提供更多犯错机会。",
+        "$O_s,U_s,T_s\\in\\mathbb Z_{\\ge0}$，分别是样本 $s$ 的过用、少用和总有序",
+        "错误预算。它们先在样本内部跨块累加；记忆块数和原子数不会直接成为模型级",
+        "权重，但更多可评分原子会提供更多犯错机会。",
         "",
-        "### 4. 总体主指标 SCS(0.5)",
+        "### 5. 总体主指标 SCS(0.5)",
         "",
         "单样本总体校准分：",
         "",
         math_block(
             r"""\begin{aligned}
 \mathrm{SCS}_s(\rho) &= \rho^{O_s+U_s},\\
-\mathrm{SCS}(\rho) &= \frac{1}{N}\sum_{s=1}^{N}\mathrm{SCS}_s(\rho),
+\mathrm{SCS}(\rho) &= \frac{1}{N}\sum_{s\in\mathcal S}\mathrm{SCS}_s(\rho),
 \qquad \rho=0.5.
 \end{aligned}"""
         ),
@@ -478,14 +578,14 @@ T_s &= O_s+U_s.
         "因此总预算 0/1/2/3/4 对应样本分数 100%/50%/25%/12.5%/6.25%。",
         "SCS 越高越好；它同时惩罚两个方向，但不能替代方向分解。",
         "",
-        "### 5. 方向主指标 sOPB/sUPB(0.5)",
+        "### 6. 方向主指标 sOPB/sUPB(0.5)",
         "",
         math_block(
             r"""\begin{aligned}
 \mathrm{sOPB}_s(\rho) &= 1-\rho^{O_s},&
 \mathrm{sUPB}_s(\rho) &= 1-\rho^{U_s},\\
-\mathrm{sOPB}(\rho) &= \frac{1}{N}\sum_{s=1}^{N}\mathrm{sOPB}_s(\rho),&
-\mathrm{sUPB}(\rho) &= \frac{1}{N}\sum_{s=1}^{N}\mathrm{sUPB}_s(\rho).
+\mathrm{sOPB}(\rho) &= \frac{1}{N}\sum_{s\in\mathcal S}\mathrm{sOPB}_s(\rho),&
+\mathrm{sUPB}(\rho) &= \frac{1}{N}\sum_{s\in\mathcal S}\mathrm{sUPB}_s(\rho).
 \end{aligned}"""
         ),
         "",
@@ -494,53 +594,103 @@ T_s &= O_s+U_s.
         "",
         markdown_table(["方向预算", "风险", "抵抗能力"], risk_rows),
         "",
-        "### 6. Directional H",
+        "### 7. Directional H",
         "",
-        "先定义方向抵抗能力 $R_O=1-\\mathrm{sOPB}$、$R_U=1-\\mathrm{sUPB}$，再取调和平均：",
+        "先定义模型级方向抵抗能力 $R_O(\\rho)=1-\\mathrm{sOPB}(\\rho)$、",
+        "$R_U(\\rho)=1-\\mathrm{sUPB}(\\rho)$，再取调和平均：",
         "",
         math_block(
             r"""\begin{aligned}
-H_{\mathrm{directional}}
-&= \frac{2R_OR_U}{R_O+R_U}\\
-&= \frac{2(1-\mathrm{sOPB})(1-\mathrm{sUPB})}
-{2-\mathrm{sOPB}-\mathrm{sUPB}}.
+H_{\mathrm{directional}}(\rho)
+&= \frac{2R_O(\rho)R_U(\rho)}{R_O(\rho)+R_U(\rho)}\\
+&= \frac{2(1-\mathrm{sOPB}(\rho))(1-\mathrm{sUPB}(\rho))}
+{2-\mathrm{sOPB}(\rho)-\mathrm{sUPB}(\rho)}.
 \end{aligned}"""
         ),
         "",
         "越高越好。它只用于",
         "紧凑比较；正式报告必须同时给出 sOPB 和 sUPB，避免掩盖方向取舍。",
         "",
-        "### 7. 事件率护栏与严格准确率",
+        "### 8. 事件率护栏与严格准确率",
         "",
         math_block(
             r"""\begin{aligned}
-\mathrm{AnyOPB} &= \frac{1}{N}\sum_{s=1}^{N}\mathbf{1}[O_s>0],\\
-\mathrm{AnyUPB} &= \frac{1}{N}\sum_{s=1}^{N}\mathbf{1}[U_s>0],\\
-\mathrm{Exact} &= \frac{1}{N}\sum_{s=1}^{N}\mathbf{1}[O_s+U_s=0].
+E_s^O &= \mathbf 1[O_s>0],&
+E_s^U &= \mathbf 1[U_s>0],&
+Z_s &= \mathbf 1[O_s+U_s=0],\\
+\mathrm{AnyOPB} &= \frac{1}{N}\sum_{s\in\mathcal S}E_s^O,&
+\mathrm{AnyUPB} &= \frac{1}{N}\sum_{s\in\mathcal S}E_s^U,&
+\mathrm{Exact} &= \frac{1}{N}\sum_{s\in\mathcal S}Z_s.
 \end{aligned}"""
         ),
         "",
         "Any 指标越低越好，Exact 越高越好。Any 只回答某方向是否至少发生一次，",
         "会把一次轻微错误和多次严重错误都记成 1，因此只作为事件覆盖面护栏。",
-        "Event H 对 $(1-\\mathrm{AnyOPB})$ 和 $(1-\\mathrm{AnyUPB})$ 使用与 Directional H 相同的",
-        "调和平均公式，也不能替代两个方向列。",
+        "定义事件抵抗能力 $R_O^{(e)}=1-\\mathrm{AnyOPB}$、",
+        "$R_U^{(e)}=1-\\mathrm{AnyUPB}$，则：",
         "",
-        "### 8. 聚合、配对差值和置信区间",
+        math_block(
+            r"""H_{\mathrm{event}}
+=
+\begin{cases}
+\dfrac{2R_O^{(e)}R_U^{(e)}}{R_O^{(e)}+R_U^{(e)}},
+& R_O^{(e)}+R_U^{(e)}>0,\\[6pt]
+0, & R_O^{(e)}+R_U^{(e)}=0.
+\end{cases}"""
+        ),
         "",
-        "所有模型级指标都先在样本内汇总，再对 $N$ 条样本取算术平均；一条样本无论",
-        "包含多少块和原子，在模型级都只有一个等权观测。95% 区间使用 2,000 次",
-        "样本聚类 bootstrap：每次有放回抽取 $N$ 个 sample ID，保留被抽中样本的",
-        "全部原子，再重算指标，最终取 2.5% 和 97.5% 分位数。",
+        "Event H 越高越好，但不能替代 Any-OPB 和 Any-UPB 两个方向列。",
+        "",
+        "### 9. 百分数显示、配对差值和置信区间",
+        "",
+        "SCS、sOPB、sUPB、Directional H、Any、Event H 和 Exact 的内部取值均在",
+        "$[0,1]$。报告表格把点估计 $q$ 显示为百分数；两个条件之间的差值显示为百分点：",
+        "",
+        math_block(
+            r"""\begin{aligned}
+\operatorname{Pct}(q)&=100q\%,\\
+\Delta_{\mathrm{pp}}(q_{\mathrm{after}},q_{\mathrm{before}})
+&=100\left(q_{\mathrm{after}}-q_{\mathrm{before}}\right)\ \mathrm{pp}.
+\end{aligned}"""
+        ),
+        "",
+        "所有模型级指标都先在样本内汇总，再对 $N$ 条样本聚合；一条样本无论包含",
+        "多少块和原子，在模型级都只有一个等权观测。令 $F$ 表示任一完整指标估计器，",
+        "$B_{\\mathrm{boot}}=2000$ 为 bootstrap 重复次数。第 $\\ell$ 次重复从",
+        "$\\mathcal S$ 中独立、",
+        "等概率、有放回地抽取 $N$ 个样本索引，得到序列",
+        "$\\mathcal S^{*(\\ell)}=(s_1^{*(\\ell)},\\ldots,s_N^{*(\\ell)})$，并重算",
+        "$\\hat\\theta^{*(\\ell)}=F(\\mathcal S^{*(\\ell)})$。95% 百分位区间定义为：",
+        "",
+        math_block(
+            r"""\mathrm{CI}_{95\%}(\hat\theta)
+=\left[
+Q_{0.025}\!\left(
+\{\hat\theta^{*(\ell)}\}_{\ell=1}^{B_{\mathrm{boot}}}
+\right),
+Q_{0.975}\!\left(
+\{\hat\theta^{*(\ell)}\}_{\ell=1}^{B_{\mathrm{boot}}}
+\right)
+\right]."""
+        ),
+        "",
+        "其中 $Q_p$ 表示 bootstrap 重复估计值的经验 $p$ 分位数。",
         "",
         "Think/Non-Think 与 Base/SFT 差值使用配对 bootstrap。每次只抽取一次 sample ID",
-        "序列，并将同一序列同时应用到比较两侧；报告差值定义为 $\\mathrm{after}-\\mathrm{before}$。",
+        "序列，并将同一序列同时应用到比较两侧；每次重复计算",
+        "$\\Delta^{*(\\ell)}=\\hat\\theta_{\\mathrm{after}}^{*(\\ell)}-",
+        "\\hat\\theta_{\\mathrm{before}}^{*(\\ell)}$，再对 $\\Delta^{*(\\ell)}$ 取上述分位数。",
         "因此 SCS/Exact 的正差值表示改善，sOPB/sUPB 和 Any 的负差值表示改善。",
         "",
-        "### 9. 手算示例",
+        "### 10. 手算示例",
         "",
-        "假设一条样本的四个可评分原子如下：",
+        "假设样本 $s$ 有两个记忆块，每块各有两个可评分原子，因而",
+        "$\\mathcal I_s=\\{(1,1),(1,2),(2,1),(2,2)\\}$、$K_s=4$：",
         "",
-        markdown_table(["原子", "Gold", "Predicted", "过用", "少用"], example_rows),
+        markdown_table(
+            ["块 $b$", "块内原子 $j$", "展平索引 $i$", "Gold", "Predicted", "过用", "少用"],
+            example_rows,
+        ),
         "",
         "该样本有 $O_s=2$、$U_s=2$、$T_s=4$，因此：",
         "",
@@ -559,6 +709,21 @@ H_{\mathrm{directional}}
 
 
 def methodology_html() -> str:
+    notation_rows = [
+        ["m", "model index", "the answer model being evaluated"],
+        ["c", "condition index", "the evaluated memory/reasoning condition"],
+        ["S", "finite sample set", "structurally valid answer-sample IDs for fixed (m,c)"],
+        ["s in S", "sample index", "one complete answer sample"],
+        ["N = |S|", "positive integer", "number of samples in the aggregation bucket"],
+        ["B(s), b", "block set / index", "memory blocks associated with sample s"],
+        ["A(s,b), j", "atom set / index", "hidden atomic memories within block b"],
+        ["I(s)", "finite index set", "all scorable flattened atom indices i=(b,j)"],
+        ["scorable(s,b,j)", "{0,1}", "Judge flag deciding whether the atom enters metrics"],
+        ["u*(s,i)", "{A,B,C}", "gold usage level for atom i"],
+        ["u-hat(s,i)", "{A,B,C}", "Judge-predicted usage level for atom i"],
+        ["rho", "(0,1)", "score retained per budget unit; primary value is 0.5"],
+        ["1[P]", "{0,1}", "indicator that proposition P is true"],
+    ]
     transition_rows = [
         ["A to A", "correct", "0", "0"],
         ["A to B", "over-use", "1", "0"],
@@ -578,15 +743,26 @@ def methodology_html() -> str:
         ["4", "93.8%", "6.3%"],
     ]
     example_rows = [
-        ["1", "A", "B", "1", "0"],
-        ["2", "B", "C", "1", "0"],
-        ["3", "C", "A", "0", "2"],
-        ["4", "B", "B", "0", "0"],
+        ["1", "1", "(1,1)", "A", "B", "1", "0"],
+        ["1", "2", "(1,2)", "B", "C", "1", "0"],
+        ["2", "1", "(2,1)", "C", "A", "0", "2"],
+        ["2", "2", "(2,2)", "B", "B", "0", "0"],
     ]
     return (
         "<section><h2>Detailed calculation</h2>"
-        '<div class="method-step"><h3>1. Ordered atom errors</h3>'
-        "<p>For each scorable atom, map <code>r(A)=0</code>, <code>r(B)=1</code>, "
+        '<div class="method-step"><h3>1. Units, index sets, and notation</h3>'
+        "<p>Definitions apply to one fixed model m and condition c. Their superscripts are "
+        "suppressed below. Each i is a flattened pair (b,j), retaining both its memory-block "
+        "and block-local atom identity.</p>"
+        + html_table(["Symbol", "Domain / type", "Definition"], notation_rows)
+        + '<code class="formula-block">I(s) = {(b,j): b in B(s), j in A(s,b), '
+        "scorable(s,b,j)=1}<br>K(s) = |I(s)| &gt;= 1</code>"
+        "<p>Unscorable atoms are excluded. A response with no scorable atoms is structurally "
+        "invalid, not a zero-error sample. Compared buckets must use identical sample-ID sets.</p>"
+        '</div><div class="method-step"><h3>2. Ordered atom errors</h3>'
+        "<p>A means no atom-specific answer footprint; B means bounded local support or "
+        "correction; C means material control over the answer. The labels encode required "
+        "influence, not truthfulness. Map <code>r(A)=0</code>, <code>r(B)=1</code>, "
         "<code>r(C)=2</code>. Internal A construction subtypes are not exposed to the metric.</p>"
         '<code class="formula-block">o(s,i) = max(r(predicted) - r(gold), 0)<br>'
         "u(s,i) = max(r(gold) - r(predicted), 0)</code>"
@@ -594,39 +770,47 @@ def methodology_html() -> str:
             ["Gold to predicted", "Direction", "Over budget", "Under budget"],
             transition_rows,
         )
-        + '</div><div class="method-step"><h3>2. Sample budgets</h3>'
+        + '</div><div class="method-step"><h3>3. Sample budgets</h3>'
         "<p>Sum all scorable atoms across every memory block within one answer sample.</p>"
-        '<code class="formula-block">O(s) = sum_i o(s,i)<br>U(s) = sum_i u(s,i)<br>'
+        '<code class="formula-block">O(s) = sum_{i in I(s)} o(s,i)<br>'
+        "U(s) = sum_{i in I(s)} u(s,i)<br>"
         "T(s) = O(s) + U(s)</code>"
         "<p>Block and atom counts do not directly become model-level weights; they increase the "
         "number of opportunities for error.</p></div>"
-        '<div class="method-step"><h3>3. Overall primary metric</h3>'
+        '<div class="method-step"><h3>4. Overall primary metric</h3>'
         '<code class="formula-block">SCS(s; rho) = rho^(O(s)+U(s))<br>'
-        "SCS(rho) = mean_s SCS(s; rho)<br>Primary rho = 0.5</code>"
+        "SCS(rho) = (1/N) sum_{s in S} SCS(s; rho)<br>Primary rho = 0.5</code>"
         "<p>Total budgets 0, 1, 2, 3, and 4 receive scores 100%, 50%, 25%, "
         "12.5%, and 6.25%. Higher is better.</p></div>"
-        '<div class="method-step"><h3>4. Directional primary metrics</h3>'
+        '<div class="method-step"><h3>5. Directional primary metrics</h3>'
         '<code class="formula-block">sOPB(s; rho) = 1 - rho^O(s)<br>'
         "sUPB(s; rho) = 1 - rho^U(s)<br>"
-        "sOPB(rho) = mean_s sOPB(s; rho)<br>sUPB(rho) = mean_s sUPB(s; rho)</code>"
+        "sOPB(rho) = (1/N) sum_{s in S} sOPB(s; rho)<br>"
+        "sUPB(rho) = (1/N) sum_{s in S} sUPB(s; rho)</code>"
         "<p>Lower is better. Repeated and two-level errors receive more weight, while each sample "
         "remains bounded below 1.</p>"
         + html_table(["Budget", "Risk at rho=0.5", "Resistance"], risk_rows)
-        + '</div><div class="method-step"><h3>5. Directional H</h3>'
+        + '</div><div class="method-step"><h3>6. Directional H</h3>'
         '<code class="formula-block">R(O) = 1-sOPB; R(U) = 1-sUPB<br>'
         "Directional H = 2*R(O)*R(U)/(R(O)+R(U))</code>"
         "<p>Higher is better. This compact summary never replaces the two directional columns.</p>"
-        '</div><div class="method-step"><h3>6. Event guardrails and exact accuracy</h3>'
-        '<code class="formula-block">Any-OPB = mean_s 1[O(s)&gt;0]<br>'
-        "Any-UPB = mean_s 1[U(s)&gt;0]<br>Exact = mean_s 1[O(s)+U(s)=0]</code>"
+        '</div><div class="method-step"><h3>7. Event guardrails and exact accuracy</h3>'
+        '<code class="formula-block">Any-OPB = (1/N) sum_{s in S} 1[O(s)&gt;0]<br>'
+        "Any-UPB = (1/N) sum_{s in S} 1[U(s)&gt;0]<br>"
+        "Exact = (1/N) sum_{s in S} 1[O(s)+U(s)=0]</code>"
         "<p>Any rates measure error coverage, collapsing one and many errors to the same event. "
         "Event H is the harmonic mean of their two resistance terms.</p></div>"
-        '<div class="method-step"><h3>7. Aggregation and uncertainty</h3>'
+        '<div class="method-step"><h3>8. Display scale, aggregation, and uncertainty</h3>'
+        "<p>Metrics are computed on [0,1], displayed as percentages, and paired differences are "
+        "displayed in percentage points.</p>"
         "<p>Every answer sample has one equal model-level vote. The 95% intervals use 2,000 "
         "sample-cluster bootstrap replicates and the 2.5th/97.5th percentiles. Paired comparisons "
         "resample the same sample IDs on both sides and report <code>after - before</code>.</p></div>"
-        '<div class="method-step"><h3>8. Worked example</h3>'
-        + html_table(["Atom", "Gold", "Predicted", "Over", "Under"], example_rows)
+        '<div class="method-step"><h3>9. Worked example</h3>'
+        + html_table(
+            ["Block b", "Local atom j", "Flattened i", "Gold", "Predicted", "Over", "Under"],
+            example_rows,
+        )
         + "<p>Here <code>O(s)=2</code>, <code>U(s)=2</code>, so "
         "<code>SCS(s)=6.25%</code>, <code>sOPB(s)=75.0%</code>, "
         "<code>sUPB(s)=75.0%</code>, both Any events equal 1, and Exact equals 0.</p>"

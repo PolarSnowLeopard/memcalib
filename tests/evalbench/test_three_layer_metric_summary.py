@@ -1,6 +1,7 @@
 import unittest
 
 from evaluation.scripts.summarize_three_layer_metrics import (
+    methodology_markdown,
     paired_delta_bootstrap,
 )
 
@@ -48,6 +49,15 @@ class ThreeLayerMetricSummaryTests(unittest.TestCase):
                 replicates=10,
                 seed=3,
             )
+
+    def test_methodology_defines_sample_and_atom_indices(self) -> None:
+        report = "\n".join(methodology_markdown())
+        self.assertIn("### 1. 评估单位、索引集合与符号", report)
+        self.assertIn("$s\\in\\mathcal S$", report)
+        self.assertIn("每个 $i=(b,j)$", report)
+        self.assertIn("\\sum_{i\\in\\mathcal I_s}", report)
+        self.assertNotIn("\\sum_{i\\in s}", report)
+        self.assertEqual(report.count("$$") % 2, 0)
 
 
 if __name__ == "__main__":
