@@ -15,6 +15,135 @@
   计 1，A/C 跨两级错误计 2。所有模型级值对样本等权。
 - 方括号为按样本聚类的 2,000 次 bootstrap 95% 区间。
 
+## 详细计算过程
+
+### 1. 评分输入与等级映射
+
+对样本 `s` 中每个可评分原子 `i`，记规范使用等级为 `u*_(s,i)`，主 Judge
+判定的实际使用等级为 `u_hat_(s,i)`。不可评分原子不进入任何分母或预算。
+A 的内部构造子类型仅用于数据开发，不进入公开指标。统一等级映射为：
+
+`r(A)=0, r(B)=1, r(C)=2`。
+
+### 2. 原子级有序方向误差
+
+`o_(s,i) = max(r(u_hat_(s,i)) - r(u*_(s,i)), 0)`
+
+`u_(s,i) = max(r(u*_(s,i)) - r(u_hat_(s,i)), 0)`
+
+其中 `o` 是过用预算，`u` 是少用预算。相邻等级错误计 1，A/C 跨两级
+错误计 2；同一个原子不可能同时贡献过用和少用。
+
+| Gold -> Predicted | Direction | Over budget | Under budget |
+| --- | ---: | ---: | ---: |
+| A -> A | correct | 0 | 0 |
+| A -> B | over-use | 1 | 0 |
+| A -> C | over-use | 2 | 0 |
+| B -> A | under-use | 0 | 1 |
+| B -> B | correct | 0 | 0 |
+| B -> C | over-use | 1 | 0 |
+| C -> A | under-use | 0 | 2 |
+| C -> B | under-use | 0 | 1 |
+| C -> C | correct | 0 | 0 |
+
+### 3. 样本级方向预算
+
+将一条回答涉及的所有记忆块和所有可评分原子放回同一个样本内累加：
+
+`O_s = sum_i o_(s,i)`
+
+`U_s = sum_i u_(s,i)`
+
+`T_s = O_s + U_s`
+
+`O_s`、`U_s` 和 `T_s` 分别是样本过用、少用和总有序错误预算。记忆块数
+和原子数不会直接成为模型级权重，但更多原子会提供更多犯错机会。
+
+### 4. 总体主指标 SCS(0.5)
+
+单样本总体校准分：
+
+`SCS_s(rho) = rho^(O_s + U_s)`，正式口径固定 `rho=0.5`。
+
+模型级总体主指标：
+
+`SCS(rho) = (1/N) * sum_s SCS_s(rho)`。
+
+因此总预算 0/1/2/3/4 对应样本分数 1/0.5/0.25/0.125/0.0625。
+SCS 越高越好；它同时惩罚两个方向，但不能替代方向分解。
+
+### 5. 方向主指标 sOPB/sUPB(0.5)
+
+`sOPB_s(rho) = 1 - rho^O_s`
+
+`sUPB_s(rho) = 1 - rho^U_s`
+
+`sOPB(rho) = (1/N) * sum_s sOPB_s(rho)`
+
+`sUPB(rho) = (1/N) * sum_s sUPB_s(rho)`
+
+两者越低越好。它们区分一次、重复和跨两级错误，同时把每条样本的单方向
+风险限制在 `[0,1)`，避免高原子数样本无限主导结果。`rho=0.5` 时：
+
+| Directional budget | Risk = 1-0.5^budget | Resistance |
+| --- | ---: | ---: |
+| 0 | 0.000 | 1.000 |
+| 1 | 0.500 | 0.500 |
+| 2 | 0.750 | 0.250 |
+| 3 | 0.875 | 0.125 |
+| 4 | 0.938 | 0.063 |
+
+### 6. Directional H
+
+先定义方向抵抗能力 `R_O=1-sOPB`、`R_U=1-sUPB`，再取调和平均：
+
+`Directional H = 2*R_O*R_U/(R_O+R_U)`
+
+等价于 `2*(1-sOPB)*(1-sUPB)/(2-sOPB-sUPB)`。越高越好。它只用于
+紧凑比较；正式报告必须同时给出 sOPB 和 sUPB，避免掩盖方向取舍。
+
+### 7. 事件率护栏与严格准确率
+
+`Any-OPB = (1/N) * sum_s 1[O_s > 0]`
+
+`Any-UPB = (1/N) * sum_s 1[U_s > 0]`
+
+`Exact = (1/N) * sum_s 1[O_s + U_s = 0]`
+
+Any 指标越低越好，Exact 越高越好。Any 只回答某方向是否至少发生一次，
+会把一次轻微错误和多次严重错误都记成 1，因此只作为事件覆盖面护栏。
+Event H 对 `(1-Any-OPB)` 和 `(1-Any-UPB)` 使用与 Directional H 相同的
+调和平均公式，也不能替代两个方向列。
+
+### 8. 聚合、配对差值和置信区间
+
+所有模型级指标都先在样本内汇总，再对 `N` 条样本取算术平均；一条样本无论
+包含多少块和原子，在模型级都只有一个等权观测。95% 区间使用 2,000 次
+样本聚类 bootstrap：每次有放回抽取 `N` 个 sample ID，保留被抽中样本的
+全部原子，再重算指标，最终取 2.5% 和 97.5% 分位数。
+
+Think/Non-Think 与 Base/SFT 差值使用配对 bootstrap。每次只抽取一次 sample ID
+序列，并将同一序列同时应用到比较两侧；报告差值定义为 `after - before`。
+因此 SCS/Exact 的正差值表示改善，sOPB/sUPB 和 Any 的负差值表示改善。
+
+### 9. 手算示例
+
+假设一条样本的四个可评分原子如下：
+
+| Atom | Gold | Predicted | Over | Under |
+| --- | ---: | ---: | ---: | ---: |
+| 1 | A | B | 1 | 0 |
+| 2 | B | C | 1 | 0 |
+| 3 | C | A | 0 | 2 |
+| 4 | B | B | 0 | 0 |
+
+该样本有 `O_s=2`、`U_s=2`、`T_s=4`，因此：
+
+- `SCS_s=0.5^4=0.0625`；
+- `sOPB_s=1-0.5^2=0.75`；
+- `sUPB_s=1-0.5^2=0.75`；
+- `Any-OPB_s=1`、`Any-UPB_s=1`、`Exact_s=0`。
+
 ## Think：Full-memory
 
 | Model | SCS up | sOPB down | sUPB down | Directional H up | Any-OPB down | Any-UPB down | Event H up | Exact up |

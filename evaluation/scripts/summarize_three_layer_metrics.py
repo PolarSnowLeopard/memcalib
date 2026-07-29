@@ -310,6 +310,222 @@ def summarize_mode_deltas(deltas: dict[str, dict[str, Any]]) -> dict[str, Any]:
     return summary
 
 
+def methodology_markdown() -> list[str]:
+    transition_rows = [
+        ["A -> A", "correct", "0", "0"],
+        ["A -> B", "over-use", "1", "0"],
+        ["A -> C", "over-use", "2", "0"],
+        ["B -> A", "under-use", "0", "1"],
+        ["B -> B", "correct", "0", "0"],
+        ["B -> C", "over-use", "1", "0"],
+        ["C -> A", "under-use", "0", "2"],
+        ["C -> B", "under-use", "0", "1"],
+        ["C -> C", "correct", "0", "0"],
+    ]
+    risk_rows = [
+        ["0", "0.000", "1.000"],
+        ["1", "0.500", "0.500"],
+        ["2", "0.750", "0.250"],
+        ["3", "0.875", "0.125"],
+        ["4", "0.938", "0.063"],
+    ]
+    example_rows = [
+        ["1", "A", "B", "1", "0"],
+        ["2", "B", "C", "1", "0"],
+        ["3", "C", "A", "0", "2"],
+        ["4", "B", "B", "0", "0"],
+    ]
+    return [
+        "## 详细计算过程",
+        "",
+        "### 1. 评分输入与等级映射",
+        "",
+        "对样本 `s` 中每个可评分原子 `i`，记规范使用等级为 `u*_(s,i)`，主 Judge",
+        "判定的实际使用等级为 `u_hat_(s,i)`。不可评分原子不进入任何分母或预算。",
+        "A 的内部构造子类型仅用于数据开发，不进入公开指标。统一等级映射为：",
+        "",
+        "`r(A)=0, r(B)=1, r(C)=2`。",
+        "",
+        "### 2. 原子级有序方向误差",
+        "",
+        "`o_(s,i) = max(r(u_hat_(s,i)) - r(u*_(s,i)), 0)`",
+        "",
+        "`u_(s,i) = max(r(u*_(s,i)) - r(u_hat_(s,i)), 0)`",
+        "",
+        "其中 `o` 是过用预算，`u` 是少用预算。相邻等级错误计 1，A/C 跨两级",
+        "错误计 2；同一个原子不可能同时贡献过用和少用。",
+        "",
+        markdown_table(
+            ["Gold -> Predicted", "Direction", "Over budget", "Under budget"],
+            transition_rows,
+        ),
+        "",
+        "### 3. 样本级方向预算",
+        "",
+        "将一条回答涉及的所有记忆块和所有可评分原子放回同一个样本内累加：",
+        "",
+        "`O_s = sum_i o_(s,i)`",
+        "",
+        "`U_s = sum_i u_(s,i)`",
+        "",
+        "`T_s = O_s + U_s`",
+        "",
+        "`O_s`、`U_s` 和 `T_s` 分别是样本过用、少用和总有序错误预算。记忆块数",
+        "和原子数不会直接成为模型级权重，但更多原子会提供更多犯错机会。",
+        "",
+        "### 4. 总体主指标 SCS(0.5)",
+        "",
+        "单样本总体校准分：",
+        "",
+        "`SCS_s(rho) = rho^(O_s + U_s)`，正式口径固定 `rho=0.5`。",
+        "",
+        "模型级总体主指标：",
+        "",
+        "`SCS(rho) = (1/N) * sum_s SCS_s(rho)`。",
+        "",
+        "因此总预算 0/1/2/3/4 对应样本分数 1/0.5/0.25/0.125/0.0625。",
+        "SCS 越高越好；它同时惩罚两个方向，但不能替代方向分解。",
+        "",
+        "### 5. 方向主指标 sOPB/sUPB(0.5)",
+        "",
+        "`sOPB_s(rho) = 1 - rho^O_s`",
+        "",
+        "`sUPB_s(rho) = 1 - rho^U_s`",
+        "",
+        "`sOPB(rho) = (1/N) * sum_s sOPB_s(rho)`",
+        "",
+        "`sUPB(rho) = (1/N) * sum_s sUPB_s(rho)`",
+        "",
+        "两者越低越好。它们区分一次、重复和跨两级错误，同时把每条样本的单方向",
+        "风险限制在 `[0,1)`，避免高原子数样本无限主导结果。`rho=0.5` 时：",
+        "",
+        markdown_table(["Directional budget", "Risk = 1-0.5^budget", "Resistance"], risk_rows),
+        "",
+        "### 6. Directional H",
+        "",
+        "先定义方向抵抗能力 `R_O=1-sOPB`、`R_U=1-sUPB`，再取调和平均：",
+        "",
+        "`Directional H = 2*R_O*R_U/(R_O+R_U)`",
+        "",
+        "等价于 `2*(1-sOPB)*(1-sUPB)/(2-sOPB-sUPB)`。越高越好。它只用于",
+        "紧凑比较；正式报告必须同时给出 sOPB 和 sUPB，避免掩盖方向取舍。",
+        "",
+        "### 7. 事件率护栏与严格准确率",
+        "",
+        "`Any-OPB = (1/N) * sum_s 1[O_s > 0]`",
+        "",
+        "`Any-UPB = (1/N) * sum_s 1[U_s > 0]`",
+        "",
+        "`Exact = (1/N) * sum_s 1[O_s + U_s = 0]`",
+        "",
+        "Any 指标越低越好，Exact 越高越好。Any 只回答某方向是否至少发生一次，",
+        "会把一次轻微错误和多次严重错误都记成 1，因此只作为事件覆盖面护栏。",
+        "Event H 对 `(1-Any-OPB)` 和 `(1-Any-UPB)` 使用与 Directional H 相同的",
+        "调和平均公式，也不能替代两个方向列。",
+        "",
+        "### 8. 聚合、配对差值和置信区间",
+        "",
+        "所有模型级指标都先在样本内汇总，再对 `N` 条样本取算术平均；一条样本无论",
+        "包含多少块和原子，在模型级都只有一个等权观测。95% 区间使用 2,000 次",
+        "样本聚类 bootstrap：每次有放回抽取 `N` 个 sample ID，保留被抽中样本的",
+        "全部原子，再重算指标，最终取 2.5% 和 97.5% 分位数。",
+        "",
+        "Think/Non-Think 与 Base/SFT 差值使用配对 bootstrap。每次只抽取一次 sample ID",
+        "序列，并将同一序列同时应用到比较两侧；报告差值定义为 `after - before`。",
+        "因此 SCS/Exact 的正差值表示改善，sOPB/sUPB 和 Any 的负差值表示改善。",
+        "",
+        "### 9. 手算示例",
+        "",
+        "假设一条样本的四个可评分原子如下：",
+        "",
+        markdown_table(["Atom", "Gold", "Predicted", "Over", "Under"], example_rows),
+        "",
+        "该样本有 `O_s=2`、`U_s=2`、`T_s=4`，因此：",
+        "",
+        "- `SCS_s=0.5^4=0.0625`；",
+        "- `sOPB_s=1-0.5^2=0.75`；",
+        "- `sUPB_s=1-0.5^2=0.75`；",
+        "- `Any-OPB_s=1`、`Any-UPB_s=1`、`Exact_s=0`。",
+        "",
+    ]
+
+
+def methodology_html() -> str:
+    transition_rows = [
+        ["A to A", "correct", "0", "0"],
+        ["A to B", "over-use", "1", "0"],
+        ["A to C", "over-use", "2", "0"],
+        ["B to A", "under-use", "0", "1"],
+        ["B to B", "correct", "0", "0"],
+        ["B to C", "over-use", "1", "0"],
+        ["C to A", "under-use", "0", "2"],
+        ["C to B", "under-use", "0", "1"],
+        ["C to C", "correct", "0", "0"],
+    ]
+    risk_rows = [
+        ["0", "0.000", "1.000"],
+        ["1", "0.500", "0.500"],
+        ["2", "0.750", "0.250"],
+        ["3", "0.875", "0.125"],
+        ["4", "0.938", "0.063"],
+    ]
+    example_rows = [
+        ["1", "A", "B", "1", "0"],
+        ["2", "B", "C", "1", "0"],
+        ["3", "C", "A", "0", "2"],
+        ["4", "B", "B", "0", "0"],
+    ]
+    return (
+        "<section><h2>Detailed calculation</h2>"
+        '<div class="method-step"><h3>1. Ordered atom errors</h3>'
+        "<p>For each scorable atom, map <code>r(A)=0</code>, <code>r(B)=1</code>, "
+        "<code>r(C)=2</code>. Internal A construction subtypes are not exposed to the metric.</p>"
+        '<code class="formula-block">o(s,i) = max(r(predicted) - r(gold), 0)<br>'
+        "u(s,i) = max(r(gold) - r(predicted), 0)</code>"
+        + html_table(
+            ["Gold to predicted", "Direction", "Over budget", "Under budget"],
+            transition_rows,
+        )
+        + '</div><div class="method-step"><h3>2. Sample budgets</h3>'
+        "<p>Sum all scorable atoms across every memory block within one answer sample.</p>"
+        '<code class="formula-block">O(s) = sum_i o(s,i)<br>U(s) = sum_i u(s,i)<br>'
+        "T(s) = O(s) + U(s)</code>"
+        "<p>Block and atom counts do not directly become model-level weights; they increase the "
+        "number of opportunities for error.</p></div>"
+        '<div class="method-step"><h3>3. Overall primary metric</h3>'
+        '<code class="formula-block">SCS(s; rho) = rho^(O(s)+U(s))<br>'
+        "SCS(rho) = mean_s SCS(s; rho)<br>Primary rho = 0.5</code>"
+        "<p>Total budgets 0, 1, 2, 3, and 4 receive scores 1, 0.5, 0.25, 0.125, "
+        "and 0.0625. Higher is better.</p></div>"
+        '<div class="method-step"><h3>4. Directional primary metrics</h3>'
+        '<code class="formula-block">sOPB(s; rho) = 1 - rho^O(s)<br>'
+        "sUPB(s; rho) = 1 - rho^U(s)<br>"
+        "sOPB(rho) = mean_s sOPB(s; rho)<br>sUPB(rho) = mean_s sUPB(s; rho)</code>"
+        "<p>Lower is better. Repeated and two-level errors receive more weight, while each sample "
+        "remains bounded below 1.</p>"
+        + html_table(["Budget", "Risk at rho=0.5", "Resistance"], risk_rows)
+        + '</div><div class="method-step"><h3>5. Directional H</h3>'
+        '<code class="formula-block">R(O) = 1-sOPB; R(U) = 1-sUPB<br>'
+        "Directional H = 2*R(O)*R(U)/(R(O)+R(U))</code>"
+        "<p>Higher is better. This compact summary never replaces the two directional columns.</p>"
+        '</div><div class="method-step"><h3>6. Event guardrails and exact accuracy</h3>'
+        '<code class="formula-block">Any-OPB = mean_s 1[O(s)&gt;0]<br>'
+        "Any-UPB = mean_s 1[U(s)&gt;0]<br>Exact = mean_s 1[O(s)+U(s)=0]</code>"
+        "<p>Any rates measure error coverage, collapsing one and many errors to the same event. "
+        "Event H is the harmonic mean of their two resistance terms.</p></div>"
+        '<div class="method-step"><h3>7. Aggregation and uncertainty</h3>'
+        "<p>Every answer sample has one equal model-level vote. The 95% intervals use 2,000 "
+        "sample-cluster bootstrap replicates and the 2.5th/97.5th percentiles. Paired comparisons "
+        "resample the same sample IDs on both sides and report <code>after - before</code>.</p></div>"
+        '<div class="method-step"><h3>8. Worked example</h3>'
+        + html_table(["Atom", "Gold", "Predicted", "Over", "Under"], example_rows)
+        + "<p>Here <code>O(s)=2</code>, <code>U(s)=2</code>, so "
+        "<code>SCS(s)=0.0625</code>, <code>sOPB(s)=0.75</code>, "
+        "<code>sUPB(s)=0.75</code>, both Any events equal 1, and Exact equals 0.</p>"
+        "</div></section>"
+    )
+
+
 def render_readme(
     result: dict[str, Any],
     main: dict[str, Any],
@@ -336,6 +552,10 @@ def render_readme(
         "  计 1，A/C 跨两级错误计 2。所有模型级值对样本等权。",
         "- 方括号为按样本聚类的 2,000 次 bootstrap 95% 区间。",
         "",
+    ]
+    sections.extend(methodology_markdown())
+    sections.extend(
+        [
         "## Think：Full-memory",
         "",
         metric_table(main, mode="thinking", condition="full_memory", include_intervals=True),
@@ -353,7 +573,8 @@ def render_readme(
         "",
         "八个百炼模型的聚合趋势：",
         "",
-    ]
+        ]
+    )
     for metric, label in (
         ("scs", "SCS"),
         ("directional_opb", "sOPB"),
@@ -478,6 +699,7 @@ def render_html(
             f"<section><h2>{html.escape(title)}</h2>"
             f"{html_metric_table(analysis, mode=mode, condition='full_memory')}</section>"
         )
+    sections.insert(0, methodology_html())
     return """<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -489,6 +711,8 @@ header,main{max-width:1180px;margin:auto;padding:24px}header{padding-top:42px;pa
 h1{font-size:32px;margin:0 0 10px;letter-spacing:0}h2{font-size:21px;margin:0 0 14px;letter-spacing:0}
 p{max-width:940px;color:var(--muted)}.formula{border-left:4px solid var(--accent);padding:10px 14px;background:#eef5f2;color:var(--ink)}
 section{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:22px;margin:18px 0}
+.method-step{padding:18px 0;border-top:1px solid var(--line)}.method-step:first-of-type{border-top:0;padding-top:4px}
+h3{font-size:16px;margin:0 0 8px;letter-spacing:0}.formula-block{display:block;background:#f2f5f4;padding:12px;overflow-x:auto;white-space:nowrap}
 .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}
 th,td{padding:10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 th:first-child,td:first-child{text-align:left}th{color:#40505b;background:#f8f9f8}
@@ -557,6 +781,15 @@ def build_result(
             "directional_primary_upb": "mean_s (1 - 0.5 ** under_budget_s)",
             "event_guardrail_opb": "mean_s 1[over_budget_s > 0]",
             "event_guardrail_upb": "mean_s 1[under_budget_s > 0]",
+            "rank": {"A": 0, "B": 1, "C": 2},
+            "atom_over_budget": "max(rank(predicted) - rank(gold), 0)",
+            "atom_under_budget": "max(rank(gold) - rank(predicted), 0)",
+            "sample_over_budget": "sum_i atom_over_budget",
+            "sample_under_budget": "sum_i atom_under_budget",
+            "directional_h": "harmonic mean of (1-sOPB) and (1-sUPB)",
+            "event_h": "harmonic mean of (1-Any-OPB) and (1-Any-UPB)",
+            "exact": "mean_s 1[over_budget_s + under_budget_s == 0]",
+            "aggregation_unit": "answer sample; equal model-level weight per sample",
             "bootstrap": f"{replicates} sample-cluster replicates; percentile 95% interval",
         },
         "results": {

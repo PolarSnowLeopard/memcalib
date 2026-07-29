@@ -24,16 +24,16 @@
   },
   "outputs": {
     "three-layer-metrics.json": {
-      "sha256": "d0f0644c17dcfb645e6ccead00da5b110cca45a8a84ac7ad4e55c37ff3716118",
-      "bytes": 124282
+      "sha256": "b67afd8a04b959869262cc02c135229c7829bbe1192aa14ab5ed363eb72b9a38",
+      "bytes": 124845
     },
     "README.md": {
-      "sha256": "66b7b7a3faeacb66253c74e85bbc54820828f74c97d6c702f8c83c39d5cfba7d",
-      "bytes": 10311
+      "sha256": "780e6b4d2d6c40ad045c0ed054dcab890d3adde478035d294c8a1da0ea565f10",
+      "bytes": 14563
     },
     "three-layer-metrics.html": {
-      "sha256": "f5e6e75d65a0147ec04b560cbbfed8998b0eb5955e280d1aae2a2b2d3ef4cb07",
-      "bytes": 4885
+      "sha256": "ad5dcbca1ce7cc8d2e87e64e7277d9e96d33ca37f9fd91cca198866afd4c52ae",
+      "bytes": 9200
     }
   }
 }

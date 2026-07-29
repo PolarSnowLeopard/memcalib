@@ -7,6 +7,19 @@
     "directional_primary_upb": "mean_s (1 - 0.5 ** under_budget_s)",
     "event_guardrail_opb": "mean_s 1[over_budget_s > 0]",
     "event_guardrail_upb": "mean_s 1[under_budget_s > 0]",
+    "rank": {
+      "A": 0,
+      "B": 1,
+      "C": 2
+    },
+    "atom_over_budget": "max(rank(predicted) - rank(gold), 0)",
+    "atom_under_budget": "max(rank(gold) - rank(predicted), 0)",
+    "sample_over_budget": "sum_i atom_over_budget",
+    "sample_under_budget": "sum_i atom_under_budget",
+    "directional_h": "harmonic mean of (1-sOPB) and (1-sUPB)",
+    "event_h": "harmonic mean of (1-Any-OPB) and (1-Any-UPB)",
+    "exact": "mean_s 1[over_budget_s + under_budget_s == 0]",
+    "aggregation_unit": "answer sample; equal model-level weight per sample",
     "bootstrap": "2000 sample-cluster replicates; percentile 95% interval"
   },
   "results": {
