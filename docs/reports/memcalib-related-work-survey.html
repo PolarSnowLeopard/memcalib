@@ -1,0 +1,1199 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="长期记忆对话评测相关工作调研，以及 MemCalib 在选择性、原子级、双向记忆使用校准研究中的位置。">
+  <title>从“记得住”到“用得当”：MemCalib 相关工作调研与研究定位</title>
+  <style>
+    :root {
+      --paper: #f5f8f7;
+      --surface: #ffffff;
+      --surface-soft: #edf4f2;
+      --ink: #16282d;
+      --ink-2: #40545b;
+      --muted: #708087;
+      --line: #cfdad8;
+      --line-strong: #9eb3af;
+      --teal: #0b6e69;
+      --teal-dark: #07504d;
+      --teal-light: #d9ece8;
+      --gold: #b87b22;
+      --gold-light: #f7ead2;
+      --coral: #ad5148;
+      --coral-light: #f6dfdc;
+      --blue: #386b8c;
+      --blue-light: #e0ebf2;
+      --shadow: 0 10px 28px rgba(28, 54, 57, 0.08);
+      --radius: 8px;
+      --sans: "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", Arial, sans-serif;
+      --serif: "Songti SC", "Noto Serif CJK SC", "STSong", Georgia, serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 88px;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.78;
+      letter-spacing: 0;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: var(--teal-dark);
+      text-decoration-color: rgba(11, 110, 105, 0.38);
+      text-underline-offset: 3px;
+    }
+
+    a:hover { text-decoration-color: var(--teal); }
+    a:focus-visible, button:focus-visible { outline: 3px solid rgba(184, 123, 34, 0.42); outline-offset: 3px; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(158, 179, 175, 0.75);
+      background: rgba(245, 248, 247, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar-inner {
+      width: min(1380px, calc(100% - 40px));
+      height: 64px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      color: var(--ink);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .brand strong { font-family: var(--serif); font-size: 20px; }
+    .brand span { color: var(--muted); font-family: var(--mono); font-size: 11px; text-transform: uppercase; }
+
+    .top-actions { display: flex; align-items: center; gap: 20px; }
+    .top-actions a { color: var(--ink-2); font-size: 13px; font-weight: 650; text-decoration: none; }
+    .top-actions a:hover { color: var(--teal); }
+
+    .print-button {
+      border: 1px solid var(--ink);
+      border-radius: 4px;
+      padding: 7px 12px;
+      color: #fff;
+      background: var(--ink);
+      font: 650 13px/1 var(--sans);
+      cursor: pointer;
+    }
+
+    .print-button:hover { background: var(--teal-dark); border-color: var(--teal-dark); }
+
+    .page {
+      width: min(1380px, calc(100% - 40px));
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 244px minmax(0, 1fr);
+      gap: 54px;
+      align-items: start;
+    }
+
+    .toc {
+      position: sticky;
+      top: 96px;
+      max-height: calc(100vh - 120px);
+      padding: 22px 0 28px;
+      overflow-y: auto;
+    }
+
+    .toc-title {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .toc ol { margin: 0; padding: 0; list-style: none; }
+    .toc li { border-left: 2px solid var(--line); }
+
+    .toc a {
+      display: block;
+      padding: 7px 12px;
+      color: var(--ink-2);
+      font-size: 13px;
+      line-height: 1.45;
+      text-decoration: none;
+    }
+
+    .toc a:hover { color: var(--teal); }
+    .toc a.active { border-left: 2px solid var(--teal); margin-left: -2px; color: var(--teal-dark); font-weight: 700; }
+
+    .toc-note {
+      margin-top: 24px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.56);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    main { min-width: 0; padding-bottom: 100px; }
+
+    .hero {
+      min-height: 590px;
+      padding: 82px 0 64px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.55fr);
+      gap: 70px;
+      align-items: end;
+      border-bottom: 1px solid var(--line-strong);
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      color: var(--teal-dark);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before { width: 44px; height: 3px; background: var(--teal); content: ""; }
+
+    h1, h2, h3 { letter-spacing: 0; }
+
+    h1 {
+      max-width: 900px;
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(44px, 5vw, 76px);
+      font-weight: 700;
+      line-height: 1.13;
+    }
+
+    h1 span { color: var(--teal-dark); }
+
+    .hero-lede {
+      max-width: 820px;
+      margin: 30px 0 0;
+      color: var(--ink-2);
+      font-size: 20px;
+      line-height: 1.75;
+    }
+
+    .hero-meta {
+      align-self: stretch;
+      padding-left: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      border-left: 1px solid var(--line-strong);
+    }
+
+    .hero-meta dl { margin: 0; }
+    .hero-meta div { padding: 16px 0; border-top: 1px solid var(--line); }
+    .hero-meta div:last-child { border-bottom: 1px solid var(--line); }
+    .hero-meta dt { color: var(--muted); font-family: var(--mono); font-size: 11px; text-transform: uppercase; }
+    .hero-meta dd { margin: 5px 0 0; font-size: 14px; font-weight: 650; line-height: 1.5; }
+
+    .section {
+      padding: 84px 0 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section:last-of-type { border-bottom: 0; }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 28px;
+      margin-bottom: 38px;
+      align-items: start;
+    }
+
+    .section-kicker {
+      padding-top: 7px;
+      color: var(--teal-dark);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(30px, 3.4vw, 46px);
+      line-height: 1.25;
+    }
+
+    .section-intro {
+      max-width: 880px;
+      margin: 16px 0 0;
+      color: var(--ink-2);
+      font-size: 17px;
+      line-height: 1.8;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 21px;
+      line-height: 1.4;
+    }
+
+    p { margin: 0 0 18px; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      border-top: 1px solid var(--line-strong);
+      border-left: 1px solid var(--line-strong);
+    }
+
+    .summary-item {
+      min-height: 210px;
+      padding: 28px;
+      border-right: 1px solid var(--line-strong);
+      border-bottom: 1px solid var(--line-strong);
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .summary-item .index {
+      display: block;
+      margin-bottom: 34px;
+      color: var(--teal);
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .summary-item p { margin: 0; color: var(--ink-2); }
+    .summary-item strong { color: var(--ink); }
+
+    .position-statement {
+      margin-top: 30px;
+      padding: 30px 32px;
+      border-left: 5px solid var(--teal);
+      background: var(--surface-soft);
+      font-family: var(--serif);
+      font-size: 21px;
+      line-height: 1.8;
+    }
+
+    .position-statement b { color: var(--teal-dark); }
+
+    .evolution {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(190px, 1fr));
+      gap: 0;
+      overflow-x: auto;
+      padding: 12px 0 8px;
+    }
+
+    .evolution::before {
+      position: absolute;
+      top: 49px;
+      right: 8%;
+      left: 8%;
+      height: 2px;
+      background: var(--line-strong);
+      content: "";
+    }
+
+    .era { position: relative; min-width: 210px; padding: 0 24px 22px; }
+    .era:first-child { padding-left: 0; }
+    .era:last-child { padding-right: 0; }
+
+    .era-year {
+      display: block;
+      height: 38px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .era-dot {
+      position: relative;
+      z-index: 1;
+      width: 18px;
+      height: 18px;
+      margin-bottom: 26px;
+      border: 4px solid var(--paper);
+      border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 0 1px var(--teal-dark);
+    }
+
+    .era:last-child .era-dot { background: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+    .era h3 { font-size: 18px; }
+    .era p { color: var(--ink-2); font-size: 14px; line-height: 1.7; }
+    .era .papers { color: var(--muted); font-size: 12px; }
+
+    .map-wrap {
+      margin-top: 42px;
+      padding: 30px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .figure-head { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+    .figure-head h3 { margin: 0; }
+    .figure-head p { margin: 0; color: var(--muted); font-size: 13px; }
+
+    .position-map {
+      position: relative;
+      height: 540px;
+      margin: 0 24px 36px 68px;
+      border-left: 2px solid var(--ink-2);
+      border-bottom: 2px solid var(--ink-2);
+      background-image:
+        linear-gradient(to right, transparent calc(50% - 0.5px), var(--line) 50%, transparent calc(50% + 0.5px)),
+        linear-gradient(to bottom, transparent calc(50% - 0.5px), var(--line) 50%, transparent calc(50% + 0.5px));
+    }
+
+    .axis-y {
+      position: absolute;
+      top: 50%;
+      left: -78px;
+      width: 200px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+      text-align: center;
+      transform: rotate(-90deg) translateY(-50%);
+      transform-origin: center;
+    }
+
+    .axis-x {
+      position: absolute;
+      right: 0;
+      bottom: -34px;
+      left: 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+      text-align: center;
+    }
+
+    .axis-label { position: absolute; color: var(--muted); font-family: var(--mono); font-size: 10px; }
+    .axis-label.y-high { top: -24px; left: -10px; }
+    .axis-label.y-low { bottom: 4px; left: -58px; }
+    .axis-label.x-low { bottom: -30px; left: 0; }
+    .axis-label.x-high { right: 0; bottom: -30px; }
+
+    .map-point {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+    }
+
+    .map-point span {
+      display: block;
+      padding: 6px 9px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      color: var(--ink-2);
+      background: rgba(255, 255, 255, 0.94);
+      font-size: 11px;
+      font-weight: 700;
+      box-shadow: 0 3px 10px rgba(28, 54, 57, 0.08);
+    }
+
+    .map-point.near span { border-color: var(--gold); color: #6e4914; background: var(--gold-light); }
+    .map-point.focus span { padding: 9px 13px; border-color: var(--teal-dark); color: #fff; background: var(--teal-dark); font-size: 13px; }
+
+    .map-caption { margin: 18px 0 0; color: var(--ink-2); font-size: 14px; line-height: 1.75; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 14px; color: var(--muted); font-size: 12px; }
+    .legend span::before { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border: 1px solid var(--line-strong); content: ""; vertical-align: -1px; }
+    .legend .near::before { border-color: var(--gold); background: var(--gold-light); }
+    .legend .focus::before { border-color: var(--teal-dark); background: var(--teal-dark); }
+
+    .table-wrap {
+      margin-top: 28px;
+      overflow-x: auto;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.58; }
+    th, td { padding: 16px 14px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th:last-child, td:last-child { border-right: 0; }
+    tr:last-child td { border-bottom: 0; }
+    th { color: var(--ink); background: var(--surface-soft); font-size: 12px; font-weight: 750; white-space: nowrap; }
+    tbody tr:hover td { background: #f9fbfa; }
+    .work-name { min-width: 152px; font-weight: 750; }
+    .work-name small { display: block; margin-top: 3px; color: var(--muted); font-weight: 500; }
+    .scale { font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+    .memcalib-row td { background: rgba(217, 236, 232, 0.52); }
+    .memcalib-row .work-name { color: var(--teal-dark); }
+
+    .table-note { margin: 14px 2px 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+
+    .neighbors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+
+    .neighbor {
+      padding: 26px;
+      border: 1px solid var(--line-strong);
+      border-top: 4px solid var(--gold);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .neighbor-title { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+    .neighbor-title h3 { margin: 0; }
+    .neighbor-title span { color: var(--muted); font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+    .neighbor dl { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 11px 14px; margin: 0; }
+    .neighbor dt { color: var(--muted); font-size: 12px; font-weight: 700; }
+    .neighbor dd { margin: 0; color: var(--ink-2); font-size: 14px; line-height: 1.7; }
+    .neighbor dd strong { color: var(--ink); }
+
+    .calibration-figure {
+      padding: 30px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .calibration-flow {
+      display: grid;
+      grid-template-columns: minmax(150px, 1fr) 42px minmax(170px, 1.05fr) 42px minmax(190px, 1.1fr) 42px minmax(155px, 0.9fr);
+      align-items: stretch;
+      gap: 0;
+    }
+
+    .flow-node {
+      min-height: 166px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fbfcfc;
+    }
+
+    .flow-node.highlight { border-color: var(--teal); background: var(--teal-light); }
+    .flow-node.output { border-color: var(--gold); background: var(--gold-light); }
+    .flow-node .node-label { display: block; margin-bottom: 14px; color: var(--muted); font-family: var(--mono); font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .flow-node strong { display: block; margin-bottom: 8px; font-size: 17px; line-height: 1.4; }
+    .flow-node p { margin: 0; color: var(--ink-2); font-size: 12px; line-height: 1.65; }
+    .flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--teal-dark); font-size: 24px; }
+
+    .equation {
+      margin: 28px 0 16px;
+      padding: 24px;
+      border-left: 4px solid var(--teal);
+      background: var(--surface-soft);
+      font-family: var(--serif);
+      font-size: 21px;
+      text-align: center;
+    }
+
+    .equation-note { color: var(--ink-2); font-size: 14px; }
+
+    .contribution-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 34px;
+    }
+
+    .contribution {
+      padding: 26px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .contribution .number { display: block; margin-bottom: 18px; color: var(--teal); font-family: var(--mono); font-size: 12px; font-weight: 700; }
+    .contribution p { margin: 0; color: var(--ink-2); font-size: 14px; }
+
+    .claim-boundary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      margin-top: 42px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .claim-column { padding: 30px; background: var(--surface); }
+    .claim-column + .claim-column { border-left: 1px solid var(--line-strong); }
+    .claim-column.allowed { border-top: 5px solid var(--teal); }
+    .claim-column.avoid { border-top: 5px solid var(--coral); }
+    .claim-column h3 { margin-bottom: 20px; }
+    .claim-column ul { margin: 0; padding: 0; list-style: none; }
+    .claim-column li { position: relative; margin: 0 0 16px; padding-left: 22px; color: var(--ink-2); font-size: 14px; }
+    .claim-column li:last-child { margin-bottom: 0; }
+    .claim-column li::before { position: absolute; left: 0; top: 0.7em; width: 8px; height: 8px; border-radius: 50%; background: var(--teal); content: ""; }
+    .claim-column.avoid li::before { background: var(--coral); }
+
+    .writing-box {
+      margin-top: 28px;
+      padding: 30px;
+      border: 1px solid var(--teal);
+      border-radius: var(--radius);
+      background: var(--teal-light);
+    }
+
+    .writing-box h3 { color: var(--teal-dark); }
+    .writing-box blockquote { margin: 16px 0 0; font-family: var(--serif); font-size: 18px; line-height: 1.85; }
+
+    .risk-table td:first-child { width: 185px; font-weight: 750; }
+    .priority { display: inline-block; min-width: 56px; padding: 2px 6px; border: 1px solid currentColor; border-radius: 3px; font-family: var(--mono); font-size: 10px; font-weight: 700; text-align: center; }
+    .priority.high { color: var(--coral); }
+    .priority.medium { color: var(--gold); }
+
+    .reference-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 30px; margin: 0; padding: 0; list-style: none; counter-reset: refs; }
+    .reference-list li { position: relative; padding: 16px 0 16px 42px; border-top: 1px solid var(--line); color: var(--ink-2); font-size: 13px; line-height: 1.65; counter-increment: refs; }
+    .reference-list li::before { position: absolute; left: 0; top: 16px; color: var(--teal-dark); font-family: var(--mono); font-weight: 700; content: "[" counter(refs) "]"; }
+    .reference-list strong { color: var(--ink); }
+    .ref-tag { display: inline-block; margin-left: 6px; color: var(--muted); font-family: var(--mono); font-size: 9px; text-transform: uppercase; }
+
+    .cite { color: var(--teal-dark); font-family: var(--mono); font-size: 0.72em; font-weight: 700; text-decoration: none; vertical-align: super; }
+    .cite:hover { text-decoration: underline; }
+
+    .report-footer {
+      margin-top: 70px;
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      border-top: 1px solid var(--line-strong);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .back-top { color: var(--teal-dark); font-weight: 700; text-decoration: none; }
+
+    @media (max-width: 1100px) {
+      .page { grid-template-columns: 1fr; gap: 0; }
+      .toc { display: none; }
+      .hero { min-height: auto; grid-template-columns: 1fr; gap: 40px; padding-top: 72px; }
+      .hero-meta { padding-left: 0; border-left: 0; }
+      .hero-meta dl { display: grid; grid-template-columns: repeat(3, 1fr); }
+      .hero-meta div { padding: 14px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+      .calibration-flow { grid-template-columns: 1fr 34px 1fr; gap: 12px 0; }
+      .calibration-flow .flow-arrow:nth-of-type(4) { display: none; }
+      .calibration-flow .flow-node:nth-of-type(5) { grid-column: 1; }
+      .calibration-flow .flow-arrow:nth-of-type(6) { grid-column: 2; }
+      .calibration-flow .flow-node:nth-of-type(7) { grid-column: 3; }
+    }
+
+    @media (max-width: 760px) {
+      body { font-size: 15px; }
+      .topbar-inner, .page { width: min(100% - 24px, 1380px); }
+      .brand span, .top-actions a { display: none; }
+      .topbar-inner { height: 58px; }
+      .hero { padding: 52px 0 42px; }
+      h1 { font-size: 42px; }
+      .hero-lede { font-size: 17px; }
+      .hero-meta dl { grid-template-columns: 1fr; }
+      .hero-meta div { border-right: 0; }
+      .section { padding-top: 64px; }
+      .section-head { grid-template-columns: 1fr; gap: 6px; }
+      .summary-grid, .neighbors, .contribution-grid, .claim-boundary, .reference-list { grid-template-columns: 1fr; }
+      .claim-column + .claim-column { border-left: 0; border-top: 1px solid var(--line-strong); }
+      .claim-column.avoid { border-top: 5px solid var(--coral); }
+      .position-statement { padding: 24px; font-size: 18px; }
+      .map-wrap, .calibration-figure { padding: 18px; }
+      .position-map { height: 520px; margin-left: 52px; margin-right: 8px; }
+      .map-point span { max-width: 108px; white-space: normal; line-height: 1.3; text-align: center; }
+      .calibration-flow { grid-template-columns: 1fr; gap: 8px; }
+      .calibration-flow .flow-node, .calibration-flow .flow-arrow { grid-column: 1 !important; }
+      .calibration-flow .flow-arrow { transform: rotate(90deg); }
+      .calibration-flow .flow-arrow:nth-of-type(4) { display: flex; }
+      .flow-node { min-height: auto; }
+      .report-footer { flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+
+    @media print {
+      @page { margin: 18mm 15mm; size: A4; }
+      body { color: #111; background: #fff; font-size: 10.5pt; }
+      .topbar, .toc, .back-top { display: none !important; }
+      .page { display: block; width: 100%; }
+      main { padding: 0; }
+      .hero { min-height: 0; padding: 0 0 16mm; grid-template-columns: 1fr 0.38fr; }
+      h1 { font-size: 34pt; }
+      h2 { font-size: 23pt; }
+      .section { padding: 14mm 0 7mm; break-inside: auto; }
+      .map-wrap, .table-wrap, .neighbor, .calibration-figure, .contribution, .claim-boundary, .writing-box { box-shadow: none; break-inside: avoid; }
+      .position-map { height: 120mm; }
+      a { color: inherit; text-decoration: none; }
+      .reference-list { grid-template-columns: 1fr; }
+      .report-footer { margin-top: 10mm; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar" id="top">
+    <div class="topbar-inner">
+      <a class="brand" href="#top" aria-label="返回报告顶部">
+        <strong>MemCalib</strong>
+        <span>Research landscape report</span>
+      </a>
+      <nav class="top-actions" aria-label="报告操作">
+        <a href="#position">研究定位</a>
+        <a href="#comparison">工作比较</a>
+        <a href="#references">参考文献</a>
+        <button class="print-button" type="button" onclick="window.print()">打印 / 导出 PDF</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <aside class="toc" aria-label="目录">
+      <p class="toc-title">Contents</p>
+      <ol>
+        <li><a href="#summary">核心结论</a></li>
+        <li><a href="#landscape">研究版图</a></li>
+        <li><a href="#comparison">横向比较</a></li>
+        <li><a href="#neighbors">最近邻工作</a></li>
+        <li><a href="#position">MemCalib 的位置</a></li>
+        <li><a href="#claims">贡献与主张边界</a></li>
+        <li><a href="#gaps">限制与补强方向</a></li>
+        <li><a href="#references">参考文献</a></li>
+      </ol>
+      <div class="toc-note">
+        调研范围：2023 年至 2026 年 7 月。优先核对论文原文、ACL Anthology、arXiv 与官方项目仓库。
+      </div>
+    </aside>
+
+    <main>
+      <section class="hero" aria-labelledby="report-title">
+        <div>
+          <div class="eyebrow">Related Work Survey · July 2026</div>
+          <h1 id="report-title">从“记得住”到<br><span>“用得当”</span></h1>
+          <p class="hero-lede">长期记忆对话评测的研究版图，以及 MemCalib 在非原子记忆输入、原子级监督与双向使用校准交叉位置上的研究空间。</p>
+        </div>
+        <div class="hero-meta">
+          <dl>
+            <div><dt>文献范围</dt><dd>14 项代表性系统与 benchmark</dd></div>
+            <div><dt>重点邻域</dt><dd>RPEval · StratMem-Bench · BenchPreS · OP-Bench</dd></div>
+            <div><dt>比较维度</dt><dd>评估环节 · 记忆类型 · 监督粒度 · 使用等级 · 偏差方向</dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="section" id="summary">
+        <div class="section-head">
+          <div class="section-kicker">Technical summary</div>
+          <div>
+            <h2>研究问题正在转向“影响是否合度”</h2>
+            <p class="section-intro">早期长期记忆研究主要衡量信息能否被保存、检索与回忆；近两年的评测开始考察记忆进入回答之后是否产生恰当影响。MemCalib 位于这一新阶段，其价值取决于对“影响强度”与“监督粒度”的进一步形式化。</p>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <article class="summary-item">
+            <span class="index">01 / FIELD SHIFT</span>
+            <p><strong>长期记忆能力与记忆使用校准构成两个不同的评估层次。</strong>LoCoMo、LongMemEval 和 MemoryAgentBench 重点覆盖回忆、时序推理、更新与遗忘；RPEval、OP-Bench、BenchPreS 和 StratMem-Bench 已将研究焦点推进到选择性使用与过度使用。<a class="cite" href="#ref-locomo">[5]</a><a class="cite" href="#ref-longmemeval">[6]</a><a class="cite" href="#ref-rpeval">[12]</a><a class="cite" href="#ref-stratmem">[14]</a></p>
+          </article>
+          <article class="summary-item">
+            <span class="index">02 / CLOSEST PRIOR ART</span>
+            <p><strong>RPEval 与 StratMem-Bench 是最直接的概念邻居。</strong>前者已经使用 Ignore / Support / Dominate 的三级偏好标签；后者已经区分 required / supportive / irrelevant 记忆。三级角色本身不宜作为 MemCalib 的优先性主张。<a class="cite" href="#ref-rpeval">[12]</a><a class="cite" href="#ref-stratmem">[14]</a></p>
+          </article>
+          <article class="summary-item">
+            <span class="index">03 / DISTINCTIVE POSITION</span>
+            <p><strong>MemCalib 的主要区分度来自表示层与评价层的分离。</strong>模型接收现实记忆系统可能返回的非原子总结块，评估端保留隐藏原子命题、逐原子规范标签和可观察 rubric，从而能够识别同一可见记忆块内部的混合使用要求。</p>
+          </article>
+          <article class="summary-item">
+            <span class="index">04 / CLAIM BOUNDARY</span>
+            <p><strong>当前版本适合主张“异质长期记忆的原子级有序使用校准”。</strong>“通用对话 benchmark”仍需更多非医疗数据源支持；“首个过度个性化评测”“首个三级记忆策略评测”等表述均会与近期工作发生直接冲突。<a class="cite" href="#ref-opbench">[11]</a><a class="cite" href="#ref-rpeval">[12]</a><a class="cite" href="#ref-benchpres">[13]</a></p>
+          </article>
+        </div>
+
+        <div class="position-statement">
+          <b>建议定位：</b>MemCalib 研究异质长期记忆在回答生成中的适度影响。它在模型侧保留非原子记忆形态，在评估侧以隐藏原子命题和实例化 rubric 描述每条信息应当产生的影响等级，并通过实际等级与规范等级的有序偏差同时测量过度使用与使用不足。
+        </div>
+      </section>
+
+      <section class="section" id="landscape">
+        <div class="section-head">
+          <div class="section-kicker">Research landscape</div>
+          <div>
+            <h2>四轮演进把评价对象推向回答生成端</h2>
+            <p class="section-intro">该领域的发展可以按照评价对象划分为四个阶段。各阶段仍然并存，后继阶段扩大了问题边界，并未取代前序系统能力。</p>
+          </div>
+        </div>
+
+        <div class="evolution" aria-label="长期记忆研究演进">
+          <article class="era">
+            <span class="era-year">2023</span><div class="era-dot"></div>
+            <h3>记忆机制</h3>
+            <p>建立记忆流、反思、层级存储与动态上下文管理，使长期交互成为可实现的系统能力。</p>
+            <div class="papers">Generative Agents · MemoryBank · MemGPT</div>
+          </article>
+          <article class="era">
+            <span class="era-year">2024–2025</span><div class="era-dot"></div>
+            <h3>长期记忆能力</h3>
+            <p>以问答、时序推理、更新、检索和选择性遗忘衡量记忆系统能否恢复历史信息。</p>
+            <div class="papers">LoCoMo · LongMemEval · MemoryAgentBench</div>
+          </article>
+          <article class="era">
+            <span class="era-year">2024–2025</span><div class="era-dot"></div>
+            <h3>个性化遵循</h3>
+            <p>评估模型能否从用户画像与对话历史中识别偏好，并据此改善分类、生成与任务完成。</p>
+            <div class="papers">LaMP · PrefEval · PersonaLens</div>
+          </article>
+          <article class="era">
+            <span class="era-year">2026</span><div class="era-dot"></div>
+            <h3>选择性与校准</h3>
+            <p>开始明确记忆应当被忽略、局部使用或控制回答，并测量过度应用、抑制不足与策略性整合。</p>
+            <div class="papers">OP-Bench · RPEval · BenchPreS · StratMem-Bench · MemCalib</div>
+          </article>
+        </div>
+
+        <figure class="map-wrap" aria-labelledby="map-title">
+          <div class="figure-head">
+            <h3 id="map-title">代表性工作的任务位置</h3>
+            <p>概念坐标，用于比较研究问题；点位不代表性能排序</p>
+          </div>
+          <div class="position-map" role="img" aria-label="横轴从存储检索到回答生成，纵轴从事实回忆到情境适当性和有序校准。MemCalib 位于回答生成与有序校准交叉区域。">
+            <div class="axis-y">规范粒度：事实正确性 → 情境适当性与有序校准</div>
+            <div class="axis-x">评估环节：存储 / 检索 → 回答生成 / 记忆影响</div>
+            <span class="axis-label y-high">CALIBRATED</span>
+            <span class="axis-label y-low">RECALL</span>
+            <span class="axis-label x-low">MEMORY CORE</span>
+            <span class="axis-label x-high">RESPONSE USE</span>
+
+            <div class="map-point" style="left:15%;top:80%"><span>LoCoMo</span></div>
+            <div class="map-point" style="left:28%;top:70%"><span>LongMemEval</span></div>
+            <div class="map-point" style="left:39%;top:60%"><span>MemoryAgentBench</span></div>
+            <div class="map-point" style="left:65%;top:70%"><span>LaMP</span></div>
+            <div class="map-point" style="left:72%;top:61%"><span>PrefEval</span></div>
+            <div class="map-point" style="left:80%;top:52%"><span>PersonaLens</span></div>
+            <div class="map-point near" style="left:76%;top:30%"><span>OP-Bench</span></div>
+            <div class="map-point near" style="left:84%;top:21%"><span>BenchPreS</span></div>
+            <div class="map-point near" style="left:66%;top:18%"><span>RPEval</span></div>
+            <div class="map-point near" style="left:72%;top:10%"><span>StratMem-Bench</span></div>
+            <div class="map-point focus" style="left:92%;top:8%"><span>MemCalib</span></div>
+          </div>
+          <div class="legend"><span>背景工作</span><span class="near">直接邻近工作</span><span class="focus">本工作</span></div>
+          <figcaption class="map-caption">MemCalib 与近期选择性记忆工作共享“应否使用”的问题意识，同时把评价单位推进到非原子记忆块内部的原子命题，并将使用行为表示为有序影响等级。这个位置更接近“响应层的记忆影响校准”，与检索准确率或偏好遵循率形成互补。</figcaption>
+        </figure>
+      </section>
+
+      <section class="section" id="comparison">
+        <div class="section-head">
+          <div class="section-kicker">Comparative review</div>
+          <div>
+            <h2>现有 benchmark 覆盖了不同的“记忆正确性”</h2>
+            <p class="section-intro">横向比较需要同时区分评价单位、记忆类型与决策空间。表中的规模沿用各论文报告的原始单位，不能据此直接判断 benchmark 的覆盖强弱。</p>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table aria-label="代表性记忆与个性化 benchmark 比较">
+            <thead>
+              <tr>
+                <th>工作</th>
+                <th>核心问题</th>
+                <th>记忆 / 个性化对象</th>
+                <th>主要评估单位</th>
+                <th>使用决策空间</th>
+                <th>方向性错误</th>
+                <th>论文报告规模</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="work-name">LoCoMo<small>2024</small></td>
+                <td>模型能否理解超长多会话历史</td>
+                <td>事件、人物、时间与图像对话</td>
+                <td>问题 / 对话</td>
+                <td>回忆与推理</td>
+                <td>以遗漏和事实错误为主</td>
+                <td class="scale">≈300 turns / dialogue</td>
+              </tr>
+              <tr>
+                <td class="work-name">LongMemEval<small>ICLR 2025</small></td>
+                <td>长期记忆系统能否抽取、推理、更新与拒答</td>
+                <td>用户—助手历史事实</td>
+                <td>问题</td>
+                <td>五类记忆能力</td>
+                <td>以欠回忆为主</td>
+                <td class="scale">500 questions</td>
+              </tr>
+              <tr>
+                <td class="work-name">MemoryAgentBench<small>2025 / v4 2026</small></td>
+                <td>记忆 agent 能否在增量交互中管理信息</td>
+                <td>多轮增量信息</td>
+                <td>任务 / agent</td>
+                <td>检索、学习、长程理解、遗忘</td>
+                <td>系统能力分项</td>
+                <td class="scale">multi-dataset suite</td>
+              </tr>
+              <tr>
+                <td class="work-name">LaMP<small>ACL 2024</small></td>
+                <td>用户画像能否改善个性化输出</td>
+                <td>多条用户画像记录</td>
+                <td>任务样本</td>
+                <td>任务正确性 / 生成质量</td>
+                <td>未显式分离过度与不足</td>
+                <td class="scale">7 tasks</td>
+              </tr>
+              <tr>
+                <td class="work-name">PrefEval<small>ICLR 2025 Oral</small></td>
+                <td>模型能否识别、记忆并遵循用户偏好</td>
+                <td>显式与隐式偏好</td>
+                <td>偏好—问题对</td>
+                <td>偏好遵循</td>
+                <td>主要关注未遵循</td>
+                <td class="scale">3,000 pairs</td>
+              </tr>
+              <tr>
+                <td class="work-name">PersonaLens<small>ACL Findings 2025</small></td>
+                <td>任务型助手能否个性化并完成任务</td>
+                <td>用户画像与交互历史</td>
+                <td>对话 / 任务</td>
+                <td>个性化、任务成功、质量</td>
+                <td>综合评估</td>
+                <td class="scale">task-oriented conversations</td>
+              </tr>
+              <tr>
+                <td class="work-name">OP-Bench<small>2026 preprint</small></td>
+                <td>记忆增强是否诱发过度个性化</td>
+                <td>长对话派生用户画像</td>
+                <td>问题 / 失败类型</td>
+                <td>无关、重复、谄媚</td>
+                <td>过度方向</td>
+                <td class="scale">1,700 instances</td>
+              </tr>
+              <tr>
+                <td class="work-name">RPEval<small>2026 preprint</small></td>
+                <td>偏好记忆应被忽略、支持或主导</td>
+                <td>显式 / 隐式偏好</td>
+                <td>原子偏好—问题标注</td>
+                <td>Ignore / Support / Dominate</td>
+                <td>兼顾不合理使用与未充分使用</td>
+                <td class="scale">300 queries + 953 atoms / setting</td>
+              </tr>
+              <tr>
+                <td class="work-name">BenchPreS<small>2026 preprint</small></td>
+                <td>偏好在正式沟通中应当应用或抑制</td>
+                <td>风格、称谓与表达偏好</td>
+                <td>属性</td>
+                <td>Apply / Suppress</td>
+                <td>MR 与 AAR</td>
+                <td class="scale">1,950 attribute instances</td>
+              </tr>
+              <tr>
+                <td class="work-name">StratMem-Bench<small>ACL 2026</small></td>
+                <td>虚拟角色能否策略性选择并整合记忆</td>
+                <td>required / supportive / irrelevant items</td>
+                <td>记忆条目 / 回答</td>
+                <td>是否使用 + 整合质量</td>
+                <td>最小使用与过度包含</td>
+                <td class="scale">657 instances</td>
+              </tr>
+              <tr class="memcalib-row">
+                <td class="work-name">MemCalib<small>v0.1, 2026</small></td>
+                <td>异质记忆对回答产生的影响是否达到适当等级</td>
+                <td>事实、偏好、约束与安全敏感记忆</td>
+                <td>隐藏原子命题</td>
+                <td>A / B / C 有序影响</td>
+                <td>OPB 与 UPB 对称测量</td>
+                <td class="scale">15,526 samples · 78,726 atoms</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-note">注：RPEval 的显式与隐式设置各包含 300 条 query-level 记录和 953 条 atomic annotations；MemCalib 的 15,526 表示样本数，78,726 表示隐藏原子标注数。各工作统计单位不同，规模列用于说明评价粒度与数据量级。</p>
+      </section>
+
+      <section class="section" id="neighbors">
+        <div class="section-head">
+          <div class="section-kicker">Nearest neighbors</div>
+          <div>
+            <h2>四项最近邻工作分别占据不同的重叠区域</h2>
+            <p class="section-intro">MemCalib 的论文叙事需要正面讨论这些工作，并把差异落到可验证的设计对象上。笼统使用“选择性记忆”“适度个性化”或“超越事实回忆”难以形成充分区分。</p>
+          </div>
+        </div>
+
+        <div class="neighbors">
+          <article class="neighbor">
+            <div class="neighbor-title"><h3>RPEval</h3><span>标签空间最近</span></div>
+            <dl>
+              <dt>已覆盖</dt><dd>对每条偏好标注 Ignore、Support、Dominate；多偏好样本使用 A/B/C 对齐标签；同时包含显式记忆与对话化隐式记忆。<a class="cite" href="#ref-rpeval">[12]</a></dd>
+              <dt>关键重叠</dt><dd><strong>三级规范使用强度与双向偏差意识。</strong>MemCalib 不应把 A/B/C 划分本身作为首创。</dd>
+              <dt>主要差异</dt><dd>RPEval 聚焦偏好及意图推理；MemCalib 覆盖事实、偏好、约束和安全敏感信息，并评价回答中的实际影响等级，而非仅预测使用策略或按生成错误类型评分。</dd>
+              <dt>写作位置</dt><dd>应作为最核心的相关工作，定位为从“偏好利用推理”扩展到“异质记忆的响应级影响校准”。</dd>
+            </dl>
+          </article>
+
+          <article class="neighbor">
+            <div class="neighbor-title"><h3>StratMem-Bench</h3><span>任务语义最近</span></div>
+            <dl>
+              <dt>已覆盖</dt><dd>在虚拟角色对话中区分 required、supportive、irrelevant 记忆，要求使用全部 required、选择性加入 supportive 并抑制 irrelevant，同时评价整合质量。<a class="cite" href="#ref-stratmem">[14]</a></dd>
+              <dt>关键重叠</dt><dd><strong>从事实回忆推进到策略性使用。</strong>“必要—支持—无关”三分法已有明确先例。</dd>
+              <dt>主要差异</dt><dd>其模型输入由独立记忆条目组成，使用判断近似二值；MemCalib 保留非原子父记忆，允许一个可见块内部包含不同规范标签，并以 A/B/C 描述实际影响足迹。</dd>
+              <dt>写作位置</dt><dd>应强调“memory item selection”与“within-block atomic calibration”的区别，并承认其在角色对话和整合质量上的更强覆盖。</dd>
+            </dl>
+          </article>
+
+          <article class="neighbor">
+            <div class="neighbor-title"><h3>BenchPreS</h3><span>选择性权衡最近</span></div>
+            <dl>
+              <dt>已覆盖</dt><dd>在 39 个正式沟通情境中，以人工一致标注判断偏好属性应当应用或抑制，并通过 Misapplication Rate 与 Appropriate Application Rate 呈现过度应用和恰当应用之间的权衡。<a class="cite" href="#ref-benchpres">[13]</a></dd>
+              <dt>关键重叠</dt><dd><strong>同时关注“错误应用”和“应当应用却未应用”。</strong>这与 OPB / UPB 的双向测量动机高度一致。</dd>
+              <dt>主要差异</dt><dd>BenchPreS 采用二值 apply/suppress，范围集中于第三方正式沟通中的表达偏好；MemCalib 采用三级影响强度，并覆盖更广的记忆类型与问答后果。</dd>
+              <dt>写作位置</dt><dd>MemCalib 应突出有序强度和原子级 rubric，同时借鉴其三人一致保留机制加强人工验证。</dd>
+            </dl>
+          </article>
+
+          <article class="neighbor">
+            <div class="neighbor-title"><h3>OP-Bench</h3><span>过度使用最近</span></div>
+            <dl>
+              <dt>已覆盖</dt><dd>从长程对话构造 1,700 条验证样本，将过度个性化划分为无关、重复与谄媚，并显示加入记忆后各类系统都会出现明显退化。<a class="cite" href="#ref-opbench">[11]</a></dd>
+              <dt>关键重叠</dt><dd><strong>过度个性化是记忆系统的独立失效模式。</strong>这一问题定义和风险叙事已有直接前作。</dd>
+              <dt>主要差异</dt><dd>OP-Bench 以问题和失败类型诊断过度方向，未对每个原子给出所需使用等级，也不对使用不足进行对称建模。</dd>
+              <dt>写作位置</dt><dd>可将其视为失败模式 benchmark，将 MemCalib 表述为可同时定位过度与不足、并追溯到具体原子的校准 benchmark。</dd>
+            </dl>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="position">
+        <div class="section-head">
+          <div class="section-kicker">MemCalib position</div>
+          <div>
+            <h2>核心单位是“可见记忆块中的隐藏原子影响”</h2>
+            <p class="section-intro">真实记忆系统通常返回一句或一段总结，其中包含若干相互关联的信息。MemCalib 在模型输入中保留这种非原子形态，并在评估端拆解为独立可判断的原子命题。这一分层使 benchmark 能够处理同一记忆块内部的差异化使用要求。</p>
+          </div>
+        </div>
+
+        <figure class="calibration-figure" aria-labelledby="calibration-title">
+          <div class="figure-head">
+            <h3 id="calibration-title">从模型可见输入到原子级偏差</h3>
+            <p>ordered-usage-v2.1 的评价路径</p>
+          </div>
+          <div class="calibration-flow">
+            <div class="flow-node">
+              <span class="node-label">Model-facing</span>
+              <strong>非原子记忆块</strong>
+              <p>模型只看到自然语言总结，不接触原子边界、A/B/C 标签或 Judge rubric。</p>
+            </div>
+            <div class="flow-arrow" aria-hidden="true">→</div>
+            <div class="flow-node highlight">
+              <span class="node-label">Hidden supervision</span>
+              <strong>原子命题 + 使用 rubric</strong>
+              <p>评估端记录每条原子的证据、类型、适用范围、正确使用、过度使用与使用不足。</p>
+            </div>
+            <div class="flow-arrow" aria-hidden="true">→</div>
+            <div class="flow-node">
+              <span class="node-label">Observable footprint</span>
+              <strong>实际影响等级 A / B / C</strong>
+              <p>Judge 判断该原子是否未产生可观察影响、仅局部支持，或控制核心结论与约束。</p>
+            </div>
+            <div class="flow-arrow" aria-hidden="true">→</div>
+            <div class="flow-node output">
+              <span class="node-label">Directional error</span>
+              <strong>OPB · UPB · H</strong>
+              <p>从规范等级与实际等级的有序关系生成混淆矩阵和双向错误率。</p>
+            </div>
+          </div>
+          <figcaption class="map-caption">该设计把“记忆是否被提及”扩展为“记忆对回答产生了多大影响”。回答即使纠正、反驳或警告某条记忆，只要出现原子特异性内容，仍然形成可观察影响。</figcaption>
+        </figure>
+
+        <div class="equation">
+          u<sub>i</sub><sup>*</sup>, û<sub>i</sub> ∈ {A, B, C}; &nbsp; û<sub>i</sub> &gt; u<sub>i</sub><sup>*</sup> ⇒ over-use, &nbsp; û<sub>i</sub> &lt; u<sub>i</sub><sup>*</sup> ⇒ under-use
+        </div>
+        <p class="equation-note">其中，u<sub>i</sub><sup>*</sup> 表示原子记忆 i 的规范使用等级，û<sub>i</sub> 表示 Judge 从回答中识别出的实际影响等级。A、B、C 依次表示无可观察的原子特异性影响、局部且受限的支持性影响、决定或实质约束核心回答的控制性影响。实际等级高于规范等级时记为过度使用，低于规范等级时记为使用不足。</p>
+
+        <div class="contribution-grid">
+          <article class="contribution">
+            <span class="number">01 / REPRESENTATION</span>
+            <h3>非原子输入与原子监督分离</h3>
+            <p>保留部署时更常见的总结式记忆块，同时允许在隐藏层面对多个紧密相关事实分别标注。混合标签父记忆直接检验模型能否在同一块内选择性使用信息。</p>
+          </article>
+          <article class="contribution">
+            <span class="number">02 / MEASUREMENT</span>
+            <h3>有序的实际影响等级</h3>
+            <p>评价对象是回答中的信息足迹及其控制范围。与二值“使用 / 未使用”相比，三级有序判断可以识别局部提醒被放大为核心限制等中间失效。</p>
+          </article>
+          <article class="contribution">
+            <span class="number">03 / SCOPE</span>
+            <h3>异质记忆与实例化 rubric</h3>
+            <p>同一协议覆盖案例事实、画像事实、偏好、约束与安全敏感信息。逐原子 rubric 将标签语义落到当前问题中的可观察行为，降低抽象类别的解释漂移。</p>
+          </article>
+          <article class="contribution">
+            <span class="number">04 / SCALE</span>
+            <h3>可复现的大规模响应评测</h3>
+            <p>当前冻结版本包含 15,526 条样本、56,031 条模型可见记忆块和 78,726 条隐藏原子标注，可在同一原子级协议下形成完整 A/B/C 混淆矩阵。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="claims">
+        <div class="section-head">
+          <div class="section-kicker">Contribution boundary</div>
+          <div>
+            <h2>贡献应建立在组合设计与测量对象上</h2>
+            <p class="section-intro">近期论文已经快速覆盖选择性偏好、过度个性化和策略性记忆。稳健的贡献陈述需要避免单个概念的优先性竞争，转而说明 MemCalib 解决了哪些此前评价单位难以表达的案例。</p>
+          </div>
+        </div>
+
+        <div class="claim-boundary">
+          <div class="claim-column allowed">
+            <h3>可支持的主张</h3>
+            <ul>
+              <li>面向异质长期记忆的原子级有序使用校准 benchmark。</li>
+              <li>在模型可见的非原子记忆块下，利用隐藏原子监督评价差异化使用。</li>
+              <li>通过同一 A/B/C 混淆矩阵对过度使用与使用不足进行对称测量。</li>
+              <li>以实例化 rubric 连接抽象使用等级与回答中的可观察行为。</li>
+              <li>为 Judge 训练或强化学习提供结构化、逐原子的监督信号。</li>
+            </ul>
+          </div>
+          <div class="claim-column avoid">
+            <h3>应避免的表述</h3>
+            <ul>
+              <li>“首个超越事实回忆的策略性记忆 benchmark”：StratMem-Bench 已明确提出该定位。</li>
+              <li>“首个 Ignore / Support / Dominate 三级标签体系”：RPEval 已采用同构标签。</li>
+              <li>“首个过度个性化 benchmark”：OP-Bench 已系统定义并验证三类 OP。</li>
+              <li>“首个评估偏好应否应用的 benchmark”：BenchPreS 已提供二值选择性评测。</li>
+              <li>“覆盖通用对话”：当前冻结版本的数据来源仍集中于医疗对话，应使用“任务定义具有通用性，当前实例以医疗来源为主”。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="writing-box">
+          <h3>建议用于论文摘要或引言的定位句</h3>
+          <blockquote>MemCalib evaluates calibrated memory influence in dialogue generation. The benchmark preserves realistic, non-atomic memory blocks as model input while maintaining hidden atomic propositions and instance-specific usage rubrics for evaluation. This design enables ordered, atom-level measurement of over-use and under-use across heterogeneous memory types, including cases where a single visible memory block contains information with different desired roles.</blockquote>
+        </div>
+      </section>
+
+      <section class="section" id="gaps">
+        <div class="section-head">
+          <div class="section-kicker">Limitations &amp; next steps</div>
+          <div>
+            <h2>当前证据支持任务价值，广泛性主张仍需补强</h2>
+            <p class="section-intro">现有全量评测证明协议能够产生稳定的原子级方向性差异，但相关工作比较也暴露出四项需要在论文提交前处理的证据缺口。</p>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="risk-table" aria-label="MemCalib 当前限制与补强方向">
+            <thead><tr><th>优先事项</th><th>相关工作带来的比较压力</th><th>建议补强</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="priority high">HIGH</span><br>扩展非医疗数据源</td>
+                <td>RPEval 覆盖日常偏好，BenchPreS 覆盖正式沟通，StratMem-Bench 覆盖虚拟角色对话。当前 MemCalib 样本来源难以支撑强“通用对话”结论。</td>
+                <td>按任务域、记忆类型和冲突结构增补一般助理、生活规划、教育、消费与协作场景；保持统一原子化和 rubric 协议。</td>
+              </tr>
+              <tr>
+                <td><span class="priority high">HIGH</span><br>扩大人工有效性验证</td>
+                <td>BenchPreS 使用三名标注者一致保留，StratMem-Bench 对使用判断采用多次 Judge 投票。自动构建与 LLM Judge 需要更强人工锚点。</td>
+                <td>对来源、标签、父记忆是否混合、记忆类型和难度分层抽样；报告 gold 标签一致率、原子边界一致率与 Judge 有序加权 κ。</td>
+              </tr>
+              <tr>
+                <td><span class="priority medium">MEDIUM</span><br>补充检索条件</td>
+                <td>OP-Bench 和 MemoryAgentBench 直接比较记忆增强系统，能够观察检索策略造成的错误。MemCalib 当前主要衡量给定记忆后的下游使用。</td>
+                <td>保持核心 benchmark 的系统无关性，同时增加 retrieval-aware track，区分“检索错误”“给定后使用错误”和二者交互。</td>
+              </tr>
+              <tr>
+                <td><span class="priority medium">MEDIUM</span><br>避免单一 H 排名</td>
+                <td>全量五模型 H 分数极差约为 0.028，而 A/B/C 标签正确率最大跨度约为 0.124，说明聚合总分压缩了模型间行为差异。</td>
+                <td>主结果同时报告 OPB、UPB、H、完整混淆矩阵和按标签 / 记忆类型分层结果；H 用于平衡概括，不单独承担排名结论。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="position-statement">
+          <b>总体判断：</b>MemCalib 已经拥有可辨识的研究位置，最强叙事是“在真实非原子记忆表示下进行原子级、双向、有序的影响校准”。下一阶段的主要任务是扩大领域覆盖和人工验证强度，使这一方法学位置获得与其数据规模相匹配的外部有效性。
+        </div>
+      </section>
+
+      <section class="section" id="references">
+        <div class="section-head">
+          <div class="section-kicker">Primary sources</div>
+          <div>
+            <h2>参考文献</h2>
+            <p class="section-intro">以下列表仅使用论文原文、ACL Anthology、arXiv 页面与作者项目仓库。预印本状态按 2026 年 7 月 13 日可见信息记录。</p>
+          </div>
+        </div>
+
+        <ol class="reference-list">
+          <li id="ref-generative-agents"><strong>Park et al.</strong> “Generative Agents: Interactive Simulacra of Human Behavior.” 2023. <a href="https://arxiv.org/abs/2304.03442" target="_blank" rel="noreferrer">arXiv:2304.03442</a><span class="ref-tag">paper</span></li>
+          <li id="ref-memorybank"><strong>Zhong et al.</strong> “MemoryBank: Enhancing Large Language Models with Long-Term Memory.” 2023. <a href="https://arxiv.org/abs/2305.10250" target="_blank" rel="noreferrer">arXiv:2305.10250</a><span class="ref-tag">paper</span></li>
+          <li id="ref-memgpt"><strong>Packer et al.</strong> “MemGPT: Towards LLMs as Operating Systems.” 2023. <a href="https://arxiv.org/abs/2310.08560" target="_blank" rel="noreferrer">arXiv:2310.08560</a><span class="ref-tag">paper</span></li>
+          <li id="ref-lamp"><strong>Salemi et al.</strong> “LaMP: When Large Language Models Meet Personalization.” ACL 2024. <a href="https://aclanthology.org/2024.acl-long.399/" target="_blank" rel="noreferrer">ACL Anthology</a><span class="ref-tag">peer reviewed</span></li>
+          <li id="ref-locomo"><strong>Maharana et al.</strong> “Evaluating Very Long-Term Conversational Memory of LLM Agents.” 2024. <a href="https://arxiv.org/abs/2402.17753" target="_blank" rel="noreferrer">arXiv:2402.17753</a><span class="ref-tag">paper</span></li>
+          <li id="ref-longmemeval"><strong>Wu et al.</strong> “LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory.” ICLR 2025. <a href="https://arxiv.org/abs/2410.10813" target="_blank" rel="noreferrer">arXiv:2410.10813</a><span class="ref-tag">peer reviewed</span></li>
+          <li id="ref-mem0"><strong>Chhikara et al.</strong> “Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory.” 2025. <a href="https://arxiv.org/abs/2504.19413" target="_blank" rel="noreferrer">arXiv:2504.19413</a><span class="ref-tag">paper</span></li>
+          <li id="ref-memoryagentbench"><strong>Hu et al.</strong> “Evaluating Memory in LLM Agents via Incremental Multi-Turn Interactions.” 2025; v4 2026. <a href="https://arxiv.org/abs/2507.05257" target="_blank" rel="noreferrer">arXiv:2507.05257</a><span class="ref-tag">preprint</span></li>
+          <li id="ref-prefeval"><strong>Zhao et al.</strong> “Do LLMs Recognize Your Preferences? Evaluating Personalized Preference Following in LLMs.” ICLR 2025 Oral. <a href="https://arxiv.org/abs/2502.09597" target="_blank" rel="noreferrer">arXiv:2502.09597</a><span class="ref-tag">peer reviewed</span></li>
+          <li id="ref-personalens"><strong>Zhao et al.</strong> “PersonaLens: A Benchmark for Personalization Evaluation in Conversational AI Assistants.” Findings of ACL 2025. <a href="https://aclanthology.org/2025.findings-acl.927/" target="_blank" rel="noreferrer">ACL Anthology</a><span class="ref-tag">peer reviewed</span></li>
+          <li id="ref-opbench"><strong>Hu et al.</strong> “OP-Bench: Benchmarking Over-Personalization for Memory-Augmented Personalized Conversational Agents.” 2026. <a href="https://arxiv.org/abs/2601.13722" target="_blank" rel="noreferrer">arXiv:2601.13722</a><span class="ref-tag">preprint</span></li>
+          <li id="ref-rpeval"><strong>Feng et al.</strong> “How Does Personalized Memory Shape LLM Behavior? Benchmarking Rational Preference Utilization in Personalized Assistants.” 2026. <a href="https://arxiv.org/abs/2601.16621" target="_blank" rel="noreferrer">arXiv:2601.16621</a>; <a href="https://github.com/XueyangFeng/RPEval" target="_blank" rel="noreferrer">project repository</a><span class="ref-tag">preprint + data</span></li>
+          <li id="ref-benchpres"><strong>Yoon et al.</strong> “BenchPreS: A Benchmark for Context-Aware Personalized Preference Selectivity of Persistent-Memory LLMs.” 2026. <a href="https://arxiv.org/abs/2603.16557" target="_blank" rel="noreferrer">arXiv:2603.16557</a><span class="ref-tag">preprint</span></li>
+          <li id="ref-stratmem"><strong>Wu et al.</strong> “StratMem-Bench: Evaluating Strategic Memory Use in Virtual Character Conversation Beyond Factual Recall.” ACL 2026 Main. <a href="https://arxiv.org/abs/2604.26243" target="_blank" rel="noreferrer">arXiv:2604.26243</a><span class="ref-tag">peer reviewed</span></li>
+        </ol>
+      </section>
+
+      <footer class="report-footer">
+        <span>MemCalib Related Work Survey · Research snapshot as of 2026-07-13</span>
+        <a class="back-top" href="#top">返回顶部 ↑</a>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      const links = Array.from(document.querySelectorAll('.toc a'));
+      const sections = links
+        .map((link) => document.querySelector(link.getAttribute('href')))
+        .filter(Boolean);
+
+      if (!('IntersectionObserver' in window)) return;
+
+      const observer = new IntersectionObserver((entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!visible) return;
+        links.forEach((link) => {
+          link.classList.toggle('active', link.getAttribute('href') === `#${visible.target.id}`);
+        });
+      }, { rootMargin: '-15% 0px -70% 0px', threshold: [0, 0.05, 0.2] });
+
+      sections.forEach((section) => observer.observe(section));
+    })();
+  </script>
+</body>
+</html>

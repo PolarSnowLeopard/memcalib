@@ -14,7 +14,7 @@ Locked 500-record, nine-model, paired full-memory/no-memory evaluation on MemCal
 | Qwen3.6-Flash | 0.078 | 0.234 | 0.837 | 0.766 | 0.595 | 0.615 | 0.303 | 0.577 |
 | Kimi-K2.6 | 0.063 | 0.258 | 0.828 | 0.742 | 0.614 | 0.639 | 0.277 | 0.571 |
 | Codex GPT-5.6 Sol | 0.046 | 0.310 | 0.801 | 0.690 | 0.648 | 0.689 | 0.242 | 0.555 |
-| Qwen3-8B | 0.057 | 0.364 | 0.760 | 0.636 | 0.554 | 0.588 | 0.288 | 0.499 |
+| Qwen3heyi-8B | 0.057 | 0.364 | 0.760 | 0.636 | 0.554 | 0.588 | 0.288 | 0.499 |
 
 Numeric ranges across differently scaled metrics are not directly comparable. Use paired confidence intervals and ranking robustness, not range alone.
 
