@@ -1,0 +1,4 @@
+interface:
+  display_name: "Integrate MemCalib Checkpoint Eval"
+  short_description: "Add MemCalib checkpoint evaluation to training"
+  default_prompt: "Use $integrate-memcalib-checkpoint-eval to add periodic MemCalib evaluation and TensorBoard metrics to this training pipeline."
