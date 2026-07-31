@@ -212,6 +212,16 @@ def main() -> None:
         default=[],
         help="Optional JSONL whose coding IDs define a pilot subset.",
     )
+    parser.add_argument(
+        "--feedback-jsonl",
+        type=Path,
+        action="append",
+        default=[],
+        help=(
+            "Optional QC JSONL used only to enrich retry feedback. Unlike "
+            "--selection-jsonl, these files do not add record IDs to the target set."
+        ),
+    )
     parser.add_argument("--limit", type=int)
     parser.add_argument("--retry-round", type=int, default=0)
     args = parser.parse_args()
@@ -219,6 +229,15 @@ def main() -> None:
     if args.retry_round < 0:
         raise ValueError("--retry-round must be non-negative")
     selected_ids, feedback_by_id = selection_data(args.selection_jsonl)
+    _, extra_feedback_by_id = selection_data(args.feedback_jsonl)
+    for record_id, items in extra_feedback_by_id.items():
+        if selected_ids is not None and record_id not in selected_ids:
+            continue
+        feedback_by_id.setdefault(record_id, []).extend(items)
+    feedback_by_id = {
+        record_id: list(dict.fromkeys(items))
+        for record_id, items in feedback_by_id.items()
+    }
     all_records = list(iter_jsonl(args.input))
     source_ids = [str(record.get("id") or "") for record in all_records]
     if "" in source_ids or len(source_ids) != len(set(source_ids)):
@@ -286,6 +305,20 @@ def main() -> None:
                     "coding_ids": len(selected_ids or ()),
                 }
                 if args.selection_jsonl
+                else None
+            ),
+            "feedback": (
+                {
+                    "sources": [
+                        {
+                            "path": portable_path(path),
+                            "sha256": file_sha256(path),
+                        }
+                        for path in args.feedback_jsonl
+                    ],
+                    "records_with_feedback": len(feedback_by_id),
+                }
+                if args.feedback_jsonl
                 else None
             ),
         },

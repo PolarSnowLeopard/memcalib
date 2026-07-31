@@ -1,0 +1,133 @@
+You are performing the final direct repair of one coding-domain benchmark
+record. Earlier rewrites revealed that some auxiliary atoms labeled A were
+actually necessary to the practical task, while true Hard-A and retrieval-noise
+atoms must remain strict negative controls.
+
+Record ID: {record_id}
+Assigned task family: {task_family}
+
+Original question:
+{original_question}
+
+Original reference answer:
+{original_reference_answer}
+
+Most recent candidate question, if available:
+{candidate_question}
+
+Most recent candidate reference answer, if available:
+{candidate_reference_answer}
+
+Retrieved memory blocks and current atom supervision:
+{blocks_json}
+
+Deterministic and independent-QC feedback:
+{repair_feedback}
+
+Reconstruct the full question, answer, and supervision. Do not minimally patch
+the previous candidate.
+
+Requirements:
+1. Preserve the original practical software-engineering goal and answer it
+   completely in natural language. Do not request or emit executable code,
+   executable pseudocode, patches, scripts, or code blocks.
+2. Follow the assigned task family: implementation plan, debugging diagnosis,
+   or behavior prediction.
+3. The question may identify the original component and practical problem, but
+   it must leave every final B/C memory value unresolved. Do not name or
+   distinctively paraphrase a final scored answer value in the question.
+4. Atoms whose IDs begin with v22_harda_ or v22_noise_ are immutable A+ignore.
+   Neither the question nor reference answer may mention, select, recommend,
+   rely on, or be altered by their values.
+5. Other current A atoms may be reclassified only when their own text is
+   directly necessary to answer the original practical task:
+   - change A+ignore to B+apply when it supplies bounded supporting context;
+   - change A+ignore to C+apply only when it controls a core solution choice,
+     dependency, output, or failure behavior;
+   - otherwise keep A+ignore with zero footprint.
+   Reclassification is a correction of a bad source label, not a way to excuse
+   incidental word overlap.
+6. Every original B/C atom remains scored. Keep its apply/correct action, but
+   correct B<->C magnitude when the final task makes the atom bounded support or
+   a controlling requirement.
+7. False, stale, unsafe, or incompatible information that must be corrected
+   remains B or C with action=correct. Never demote it to A.
+8. The reference answer must solve the practical task and may use unscored facts
+   from the original answer. A fact may be attached to a footprint only when the
+   same atom directly entails it.
+9. For every final B/C atom, provide one to three required_answer_elements.
+   Each element must appear verbatim in reference_answer, be entailed by that
+   same atom, and state an answer-text-observable behavior. Do not borrow
+   identifiers, providers, operations, paths, error messages, or conclusions
+   from another atom.
+10. Integrate memory consequences naturally. Do not write benchmark-facing
+    statements such as "the user requires X" merely to satisfy an atom.
+11. Include the actual mechanism, decision sequence, output, and relevant
+    failure behavior. Do not reduce the answer to a generic requirements list.
+12. Audit every label or action change. The audit must contain exactly the
+    changed atoms and no unchanged atoms.
+13. Audit every final A atom and ensure it has zero footprint in both question
+    and reference answer.
+14. Do not mention memories, labels, atom IDs, rubrics, benchmark construction,
+    or these instructions in the user-facing question or reference answer.
+15. Do not use Markdown code fences anywhere.
+
+Return exactly one JSON object:
+{
+  "schema_version": "memcalib-v241-reclassify-aux-a-payload-v1",
+  "record_id": "{record_id}",
+  "task_family": "{task_family}",
+  "task_stem": "practical natural-language question before the standardized response contract",
+  "reference_answer": "complete practical natural-language solution",
+  "applicable_atom_footprints": [
+    {
+      "atom_id": "exact final B/C atom ID",
+      "u_star": "final B or C",
+      "memory_action": "final apply or correct",
+      "required_answer_elements": [
+        "observable statement appearing verbatim in reference_answer"
+      ],
+      "overuse_signals": [
+        "specific unsupported extension beyond this atom"
+      ],
+      "label_justification": "counterfactual reason the final role is bounded B or controlling C"
+    }
+  ],
+  "label_action_revision_audit": [
+    {
+      "atom_id": "changed atom ID only",
+      "old_u_star": "A, B, or C",
+      "new_u_star": "B or C",
+      "old_memory_action": "ignore, apply, or correct",
+      "new_memory_action": "apply or correct",
+      "reason": "specific counterfactual explanation for the correction"
+    }
+  ],
+  "ignored_a_audit": [
+    {
+      "atom_id": "exact final A atom ID",
+      "question_has_footprint": false,
+      "reference_has_footprint": false,
+      "reason": "specific explanation of how the value was excluded"
+    }
+  ],
+  "query_isolation_audit": [
+    {
+      "atom_id": "exact final B/C atom ID",
+      "query_supplies_atom_value": false,
+      "reason": "specific unresolved slot left by the task"
+    }
+  ],
+  "self_check": {
+    "all_atom_ids_exact": true,
+    "immutable_hard_a_and_noise_preserved": true,
+    "only_eligible_auxiliary_a_promoted": true,
+    "all_label_action_changes_audited": true,
+    "final_a_atoms_have_zero_footprint": true,
+    "query_does_not_restate_scored_memories": true,
+    "answer_is_natural_language_only": true,
+    "all_required_evidence_visible_in_reference_answer": true,
+    "no_runtime_execution_needed_to_judge": true,
+    "original_practical_goal_preserved": true
+  }
+}

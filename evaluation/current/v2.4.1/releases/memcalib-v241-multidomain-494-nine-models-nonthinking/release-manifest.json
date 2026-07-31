@@ -1,0 +1,144 @@
+{
+  "schema_version": "memcalib-v2-multidomain-sample-release-v1",
+  "release": "memcalib-v241-multidomain-494-nine-models-nonthinking",
+  "status": "internal_diagnostic",
+  "samples": 494,
+  "seed": 20260722,
+  "ordered_id_sha256": "fe6974a5fdcba107846265a7ae3f3cdc32d841ea8c1b08bd153dbbf757ee818d",
+  "sampling": {
+    "method": "locked_v24_complete_case_ids_on_corrected_v241_release",
+    "within_cell_order": "preserve_locked_complete_case_order",
+    "complete_case_policy": "reuse the exact 494 IDs from the v2.4 complete-case evaluation",
+    "locked_parent_sample_count": 494,
+    "excluded_sample_count": 0
+  },
+  "preferred_query_id_overlap": {
+    "path": "evaluation/current/v2.4/releases/memcalib-v24-multidomain-494-nine-models-complete-case/sample-ids.txt",
+    "preferred_query_ids": 494,
+    "selected_query_ids": 470,
+    "semantics": "shared query/source identity only; benchmark memory blocks and model-facing rows may differ across versions"
+  },
+  "distribution": {
+    "domains": {
+      "coding": 119,
+      "general": 125,
+      "health_seed": 250
+    },
+    "sources": {
+      "HuggingFaceH4/stack-exchange-preferences": 22,
+      "HuggingFaceH4/ultrachat_200k": 84,
+      "OpenAssistant/oasst1": 14,
+      "OpenAssistant/oasst2": 27,
+      "OpenMed/MedDialog": 127,
+      "codeparrot/apps": 6,
+      "ise-uiuc/Magicoder-OSS-Instruct-75K": 91,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 123
+    },
+    "topics": {
+      "acute_symptoms": 21,
+      "api_library": 27,
+      "cardio": 6,
+      "career_productivity": 4,
+      "chronic_disease": 27,
+      "coding_other": 2,
+      "data_algorithm": 30,
+      "debugging": 25,
+      "digestive": 24,
+      "general_other": 27,
+      "implementation": 18,
+      "learning_explanation": 23,
+      "medication_treatment": 27,
+      "mental_sleep": 10,
+      "neuro": 11,
+      "pediatrics": 28,
+      "planning_advice": 28,
+      "pregnancy_reproductive": 28,
+      "relationships_communication": 11,
+      "respiratory_ent": 25,
+      "skin_allergy": 28,
+      "systems_devops": 9,
+      "testing_quality": 8,
+      "travel_shopping_household": 15,
+      "writing_creative": 32
+    },
+    "release_admission": {
+      "review": 36,
+      "strict_pass": 458
+    },
+    "atom_count_buckets": {
+      "6-7": 29,
+      "8+": 465
+    },
+    "difficulty_levels": {
+      "level_1": 119,
+      "level_2": 256,
+      "level_3": 119
+    },
+    "memory_labels": {
+      "A": 6735,
+      "B": 630,
+      "C": 575
+    }
+  },
+  "source": {
+    "path": "pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/release/memcalib_v241_multidomain_benchmark_15000.jsonl",
+    "rows": 15000,
+    "sha256": "8bc18ae468e1ab1d41ffa4556c6e042a62538eca01e97029db94f850c2c46dc4"
+  },
+  "config": {
+    "path": "evaluation/current/v2.4.1/configs/memcalib-v241-multidomain-494-nine-models-nonthinking.json",
+    "sha256": "490d50f92bf8069b362dac9373688a3f3e4d7c977948ef3a035e50237fa8815b"
+  },
+  "artifacts": {
+    "hidden": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-multidomain-494-nine-models-nonthinking/hidden-evaluation.jsonl",
+      "bytes": 66747432,
+      "sha256": "f6ab49966e21654e02f5d3e8faf4ddbf0f4cbca3fa1fe344cbdbfc86cba25d6d",
+      "rows": 494
+    },
+    "hidden_gzip": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-multidomain-494-nine-models-nonthinking/hidden-evaluation.jsonl.gz",
+      "bytes": 8839970,
+      "sha256": "fc7c3b4f3cc7a028eac22b8f7579f3065e2bbead92b913430f68f7cc84fefbe9"
+    },
+    "model_facing": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-multidomain-494-nine-models-nonthinking/model-facing.jsonl",
+      "bytes": 1198344,
+      "sha256": "08f9c804bce06541a29784241e10ece514dc2839d9fc8c5d4af3c0a7fd8b5170",
+      "rows": 494
+    },
+    "model_facing_gzip": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-multidomain-494-nine-models-nonthinking/model-facing.jsonl.gz",
+      "bytes": 300600,
+      "sha256": "b0a8c8332f14c004a6ae87c6414f1562893fa2108ac4d0264338618014322e3c"
+    },
+    "sample_ids": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-multidomain-494-nine-models-nonthinking/sample-ids.txt",
+      "bytes": 16159,
+      "sha256": "796b7bf2dec63d947ed0d8075396668a2e7dd4d21db0b8dba1d6b842ff89e5af",
+      "rows": 494
+    }
+  },
+  "privacy_contract": {
+    "model_facing_fields": [
+      "id",
+      "domain",
+      "panel",
+      "source_dataset",
+      "source_topic",
+      "question",
+      "memory_blocks.parent_memory_id",
+      "memory_blocks.memory_text"
+    ],
+    "hidden_only": [
+      "source_answer",
+      "memories",
+      "usage_rubric",
+      "raw_selection",
+      "semantic_qc",
+      "independent_qc",
+      "revision_release_admission",
+      "release_admission"
+    ]
+  }
+}

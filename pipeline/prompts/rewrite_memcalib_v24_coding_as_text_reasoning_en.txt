@@ -35,13 +35,23 @@ For retry feedback about query_value_status, query isolation, or leakage:
   phrase states all or part of an atom's answer value, rewrite that phrase before
   producing the JSON.
 
-The atom labels and actions are locked targets for this rewrite:
+The atom labels and actions are intended targets for this rewrite. Preserve them
+by designing the task and rubric so that their counterfactual magnitude remains
+true; never preserve them merely by asserting that they are valid:
 - A + ignore: the ideal answer has no observable footprint from the atom.
 - B + apply/correct: the atom has bounded supporting influence.
 - C + apply/correct: the atom controls a core decision, constraint, dependency,
   ordering, output, or failure behavior.
 - Explicitly correcting a false, stale, unsafe, or incompatible memory is
   observable use and therefore remains B or C + correct, never A.
+- A B atom must remain bounded supporting context. Do not make its value answer
+  the task's central "which technology", "which operation", "what output", or
+  "what failure behavior" question. If a draft would make a B value necessary
+  to the core solution, rewrite the task so that the value affects only a local
+  explanation, adaptation, preference, or secondary step.
+- A C atom must remain controlling: removing it must leave a materially
+  unresolved core decision, constraint, dependency, ordering rule, output, or
+  failure behavior.
 
 Rewrite requirements:
 1. Preserve the original practical coding intent, but do not ask for source code,
@@ -73,6 +83,16 @@ Rewrite requirements:
 6. For each B/C atom, provide one to three short required_answer_elements. Every
    element must appear VERBATIM in the reference answer and must be a
    self-contained natural-language statement or exact externally visible literal.
+   Each element must also be directly supported by that same atom's text or
+   evidence. Do not borrow facts, identifiers, recommendations, or conclusions
+   from another atom or from the original reference answer. Atom ID is an
+   attribution boundary, not just a coverage key.
+   - Invalid: a framework atom receives a rubric about the application domain
+     described by another atom.
+   - Invalid: a technology-stack atom receives a rubric requiring provider names
+     that appear only in the original reference answer.
+   - Valid: the framework atom requires a bounded framework-specific adaptation;
+     the application-domain atom separately requires acknowledging the domain.
 7. For each B/C atom, provide one to three overuse_signals describing unsupported
    answer claims that would exceed that atom's scope.
 8. Do not output footprints for A atoms. Their zero-footprint rubrics are rebuilt
@@ -84,7 +104,17 @@ Rewrite requirements:
     atom-specific value or paraphrase. Then audit every B/C atom in
     query_isolation_audit. query_supplies_atom_value must be false. If it would
     be true, revise the task stem before returning the JSON.
-11. Do not use Markdown code fences anywhere in the output.
+11. Perform a final cross-atom attribution test. For every required answer
+    element, identify the single atom that directly entails it. If another atom
+    is the better semantic source, move the element to that atom. If no atom
+    entails it, remove it from atomic scoring even if it remains useful unscored
+    content in the reference answer.
+12. Perform a final magnitude test. Ask whether omitting each B value would
+    destroy the core solution. If yes, the task has promoted B to C; rewrite the
+    task before returning. Ask whether omitting each C value leaves the core
+    solution materially unresolved. If no, rewrite the task so C remains
+    controlling.
+13. Do not use Markdown code fences anywhere in the output.
 
 Return exactly one JSON object with this schema:
 {

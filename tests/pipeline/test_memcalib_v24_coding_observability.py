@@ -240,6 +240,30 @@ class MemCalibV24CodingObservabilityTest(unittest.TestCase):
             ),
         )
 
+    def test_payload_rejects_cross_atom_rubric_swap(self) -> None:
+        record = source_record()
+        request = self.prepare.build_request(
+            record, "{record_id}", task_family="implementation_plan"
+        )
+        payload = valid_payload(self.common)
+        first = payload["applicable_atom_footprints"][0]
+        second = payload["applicable_atom_footprints"][1]
+        first["required_answer_elements"], second["required_answer_elements"] = (
+            second["required_answer_elements"],
+            first["required_answer_elements"],
+        )
+        payload["reference_answer"] = (
+            payload["reference_answer"]
+            + " The answer must specify the literal message '.env not found'."
+        )
+        errors = self.common.validate_revision_payload(
+            payload, record, request["user_defined_params"]
+        )
+        self.assertTrue(
+            any("probable_cross_atom_rubric_swap" in error for error in errors),
+            errors,
+        )
+
     def test_build_replaces_code_rubrics_with_answer_text_rubrics(self) -> None:
         record = source_record()
         request = self.prepare.build_request(
@@ -331,7 +355,11 @@ class MemCalibV24CodingObservabilityTest(unittest.TestCase):
             rewrite_request["user_defined_params"],
             rewrite_request["request_id"],
         )
-        qc_request = self.prepare_qc.build_request(revised, "{record_json}")
+        qc_request = self.prepare_qc.build_request(
+            revised,
+            source,
+            "{record_json}",
+        )
         params = qc_request["user_defined_params"]
         qc = {
             "schema_version": self.post_qc.QC_SCHEMA,
@@ -372,6 +400,72 @@ class MemCalibV24CodingObservabilityTest(unittest.TestCase):
         self.assertIn(
             "p1_a1:query_value_status:partially_supplied", reasons
         )
+        qc["atom_checks"][0]["query_value_status"] = "not_supplied"
+        qc["atom_checks"][2]["query_value_status"] = "fully_supplied"
+        errors, decision, reasons = self.post_qc.validate_qc(qc, revised, params)
+        self.assertEqual([], errors)
+        self.assertEqual("strict_pass", decision)
+        self.assertEqual([], reasons)
+
+    def test_independent_qc_normalizes_split_atom_objects_without_conflicts(
+        self,
+    ) -> None:
+        source = source_record()
+        rewrite_request = self.prepare.build_request(
+            source, "{record_id}", task_family="implementation_plan"
+        )
+        revised, _ = self.post.build_record(
+            source,
+            valid_payload(self.common),
+            rewrite_request["user_defined_params"],
+            rewrite_request["request_id"],
+        )
+        params = self.prepare_qc.build_request(
+            revised,
+            source,
+            "{record_json}",
+        )["user_defined_params"]
+        qc = {
+            "schema_version": self.post_qc.QC_SCHEMA,
+            "record_id": revised["id"],
+            "record_checks": [
+                {
+                    "check": name,
+                    "verdict": "pass",
+                    "reason": "The requested property is directly satisfied.",
+                }
+                for name in self.post_qc.RECORD_CHECKS
+            ],
+            "atom_checks": [],
+            "declared_decision": "strict_pass",
+            "decision_reasons": ["All checks pass."],
+            "self_check": {
+                key: True for key in self.post_qc.SELF_CHECK_KEYS
+            },
+        }
+        for item in revised["memories"]:
+            for key, value in (
+                ("label_action_validity", "pass"),
+                ("answer_text_observability", "pass"),
+                ("rubric_objectivity", "pass"),
+                ("query_value_status", "not_supplied"),
+            ):
+                qc["atom_checks"].append(
+                    {
+                        "atom_id": item["atom_id"],
+                        key: value,
+                        "reason": f"The {key} check passes.",
+                    }
+                )
+        normalized = self.post_qc.normalize_split_atom_checks(qc)
+        self.assertEqual(len(revised["memories"]), len(normalized["atom_checks"]))
+        errors, decision, _ = self.post_qc.validate_qc(
+            normalized,
+            revised,
+            params,
+        )
+        self.assertEqual([], errors)
+        self.assertEqual("strict_pass", decision)
 
 
 if __name__ == "__main__":

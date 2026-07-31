@@ -8,7 +8,11 @@ from pathlib import Path
 from typing import Any
 
 from memcalib_v23_common import canonical_sha256, file_sha256, portable_path
-from memcalib_v24_coding_common import V24_DIR, locked_supervision_fingerprint
+from memcalib_v24_coding_common import (
+    V23_RELEASE,
+    V24_DIR,
+    locked_supervision_fingerprint,
+)
 from utils import iter_jsonl, write_json, write_jsonl
 
 
@@ -24,7 +28,10 @@ DEFAULT_PROMPT = (
 REQUEST_SCHEMA = "memcalib-v24-coding-text-independent-qc-requests-v1"
 
 
-def compact_record(record: dict[str, Any]) -> dict[str, Any]:
+def compact_record(
+    record: dict[str, Any],
+    source: dict[str, Any],
+) -> dict[str, Any]:
     atoms = {
         str(atom.get("atom_id") or ""): atom for atom in record.get("memories") or []
     }
@@ -33,6 +40,8 @@ def compact_record(record: dict[str, Any]) -> dict[str, Any]:
         "task_family": record.get("coding_text_observability_revision", {}).get(
             "task_family"
         ),
+        "original_question": source.get("question"),
+        "original_reference_answer": source.get("source_answer"),
         "question": record.get("question"),
         "reference_answer": record.get("source_answer"),
         "memory_blocks": [
@@ -59,19 +68,28 @@ def compact_record(record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def render_prompt(record: dict[str, Any], template: str) -> str:
+def render_prompt(
+    record: dict[str, Any],
+    source: dict[str, Any],
+    template: str,
+) -> str:
     return template.replace(
         "{record_json}",
-        json.dumps(compact_record(record), ensure_ascii=False, indent=2),
+        json.dumps(compact_record(record, source), ensure_ascii=False, indent=2),
     )
 
 
-def build_request(record: dict[str, Any], template: str) -> dict[str, Any]:
+def build_request(
+    record: dict[str, Any],
+    source: dict[str, Any],
+    template: str,
+) -> dict[str, Any]:
     record_id = str(record.get("id") or "")
     params = {
         "schema_version": REQUEST_SCHEMA,
         "record_id": record_id,
         "record_fingerprint": canonical_sha256(record),
+        "source_record_fingerprint": canonical_sha256(source),
         "locked_supervision_fingerprint": locked_supervision_fingerprint(record),
         "task_family": record.get("coding_text_observability_revision", {}).get(
             "task_family"
@@ -82,7 +100,12 @@ def build_request(record: dict[str, Any], template: str) -> dict[str, Any]:
     }
     return {
         "request_id": f"v24_coding_independent_qc:{record_id}",
-        "prompt": [{"role": "user", "content": render_prompt(record, template)}],
+        "prompt": [
+            {
+                "role": "user",
+                "content": render_prompt(record, source, template),
+            }
+        ],
         "user_defined_params": params,
     }
 
@@ -95,6 +118,12 @@ def main() -> None:
         )
     )
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT)
+    parser.add_argument(
+        "--source-benchmark",
+        type=Path,
+        default=V23_RELEASE,
+        help="Original benchmark used only as semantic-equivalence QC context.",
+    )
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--prompt-template", type=Path, default=DEFAULT_PROMPT)
@@ -106,8 +135,21 @@ def main() -> None:
         raise ValueError("input record IDs must be non-empty and unique")
     if any(record.get("domain") != "coding" for record in records):
         raise ValueError("independent coding QC input contains a non-coding record")
+    sources = {
+        str(record.get("id") or ""): record
+        for record in iter_jsonl(args.source_benchmark)
+    }
+    missing_sources = set(record_ids) - set(sources)
+    if missing_sources:
+        raise ValueError(
+            "independent coding QC records missing from source benchmark: "
+            f"{sorted(missing_sources)[:20]}"
+        )
     template = args.prompt_template.read_text(encoding="utf-8")
-    requests = [build_request(record, template) for record in records]
+    requests = [
+        build_request(record, sources[str(record["id"])], template)
+        for record in records
+    ]
     write_jsonl(args.output, requests)
     manifest = {
         "schema_version": REQUEST_SCHEMA,
@@ -115,6 +157,10 @@ def main() -> None:
             "path": portable_path(args.input),
             "sha256": file_sha256(args.input),
             "records": len(records),
+        },
+        "source_benchmark": {
+            "path": portable_path(args.source_benchmark),
+            "sha256": file_sha256(args.source_benchmark),
         },
         "implementation": {
             "prepare": {

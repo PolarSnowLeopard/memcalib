@@ -691,6 +691,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run Bailian/DashScope OpenAI-compatible chat completions over prepared JSONL requests.")
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--input", type=Path, required=True)
+    parser.add_argument(
+        "--resume-reference-input",
+        type=Path,
+        help=(
+            "Optional complete request set used to validate an existing resumable output. "
+            "Use this when --input contains only the currently pending subset."
+        ),
+    )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--failed", type=Path)
     parser.add_argument("--api-key-env", default="")
@@ -753,7 +761,20 @@ def main() -> None:
     api_key_selector = ApiKeySelector(api_key, fallback_api_key)
 
     input_rows = list(iter_jsonl(args.input))
-    expected_fingerprints = {request_id(row): request_fingerprint(row) for row in input_rows}
+    reference_rows = (
+        list(iter_jsonl(args.resume_reference_input))
+        if args.resume_reference_input
+        else input_rows
+    )
+    expected_fingerprints = {
+        request_id(row): request_fingerprint(row) for row in reference_rows
+    }
+    for row in input_rows:
+        rid = request_id(row)
+        if expected_fingerprints.get(rid) != request_fingerprint(row):
+            raise SystemExit(
+                f"Input request {rid} is absent from or differs from --resume-reference-input"
+            )
 
     repair_report = {"valid": 0, "invalid": 0, "invalid_reasons": {}}
     if not args.no_resume and not args.no_repair_output:

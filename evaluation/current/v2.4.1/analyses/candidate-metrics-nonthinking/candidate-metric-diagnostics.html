@@ -1,0 +1,385 @@
+<div id="memcalib-metric-diagnostics" class="memcalib-diagnostics">
+  <section class="diagnostic-section" aria-labelledby="tail-profile-label">
+    <div class="section-label" id="tail-profile-label">Full-memory sample-loss quantiles, shared 0–1 scale</div>
+    <div class="tail-grid" id="memcalib-tail-grid"></div>
+  </section>
+  <section class="diagnostic-section" aria-labelledby="pareto-label">
+    <div class="section-label" id="pareto-label">OPB–UPB error plane; lower-left is better</div>
+    <svg id="memcalib-pareto" class="pareto-chart" viewBox="0 0 960 470" role="img" aria-label="OPB versus UPB Pareto plot"></svg>
+  </section>
+  <section class="diagnostic-section" aria-labelledby="rank-label">
+    <div class="section-label" id="rank-label">Metric-sensitive ranks</div>
+    <div class="rank-table-wrap">
+      <table class="rank-table" id="memcalib-rank-table"></table>
+    </div>
+  </section>
+</div>
+<script type="application/json" id="memcalib-metric-diagnostics-data">{"schema_version":"memcalib-candidate-metric-visualization-v1","models":[{"key":"kimi","name":"Kimi-K2.6","short_name":"Kimi","pareto":true,"opb":0.08756319157210027,"upb":0.25442374051069705,"metrics":{"h":0.8206102060493571,"mincalib":0.745576259489303,"mcc":0.5639140546972996,"linear_kappa":0.5926146716100786,"quadratic_kappa":0.6302430822539252,"cvar90":0.30153678087907965,"pmu1":0.569438211745755,"strict_sample":0.145748987854251},"ranks":{"h":1,"mincalib":4,"mcc":2,"linear_kappa":2,"quadratic_kappa":2,"cvar90":4,"pmu1":1,"strict_sample":3},"risk":{"samples":494,"tail_samples":50,"mean":0.10817662130977329,"p80":0.1855263157894738,"p90":0.22416666666666663,"p95":0.2789930555555554,"cvar90":0.30153678087907965,"cvar95":0.3560210170806146,"maximum":0.625,"tail_severe_sample_rate":0.9,"tail_severe_atom_rate":0.17504987277084802,"tail_mean_atom_count":12.58,"quantile_curve":[{"percentile":70.1826,"loss":0.142857},{"percentile":70.3854,"loss":0.148148},{"percentile":70.5882,"loss":0.15},{"percentile":70.7911,"loss":0.15},{"percentile":70.9939,"loss":0.15},{"percentile":71.1968,"loss":0.15},{"percentile":71.3996,"loss":0.15},{"percentile":71.6024,"loss":0.15},{"percentile":71.8053,"loss":0.152174},{"percentile":72.0081,"loss":0.153846},{"percentile":72.211,"loss":0.153846},{"percentile":72.4138,"loss":0.153846},{"percentile":72.6166,"loss":0.153846},{"percentile":72.8195,"loss":0.153846},{"percentile":73.0223,"loss":0.153846},{"percentile":73.2252,"loss":0.157895},{"percentile":73.428,"loss":0.159091},{"percentile":73.6308,"loss":0.166667},{"percentile":73.8337,"loss":0.166667},{"percentile":74.0365,"loss":0.166667},{"percentile":74.2394,"loss":0.166667},{"percentile":74.4422,"loss":0.166667},{"percentile":74.645,"loss":0.166667},{"percentile":74.8479,"loss":0.166667},{"percentile":75.0507,"loss":0.166667},{"percentile":75.2535,"loss":0.166667},{"percentile":75.4564,"loss":0.166667},{"percentile":75.6592,"loss":0.166667},{"percentile":75.8621,"loss":0.166667},{"percentile":76.0649,"loss":0.166667},{"percentile":76.2677,"loss":0.166667},{"percentile":76.4706,"loss":0.166667},{"percentile":76.6734,"loss":0.166667},{"percentile":76.8763,"loss":0.166667},{"percentile":77.0791,"loss":0.166667},{"percentile":77.2819,"loss":0.166667},{"percentile":77.4848,"loss":0.175},{"percentile":77.6876,"loss":0.176471},{"percentile":77.8905,"loss":0.176471},{"percentile":78.0933,"loss":0.178571},{"percentile":78.2961,"loss":0.178571},{"percentile":78.499,"loss":0.178571},{"percentile":78.7018,"loss":0.181818},{"percentile":78.9047,"loss":0.181818},{"percentile":79.1075,"loss":0.181818},{"percentile":79.3103,"loss":0.181818},{"percentile":79.5132,"loss":0.181818},{"percentile":79.716,"loss":0.181818},{"percentile":79.9189,"loss":0.184211},{"percentile":80.1217,"loss":0.1875},{"percentile":80.3245,"loss":0.1875},{"percentile":80.5274,"loss":0.1875},{"percentile":80.7302,"loss":0.1875},{"percentile":80.9331,"loss":0.1875},{"percentile":81.1359,"loss":0.1875},{"percentile":81.3387,"loss":0.192308},{"percentile":81.5416,"loss":0.192308},{"percentile":81.7444,"loss":0.192308},{"percentile":81.9473,"loss":0.192308},{"percentile":82.1501,"loss":0.195652},{"percentile":82.3529,"loss":0.2},{"percentile":82.5558,"loss":0.2},{"percentile":82.7586,"loss":0.2},{"percentile":82.9615,"loss":0.2},{"percentile":83.1643,"loss":0.2},{"percentile":83.3671,"loss":0.2},{"percentile":83.57,"loss":0.2},{"percentile":83.7728,"loss":0.2},{"percentile":83.9757,"loss":0.2},{"percentile":84.1785,"loss":0.2},{"percentile":84.3813,"loss":0.2},{"percentile":84.5842,"loss":0.205882},{"percentile":84.787,"loss":0.208333},{"percentile":84.9899,"loss":0.208333},{"percentile":85.1927,"loss":0.208333},{"percentile":85.3955,"loss":0.208333},{"percentile":85.5984,"loss":0.208333},{"percentile":85.8012,"loss":0.208333},{"percentile":86.0041,"loss":0.208333},{"percentile":86.2069,"loss":0.208333},{"percentile":86.4097,"loss":0.208333},{"percentile":86.6126,"loss":0.208333},{"percentile":86.8154,"loss":0.210526},{"percentile":87.0183,"loss":0.210526},{"percentile":87.2211,"loss":0.214286},{"percentile":87.4239,"loss":0.214286},{"percentile":87.6268,"loss":0.214286},{"percentile":87.8296,"loss":0.214286},{"percentile":88.0325,"loss":0.214286},{"percentile":88.2353,"loss":0.214286},{"percentile":88.4381,"loss":0.21875},{"percentile":88.641,"loss":0.21875},{"percentile":88.8438,"loss":0.222222},{"percentile":89.0467,"loss":0.222222},{"percentile":89.2495,"loss":0.222222},{"percentile":89.4523,"loss":0.222222},{"percentile":89.6552,"loss":0.222222},{"percentile":89.858,"loss":0.222222},{"percentile":90.0609,"loss":0.225},{"percentile":90.2637,"loss":0.225},{"percentile":90.4665,"loss":0.225},{"percentile":90.6694,"loss":0.227273},{"percentile":90.8722,"loss":0.227273},{"percentile":91.0751,"loss":0.227273},{"percentile":91.2779,"loss":0.227273},{"percentile":91.4807,"loss":0.230769},{"percentile":91.6836,"loss":0.230769},{"percentile":91.8864,"loss":0.233333},{"percentile":92.0892,"loss":0.234375},{"percentile":92.2921,"loss":0.25},{"percentile":92.4949,"loss":0.25},{"percentile":92.6978,"loss":0.25},{"percentile":92.9006,"loss":0.25},{"percentile":93.1034,"loss":0.25},{"percentile":93.3063,"loss":0.25},{"percentile":93.5091,"loss":0.25},{"percentile":93.712,"loss":0.25641},{"percentile":93.9148,"loss":0.272727},{"percentile":94.1176,"loss":0.272727},{"percentile":94.3205,"loss":0.277778},{"percentile":94.5233,"loss":0.277778},{"percentile":94.7262,"loss":0.277778},{"percentile":94.929,"loss":0.277778},{"percentile":95.1318,"loss":0.28125},{"percentile":95.3347,"loss":0.285714},{"percentile":95.5375,"loss":0.285714},{"percentile":95.7404,"loss":0.288462},{"percentile":95.9432,"loss":0.3},{"percentile":96.146,"loss":0.3},{"percentile":96.3489,"loss":0.3},{"percentile":96.5517,"loss":0.3125},{"percentile":96.7546,"loss":0.3125},{"percentile":96.9574,"loss":0.318182},{"percentile":97.1602,"loss":0.333333},{"percentile":97.3631,"loss":0.333333},{"percentile":97.5659,"loss":0.35},{"percentile":97.7688,"loss":0.35},{"percentile":97.9716,"loss":0.35},{"percentile":98.1744,"loss":0.352941},{"percentile":98.3773,"loss":0.357143},{"percentile":98.5801,"loss":0.368421},{"percentile":98.783,"loss":0.388889},{"percentile":98.9858,"loss":0.388889},{"percentile":99.1886,"loss":0.416667},{"percentile":99.3915,"loss":0.428571},{"percentile":99.5943,"loss":0.428571},{"percentile":99.7972,"loss":0.444444},{"percentile":100.0,"loss":0.625}]}},{"key":"deepseek","name":"DeepSeek-V4-Pro","short_name":"DS-Pro","pareto":true,"opb":0.09592392264998056,"upb":0.25314009661835746,"metrics":{"h":0.8179822593484778,"mincalib":0.7468599033816425,"mcc":0.539701061863226,"linear_kappa":0.5548237903290552,"quadratic_kappa":0.5850577679635397,"cvar90":0.32322299673151067,"pmu1":0.547895576551527,"strict_sample":0.10526315789473684},"ranks":{"h":2,"mincalib":3,"mcc":5,"linear_kappa":6,"quadratic_kappa":6,"cvar90":7,"pmu1":3,"strict_sample":4},"risk":{"samples":494,"tail_samples":50,"mean":0.12363746973199963,"p80":0.2,"p90":0.25,"p95":0.30194444444444424,"cvar90":0.32322299673151067,"cvar95":0.37398973833184357,"maximum":0.625,"tail_severe_sample_rate":0.98,"tail_severe_atom_rate":0.1998953271530671,"tail_mean_atom_count":11.26,"quantile_curve":[{"percentile":70.1826,"loss":0.166667},{"percentile":70.3854,"loss":0.166667},{"percentile":70.5882,"loss":0.166667},{"percentile":70.7911,"loss":0.166667},{"percentile":70.9939,"loss":0.166667},{"percentile":71.1968,"loss":0.166667},{"percentile":71.3996,"loss":0.166667},{"percentile":71.6024,"loss":0.166667},{"percentile":71.8053,"loss":0.166667},{"percentile":72.0081,"loss":0.166667},{"percentile":72.211,"loss":0.166667},{"percentile":72.4138,"loss":0.166667},{"percentile":72.6166,"loss":0.166667},{"percentile":72.8195,"loss":0.166667},{"percentile":73.0223,"loss":0.166667},{"percentile":73.2252,"loss":0.166667},{"percentile":73.428,"loss":0.166667},{"percentile":73.6308,"loss":0.166667},{"percentile":73.8337,"loss":0.166667},{"percentile":74.0365,"loss":0.175},{"percentile":74.2394,"loss":0.175},{"percentile":74.4422,"loss":0.176471},{"percentile":74.645,"loss":0.178571},{"percentile":74.8479,"loss":0.178571},{"percentile":75.0507,"loss":0.178571},{"percentile":75.2535,"loss":0.178571},{"percentile":75.4564,"loss":0.178571},{"percentile":75.6592,"loss":0.181818},{"percentile":75.8621,"loss":0.181818},{"percentile":76.0649,"loss":0.181818},{"percentile":76.2677,"loss":0.181818},{"percentile":76.4706,"loss":0.181818},{"percentile":76.6734,"loss":0.181818},{"percentile":76.8763,"loss":0.1875},{"percentile":77.0791,"loss":0.1875},{"percentile":77.2819,"loss":0.1875},{"percentile":77.4848,"loss":0.1875},{"percentile":77.6876,"loss":0.1875},{"percentile":77.8905,"loss":0.1875},{"percentile":78.0933,"loss":0.1875},{"percentile":78.2961,"loss":0.192308},{"percentile":78.499,"loss":0.192308},{"percentile":78.7018,"loss":0.192308},{"percentile":78.9047,"loss":0.192308},{"percentile":79.1075,"loss":0.194444},{"percentile":79.3103,"loss":0.194444},{"percentile":79.5132,"loss":0.195652},{"percentile":79.716,"loss":0.2},{"percentile":79.9189,"loss":0.2},{"percentile":80.1217,"loss":0.2},{"percentile":80.3245,"loss":0.2},{"percentile":80.5274,"loss":0.2},{"percentile":80.7302,"loss":0.2},{"percentile":80.9331,"loss":0.2},{"percentile":81.1359,"loss":0.2},{"percentile":81.3387,"loss":0.2},{"percentile":81.5416,"loss":0.205882},{"percentile":81.7444,"loss":0.208333},{"percentile":81.9473,"loss":0.208333},{"percentile":82.1501,"loss":0.208333},{"percentile":82.3529,"loss":0.210526},{"percentile":82.5558,"loss":0.210526},{"percentile":82.7586,"loss":0.214286},{"percentile":82.9615,"loss":0.214286},{"percentile":83.1643,"loss":0.214286},{"percentile":83.3671,"loss":0.216667},{"percentile":83.57,"loss":0.217391},{"percentile":83.7728,"loss":0.21875},{"percentile":83.9757,"loss":0.21875},{"percentile":84.1785,"loss":0.22},{"percentile":84.3813,"loss":0.222222},{"percentile":84.5842,"loss":0.222222},{"percentile":84.787,"loss":0.222222},{"percentile":84.9899,"loss":0.222222},{"percentile":85.1927,"loss":0.222222},{"percentile":85.3955,"loss":0.222222},{"percentile":85.5984,"loss":0.222222},{"percentile":85.8012,"loss":0.222222},{"percentile":86.0041,"loss":0.227273},{"percentile":86.2069,"loss":0.227273},{"percentile":86.4097,"loss":0.227273},{"percentile":86.6126,"loss":0.227273},{"percentile":86.8154,"loss":0.227273},{"percentile":87.0183,"loss":0.230769},{"percentile":87.2211,"loss":0.230769},{"percentile":87.4239,"loss":0.230769},{"percentile":87.6268,"loss":0.233333},{"percentile":87.8296,"loss":0.235294},{"percentile":88.0325,"loss":0.24},{"percentile":88.2353,"loss":0.25},{"percentile":88.4381,"loss":0.25},{"percentile":88.641,"loss":0.25},{"percentile":88.8438,"loss":0.25},{"percentile":89.0467,"loss":0.25},{"percentile":89.2495,"loss":0.25},{"percentile":89.4523,"loss":0.25},{"percentile":89.6552,"loss":0.25},{"percentile":89.858,"loss":0.25},{"percentile":90.0609,"loss":0.25},{"percentile":90.2637,"loss":0.25},{"percentile":90.4665,"loss":0.25},{"percentile":90.6694,"loss":0.25},{"percentile":90.8722,"loss":0.25},{"percentile":91.0751,"loss":0.25},{"percentile":91.2779,"loss":0.25},{"percentile":91.4807,"loss":0.263158},{"percentile":91.6836,"loss":0.264706},{"percentile":91.8864,"loss":0.264706},{"percentile":92.0892,"loss":0.272727},{"percentile":92.2921,"loss":0.272727},{"percentile":92.4949,"loss":0.275},{"percentile":92.6978,"loss":0.277778},{"percentile":92.9006,"loss":0.277778},{"percentile":93.1034,"loss":0.277778},{"percentile":93.3063,"loss":0.277778},{"percentile":93.5091,"loss":0.285714},{"percentile":93.712,"loss":0.285714},{"percentile":93.9148,"loss":0.285714},{"percentile":94.1176,"loss":0.288462},{"percentile":94.3205,"loss":0.291667},{"percentile":94.5233,"loss":0.3},{"percentile":94.7262,"loss":0.3},{"percentile":94.929,"loss":0.3},{"percentile":95.1318,"loss":0.305556},{"percentile":95.3347,"loss":0.307692},{"percentile":95.5375,"loss":0.3125},{"percentile":95.7404,"loss":0.3125},{"percentile":95.9432,"loss":0.3125},{"percentile":96.146,"loss":0.333333},{"percentile":96.3489,"loss":0.333333},{"percentile":96.5517,"loss":0.333333},{"percentile":96.7546,"loss":0.333333},{"percentile":96.9574,"loss":0.333333},{"percentile":97.1602,"loss":0.333333},{"percentile":97.3631,"loss":0.342105},{"percentile":97.5659,"loss":0.35},{"percentile":97.7688,"loss":0.357143},{"percentile":97.9716,"loss":0.357143},{"percentile":98.1744,"loss":0.357143},{"percentile":98.3773,"loss":0.357143},{"percentile":98.5801,"loss":0.363636},{"percentile":98.783,"loss":0.388889},{"percentile":98.9858,"loss":0.4},{"percentile":99.1886,"loss":0.416667},{"percentile":99.3915,"loss":0.428571},{"percentile":99.5943,"loss":0.5},{"percentile":99.7972,"loss":0.555556},{"percentile":100.0,"loss":0.625}]}},{"key":"deepseek-flash","name":"DeepSeek-V4-Flash","short_name":"DS-Flash","pareto":false,"opb":0.0900307561777495,"upb":0.2617943409247757,"metrics":{"h":0.8151373306231856,"mincalib":0.7382056590752243,"mcc":0.5474593081353013,"linear_kappa":0.5661796635707729,"quadratic_kappa":0.5971567263966604,"cvar90":0.3172817287201962,"pmu1":0.5422154438742024,"strict_sample":0.10526315789473684},"ranks":{"h":3,"mincalib":5,"mcc":4,"linear_kappa":5,"quadratic_kappa":5,"cvar90":6,"pmu1":5,"strict_sample":5},"risk":{"samples":494,"tail_samples":50,"mean":0.11998623437702068,"p80":0.18942307692307708,"p90":0.24605263157894722,"p95":0.2929924242424241,"cvar90":0.3172817287201962,"cvar95":0.36821417763523023,"maximum":0.5,"tail_severe_sample_rate":0.98,"tail_severe_atom_rate":0.2070077343537096,"tail_mean_atom_count":10.82,"quantile_curve":[{"percentile":70.1826,"loss":0.15},{"percentile":70.3854,"loss":0.15},{"percentile":70.5882,"loss":0.15},{"percentile":70.7911,"loss":0.15},{"percentile":70.9939,"loss":0.15},{"percentile":71.1968,"loss":0.153846},{"percentile":71.3996,"loss":0.153846},{"percentile":71.6024,"loss":0.153846},{"percentile":71.8053,"loss":0.153846},{"percentile":72.0081,"loss":0.153846},{"percentile":72.211,"loss":0.153846},{"percentile":72.4138,"loss":0.15625},{"percentile":72.6166,"loss":0.157895},{"percentile":72.8195,"loss":0.166667},{"percentile":73.0223,"loss":0.166667},{"percentile":73.2252,"loss":0.166667},{"percentile":73.428,"loss":0.166667},{"percentile":73.6308,"loss":0.166667},{"percentile":73.8337,"loss":0.166667},{"percentile":74.0365,"loss":0.166667},{"percentile":74.2394,"loss":0.166667},{"percentile":74.4422,"loss":0.166667},{"percentile":74.645,"loss":0.166667},{"percentile":74.8479,"loss":0.166667},{"percentile":75.0507,"loss":0.166667},{"percentile":75.2535,"loss":0.166667},{"percentile":75.4564,"loss":0.166667},{"percentile":75.6592,"loss":0.166667},{"percentile":75.8621,"loss":0.173913},{"percentile":76.0649,"loss":0.178571},{"percentile":76.2677,"loss":0.178571},{"percentile":76.4706,"loss":0.178571},{"percentile":76.6734,"loss":0.178571},{"percentile":76.8763,"loss":0.178571},{"percentile":77.0791,"loss":0.178571},{"percentile":77.2819,"loss":0.181818},{"percentile":77.4848,"loss":0.181818},{"percentile":77.6876,"loss":0.181818},{"percentile":77.8905,"loss":0.181818},{"percentile":78.0933,"loss":0.181818},{"percentile":78.2961,"loss":0.181818},{"percentile":78.499,"loss":0.181818},{"percentile":78.7018,"loss":0.181818},{"percentile":78.9047,"loss":0.181818},{"percentile":79.1075,"loss":0.181818},{"percentile":79.3103,"loss":0.183333},{"percentile":79.5132,"loss":0.1875},{"percentile":79.716,"loss":0.1875},{"percentile":79.9189,"loss":0.1875},{"percentile":80.1217,"loss":0.192308},{"percentile":80.3245,"loss":0.192308},{"percentile":80.5274,"loss":0.192308},{"percentile":80.7302,"loss":0.192308},{"percentile":80.9331,"loss":0.192308},{"percentile":81.1359,"loss":0.194444},{"percentile":81.3387,"loss":0.194444},{"percentile":81.5416,"loss":0.195652},{"percentile":81.7444,"loss":0.2},{"percentile":81.9473,"loss":0.2},{"percentile":82.1501,"loss":0.2},{"percentile":82.3529,"loss":0.2},{"percentile":82.5558,"loss":0.2},{"percentile":82.7586,"loss":0.2},{"percentile":82.9615,"loss":0.2},{"percentile":83.1643,"loss":0.2},{"percentile":83.3671,"loss":0.2},{"percentile":83.57,"loss":0.2},{"percentile":83.7728,"loss":0.2},{"percentile":83.9757,"loss":0.208333},{"percentile":84.1785,"loss":0.208333},{"percentile":84.3813,"loss":0.208333},{"percentile":84.5842,"loss":0.214286},{"percentile":84.787,"loss":0.214286},{"percentile":84.9899,"loss":0.214286},{"percentile":85.1927,"loss":0.214286},{"percentile":85.3955,"loss":0.214286},{"percentile":85.5984,"loss":0.217391},{"percentile":85.8012,"loss":0.222222},{"percentile":86.0041,"loss":0.222222},{"percentile":86.2069,"loss":0.222222},{"percentile":86.4097,"loss":0.222222},{"percentile":86.6126,"loss":0.222222},{"percentile":86.8154,"loss":0.222222},{"percentile":87.0183,"loss":0.222222},{"percentile":87.2211,"loss":0.222222},{"percentile":87.4239,"loss":0.222222},{"percentile":87.6268,"loss":0.222222},{"percentile":87.8296,"loss":0.222222},{"percentile":88.0325,"loss":0.225},{"percentile":88.2353,"loss":0.227273},{"percentile":88.4381,"loss":0.227273},{"percentile":88.641,"loss":0.227273},{"percentile":88.8438,"loss":0.227273},{"percentile":89.0467,"loss":0.227273},{"percentile":89.2495,"loss":0.227273},{"percentile":89.4523,"loss":0.235294},{"percentile":89.6552,"loss":0.236842},{"percentile":89.858,"loss":0.236842},{"percentile":90.0609,"loss":0.25},{"percentile":90.2637,"loss":0.25},{"percentile":90.4665,"loss":0.25},{"percentile":90.6694,"loss":0.25},{"percentile":90.8722,"loss":0.25},{"percentile":91.0751,"loss":0.25},{"percentile":91.2779,"loss":0.25},{"percentile":91.4807,"loss":0.25},{"percentile":91.6836,"loss":0.25},{"percentile":91.8864,"loss":0.25},{"percentile":92.0892,"loss":0.25},{"percentile":92.2921,"loss":0.264706},{"percentile":92.4949,"loss":0.269231},{"percentile":92.6978,"loss":0.269231},{"percentile":92.9006,"loss":0.272727},{"percentile":93.1034,"loss":0.277778},{"percentile":93.3063,"loss":0.277778},{"percentile":93.5091,"loss":0.277778},{"percentile":93.712,"loss":0.277778},{"percentile":93.9148,"loss":0.28125},{"percentile":94.1176,"loss":0.285714},{"percentile":94.3205,"loss":0.285714},{"percentile":94.5233,"loss":0.285714},{"percentile":94.7262,"loss":0.291667},{"percentile":94.929,"loss":0.291667},{"percentile":95.1318,"loss":0.295455},{"percentile":95.3347,"loss":0.3},{"percentile":95.5375,"loss":0.3},{"percentile":95.7404,"loss":0.3},{"percentile":95.9432,"loss":0.3},{"percentile":96.146,"loss":0.3},{"percentile":96.3489,"loss":0.3},{"percentile":96.5517,"loss":0.3125},{"percentile":96.7546,"loss":0.3125},{"percentile":96.9574,"loss":0.318182},{"percentile":97.1602,"loss":0.333333},{"percentile":97.3631,"loss":0.333333},{"percentile":97.5659,"loss":0.333333},{"percentile":97.7688,"loss":0.35},{"percentile":97.9716,"loss":0.375},{"percentile":98.1744,"loss":0.388889},{"percentile":98.3773,"loss":0.416667},{"percentile":98.5801,"loss":0.421053},{"percentile":98.783,"loss":0.428571},{"percentile":98.9858,"loss":0.4375},{"percentile":99.1886,"loss":0.4375},{"percentile":99.3915,"loss":0.45},{"percentile":99.5943,"loss":0.461538},{"percentile":99.7972,"loss":0.5},{"percentile":100.0,"loss":0.5}]}},{"key":"qwen-flash","name":"Qwen3.6-Flash","short_name":"Qwen-Flash","pareto":true,"opb":0.10820164739986567,"upb":0.2512146307798482,"metrics":{"h":0.8140584961804997,"mincalib":0.7487853692201518,"mcc":0.5154618567117402,"linear_kappa":0.527609649296769,"quadratic_kappa":0.5613680973370765,"cvar90":0.3482110813249358,"pmu1":0.5492796967726763,"strict_sample":0.08097165991902834},"ranks":{"h":4,"mincalib":2,"mcc":7,"linear_kappa":7,"quadratic_kappa":7,"cvar90":9,"pmu1":2,"strict_sample":9},"risk":{"samples":494,"tail_samples":50,"mean":0.13492146115092063,"p80":0.21428571428571427,"p90":0.2777777777777778,"p95":0.31448863636363616,"cvar90":0.3482110813249358,"cvar95":0.403532775721011,"maximum":0.9285714285714286,"tail_severe_sample_rate":0.94,"tail_severe_atom_rate":0.21428847222608835,"tail_mean_atom_count":11.66,"quantile_curve":[{"percentile":70.1826,"loss":0.166667},{"percentile":70.3854,"loss":0.173913},{"percentile":70.5882,"loss":0.178571},{"percentile":70.7911,"loss":0.178571},{"percentile":70.9939,"loss":0.178571},{"percentile":71.1968,"loss":0.18},{"percentile":71.3996,"loss":0.181818},{"percentile":71.6024,"loss":0.181818},{"percentile":71.8053,"loss":0.181818},{"percentile":72.0081,"loss":0.181818},{"percentile":72.211,"loss":0.181818},{"percentile":72.4138,"loss":0.181818},{"percentile":72.6166,"loss":0.181818},{"percentile":72.8195,"loss":0.184211},{"percentile":73.0223,"loss":0.184211},{"percentile":73.2252,"loss":0.185185},{"percentile":73.428,"loss":0.1875},{"percentile":73.6308,"loss":0.1875},{"percentile":73.8337,"loss":0.1875},{"percentile":74.0365,"loss":0.1875},{"percentile":74.2394,"loss":0.1875},{"percentile":74.4422,"loss":0.1875},{"percentile":74.645,"loss":0.192308},{"percentile":74.8479,"loss":0.192308},{"percentile":75.0507,"loss":0.192308},{"percentile":75.2535,"loss":0.192308},{"percentile":75.4564,"loss":0.194444},{"percentile":75.6592,"loss":0.194444},{"percentile":75.8621,"loss":0.195652},{"percentile":76.0649,"loss":0.2},{"percentile":76.2677,"loss":0.2},{"percentile":76.4706,"loss":0.2},{"percentile":76.6734,"loss":0.2},{"percentile":76.8763,"loss":0.2},{"percentile":77.0791,"loss":0.2},{"percentile":77.2819,"loss":0.2},{"percentile":77.4848,"loss":0.2},{"percentile":77.6876,"loss":0.2},{"percentile":77.8905,"loss":0.2},{"percentile":78.0933,"loss":0.205882},{"percentile":78.2961,"loss":0.205882},{"percentile":78.499,"loss":0.206897},{"percentile":78.7018,"loss":0.208333},{"percentile":78.9047,"loss":0.208333},{"percentile":79.1075,"loss":0.211538},{"percentile":79.3103,"loss":0.214286},{"percentile":79.5132,"loss":0.214286},{"percentile":79.716,"loss":0.214286},{"percentile":79.9189,"loss":0.214286},{"percentile":80.1217,"loss":0.214286},{"percentile":80.3245,"loss":0.214286},{"percentile":80.5274,"loss":0.214286},{"percentile":80.7302,"loss":0.214286},{"percentile":80.9331,"loss":0.217391},{"percentile":81.1359,"loss":0.222222},{"percentile":81.3387,"loss":0.222222},{"percentile":81.5416,"loss":0.222222},{"percentile":81.7444,"loss":0.222222},{"percentile":81.9473,"loss":0.222222},{"percentile":82.1501,"loss":0.225},{"percentile":82.3529,"loss":0.227273},{"percentile":82.5558,"loss":0.227273},{"percentile":82.7586,"loss":0.227273},{"percentile":82.9615,"loss":0.227273},{"percentile":83.1643,"loss":0.227273},{"percentile":83.3671,"loss":0.227273},{"percentile":83.57,"loss":0.227273},{"percentile":83.7728,"loss":0.227273},{"percentile":83.9757,"loss":0.227273},{"percentile":84.1785,"loss":0.230769},{"percentile":84.3813,"loss":0.230769},{"percentile":84.5842,"loss":0.230769},{"percentile":84.787,"loss":0.230769},{"percentile":84.9899,"loss":0.230769},{"percentile":85.1927,"loss":0.230769},{"percentile":85.3955,"loss":0.233333},{"percentile":85.5984,"loss":0.235294},{"percentile":85.8012,"loss":0.23913},{"percentile":86.0041,"loss":0.25},{"percentile":86.2069,"loss":0.25},{"percentile":86.4097,"loss":0.25},{"percentile":86.6126,"loss":0.25},{"percentile":86.8154,"loss":0.25},{"percentile":87.0183,"loss":0.25},{"percentile":87.2211,"loss":0.25},{"percentile":87.4239,"loss":0.25},{"percentile":87.6268,"loss":0.25},{"percentile":87.8296,"loss":0.25},{"percentile":88.0325,"loss":0.25},{"percentile":88.2353,"loss":0.25},{"percentile":88.4381,"loss":0.263158},{"percentile":88.641,"loss":0.269231},{"percentile":88.8438,"loss":0.272727},{"percentile":89.0467,"loss":0.272727},{"percentile":89.2495,"loss":0.272727},{"percentile":89.4523,"loss":0.277778},{"percentile":89.6552,"loss":0.277778},{"percentile":89.858,"loss":0.277778},{"percentile":90.0609,"loss":0.277778},{"percentile":90.2637,"loss":0.277778},{"percentile":90.4665,"loss":0.277778},{"percentile":90.6694,"loss":0.28125},{"percentile":90.8722,"loss":0.28125},{"percentile":91.0751,"loss":0.28125},{"percentile":91.2779,"loss":0.285714},{"percentile":91.4807,"loss":0.285714},{"percentile":91.6836,"loss":0.285714},{"percentile":91.8864,"loss":0.285714},{"percentile":92.0892,"loss":0.288462},{"percentile":92.2921,"loss":0.289474},{"percentile":92.4949,"loss":0.291667},{"percentile":92.6978,"loss":0.3},{"percentile":92.9006,"loss":0.3},{"percentile":93.1034,"loss":0.3},{"percentile":93.3063,"loss":0.3},{"percentile":93.5091,"loss":0.3},{"percentile":93.712,"loss":0.3},{"percentile":93.9148,"loss":0.3},{"percentile":94.1176,"loss":0.3},{"percentile":94.3205,"loss":0.3},{"percentile":94.5233,"loss":0.307692},{"percentile":94.7262,"loss":0.3125},{"percentile":94.929,"loss":0.3125},{"percentile":95.1318,"loss":0.318182},{"percentile":95.3347,"loss":0.318182},{"percentile":95.5375,"loss":0.333333},{"percentile":95.7404,"loss":0.333333},{"percentile":95.9432,"loss":0.333333},{"percentile":96.146,"loss":0.333333},{"percentile":96.3489,"loss":0.333333},{"percentile":96.5517,"loss":0.333333},{"percentile":96.7546,"loss":0.333333},{"percentile":96.9574,"loss":0.35},{"percentile":97.1602,"loss":0.357143},{"percentile":97.3631,"loss":0.357143},{"percentile":97.5659,"loss":0.357143},{"percentile":97.7688,"loss":0.36},{"percentile":97.9716,"loss":0.375},{"percentile":98.1744,"loss":0.375},{"percentile":98.3773,"loss":0.388889},{"percentile":98.5801,"loss":0.388889},{"percentile":98.783,"loss":0.388889},{"percentile":98.9858,"loss":0.416667},{"percentile":99.1886,"loss":0.416667},{"percentile":99.3915,"loss":0.470588},{"percentile":99.5943,"loss":0.576923},{"percentile":99.7972,"loss":0.611111},{"percentile":100.0,"loss":0.928571}]}},{"key":"qwen35-35b-a3b","name":"Qwen3.5-35B-A3B","short_name":"Qwen-35B","pareto":true,"opb":0.11057729699155089,"upb":0.25000690131124914,"metrics":{"h":0.8137787721490285,"mincalib":0.7499930986887509,"mcc":0.5127646467477992,"linear_kappa":0.5230994043433013,"quadratic_kappa":0.5571999228804472,"cvar90":0.3435245290466552,"pmu1":0.5475161888776685,"strict_sample":0.08704453441295547},"ranks":{"h":5,"mincalib":1,"mcc":8,"linear_kappa":8,"quadratic_kappa":8,"cvar90":8,"pmu1":4,"strict_sample":8},"risk":{"samples":494,"tail_samples":50,"mean":0.13624948805641537,"p80":0.2222222222222222,"p90":0.2777777777777778,"p95":0.3193181818181817,"cvar90":0.3435245290466552,"cvar95":0.39110520889050976,"maximum":0.5555555555555556,"tail_severe_sample_rate":0.92,"tail_severe_atom_rate":0.20468896716271867,"tail_mean_atom_count":12.4,"quantile_curve":[{"percentile":70.1826,"loss":0.176471},{"percentile":70.3854,"loss":0.178571},{"percentile":70.5882,"loss":0.181818},{"percentile":70.7911,"loss":0.181818},{"percentile":70.9939,"loss":0.181818},{"percentile":71.1968,"loss":0.181818},{"percentile":71.3996,"loss":0.181818},{"percentile":71.6024,"loss":0.181818},{"percentile":71.8053,"loss":0.181818},{"percentile":72.0081,"loss":0.1875},{"percentile":72.211,"loss":0.1875},{"percentile":72.4138,"loss":0.1875},{"percentile":72.6166,"loss":0.1875},{"percentile":72.8195,"loss":0.1875},{"percentile":73.0223,"loss":0.1875},{"percentile":73.2252,"loss":0.1875},{"percentile":73.428,"loss":0.1875},{"percentile":73.6308,"loss":0.1875},{"percentile":73.8337,"loss":0.192308},{"percentile":74.0365,"loss":0.192308},{"percentile":74.2394,"loss":0.192308},{"percentile":74.4422,"loss":0.192308},{"percentile":74.645,"loss":0.194444},{"percentile":74.8479,"loss":0.194444},{"percentile":75.0507,"loss":0.2},{"percentile":75.2535,"loss":0.2},{"percentile":75.4564,"loss":0.2},{"percentile":75.6592,"loss":0.2},{"percentile":75.8621,"loss":0.2},{"percentile":76.0649,"loss":0.2},{"percentile":76.2677,"loss":0.2},{"percentile":76.4706,"loss":0.2},{"percentile":76.6734,"loss":0.2},{"percentile":76.8763,"loss":0.2},{"percentile":77.0791,"loss":0.203704},{"percentile":77.2819,"loss":0.208333},{"percentile":77.4848,"loss":0.208333},{"percentile":77.6876,"loss":0.208333},{"percentile":77.8905,"loss":0.214286},{"percentile":78.0933,"loss":0.214286},{"percentile":78.2961,"loss":0.214286},{"percentile":78.499,"loss":0.214286},{"percentile":78.7018,"loss":0.21875},{"percentile":78.9047,"loss":0.222222},{"percentile":79.1075,"loss":0.222222},{"percentile":79.3103,"loss":0.222222},{"percentile":79.5132,"loss":0.222222},{"percentile":79.716,"loss":0.222222},{"percentile":79.9189,"loss":0.222222},{"percentile":80.1217,"loss":0.222222},{"percentile":80.3245,"loss":0.222222},{"percentile":80.5274,"loss":0.222222},{"percentile":80.7302,"loss":0.227273},{"percentile":80.9331,"loss":0.227273},{"percentile":81.1359,"loss":0.227273},{"percentile":81.3387,"loss":0.227273},{"percentile":81.5416,"loss":0.227273},{"percentile":81.7444,"loss":0.230769},{"percentile":81.9473,"loss":0.230769},{"percentile":82.1501,"loss":0.230769},{"percentile":82.3529,"loss":0.230769},{"percentile":82.5558,"loss":0.230769},{"percentile":82.7586,"loss":0.233333},{"percentile":82.9615,"loss":0.233333},{"percentile":83.1643,"loss":0.235294},{"percentile":83.3671,"loss":0.236842},{"percentile":83.57,"loss":0.24},{"percentile":83.7728,"loss":0.25},{"percentile":83.9757,"loss":0.25},{"percentile":84.1785,"loss":0.25},{"percentile":84.3813,"loss":0.25},{"percentile":84.5842,"loss":0.25},{"percentile":84.787,"loss":0.25},{"percentile":84.9899,"loss":0.25},{"percentile":85.1927,"loss":0.25},{"percentile":85.3955,"loss":0.25},{"percentile":85.5984,"loss":0.25},{"percentile":85.8012,"loss":0.25},{"percentile":86.0041,"loss":0.25},{"percentile":86.2069,"loss":0.25},{"percentile":86.4097,"loss":0.25},{"percentile":86.6126,"loss":0.25},{"percentile":86.8154,"loss":0.25},{"percentile":87.0183,"loss":0.25},{"percentile":87.2211,"loss":0.25},{"percentile":87.4239,"loss":0.25},{"percentile":87.6268,"loss":0.25},{"percentile":87.8296,"loss":0.25},{"percentile":88.0325,"loss":0.263158},{"percentile":88.2353,"loss":0.264706},{"percentile":88.4381,"loss":0.266667},{"percentile":88.641,"loss":0.269231},{"percentile":88.8438,"loss":0.269231},{"percentile":89.0467,"loss":0.269231},{"percentile":89.2495,"loss":0.272727},{"percentile":89.4523,"loss":0.272727},{"percentile":89.6552,"loss":0.277778},{"percentile":89.858,"loss":0.277778},{"percentile":90.0609,"loss":0.277778},{"percentile":90.2637,"loss":0.277778},{"percentile":90.4665,"loss":0.277778},{"percentile":90.6694,"loss":0.277778},{"percentile":90.8722,"loss":0.28125},{"percentile":91.0751,"loss":0.282609},{"percentile":91.2779,"loss":0.285714},{"percentile":91.4807,"loss":0.285714},{"percentile":91.6836,"loss":0.285714},{"percentile":91.8864,"loss":0.285714},{"percentile":92.0892,"loss":0.294118},{"percentile":92.2921,"loss":0.3},{"percentile":92.4949,"loss":0.3},{"percentile":92.6978,"loss":0.3},{"percentile":92.9006,"loss":0.3},{"percentile":93.1034,"loss":0.3},{"percentile":93.3063,"loss":0.3},{"percentile":93.5091,"loss":0.304348},{"percentile":93.712,"loss":0.305556},{"percentile":93.9148,"loss":0.307692},{"percentile":94.1176,"loss":0.307692},{"percentile":94.3205,"loss":0.3125},{"percentile":94.5233,"loss":0.3125},{"percentile":94.7262,"loss":0.318182},{"percentile":94.929,"loss":0.318182},{"percentile":95.1318,"loss":0.321429},{"percentile":95.3347,"loss":0.333333},{"percentile":95.5375,"loss":0.333333},{"percentile":95.7404,"loss":0.333333},{"percentile":95.9432,"loss":0.333333},{"percentile":96.146,"loss":0.333333},{"percentile":96.3489,"loss":0.346154},{"percentile":96.5517,"loss":0.346154},{"percentile":96.7546,"loss":0.357143},{"percentile":96.9574,"loss":0.363636},{"percentile":97.1602,"loss":0.363636},{"percentile":97.3631,"loss":0.368421},{"percentile":97.5659,"loss":0.375},{"percentile":97.7688,"loss":0.388889},{"percentile":97.9716,"loss":0.388889},{"percentile":98.1744,"loss":0.4},{"percentile":98.3773,"loss":0.4},{"percentile":98.5801,"loss":0.411765},{"percentile":98.783,"loss":0.428571},{"percentile":98.9858,"loss":0.428571},{"percentile":99.1886,"loss":0.444444},{"percentile":99.3915,"loss":0.444444},{"percentile":99.5943,"loss":0.478261},{"percentile":99.7972,"loss":0.5},{"percentile":100.0,"loss":0.555556}]}},{"key":"glm52","name":"GLM-5.2","short_name":"GLM-5.2","pareto":true,"opb":0.0813907448651324,"upb":0.284623878536922,"metrics":{"h":0.8043537420716655,"mincalib":0.715376121463078,"mcc":0.5496118474444419,"linear_kappa":0.5800574318071086,"quadratic_kappa":0.6167948685163507,"cvar90":0.30136258855747683,"pmu1":0.5294302345062488,"strict_sample":0.14979757085020243},"ranks":{"h":6,"mincalib":6,"mcc":3,"linear_kappa":3,"quadratic_kappa":3,"cvar90":3,"pmu1":6,"strict_sample":2},"risk":{"samples":494,"tail_samples":50,"mean":0.107767763656903,"p80":0.18181818181818182,"p90":0.23256410256410254,"p95":0.28667582417582405,"cvar90":0.30136258855747683,"cvar95":0.3417237894716223,"maximum":0.4444444444444444,"tail_severe_sample_rate":0.88,"tail_severe_atom_rate":0.1763376557537077,"tail_mean_atom_count":12.96,"quantile_curve":[{"percentile":70.1826,"loss":0.138889},{"percentile":70.3854,"loss":0.142857},{"percentile":70.5882,"loss":0.142857},{"percentile":70.7911,"loss":0.142857},{"percentile":70.9939,"loss":0.142857},{"percentile":71.1968,"loss":0.142857},{"percentile":71.3996,"loss":0.142857},{"percentile":71.6024,"loss":0.142857},{"percentile":71.8053,"loss":0.145833},{"percentile":72.0081,"loss":0.147059},{"percentile":72.211,"loss":0.15},{"percentile":72.4138,"loss":0.15},{"percentile":72.6166,"loss":0.15},{"percentile":72.8195,"loss":0.15},{"percentile":73.0223,"loss":0.15},{"percentile":73.2252,"loss":0.15},{"percentile":73.428,"loss":0.15},{"percentile":73.6308,"loss":0.15},{"percentile":73.8337,"loss":0.15},{"percentile":74.0365,"loss":0.153846},{"percentile":74.2394,"loss":0.153846},{"percentile":74.4422,"loss":0.153846},{"percentile":74.645,"loss":0.153846},{"percentile":74.8479,"loss":0.153846},{"percentile":75.0507,"loss":0.157895},{"percentile":75.2535,"loss":0.157895},{"percentile":75.4564,"loss":0.166667},{"percentile":75.6592,"loss":0.166667},{"percentile":75.8621,"loss":0.166667},{"percentile":76.0649,"loss":0.166667},{"percentile":76.2677,"loss":0.166667},{"percentile":76.4706,"loss":0.166667},{"percentile":76.6734,"loss":0.166667},{"percentile":76.8763,"loss":0.166667},{"percentile":77.0791,"loss":0.166667},{"percentile":77.2819,"loss":0.166667},{"percentile":77.4848,"loss":0.166667},{"percentile":77.6876,"loss":0.166667},{"percentile":77.8905,"loss":0.166667},{"percentile":78.0933,"loss":0.166667},{"percentile":78.2961,"loss":0.166667},{"percentile":78.499,"loss":0.166667},{"percentile":78.7018,"loss":0.166667},{"percentile":78.9047,"loss":0.166667},{"percentile":79.1075,"loss":0.166667},{"percentile":79.3103,"loss":0.166667},{"percentile":79.5132,"loss":0.178571},{"percentile":79.716,"loss":0.178571},{"percentile":79.9189,"loss":0.181818},{"percentile":80.1217,"loss":0.181818},{"percentile":80.3245,"loss":0.181818},{"percentile":80.5274,"loss":0.181818},{"percentile":80.7302,"loss":0.181818},{"percentile":80.9331,"loss":0.181818},{"percentile":81.1359,"loss":0.181818},{"percentile":81.3387,"loss":0.1875},{"percentile":81.5416,"loss":0.192308},{"percentile":81.7444,"loss":0.192308},{"percentile":81.9473,"loss":0.192308},{"percentile":82.1501,"loss":0.192308},{"percentile":82.3529,"loss":0.192308},{"percentile":82.5558,"loss":0.194444},{"percentile":82.7586,"loss":0.2},{"percentile":82.9615,"loss":0.2},{"percentile":83.1643,"loss":0.2},{"percentile":83.3671,"loss":0.2},{"percentile":83.57,"loss":0.2},{"percentile":83.7728,"loss":0.2},{"percentile":83.9757,"loss":0.2},{"percentile":84.1785,"loss":0.2},{"percentile":84.3813,"loss":0.205882},{"percentile":84.5842,"loss":0.208333},{"percentile":84.787,"loss":0.208333},{"percentile":84.9899,"loss":0.208333},{"percentile":85.1927,"loss":0.208333},{"percentile":85.3955,"loss":0.208333},{"percentile":85.5984,"loss":0.208333},{"percentile":85.8012,"loss":0.210526},{"percentile":86.0041,"loss":0.214286},{"percentile":86.2069,"loss":0.214286},{"percentile":86.4097,"loss":0.214286},{"percentile":86.6126,"loss":0.214286},{"percentile":86.8154,"loss":0.217391},{"percentile":87.0183,"loss":0.217391},{"percentile":87.2211,"loss":0.222222},{"percentile":87.4239,"loss":0.222222},{"percentile":87.6268,"loss":0.222222},{"percentile":87.8296,"loss":0.222222},{"percentile":88.0325,"loss":0.222222},{"percentile":88.2353,"loss":0.222222},{"percentile":88.4381,"loss":0.227273},{"percentile":88.641,"loss":0.227273},{"percentile":88.8438,"loss":0.230769},{"percentile":89.0467,"loss":0.230769},{"percentile":89.2495,"loss":0.230769},{"percentile":89.4523,"loss":0.230769},{"percentile":89.6552,"loss":0.230769},{"percentile":89.858,"loss":0.230769},{"percentile":90.0609,"loss":0.233333},{"percentile":90.2637,"loss":0.233333},{"percentile":90.4665,"loss":0.235294},{"percentile":90.6694,"loss":0.25},{"percentile":90.8722,"loss":0.25},{"percentile":91.0751,"loss":0.25},{"percentile":91.2779,"loss":0.25},{"percentile":91.4807,"loss":0.25},{"percentile":91.6836,"loss":0.25},{"percentile":91.8864,"loss":0.25},{"percentile":92.0892,"loss":0.25},{"percentile":92.2921,"loss":0.25},{"percentile":92.4949,"loss":0.26087},{"percentile":92.6978,"loss":0.26087},{"percentile":92.9006,"loss":0.272727},{"percentile":93.1034,"loss":0.272727},{"percentile":93.3063,"loss":0.272727},{"percentile":93.5091,"loss":0.272727},{"percentile":93.712,"loss":0.272727},{"percentile":93.9148,"loss":0.275},{"percentile":94.1176,"loss":0.277778},{"percentile":94.3205,"loss":0.277778},{"percentile":94.5233,"loss":0.285714},{"percentile":94.7262,"loss":0.285714},{"percentile":94.929,"loss":0.285714},{"percentile":95.1318,"loss":0.288462},{"percentile":95.3347,"loss":0.291667},{"percentile":95.5375,"loss":0.3},{"percentile":95.7404,"loss":0.3},{"percentile":95.9432,"loss":0.3},{"percentile":96.146,"loss":0.305556},{"percentile":96.3489,"loss":0.307692},{"percentile":96.5517,"loss":0.3125},{"percentile":96.7546,"loss":0.3125},{"percentile":96.9574,"loss":0.318182},{"percentile":97.1602,"loss":0.323529},{"percentile":97.3631,"loss":0.333333},{"percentile":97.5659,"loss":0.333333},{"percentile":97.7688,"loss":0.333333},{"percentile":97.9716,"loss":0.34375},{"percentile":98.1744,"loss":0.346154},{"percentile":98.3773,"loss":0.35},{"percentile":98.5801,"loss":0.357143},{"percentile":98.783,"loss":0.36},{"percentile":98.9858,"loss":0.368421},{"percentile":99.1886,"loss":0.375},{"percentile":99.3915,"loss":0.392857},{"percentile":99.5943,"loss":0.416667},{"percentile":99.7972,"loss":0.428571},{"percentile":100.0,"loss":0.444444}]}},{"key":"codex-gpt56-sol","name":"Codex GPT-5.6 Sol","short_name":"Codex","pareto":true,"opb":0.04125216530561742,"upb":0.3477432712215321,"metrics":{"h":0.7763475542653062,"mincalib":0.652256728778468,"mcc":0.6128223986675382,"linear_kappa":0.6676194005187626,"quadratic_kappa":0.7148737339018729,"cvar90":0.24384646170561164,"pmu1":0.5128218831511173,"strict_sample":0.2145748987854251},"ranks":{"h":7,"mincalib":8,"mcc":1,"linear_kappa":1,"quadratic_kappa":1,"cvar90":1,"pmu1":7,"strict_sample":1},"risk":{"samples":494,"tail_samples":50,"mean":0.07744778010495144,"p80":0.13157894736842105,"p90":0.16666666666666666,"p95":0.21428571428571427,"cvar90":0.24384646170561164,"cvar95":0.30215153413837625,"maximum":0.42857142857142855,"tail_severe_sample_rate":0.82,"tail_severe_atom_rate":0.12053163033254567,"tail_mean_atom_count":11.76,"quantile_curve":[{"percentile":70.1826,"loss":0.1},{"percentile":70.3854,"loss":0.1},{"percentile":70.5882,"loss":0.1},{"percentile":70.7911,"loss":0.105263},{"percentile":70.9939,"loss":0.105263},{"percentile":71.1968,"loss":0.107143},{"percentile":71.3996,"loss":0.107143},{"percentile":71.6024,"loss":0.107143},{"percentile":71.8053,"loss":0.107143},{"percentile":72.0081,"loss":0.107143},{"percentile":72.211,"loss":0.107143},{"percentile":72.4138,"loss":0.107143},{"percentile":72.6166,"loss":0.108696},{"percentile":72.8195,"loss":0.111111},{"percentile":73.0223,"loss":0.111111},{"percentile":73.2252,"loss":0.111111},{"percentile":73.428,"loss":0.111111},{"percentile":73.6308,"loss":0.111111},{"percentile":73.8337,"loss":0.111111},{"percentile":74.0365,"loss":0.111111},{"percentile":74.2394,"loss":0.111111},{"percentile":74.4422,"loss":0.111111},{"percentile":74.645,"loss":0.111111},{"percentile":74.8479,"loss":0.113636},{"percentile":75.0507,"loss":0.113636},{"percentile":75.2535,"loss":0.115385},{"percentile":75.4564,"loss":0.115385},{"percentile":75.6592,"loss":0.115385},{"percentile":75.8621,"loss":0.115385},{"percentile":76.0649,"loss":0.115385},{"percentile":76.2677,"loss":0.115385},{"percentile":76.4706,"loss":0.117647},{"percentile":76.6734,"loss":0.117647},{"percentile":76.8763,"loss":0.117647},{"percentile":77.0791,"loss":0.117647},{"percentile":77.2819,"loss":0.125},{"percentile":77.4848,"loss":0.125},{"percentile":77.6876,"loss":0.125},{"percentile":77.8905,"loss":0.125},{"percentile":78.0933,"loss":0.125},{"percentile":78.2961,"loss":0.125},{"percentile":78.499,"loss":0.125},{"percentile":78.7018,"loss":0.125},{"percentile":78.9047,"loss":0.125},{"percentile":79.1075,"loss":0.125},{"percentile":79.3103,"loss":0.125},{"percentile":79.5132,"loss":0.125},{"percentile":79.716,"loss":0.125},{"percentile":79.9189,"loss":0.131579},{"percentile":80.1217,"loss":0.131579},{"percentile":80.3245,"loss":0.131579},{"percentile":80.5274,"loss":0.131579},{"percentile":80.7302,"loss":0.133333},{"percentile":80.9331,"loss":0.133333},{"percentile":81.1359,"loss":0.136364},{"percentile":81.3387,"loss":0.136364},{"percentile":81.5416,"loss":0.136364},{"percentile":81.7444,"loss":0.136364},{"percentile":81.9473,"loss":0.136364},{"percentile":82.1501,"loss":0.136364},{"percentile":82.3529,"loss":0.136364},{"percentile":82.5558,"loss":0.136364},{"percentile":82.7586,"loss":0.138889},{"percentile":82.9615,"loss":0.138889},{"percentile":83.1643,"loss":0.142857},{"percentile":83.3671,"loss":0.142857},{"percentile":83.57,"loss":0.142857},{"percentile":83.7728,"loss":0.147059},{"percentile":83.9757,"loss":0.15},{"percentile":84.1785,"loss":0.15},{"percentile":84.3813,"loss":0.15},{"percentile":84.5842,"loss":0.15},{"percentile":84.787,"loss":0.15},{"percentile":84.9899,"loss":0.15},{"percentile":85.1927,"loss":0.15},{"percentile":85.3955,"loss":0.15},{"percentile":85.5984,"loss":0.15},{"percentile":85.8012,"loss":0.15},{"percentile":86.0041,"loss":0.153846},{"percentile":86.2069,"loss":0.153846},{"percentile":86.4097,"loss":0.153846},{"percentile":86.6126,"loss":0.153846},{"percentile":86.8154,"loss":0.153846},{"percentile":87.0183,"loss":0.153846},{"percentile":87.2211,"loss":0.15625},{"percentile":87.4239,"loss":0.15625},{"percentile":87.6268,"loss":0.15625},{"percentile":87.8296,"loss":0.166667},{"percentile":88.0325,"loss":0.166667},{"percentile":88.2353,"loss":0.166667},{"percentile":88.4381,"loss":0.166667},{"percentile":88.641,"loss":0.166667},{"percentile":88.8438,"loss":0.166667},{"percentile":89.0467,"loss":0.166667},{"percentile":89.2495,"loss":0.166667},{"percentile":89.4523,"loss":0.166667},{"percentile":89.6552,"loss":0.166667},{"percentile":89.858,"loss":0.166667},{"percentile":90.0609,"loss":0.166667},{"percentile":90.2637,"loss":0.166667},{"percentile":90.4665,"loss":0.166667},{"percentile":90.6694,"loss":0.166667},{"percentile":90.8722,"loss":0.166667},{"percentile":91.0751,"loss":0.166667},{"percentile":91.2779,"loss":0.166667},{"percentile":91.4807,"loss":0.173077},{"percentile":91.6836,"loss":0.176471},{"percentile":91.8864,"loss":0.178571},{"percentile":92.0892,"loss":0.181818},{"percentile":92.2921,"loss":0.181818},{"percentile":92.4949,"loss":0.181818},{"percentile":92.6978,"loss":0.1875},{"percentile":92.9006,"loss":0.1875},{"percentile":93.1034,"loss":0.192308},{"percentile":93.3063,"loss":0.194444},{"percentile":93.5091,"loss":0.195652},{"percentile":93.712,"loss":0.195652},{"percentile":93.9148,"loss":0.2},{"percentile":94.1176,"loss":0.2},{"percentile":94.3205,"loss":0.208333},{"percentile":94.5233,"loss":0.208333},{"percentile":94.7262,"loss":0.214286},{"percentile":94.929,"loss":0.214286},{"percentile":95.1318,"loss":0.214286},{"percentile":95.3347,"loss":0.222222},{"percentile":95.5375,"loss":0.227273},{"percentile":95.7404,"loss":0.227273},{"percentile":95.9432,"loss":0.236842},{"percentile":96.146,"loss":0.25},{"percentile":96.3489,"loss":0.25},{"percentile":96.5517,"loss":0.25},{"percentile":96.7546,"loss":0.25},{"percentile":96.9574,"loss":0.277778},{"percentile":97.1602,"loss":0.28125},{"percentile":97.3631,"loss":0.285714},{"percentile":97.5659,"loss":0.291667},{"percentile":97.7688,"loss":0.3},{"percentile":97.9716,"loss":0.3},{"percentile":98.1744,"loss":0.3125},{"percentile":98.3773,"loss":0.333333},{"percentile":98.5801,"loss":0.333333},{"percentile":98.783,"loss":0.333333},{"percentile":98.9858,"loss":0.357143},{"percentile":99.1886,"loss":0.357143},{"percentile":99.3915,"loss":0.388889},{"percentile":99.5943,"loss":0.416667},{"percentile":99.7972,"loss":0.428571},{"percentile":100.0,"loss":0.428571}]}},{"key":"qwen-max","name":"Qwen3.7-Max","short_name":"Qwen-Max","pareto":true,"opb":0.07299642945522677,"upb":0.33663216011042096,"metrics":{"h":0.7733342691242965,"mincalib":0.663367839889579,"mcc":0.532860335506017,"linear_kappa":0.570680245563908,"quadratic_kappa":0.6086503848922855,"cvar90":0.2908883905568116,"pmu1":0.4812670284859691,"strict_sample":0.10526315789473684},"ranks":{"h":8,"mincalib":7,"mcc":6,"linear_kappa":4,"quadratic_kappa":4,"cvar90":2,"pmu1":8,"strict_sample":6},"risk":{"samples":494,"tail_samples":50,"mean":0.11100357301751092,"p80":0.175,"p90":0.22972027972027967,"p95":0.2777777777777778,"cvar90":0.2908883905568116,"cvar95":0.3273809523809524,"maximum":0.4166666666666667,"tail_severe_sample_rate":0.86,"tail_severe_atom_rate":0.17678786009312325,"tail_mean_atom_count":11.44,"quantile_curve":[{"percentile":70.1826,"loss":0.142857},{"percentile":70.3854,"loss":0.142857},{"percentile":70.5882,"loss":0.142857},{"percentile":70.7911,"loss":0.142857},{"percentile":70.9939,"loss":0.145833},{"percentile":71.1968,"loss":0.147059},{"percentile":71.3996,"loss":0.147059},{"percentile":71.6024,"loss":0.15},{"percentile":71.8053,"loss":0.15},{"percentile":72.0081,"loss":0.15},{"percentile":72.211,"loss":0.15},{"percentile":72.4138,"loss":0.15},{"percentile":72.6166,"loss":0.15},{"percentile":72.8195,"loss":0.15},{"percentile":73.0223,"loss":0.15},{"percentile":73.2252,"loss":0.15},{"percentile":73.428,"loss":0.15},{"percentile":73.6308,"loss":0.152174},{"percentile":73.8337,"loss":0.153846},{"percentile":74.0365,"loss":0.153846},{"percentile":74.2394,"loss":0.153846},{"percentile":74.4422,"loss":0.153846},{"percentile":74.645,"loss":0.153846},{"percentile":74.8479,"loss":0.153846},{"percentile":75.0507,"loss":0.153846},{"percentile":75.2535,"loss":0.15625},{"percentile":75.4564,"loss":0.157895},{"percentile":75.6592,"loss":0.157895},{"percentile":75.8621,"loss":0.159091},{"percentile":76.0649,"loss":0.166667},{"percentile":76.2677,"loss":0.166667},{"percentile":76.4706,"loss":0.166667},{"percentile":76.6734,"loss":0.166667},{"percentile":76.8763,"loss":0.166667},{"percentile":77.0791,"loss":0.166667},{"percentile":77.2819,"loss":0.166667},{"percentile":77.4848,"loss":0.166667},{"percentile":77.6876,"loss":0.166667},{"percentile":77.8905,"loss":0.166667},{"percentile":78.0933,"loss":0.166667},{"percentile":78.2961,"loss":0.166667},{"percentile":78.499,"loss":0.166667},{"percentile":78.7018,"loss":0.166667},{"percentile":78.9047,"loss":0.166667},{"percentile":79.1075,"loss":0.166667},{"percentile":79.3103,"loss":0.166667},{"percentile":79.5132,"loss":0.166667},{"percentile":79.716,"loss":0.173913},{"percentile":79.9189,"loss":0.175},{"percentile":80.1217,"loss":0.175},{"percentile":80.3245,"loss":0.176471},{"percentile":80.5274,"loss":0.178571},{"percentile":80.7302,"loss":0.178571},{"percentile":80.9331,"loss":0.178571},{"percentile":81.1359,"loss":0.181818},{"percentile":81.3387,"loss":0.181818},{"percentile":81.5416,"loss":0.181818},{"percentile":81.7444,"loss":0.181818},{"percentile":81.9473,"loss":0.181818},{"percentile":82.1501,"loss":0.184211},{"percentile":82.3529,"loss":0.1875},{"percentile":82.5558,"loss":0.1875},{"percentile":82.7586,"loss":0.1875},{"percentile":82.9615,"loss":0.1875},{"percentile":83.1643,"loss":0.1875},{"percentile":83.3671,"loss":0.192308},{"percentile":83.57,"loss":0.192308},{"percentile":83.7728,"loss":0.195652},{"percentile":83.9757,"loss":0.2},{"percentile":84.1785,"loss":0.2},{"percentile":84.3813,"loss":0.2},{"percentile":84.5842,"loss":0.2},{"percentile":84.787,"loss":0.2},{"percentile":84.9899,"loss":0.2},{"percentile":85.1927,"loss":0.2},{"percentile":85.3955,"loss":0.205882},{"percentile":85.5984,"loss":0.205882},{"percentile":85.8012,"loss":0.208333},{"percentile":86.0041,"loss":0.208333},{"percentile":86.2069,"loss":0.208333},{"percentile":86.4097,"loss":0.208333},{"percentile":86.6126,"loss":0.208333},{"percentile":86.8154,"loss":0.208333},{"percentile":87.0183,"loss":0.214286},{"percentile":87.2211,"loss":0.214286},{"percentile":87.4239,"loss":0.214286},{"percentile":87.6268,"loss":0.214286},{"percentile":87.8296,"loss":0.21875},{"percentile":88.0325,"loss":0.222222},{"percentile":88.2353,"loss":0.222222},{"percentile":88.4381,"loss":0.222222},{"percentile":88.641,"loss":0.222222},{"percentile":88.8438,"loss":0.225},{"percentile":89.0467,"loss":0.227273},{"percentile":89.2495,"loss":0.227273},{"percentile":89.4523,"loss":0.227273},{"percentile":89.6552,"loss":0.227273},{"percentile":89.858,"loss":0.227273},{"percentile":90.0609,"loss":0.230769},{"percentile":90.2637,"loss":0.230769},{"percentile":90.4665,"loss":0.230769},{"percentile":90.6694,"loss":0.236842},{"percentile":90.8722,"loss":0.25},{"percentile":91.0751,"loss":0.25},{"percentile":91.2779,"loss":0.25},{"percentile":91.4807,"loss":0.25},{"percentile":91.6836,"loss":0.25},{"percentile":91.8864,"loss":0.25},{"percentile":92.0892,"loss":0.25},{"percentile":92.2921,"loss":0.25},{"percentile":92.4949,"loss":0.25},{"percentile":92.6978,"loss":0.25},{"percentile":92.9006,"loss":0.25},{"percentile":93.1034,"loss":0.25},{"percentile":93.3063,"loss":0.25},{"percentile":93.5091,"loss":0.26},{"percentile":93.712,"loss":0.269231},{"percentile":93.9148,"loss":0.272727},{"percentile":94.1176,"loss":0.272727},{"percentile":94.3205,"loss":0.272727},{"percentile":94.5233,"loss":0.277778},{"percentile":94.7262,"loss":0.277778},{"percentile":94.929,"loss":0.277778},{"percentile":95.1318,"loss":0.277778},{"percentile":95.3347,"loss":0.277778},{"percentile":95.5375,"loss":0.285714},{"percentile":95.7404,"loss":0.285714},{"percentile":95.9432,"loss":0.3},{"percentile":96.146,"loss":0.3},{"percentile":96.3489,"loss":0.305556},{"percentile":96.5517,"loss":0.3125},{"percentile":96.7546,"loss":0.3125},{"percentile":96.9574,"loss":0.3125},{"percentile":97.1602,"loss":0.3125},{"percentile":97.3631,"loss":0.325},{"percentile":97.5659,"loss":0.333333},{"percentile":97.7688,"loss":0.333333},{"percentile":97.9716,"loss":0.333333},{"percentile":98.1744,"loss":0.333333},{"percentile":98.3773,"loss":0.333333},{"percentile":98.5801,"loss":0.333333},{"percentile":98.783,"loss":0.35},{"percentile":98.9858,"loss":0.35},{"percentile":99.1886,"loss":0.357143},{"percentile":99.3915,"loss":0.357143},{"percentile":99.5943,"loss":0.357143},{"percentile":99.7972,"loss":0.388889},{"percentile":100.0,"loss":0.416667}]}},{"key":"qwen3-8b","name":"Qwen3-8B","short_name":"Qwen-8B","pareto":false,"opb":0.04314879626683636,"upb":0.49562456866804694,"metrics":{"h":0.6605576808171255,"mincalib":0.5043754313319531,"mcc":0.48397668650388026,"linear_kappa":0.5199697222408819,"quadratic_kappa":0.5506104013316746,"cvar90":0.30180695874174135,"pmu1":0.3977338952752916,"strict_sample":0.10323886639676114},"ranks":{"h":9,"mincalib":9,"mcc":9,"linear_kappa":9,"quadratic_kappa":9,"cvar90":5,"pmu1":9,"strict_sample":7},"risk":{"samples":494,"tail_samples":50,"mean":0.10905883837482126,"p80":0.16666666666666666,"p90":0.2222222222222222,"p95":0.2777777777777778,"cvar90":0.30180695874174135,"cvar95":0.35474634544199757,"maximum":0.65,"tail_severe_sample_rate":0.9,"tail_severe_atom_rate":0.19363144826188303,"tail_mean_atom_count":11.02,"quantile_curve":[{"percentile":70.1826,"loss":0.136364},{"percentile":70.3854,"loss":0.136364},{"percentile":70.5882,"loss":0.136364},{"percentile":70.7911,"loss":0.136364},{"percentile":70.9939,"loss":0.136364},{"percentile":71.1968,"loss":0.136364},{"percentile":71.3996,"loss":0.138889},{"percentile":71.6024,"loss":0.138889},{"percentile":71.8053,"loss":0.138889},{"percentile":72.0081,"loss":0.142857},{"percentile":72.211,"loss":0.142857},{"percentile":72.4138,"loss":0.142857},{"percentile":72.6166,"loss":0.142857},{"percentile":72.8195,"loss":0.142857},{"percentile":73.0223,"loss":0.145833},{"percentile":73.2252,"loss":0.147059},{"percentile":73.428,"loss":0.147059},{"percentile":73.6308,"loss":0.15},{"percentile":73.8337,"loss":0.15},{"percentile":74.0365,"loss":0.15},{"percentile":74.2394,"loss":0.15},{"percentile":74.4422,"loss":0.15},{"percentile":74.645,"loss":0.15},{"percentile":74.8479,"loss":0.15},{"percentile":75.0507,"loss":0.15},{"percentile":75.2535,"loss":0.15},{"percentile":75.4564,"loss":0.152174},{"percentile":75.6592,"loss":0.153846},{"percentile":75.8621,"loss":0.153846},{"percentile":76.0649,"loss":0.15625},{"percentile":76.2677,"loss":0.166667},{"percentile":76.4706,"loss":0.166667},{"percentile":76.6734,"loss":0.166667},{"percentile":76.8763,"loss":0.166667},{"percentile":77.0791,"loss":0.166667},{"percentile":77.2819,"loss":0.166667},{"percentile":77.4848,"loss":0.166667},{"percentile":77.6876,"loss":0.166667},{"percentile":77.8905,"loss":0.166667},{"percentile":78.0933,"loss":0.166667},{"percentile":78.2961,"loss":0.166667},{"percentile":78.499,"loss":0.166667},{"percentile":78.7018,"loss":0.166667},{"percentile":78.9047,"loss":0.166667},{"percentile":79.1075,"loss":0.166667},{"percentile":79.3103,"loss":0.166667},{"percentile":79.5132,"loss":0.166667},{"percentile":79.716,"loss":0.166667},{"percentile":79.9189,"loss":0.166667},{"percentile":80.1217,"loss":0.166667},{"percentile":80.3245,"loss":0.178571},{"percentile":80.5274,"loss":0.178571},{"percentile":80.7302,"loss":0.178571},{"percentile":80.9331,"loss":0.181818},{"percentile":81.1359,"loss":0.181818},{"percentile":81.3387,"loss":0.181818},{"percentile":81.5416,"loss":0.181818},{"percentile":81.7444,"loss":0.181818},{"percentile":81.9473,"loss":0.1875},{"percentile":82.1501,"loss":0.1875},{"percentile":82.3529,"loss":0.1875},{"percentile":82.5558,"loss":0.1875},{"percentile":82.7586,"loss":0.1875},{"percentile":82.9615,"loss":0.1875},{"percentile":83.1643,"loss":0.1875},{"percentile":83.3671,"loss":0.1875},{"percentile":83.57,"loss":0.192308},{"percentile":83.7728,"loss":0.192308},{"percentile":83.9757,"loss":0.192308},{"percentile":84.1785,"loss":0.192308},{"percentile":84.3813,"loss":0.192308},{"percentile":84.5842,"loss":0.2},{"percentile":84.787,"loss":0.2},{"percentile":84.9899,"loss":0.2},{"percentile":85.1927,"loss":0.2},{"percentile":85.3955,"loss":0.2},{"percentile":85.5984,"loss":0.2},{"percentile":85.8012,"loss":0.2},{"percentile":86.0041,"loss":0.2},{"percentile":86.2069,"loss":0.2},{"percentile":86.4097,"loss":0.2},{"percentile":86.6126,"loss":0.2},{"percentile":86.8154,"loss":0.2},{"percentile":87.0183,"loss":0.2},{"percentile":87.2211,"loss":0.208333},{"percentile":87.4239,"loss":0.208333},{"percentile":87.6268,"loss":0.210526},{"percentile":87.8296,"loss":0.214286},{"percentile":88.0325,"loss":0.214286},{"percentile":88.2353,"loss":0.214286},{"percentile":88.4381,"loss":0.214286},{"percentile":88.641,"loss":0.214286},{"percentile":88.8438,"loss":0.214286},{"percentile":89.0467,"loss":0.217391},{"percentile":89.2495,"loss":0.222222},{"percentile":89.4523,"loss":0.222222},{"percentile":89.6552,"loss":0.222222},{"percentile":89.858,"loss":0.222222},{"percentile":90.0609,"loss":0.222222},{"percentile":90.2637,"loss":0.222222},{"percentile":90.4665,"loss":0.225},{"percentile":90.6694,"loss":0.227273},{"percentile":90.8722,"loss":0.227273},{"percentile":91.0751,"loss":0.230769},{"percentile":91.2779,"loss":0.230769},{"percentile":91.4807,"loss":0.25},{"percentile":91.6836,"loss":0.25},{"percentile":91.8864,"loss":0.25},{"percentile":92.0892,"loss":0.25},{"percentile":92.2921,"loss":0.25},{"percentile":92.4949,"loss":0.25},{"percentile":92.6978,"loss":0.25},{"percentile":92.9006,"loss":0.25},{"percentile":93.1034,"loss":0.25},{"percentile":93.3063,"loss":0.25},{"percentile":93.5091,"loss":0.25},{"percentile":93.712,"loss":0.25},{"percentile":93.9148,"loss":0.26087},{"percentile":94.1176,"loss":0.269231},{"percentile":94.3205,"loss":0.272727},{"percentile":94.5233,"loss":0.277778},{"percentile":94.7262,"loss":0.277778},{"percentile":94.929,"loss":0.277778},{"percentile":95.1318,"loss":0.277778},{"percentile":95.3347,"loss":0.285714},{"percentile":95.5375,"loss":0.285714},{"percentile":95.7404,"loss":0.285714},{"percentile":95.9432,"loss":0.291667},{"percentile":96.146,"loss":0.3},{"percentile":96.3489,"loss":0.3},{"percentile":96.5517,"loss":0.3125},{"percentile":96.7546,"loss":0.3125},{"percentile":96.9574,"loss":0.318182},{"percentile":97.1602,"loss":0.321429},{"percentile":97.3631,"loss":0.333333},{"percentile":97.5659,"loss":0.333333},{"percentile":97.7688,"loss":0.333333},{"percentile":97.9716,"loss":0.333333},{"percentile":98.1744,"loss":0.333333},{"percentile":98.3773,"loss":0.35},{"percentile":98.5801,"loss":0.35},{"percentile":98.783,"loss":0.357143},{"percentile":98.9858,"loss":0.357143},{"percentile":99.1886,"loss":0.386364},{"percentile":99.3915,"loss":0.416667},{"percentile":99.5943,"loss":0.5},{"percentile":99.7972,"loss":0.543478},{"percentile":100.0,"loss":0.65}]}}],"metric_columns":[{"key":"h","label":"H","higher_is_better":true},{"key":"mincalib","label":"MinCalib","higher_is_better":true},{"key":"mcc","label":"MCC","higher_is_better":true},{"key":"linear_kappa","label":"Linear κ","higher_is_better":true},{"key":"quadratic_kappa","label":"Quadratic κ","higher_is_better":true},{"key":"cvar90","label":"CVaR90","higher_is_better":false},{"key":"pmu1","label":"PMU(1)","higher_is_better":true},{"key":"strict_sample","label":"Strict","higher_is_better":true}],"tail_definition":{"condition":"full_memory","sample_loss":"mean absolute A/B/C ordinal distance divided by two","alpha":0.9,"tail_samples_per_model":50}}</script>
+<style>
+#memcalib-metric-diagnostics {
+  --mc-foreground: var(--foreground, CanvasText);
+  --mc-background: var(--background, Canvas);
+  --mc-border: var(
+    --border,
+    color-mix(in srgb, CanvasText 16%, transparent)
+  );
+  --mc-muted: var(--muted-foreground, GrayText);
+  --mc-series-1: var(--viz-series-1, LinkText);
+  --mc-series-2: var(--viz-series-2, AccentColor);
+  color: var(--mc-foreground);
+  background: transparent;
+  width: 100%;
+  letter-spacing: 0;
+}
+#memcalib-metric-diagnostics .diagnostic-section {
+  padding: 14px 0 18px;
+  border-top: 1px solid var(--mc-border);
+}
+#memcalib-metric-diagnostics .diagnostic-section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+#memcalib-metric-diagnostics .section-label {
+  color: var(--mc-foreground);
+  font-weight: 500;
+  margin: 0 0 10px;
+}
+#memcalib-metric-diagnostics .tail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 18px;
+}
+#memcalib-metric-diagnostics .tail-facet {
+  margin: 0;
+  min-width: 0;
+}
+#memcalib-metric-diagnostics .facet-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+#memcalib-metric-diagnostics .facet-name {
+  color: var(--mc-foreground);
+  font-weight: 500;
+}
+#memcalib-metric-diagnostics .facet-value,
+#memcalib-metric-diagnostics .axis-label,
+#memcalib-metric-diagnostics .point-label {
+  color: var(--mc-muted);
+}
+#memcalib-metric-diagnostics svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+#memcalib-metric-diagnostics .grid-line {
+  stroke: var(--mc-border);
+  stroke-width: 1;
+}
+#memcalib-metric-diagnostics .axis-line {
+  stroke: var(--mc-muted);
+  stroke-width: 1;
+}
+#memcalib-metric-diagnostics .tail-line {
+  fill: none;
+  stroke: var(--mc-series-1);
+  stroke-width: 2;
+}
+#memcalib-metric-diagnostics .tail-zone {
+  fill: color-mix(in srgb, var(--mc-series-2) 12%, transparent);
+}
+#memcalib-metric-diagnostics .cvar-line {
+  stroke: var(--mc-series-2);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+#memcalib-metric-diagnostics .pareto-point {
+  fill: var(--mc-series-1);
+  stroke: var(--mc-background);
+  stroke-width: 2;
+}
+#memcalib-metric-diagnostics .dominated-point {
+  fill: var(--mc-muted);
+  stroke: var(--mc-background);
+  stroke-width: 2;
+}
+#memcalib-metric-diagnostics .label-connector {
+  stroke: var(--mc-muted);
+  stroke-width: 1;
+}
+#memcalib-metric-diagnostics text {
+  fill: var(--mc-foreground);
+  font-family: inherit;
+  font-size: var(--font-size-base, 14px);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+#memcalib-metric-diagnostics text.tick,
+#memcalib-metric-diagnostics text.point-note {
+  fill: var(--mc-muted);
+}
+#memcalib-metric-diagnostics .rank-table-wrap {
+  overflow-x: auto;
+}
+#memcalib-metric-diagnostics .rank-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 680px;
+}
+#memcalib-metric-diagnostics .rank-table th,
+#memcalib-metric-diagnostics .rank-table td {
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--mc-border);
+  text-align: center;
+  white-space: nowrap;
+}
+#memcalib-metric-diagnostics .rank-table th:first-child,
+#memcalib-metric-diagnostics .rank-table td:first-child {
+  text-align: left;
+}
+#memcalib-metric-diagnostics .rank-table th {
+  color: var(--mc-muted);
+  font-weight: 500;
+}
+#memcalib-metric-diagnostics .rank-cell {
+  background: color-mix(
+    in srgb,
+    var(--mc-series-1) var(--rank-strength),
+    transparent
+  );
+}
+#memcalib-metric-diagnostics .rank-number {
+  font-weight: 500;
+}
+#memcalib-metric-diagnostics .rank-value {
+  color: var(--mc-muted);
+  display: block;
+}
+@media (max-width: 620px) {
+  #memcalib-metric-diagnostics .tail-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+</style>
+<script>
+(() => {
+  const root = document.getElementById("memcalib-metric-diagnostics");
+  const dataNode = document.getElementById("memcalib-metric-diagnostics-data");
+  if (!root || !dataNode) return;
+  const data = JSON.parse(dataNode.textContent);
+  const NS = "http://www.w3.org/2000/svg";
+
+  function svgNode(tag, attrs = {}, text = "") {
+    const node = document.createElementNS(NS, tag);
+    Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
+    if (text) node.textContent = text;
+    return node;
+  }
+
+  function scale(value, inMin, inMax, outMin, outMax) {
+    return outMin + ((value - inMin) / (inMax - inMin)) * (outMax - outMin);
+  }
+
+  function drawTailFacets() {
+    const grid = root.querySelector("#memcalib-tail-grid");
+    data.models.forEach((model) => {
+      const figure = document.createElement("figure");
+      figure.className = "tail-facet";
+      figure.setAttribute(
+        "aria-label",
+        `${model.name} loss quantiles; CVaR90 ${model.risk.cvar90.toFixed(3)}`
+      );
+      const caption = document.createElement("figcaption");
+      caption.className = "facet-caption";
+      const name = document.createElement("span");
+      name.className = "facet-name";
+      name.textContent = model.name;
+      const value = document.createElement("span");
+      value.className = "facet-value";
+      value.textContent = `CVaR90 ${model.risk.cvar90.toFixed(3)}`;
+      caption.append(name, value);
+      figure.appendChild(caption);
+
+      const svg = svgNode("svg", {
+        viewBox: "0 0 430 170",
+        role: "img",
+        "aria-label": `${model.name} upper-tail empirical quantile curve`,
+      });
+      const left = 34, right = 414, top = 10, bottom = 142;
+      const x = (p) => scale(p, 70, 100, left, right);
+      const y = (loss) => scale(loss, 0, 1, bottom, top);
+      svg.appendChild(svgNode("rect", {
+        x: x(90),
+        y: top,
+        width: right - x(90),
+        height: bottom - top,
+        class: "tail-zone",
+      }));
+      [0, 0.5, 1].forEach((tick) => {
+        svg.appendChild(svgNode("line", {
+          x1: left, y1: y(tick), x2: right, y2: y(tick), class: "grid-line",
+        }));
+        svg.appendChild(svgNode("text", {
+          x: left - 7, y: y(tick) + 4, "text-anchor": "end", class: "tick",
+        }, tick.toFixed(1)));
+      });
+      [70, 80, 90, 100].forEach((tick) => {
+        svg.appendChild(svgNode("text", {
+          x: x(tick), y: bottom + 19, "text-anchor": "middle", class: "tick",
+        }, `${tick}`));
+      });
+      svg.appendChild(svgNode("line", {
+        x1: left, y1: bottom, x2: right, y2: bottom, class: "axis-line",
+      }));
+      svg.appendChild(svgNode("line", {
+        x1: left, y1: top, x2: left, y2: bottom, class: "axis-line",
+      }));
+      const path = model.risk.quantile_curve
+        .map((point, index) =>
+          `${index === 0 ? "M" : "L"}${x(point.percentile).toFixed(2)},${y(point.loss).toFixed(2)}`
+        )
+        .join(" ");
+      svg.appendChild(svgNode("path", {d: path, class: "tail-line"}));
+      svg.appendChild(svgNode("line", {
+        x1: x(90),
+        y1: y(model.risk.cvar90),
+        x2: right,
+        y2: y(model.risk.cvar90),
+        class: "cvar-line",
+      }));
+      figure.appendChild(svg);
+      grid.appendChild(figure);
+    });
+  }
+
+  function drawPareto() {
+    const svg = root.querySelector("#memcalib-pareto");
+    const left = 72, right = 920, top = 30, bottom = 408;
+    const xMin = 0.15, xMax = 0.45, yMin = 0.15, yMax = 0.48;
+    const x = (value) => scale(value, xMin, xMax, left, right);
+    const y = (value) => scale(value, yMin, yMax, bottom, top);
+    [0.2, 0.3, 0.4].forEach((tick) => {
+      svg.appendChild(svgNode("line", {
+        x1: x(tick), y1: top, x2: x(tick), y2: bottom, class: "grid-line",
+      }));
+      svg.appendChild(svgNode("text", {
+        x: x(tick), y: bottom + 24, "text-anchor": "middle", class: "tick",
+      }, tick.toFixed(1)));
+    });
+    [0.2, 0.3, 0.4].forEach((tick) => {
+      svg.appendChild(svgNode("line", {
+        x1: left, y1: y(tick), x2: right, y2: y(tick), class: "grid-line",
+      }));
+      svg.appendChild(svgNode("text", {
+        x: left - 12, y: y(tick) + 5, "text-anchor": "end", class: "tick",
+      }, tick.toFixed(1)));
+    });
+    svg.appendChild(svgNode("line", {
+      x1: left, y1: bottom, x2: right, y2: bottom, class: "axis-line",
+    }));
+    svg.appendChild(svgNode("line", {
+      x1: left, y1: top, x2: left, y2: bottom, class: "axis-line",
+    }));
+    svg.appendChild(svgNode("text", {
+      x: (left + right) / 2, y: 458, "text-anchor": "middle", class: "tick",
+    }, "OPB"));
+    svg.appendChild(svgNode("text", {
+      x: 19, y: (top + bottom) / 2, transform: `rotate(-90 19 ${(top + bottom) / 2})`,
+      "text-anchor": "middle", class: "tick",
+    }, "UPB"));
+    svg.appendChild(svgNode("text", {
+      x: left + 5, y: bottom - 8, class: "point-note",
+    }, "ideal"));
+
+    const offsets = {
+      "codex-gpt56-sol": [10, -13],
+      "kimi": [10, -12],
+      "deepseek": [-80, 33],
+      "deepseek-flash": [40, -43],
+      "qwen-flash": [40, -13],
+      "qwen-max": [-80, -35],
+      "qwen3-8b": [10, -12],
+      "qwen35-35b-a3b": [25, 25],
+    };
+    data.models.forEach((model) => {
+      const pointClass = model.pareto ? "pareto-point" : "dominated-point";
+      svg.appendChild(svgNode("circle", {
+        cx: x(model.opb), cy: y(model.upb), r: model.pareto ? 8 : 6,
+        class: pointClass,
+      }));
+      const [dx, dy] = offsets[model.key] || [8, -8];
+      if (Math.abs(dx) > 20 || Math.abs(dy) > 20) {
+        svg.appendChild(svgNode("line", {
+          x1: x(model.opb),
+          y1: y(model.upb),
+          x2: x(model.opb) + dx,
+          y2: y(model.upb) + dy - 4,
+          class: "label-connector",
+        }));
+      }
+      svg.appendChild(svgNode("text", {
+        x: x(model.opb) + dx,
+        y: y(model.upb) + dy,
+        "text-anchor": dx < 0 ? "end" : "start",
+        class: "point-note",
+      }, model.short_name));
+    });
+  }
+
+  function drawRankTable() {
+    const table = root.querySelector("#memcalib-rank-table");
+    const head = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+    const modelHeader = document.createElement("th");
+    modelHeader.scope = "col";
+    modelHeader.textContent = "Model";
+    headerRow.appendChild(modelHeader);
+    data.metric_columns.forEach((metric) => {
+      const th = document.createElement("th");
+      th.scope = "col";
+      th.textContent = `${metric.label}${metric.higher_is_better ? "↑" : "↓"}`;
+      headerRow.appendChild(th);
+    });
+    head.appendChild(headerRow);
+    table.appendChild(head);
+
+    const body = document.createElement("tbody");
+    data.models.forEach((model) => {
+      const row = document.createElement("tr");
+      const name = document.createElement("th");
+      name.scope = "row";
+      name.textContent = model.short_name;
+      name.setAttribute("aria-label", model.name);
+      row.appendChild(name);
+      data.metric_columns.forEach((metric) => {
+        const rank = model.ranks[metric.key];
+        const value = model.metrics[metric.key];
+        const cell = document.createElement("td");
+        cell.className = "rank-cell";
+        cell.style.setProperty("--rank-strength", `${38 - rank * 4}%`);
+        cell.setAttribute(
+          "aria-label",
+          `${model.name} ${metric.label} rank ${rank}, value ${value.toFixed(3)}`
+        );
+        const rankSpan = document.createElement("span");
+        rankSpan.className = "rank-number";
+        rankSpan.textContent = `#${rank}`;
+        const valueSpan = document.createElement("span");
+        valueSpan.className = "rank-value";
+        valueSpan.textContent = value.toFixed(3);
+        cell.append(rankSpan, valueSpan);
+        row.appendChild(cell);
+      });
+      body.appendChild(row);
+    });
+    table.appendChild(body);
+  }
+
+  drawTailFacets();
+  drawPareto();
+  drawRankTable();
+})();
+</script>

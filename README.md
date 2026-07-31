@@ -4,21 +4,22 @@
 
 MemCalib 评测模型在回答新问题时，能否恰当地调节检索记忆或存储记忆对回答的影响。模型接收自然段形式的非原子记忆块；评测端使用隐藏的原子级监督，判断每项信息应被抑制、有限使用，还是作为关键约束。
 
-## 当前版本：v2.4
+## 当前版本：v2.4.1
 
-v2.4 是当前唯一活跃的数据版本。它锁定 v2.3 的 15,000 条记录、领域配额、ID、顺序、来源、记忆块和 A/B/C 监督，只重建全部 3,750 条 coding 记录的问题、自然语言参考答案和 answer-text rubric。coding 任务改为实现规划、行为预测或调试诊断，Judge 无需执行代码即可核验记忆使用。
+v2.4.1 是当前纠正后的数据版本。它针对人工发现的原子文本、问题、参考答案和 rubric 错位进行了全量对齐审计、双 Judge 修复、人工收尾和评测前人工门禁。v2.4 保留为质量事件审计版本，不再作为训练数据或论文主表来源。
 
-| 统计项 | v2.4 |
+| 统计项 | v2.4.1 |
 |---|---:|
 | 样本 | 15,000 |
 | health / general / coding | 7,500 / 3,750 / 3,750 |
 | 模型可见记忆块 | 74,800 |
 | 每条样本可见记忆块 | 3–20，均值 4.9867 |
-| 多原子可见块 | 59,800（79.95%） |
-| 隐藏原子记忆 | 234,221 |
-| A / B / C 原子 | 197,573 / 19,032 / 17,616 |
+| 多原子可见块 | 59,801（79.95%） |
+| 隐藏原子记忆 | 234,220 |
+| 每条样本隐藏原子 | 6–63，均值 15.6147 |
+| A / B / C 原子 | 197,510 / 18,943 / 17,767 |
 | level 1 / 2 / 3 | 3,751 / 7,500 / 3,749 |
-| coding 独立 QC strict / 人工裁决 | 3,735 / 15 |
+| 评测前人工分层审查 | 首轮 18/30 通过；修正后 30/30 通过 |
 
 能力标签描述记忆对当前回答的使用强度：
 
@@ -28,26 +29,36 @@ v2.4 是当前唯一活跃的数据版本。它锁定 v2.3 的 15,000 条记录�
 
 错误、过时或不安全但仍与问题相关的记忆由独立的 `memory_action=correct` 表示，可能属于 B 或 C；A 只允许 `ignore`，禁止 `A+correct`。
 
+完整发布文件：
+
+```text
+pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/
+  release/memcalib_v241_multidomain_benchmark_15000.jsonl
+```
+
+发布 SHA-256：
+
+```text
+8bc18ae468e1ab1d41ffa4556c6e042a62538eca01e97029db94f850c2c46dc4
+```
+
 ## 当前入口
 
-所有 v2.4 Git 跟踪内容集中在以下两个入口：
-
-- [v2.4 数据、结构、质检与审阅文档](docs/current/v2.4/README.md)
-- [v2.4 评测配置、发布结果与指标分析](evaluation/current/v2.4/README.md)
-
-常用文档：
-
-- [合作者交付说明](docs/current/v2.4/MEMCALIB_V24_COAUTHOR_HANDOFF.md)
-- [数据结构与约束](docs/current/v2.4/benchmark-schema-v2.4.md)
-- [3,750 条 coding 全量迭代与质检报告](docs/current/v2.4/reports/memcalib-v24-coding-text-observability.md)
-- [3 条中文分层审阅样本](docs/current/v2.4/samples/memcalib-v24-coding-review-sample-3-zh.md)
-- [30 条机器可读审阅样本](docs/current/v2.4/samples/memcalib-v24-coding-review-sample-30.README.md)
-- [九模型 494 条完全配对评测](evaluation/current/v2.4/releases/memcalib-v24-multidomain-494-nine-models-complete-case/README.md)
-- [中文三层样本级指标、公式与图表](evaluation/current/v2.4/analyses/three-layer-metrics/README.md)
+- [v2.4.1 数据、质检与人工门禁](docs/current/v2.4.1/README.md)
+- [30 条评测前逐样本人工审查报告](docs/current/v2.4.1/review/memcalib-v241-manual-review-report-30.md)
+- [30 条完整监督审查样本](docs/current/v2.4.1/review/memcalib-v241-manual-review-sample-30.jsonl)
+- [v2.4.1 非思考九模型评测](evaluation/current/v2.4.1/README.md)
+- [中文样本级三层主指标、公式与区间](evaluation/current/v2.4.1/analyses/three-layer-metrics-nonthinking/README.md)
+- [机器生成的样本级分布明细](evaluation/current/v2.4.1/analyses/sample-level-nonthinking/README.md)
+- [原子级候选指标与诊断图](evaluation/current/v2.4.1/analyses/candidate-metrics-nonthinking/README.md)
+- [v2.4 质量事件报告](docs/current/v2.4/reports/memcalib-v24-data-quality-incident.md)
+- [SFT 数据构建入口](sft/README.md)
 
 ## 当前评测摘要
 
-v2.4 九模型评测使用 494 个共同样本、full-memory/no-memory 配对条件和相同 Judge 配置。主 Judge 8,892/8,892、副 Judge 450/450；结构重试后 residual invalid=0。主报告采用三层样本级口径：
+主口径为 **Non-thinking**，与训练设置一致。评测锁定 v2.4 的 494 个完全配对 ID，并在纠正后的 v2.4.1 数据上重新生成受影响回答。八个百炼回答模型关闭 thinking；Codex GPT-5.6 Sol 使用 `reasoning_effort=none`。主 Judge 完成 8,892/8,892，副 Judge 完成 450/450；26 条主 Judge 结构错误经两轮定向重试后 residual invalid=0。
+
+主报告采用三层样本级口径：
 
 - 总体主指标：`SCS(0.5)`；
 - 方向主指标：`sOPB(0.5)` 与 `sUPB(0.5)`；
@@ -55,54 +66,42 @@ v2.4 九模型评测使用 494 个共同样本、full-memory/no-memory 配对条
 
 | 模型 | SCS↑ | sOPB↓ | sUPB↓ | Any-OPB↓ | Any-UPB↓ | Exact↑ |
 |---|---:|---:|---:|---:|---:|---:|
-| Codex GPT-5.6 Sol | **39.8%** | **38.5%** | 33.7% | **52.6%** | 51.4% | **21.9%** |
-| Kimi-K2.6 | 32.3% | 53.3% | 28.9% | 67.0% | 44.1% | 18.0% |
-| Qwen3-8B | 30.4% | 47.0% | 39.6% | 59.9% | 59.3% | 15.0% |
-| DeepSeek-V4-Flash | 28.6% | 60.9% | 24.9% | 75.9% | 39.9% | 14.2% |
-| Qwen3.6-Flash | 27.9% | 60.9% | 27.0% | 74.5% | 42.3% | 15.4% |
-| GLM-5.2 | 25.9% | 64.7% | 22.2% | 78.1% | 36.4% | 11.7% |
-| DeepSeek-V4-Pro | 24.4% | 67.8% | 20.9% | 81.4% | 33.4% | 11.7% |
-| Qwen3.5-35B-A3B | 21.0% | 70.0% | 26.1% | 84.4% | 41.1% | 8.5% |
-| Qwen3.7-Max | 20.7% | 71.8% | **19.9%** | 86.0% | **32.4%** | 6.7% |
+| Codex GPT-5.6 Sol | **40.4%** | **33.8%** | 36.0% | **46.0%** | 53.6% | **21.5%** |
+| Kimi-K2.6 | 30.3% | 55.3% | **27.8%** | 69.0% | 43.7% | 14.6% |
+| GLM-5.2 | 30.1% | 53.7% | 29.5% | 67.4% | 43.9% | 15.0% |
+| Qwen3-8B | 26.7% | 38.6% | 49.6% | 51.2% | 67.6% | 10.3% |
+| Qwen3.7-Max | 26.6% | 54.2% | 35.6% | 68.4% | 54.0% | 10.5% |
+| DeepSeek-V4-Flash | 24.9% | 63.0% | 28.2% | 77.1% | 44.9% | 10.5% |
+| DeepSeek-V4-Pro | 24.1% | 64.2% | 28.0% | 78.7% | 44.3% | 10.5% |
+| Qwen3.5-35B-A3B | 21.5% | 67.9% | 27.4% | 81.0% | **43.1%** | 8.7% |
+| Qwen3.6-Flash | 21.3% | 68.6% | 27.7% | 82.6% | 44.3% | 8.1% |
 
-原子级 H、MinCalib、MCC、Kappa、CVaR、PMU、Rasch、pairwise 和 Pareto 仅作为补充诊断，见[候选指标报告](evaluation/current/v2.4/analyses/candidate-metrics/README.md)。
+原子级 H、MinCalib、MCC、Kappa、CVaR、PMU、Rasch、pairwise 和 Pareto 仅作为补充诊断，不替代三层样本级主口径。
 
 ## 数据与交付
 
-完整 15,000 条 v2.4 数据和 API 构建审计位于本机忽略目录：
+完整 15,000 条数据、API 构建审计和模型/Judge 中间结果位于 Git 忽略的本地目录。远程仓库保存可复现代码、提示词、测试、schema、报告、小型审阅样本和锁定评测发布包；凭据不进入仓库或交付文件。
+
+评测发布包位于：
 
 ```text
-pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/
-```
-
-远程仓库只保存可复现代码、提示词、测试、schema、报告、小型审阅样本和锁定评测发布包。合作者完整数据包由以下工具确定性构建：
-
-```bash
-PY=/Users/zhaofanyu/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3
-$PY tools/package_memcalib_v24_handoff.py
-```
-
-默认 ZIP 输出为：
-
-```text
-pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/handoff/MemCalib-v2.4-coauthor-20260729.zip
+evaluation/current/v2.4.1/releases/
+  memcalib-v241-multidomain-494-nine-models-nonthinking/
 ```
 
 ## 仓库结构
 
 ```text
-docs/current/v2.4/          当前数据文档、报告与审阅样本
-docs/archive/              v2.0-v2.3 文档和设计归档
-evaluation/current/v2.4/   当前评测配置、发布包和分析
-evaluation/archive/        历史评测配置、发布包、分析与集群说明
-pipeline/                  稳定编号的构建阶段、提示词和本地工作区
-release/archive/           早期仓库内锁定发布包
-sft/                       历史 v2.3 SFT 实验线
+docs/current/v2.4.1/        当前数据文档与人工审查
+docs/current/v2.4/          已冻结的质量事件审计版本
+evaluation/current/v2.4.1/ 当前非思考主评测、指标和发布包
+evaluation/current/v2.4/   已冻结的旧数据评测
+evaluation/archive/        更早评测归档
+pipeline/                  构建阶段、提示词和本地工作区
+sft/                       SFT 构建与实验
 tools/                     发布、打包与验证工具
 tests/                     流水线和发布工具测试
 ```
-
-详细边界见[仓库布局说明](docs/repository-layout.md)。旧版本不得作为当前入口或与 v2.4 混合排名；历史索引见[文档归档](docs/archive/versions/README.md)和[评测归档](evaluation/archive/README.md)。
 
 ## 验证
 
@@ -110,5 +109,3 @@ tests/                     流水线和发布工具测试
 PY=/Users/zhaofanyu/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3
 $PY -m unittest discover -s tests -p 'test_*.py'
 ```
-
-大体积源数据、API 请求与响应、运行日志和中间产物均不进入 Git。凭据只从环境变量读取，不保存在仓库或交付包中。

@@ -1,0 +1,125 @@
+{
+  "schema_version": "memcalib-v241-multidomain-locked-nonthinking-evaluation-config-v1",
+  "seed": 20260722,
+  "source_count": 15000,
+  "sample_count": 494,
+  "release": "memcalib-v241-multidomain-494-nine-models-nonthinking",
+  "source_inputs": {
+    "benchmark_sha256": "8bc18ae468e1ab1d41ffa4556c6e042a62538eca01e97029db94f850c2c46dc4"
+  },
+  "preferred_sample_ids": "evaluation/current/v2.4/releases/memcalib-v24-multidomain-494-nine-models-complete-case/sample-ids.txt",
+  "domain_counts": {
+    "health_seed": 250,
+    "general": 125,
+    "coding": 119
+  },
+  "sampling": {
+    "method": "locked_v24_complete_case_ids_on_corrected_v241_release",
+    "within_cell_order": "preserve_locked_complete_case_order",
+    "complete_case_policy": "reuse the exact 494 IDs from the v2.4 complete-case evaluation",
+    "locked_parent_sample_count": 494,
+    "excluded_sample_count": 0
+  },
+  "evaluation_modes": {
+    "leaderboard_required_conditions": [
+      "full_memory"
+    ],
+    "official_research_conditions": [
+      "full_memory",
+      "no_memory"
+    ],
+    "primary_metrics_condition": "full_memory",
+    "counterfactual_condition": "no_memory"
+  },
+  "answer_models": [
+    {
+      "key": "qwen-max",
+      "model": "qwen3.7-max",
+      "answer_mode": "nonthinking"
+    },
+    {
+      "key": "qwen-flash",
+      "model": "qwen3.6-flash",
+      "answer_mode": "nonthinking"
+    },
+    {
+      "key": "deepseek",
+      "model": "deepseek-v4-pro",
+      "answer_mode": "nonthinking"
+    },
+    {
+      "key": "deepseek-flash",
+      "model": "deepseek-v4-flash",
+      "answer_mode": "nonthinking"
+    },
+    {
+      "key": "kimi",
+      "model": "kimi-k2.6",
+      "answer_mode": "nonthinking"
+    },
+    {
+      "key": "qwen35-35b-a3b",
+      "model": "qwen3.5-35b-a3b",
+      "answer_mode": "nonthinking"
+    },
+    {
+      "key": "qwen3-8b",
+      "model": "qwen3-8b",
+      "answer_mode": "nonthinking"
+    },
+    {
+      "key": "glm52",
+      "model": "glm-5.2",
+      "answer_mode": "nonthinking"
+    },
+    {
+      "key": "codex-gpt56-sol",
+      "model": "gpt-5.6-sol",
+      "answer_mode": "codex_answer_only_reasoning_none"
+    }
+  ],
+  "answer_prompt": {
+    "path": "evaluation/prompts/answer-system.txt",
+    "sha256": "dda63bd28ce1d8c24c9ba5e7c568d1efa290d99fbbbcd5ff14ab2f6780b3bcfa"
+  },
+  "answer_generation": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "bailian_enable_thinking": false,
+    "codex_reasoning_effort": "none",
+    "transport_policy": {
+      "default": "non_streaming",
+      "stream_required_models": []
+    }
+  },
+  "judge_protocol": "ordered-usage-v2.1",
+  "judge_prompt": "evaluation/prompts/judge-system-v2.1.txt",
+  "primary_judge": {
+    "key": "qwen-judge",
+    "model": "qwen3.7-plus"
+  },
+  "secondary_judge": {
+    "key": "deepseek-judge",
+    "model": "deepseek-v4-pro"
+  },
+  "deepseek_secondary_judge": {
+    "key": "kimi-judge",
+    "model": "kimi-k2.6"
+  },
+  "judge_generation": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "enable_thinking": false
+  },
+  "secondary_judge_sampling": {
+    "total": 450,
+    "per_model_per_condition": 25,
+    "stratify_by": [
+      "condition",
+      "source_dataset",
+      "source_topic",
+      "composite_block_revision.difficulty_level",
+      "atom_count_bucket"
+    ]
+  }
+}

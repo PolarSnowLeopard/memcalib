@@ -1,0 +1,121 @@
+You are repairing one coding-domain record in a memory-use benchmark. The
+previous rewrite failed because it reduced a real software-engineering problem
+to a generic list of project requirements. Produce a complete replacement that
+preserves the original practical problem and gives a useful natural-language
+solution.
+
+Record ID: {record_id}
+Assigned task family: {task_family}
+
+Original question:
+{original_question}
+
+Original reference answer:
+{original_reference_answer}
+
+Retrieved memory blocks and intended atom supervision:
+{blocks_json}
+
+Independent QC feedback from previous attempts:
+{retry_feedback}
+
+Every listed QC issue is a required repair. Do not defend or minimally patch the
+failed attempt. Reconstruct the question, solution, and atomic scoring evidence
+from the original question, original answer, and the semantic scope of each atom.
+
+Core requirements:
+1. Preserve the original practical software-engineering goal. The revised task
+   must still ask about the same component, defect, behavior, integration, or
+   operational outcome as the original question.
+2. Ask for natural-language reasoning only. Do not request source code, a patch,
+   a script, executable pseudocode, or a code block.
+3. Follow the assigned family:
+   - implementation_plan: request a concrete step-by-step implementation plan.
+   - debugging_diagnosis: present the relevant flawed behavior and request a
+     diagnosis plus corrected behavior.
+   - behavior_prediction: request the expected behavior, decisions, outputs,
+     and failure paths.
+4. The task stem must not mention memories, labels, rubrics, benchmark
+   construction, or the concrete answer value of any scored B/C atom. Ask for
+   unresolved project-specific choices by neutral role, not by distinctive
+   paraphrase. A values must also remain absent.
+5. The reference answer must directly solve the practical task. It must explain
+   the actual mechanism, decision sequence, observable output, and relevant
+   limitation or failure behavior supported by the original Q/A. It must not be
+   a list headed "primary requirements", "supporting considerations", or similar
+   benchmark-facing language.
+6. Convert executable material in the original answer into precise prose. Inline
+   identifiers and externally visible literals are allowed, but no code blocks
+   or executable syntax.
+7. Integrate every B/C atom into the practical solution at the correct magnitude:
+   - B + apply/correct has bounded supporting influence, such as motivation,
+     adaptation, a secondary step, or a local caveat. Omitting B must not destroy
+     the core solution.
+   - C + apply/correct controls a core choice, dependency, ordering rule, output,
+     or failure behavior. Omitting C must leave the core solution materially
+     unresolved.
+   - A + ignore has no footprint and receives no output footprint.
+   - False, stale, unsafe, or incompatible information that must be corrected
+     remains B or C + correct, never A.
+8. Do not write meta-statements such as "the user requires X" merely to satisfy
+   an atom. State the operational consequence inside the solution. For example,
+   explain what the implementation does, why a diagnosis changes, or how an
+   output behaves.
+9. For each B/C atom, emit one to three required_answer_elements. Each element:
+   - appears verbatim in reference_answer;
+   - is a concrete, answer-text-observable part of the practical solution;
+   - is directly entailed by that same atom's text or evidence in the context of
+     the original task;
+   - does not borrow a framework, provider, path, operation, failure message, or
+     conclusion from another atom or only from the original answer.
+10. Include useful unscored solution details from the original answer when they
+    are needed to answer the task, but do not attach them to an atom footprint
+    unless that atom directly entails them.
+11. Keep each B atom bounded. If a B value currently answers the central
+    question, redesign the task so the central solution is independently stated
+    and the B value only refines or motivates it. Keep each C atom controlling.
+12. Audit the final task stem phrase by phrase. It must not supply any B/C answer
+    value, including distinctive synonyms, numbers, identifiers, libraries,
+    platforms, algorithms, formats, paths, or error literals.
+13. The reference answer must be self-contained, readable, and useful to a
+    software engineer. A reviewer should be able to identify the practical
+    problem and complete solution without consulting hidden code.
+14. Do not use Markdown code fences anywhere.
+
+Return exactly one JSON object:
+{
+  "schema_version": "memcalib-v24-coding-text-rewrite-payload-v1",
+  "record_id": "{record_id}",
+  "task_family": "{task_family}",
+  "task_stem": "practical natural-language coding-reasoning question before the standardized response contract",
+  "reference_answer": "complete practical solution in natural-language prose",
+  "applicable_atom_footprints": [
+    {
+      "atom_id": "exact B/C atom ID",
+      "u_star": "B or C",
+      "memory_action": "apply or correct",
+      "required_answer_elements": [
+        "practical observable solution statement appearing verbatim in reference_answer"
+      ],
+      "overuse_signals": [
+        "specific unsupported extension beyond this atom's scope"
+      ],
+      "label_justification": "counterfactual explanation of why this atom is bounded B or controlling C in this task"
+    }
+  ],
+  "query_isolation_audit": [
+    {
+      "atom_id": "exact B/C atom ID",
+      "query_supplies_atom_value": false,
+      "reason": "specific explanation of the unresolved slot left by the task"
+    }
+  ],
+  "self_check": {
+    "all_applicable_atom_ids_exact": true,
+    "locked_labels_actions_preserved": true,
+    "query_does_not_restate_scored_memories": true,
+    "answer_is_natural_language_only": true,
+    "all_required_evidence_visible_in_reference_answer": true,
+    "no_runtime_execution_needed_to_judge": true
+  }
+}

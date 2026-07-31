@@ -7,10 +7,12 @@ import unittest
 from pathlib import Path
 
 from evaluation.common import request_fingerprint, write_jsonl
-from evaluation.scripts.finalize_answer_run import summarize_result_rows
+from evaluation.scripts.build_vllm_runtime_config import build_runtime_config
+from evaluation.scripts.finalize_answer_run import summarize_result_rows, validation_model
 from evaluation.scripts.prepare_answer_requests import (
     build_answer_messages,
     build_answer_request,
+    config_for_single_model,
     prepare_answer_requests,
 )
 from evaluation.scripts.validate_api_results import validate_results
@@ -34,6 +36,86 @@ def sample() -> dict:
 
 
 class AnswerRequestTest(unittest.TestCase):
+    def test_runtime_config_discovers_custom_model_metadata(self) -> None:
+        config = {
+            "answer_models": [{"key": "default", "model": "default"}],
+            "answer_generation": {},
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            answers = Path(tmp) / "answers"
+            model_dir = answers / "qwen3-8b-grpo"
+            model_dir.mkdir(parents=True)
+            (model_dir / "served-model-name.txt").write_text("med_chat\n", encoding="utf-8")
+            (model_dir / "model-metadata.json").write_text(
+                json.dumps(
+                    {
+                        "key": "qwen3-8b-grpo",
+                        "model": "Qwen/Qwen3-8B-GRPO",
+                        "display_name": "Qwen3-8B GRPO",
+                        "answer_mode": "nonthinking",
+                        "checkpoint_role": "grpo",
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            runtime = build_runtime_config(config, answers)
+
+        self.assertEqual(1, len(runtime["answer_models"]))
+        self.assertEqual("qwen3-8b-grpo", runtime["answer_models"][0]["key"])
+        self.assertEqual("med_chat", runtime["answer_models"][0]["served_model_name"])
+        self.assertEqual("grpo", runtime["answer_models"][0]["checkpoint_role"])
+
+    def test_runtime_config_keeps_legacy_unregistered_result_key(self) -> None:
+        config = {
+            "answer_models": [{"key": "qwen3-8b-official", "model": "official"}],
+            "answer_generation": {},
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            answers = Path(tmp) / "answers"
+            model_dir = answers / "qwen3-8b-base-vllm"
+            model_dir.mkdir(parents=True)
+            (model_dir / "served-model-name.txt").write_text("med_chat\n", encoding="utf-8")
+
+            runtime = build_runtime_config(config, answers)
+
+        self.assertEqual("qwen3-8b-base-vllm", runtime["answer_models"][0]["key"])
+        self.assertEqual("legacy_or_custom", runtime["answer_models"][0]["checkpoint_role"])
+
+    def test_custom_model_key_replaces_hard_coded_model_list(self) -> None:
+        config = {
+            "answer_models": [{"key": "old", "model": "old"}],
+            "answer_generation": {},
+        }
+
+        selected = config_for_single_model(
+            config,
+            model_key="qwen3-8b-grpo",
+            display_name="Qwen3-8B GRPO",
+            checkpoint_role="grpo",
+        )
+
+        self.assertEqual("old", config["answer_models"][0]["key"])
+        self.assertEqual(
+            [
+                {
+                    "key": "qwen3-8b-grpo",
+                    "model": "qwen3-8b-grpo",
+                    "display_name": "Qwen3-8B GRPO",
+                    "answer_mode": "nonthinking",
+                    "checkpoint_role": "grpo",
+                }
+            ],
+            selected["answer_models"],
+        )
+
+    def test_custom_model_key_rejects_path_components(self) -> None:
+        with self.assertRaises(ValueError):
+            config_for_single_model(
+                {"answer_models": [], "answer_generation": {}},
+                model_key="../outside",
+            )
+
     def test_leaderboard_mode_can_prepare_full_memory_only(self) -> None:
         samples = []
         for index in range(500):
@@ -94,6 +176,16 @@ class AnswerRequestTest(unittest.TestCase):
         self.assertEqual({"model-a": 1}, summary["returned_models"])
         self.assertEqual({"stop": 1}, summary["finish_reasons"])
         self.assertEqual({"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15}, summary["usage"])
+
+    def test_runtime_served_name_does_not_replace_logical_model_name(self) -> None:
+        model = {
+            "key": "qwen3-8b-method",
+            "model": "qwen3-8b-method",
+            "served_model_name": "med_chat",
+        }
+
+        self.assertEqual("med_chat", validation_model(model))
+        self.assertEqual("qwen3-8b-method", model["model"])
 
     def test_full_memory_preserves_parent_order(self) -> None:
         messages = build_answer_messages(sample(), "full_memory", SYSTEM)

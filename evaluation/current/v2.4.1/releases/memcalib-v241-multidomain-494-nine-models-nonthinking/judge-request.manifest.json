@@ -1,0 +1,153 @@
+{
+  "schema_version": "memcalib-judge-requests-ordered-usage-v2.1",
+  "primary_requests": 8892,
+  "secondary_requests": 450,
+  "secondary_by_judge": {
+    "deepseek-v4-pro": 350,
+    "kimi-k2.6": 100
+  },
+  "human_random_ids": 0,
+  "secondary_sampling": {
+    "total": 450,
+    "per_model_per_condition": 25,
+    "stratify_by": [
+      "condition",
+      "source_dataset",
+      "source_topic",
+      "composite_block_revision.difficulty_level",
+      "atom_count_bucket"
+    ]
+  },
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "artifacts": {
+    "primary.jsonl": {
+      "rows": 8892,
+      "sha256": "7192146d4974ca67a0099b6339a68dce9f46b919935f5698d21c8876cb6843fd"
+    },
+    "secondary-deepseek.jsonl": {
+      "rows": 350,
+      "sha256": "6659be2bb02bee4517e550d434b30110e91532f5694c05a9db3932d5f4a7f4a9"
+    },
+    "secondary-kimi.jsonl": {
+      "rows": 100,
+      "sha256": "3bf3482bd4754cbbb73120cac1d4bd64fde3ab0b40976d398630d8f40a537c50"
+    },
+    "secondary-answer-ids.txt": {
+      "rows": 450,
+      "sha256": "bd60234dbe5eed120bba9928a9b55d31b4cf83da615fa7a6f502bb6a43088af7"
+    },
+    "human-random-answer-ids.txt": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/current/v2.4.1/configs/memcalib-v241-multidomain-494-nine-models-nonthinking.json",
+      "sha256": "490d50f92bf8069b362dac9373688a3f3e4d7c977948ef3a035e50237fa8815b"
+    },
+    "hidden": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-multidomain-494-nine-models-nonthinking/hidden-evaluation.jsonl",
+      "sha256": "f6ab49966e21654e02f5d3e8faf4ddbf0f4cbca3fa1fe344cbdbfc86cba25d6d"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/judge-system-v2.1.txt",
+      "sha256": "482899899ad089318068c562d909327bfee12f012eb266d3484a915244885dc6"
+    },
+    "answers": [
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/qwen-max/full_memory.jsonl",
+        "sha256": "332d6422c941064b4be95a738db594a9e700d4c3aae1a0e2f76a439ad667529a",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/qwen-max/no_memory.jsonl",
+        "sha256": "2fec26a4ae539988f45702c6d2ed6fb5ebf9659c326659fc8d3d2292e752f8c4",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/qwen-flash/full_memory.jsonl",
+        "sha256": "2a980636c69ed83fa3aeb1112077606aa2d1ba5e5c2efb53b33f743c7f2ea72a",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/qwen-flash/no_memory.jsonl",
+        "sha256": "40ecf34a6cfa83bab3ef3599bb3e346ebb95efc91dd638787d68a8f455787c51",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/deepseek/full_memory.jsonl",
+        "sha256": "9207c979e8899ee5f2fa9ff2238528e41a25c57b3270aa9fe51e70aa54a3f028",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/deepseek/no_memory.jsonl",
+        "sha256": "7877c40837d9728112fb7af2aed8868f327e2de0b40b68e587ca51407ab54839",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/deepseek-flash/full_memory.jsonl",
+        "sha256": "6e44194a4006c270442fe6b4f4e2459823bde615cd64cd2206b79b53fa94d0fe",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/deepseek-flash/no_memory.jsonl",
+        "sha256": "59f7a051f8a639502d2d541f447a9c7e310e77db6ae39db33286d22038093fbc",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/kimi/full_memory.jsonl",
+        "sha256": "0c22b8290ff30231f51790689acd1906ae502d9c61506e500ff04e7018cdd9f9",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/kimi/no_memory.jsonl",
+        "sha256": "a35b37faf6997c82686e7af805a5dcb95d3b2263c437941024182355e170f520",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/qwen35-35b-a3b/full_memory.jsonl",
+        "sha256": "699775a31be12727bf93e2e9efee6b1676c1bbe0a014ca5b0841845be3e5f3f7",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/qwen35-35b-a3b/no_memory.jsonl",
+        "sha256": "224af7be28d1d94df377304a539412962b1b0901483a59a94a41250c9a38f4bc",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/qwen3-8b/full_memory.jsonl",
+        "sha256": "962b0cbb2e9862853ccc82c34ac9fd886090ff988d4394bdbee8e49736f3b575",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/qwen3-8b/no_memory.jsonl",
+        "sha256": "c09c4587203e5a55bd96e97ddf82058f38cd87dc06a7daf77cc55a68988e1c7b",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/glm52/full_memory.jsonl",
+        "sha256": "b5a6d11f791401a61264127d3afd57a10504de77e963b73ddd739ff04725648a",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/glm52/no_memory.jsonl",
+        "sha256": "0dbceef2a35f9a77e5dfa232faf01996fecc2b64d4172d1e87104fd6db9b9ff5",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/codex-gpt56-sol/full_memory.jsonl",
+        "sha256": "10129cd06e1c8d62169487675c22f3850de11f7e70606faf6b879c83be8ce4f0",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/answers/codex-gpt56-sol/no_memory.jsonl",
+        "sha256": "421bcf7af7500a8668d2de9b4731fe5dcdbfca31b3e5647518b55a42afbc4780",
+        "rows": 494
+      }
+    ]
+  }
+}

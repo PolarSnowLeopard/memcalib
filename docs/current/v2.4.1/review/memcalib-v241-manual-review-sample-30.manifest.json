@@ -1,0 +1,49 @@
+{
+  "schema_version": "memcalib-v241-manual-review-sample-v1",
+  "input": {
+    "path": "pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/release/memcalib_v241_multidomain_benchmark_15000.jsonl",
+    "sha256": "8bc18ae468e1ab1d41ffa4556c6e042a62538eca01e97029db94f850c2c46dc4",
+    "records": 15000
+  },
+  "sampling": {
+    "seed": 20260731,
+    "method": "deterministic_hash_with_repair_channel_diversity",
+    "targets": {
+      "manual_finalization": 9,
+      "alignment_reconciliation": 9,
+      "coding_control": 6,
+      "health_seed_control": 3,
+      "general_control": 3
+    }
+  },
+  "output": {
+    "path": "docs/current/v2.4.1/review/memcalib-v241-manual-review-sample-30.jsonl",
+    "sha256": "5e3d72a3fc8529fc2827e7cacd13b92171b4f3c603b03ed378bedf18720a77b7",
+    "records": 30,
+    "by_stratum": {
+      "alignment_reconciliation": 9,
+      "coding_control": 6,
+      "general_control": 3,
+      "health_seed_control": 3,
+      "manual_finalization": 9
+    },
+    "by_domain": {
+      "coding": 24,
+      "general": 3,
+      "health_seed": 3
+    },
+    "by_repair_channel": {
+      "curated_residual_final": 9,
+      "direct_question_repair_dual_strict": 3,
+      "freeform_rewrite1_dual_strict": 2,
+      "freeform_rewrite2_dual_strict": 2,
+      "freeform_rewrite3_dual_strict": 1,
+      "locked_surface_dual_strict": 1,
+      "practical_solution_r4_dual_strict": 1,
+      "practical_solution_r5_dual_strict": 1,
+      "relabel_aware_candidate_dual_strict": 1,
+      "retained_dual_strict": 2,
+      "unchanged_v24": 7
+    }
+  }
+}

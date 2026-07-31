@@ -34,6 +34,12 @@ SELF_CHECK_KEYS = {
 }
 VERDICTS = {"pass", "review", "fail"}
 DECISION_ORDER = {"strict_pass": 0, "review": 1, "reject": 2}
+ATOM_CHECK_VALUE_KEYS = (
+    "label_action_validity",
+    "answer_text_observability",
+    "rubric_objectivity",
+    "query_value_status",
+)
 
 
 def request_params(row: dict[str, Any]) -> dict[str, Any]:
@@ -61,6 +67,51 @@ def output_text(row: dict[str, Any]) -> str:
 
 def worsen(current: str, candidate: str) -> str:
     return candidate if DECISION_ORDER[candidate] > DECISION_ORDER[current] else current
+
+
+def normalize_split_atom_checks(qc: dict[str, Any]) -> dict[str, Any]:
+    checks = qc.get("atom_checks")
+    if not isinstance(checks, list):
+        return qc
+    atom_ids = [
+        str(check.get("atom_id") or "")
+        for check in checks
+        if isinstance(check, dict)
+    ]
+    if len(atom_ids) == len(set(atom_ids)):
+        return qc
+    merged: dict[str, dict[str, Any]] = {}
+    order: list[str] = []
+    for check in checks:
+        if not isinstance(check, dict):
+            return qc
+        atom_id = str(check.get("atom_id") or "")
+        if not atom_id:
+            return qc
+        if atom_id not in merged:
+            merged[atom_id] = {"atom_id": atom_id}
+            order.append(atom_id)
+        target = merged[atom_id]
+        for key in ATOM_CHECK_VALUE_KEYS:
+            if key not in check:
+                continue
+            if key in target and target[key] != check[key]:
+                return qc
+            target[key] = check[key]
+        reason = check.get("reason")
+        if isinstance(reason, str) and reason.strip():
+            reasons = target.setdefault("_reasons", [])
+            if reason.strip() not in reasons:
+                reasons.append(reason.strip())
+    normalized: list[dict[str, Any]] = []
+    for atom_id in order:
+        item = merged[atom_id]
+        reasons = item.pop("_reasons", [])
+        item["reason"] = " ".join(reasons)
+        normalized.append(item)
+    repaired = copy.deepcopy(qc)
+    repaired["atom_checks"] = normalized
+    return repaired
 
 
 def validate_qc(
@@ -105,6 +156,10 @@ def validate_qc(
     expected_atom_ids = [
         str(atom.get("atom_id") or "") for atom in record.get("memories") or []
     ]
+    expected_atom_labels = {
+        str(atom.get("atom_id") or ""): str(atom.get("u_star") or "")
+        for atom in record.get("memories") or []
+    }
     atom_checks = qc.get("atom_checks")
     observed_atom_ids: list[str] = []
     if not isinstance(atom_checks, list):
@@ -137,7 +192,10 @@ def validate_qc(
             "fully_supplied",
         }:
             errors.append(f"atom_check_{index}_bad_query_value_status")
-        elif value_status != "not_supplied":
+        elif (
+            value_status != "not_supplied"
+            and expected_atom_labels.get(atom_id) in {"B", "C"}
+        ):
             decision = "reject"
             reasons.append(f"{atom_id}:query_value_status:{value_status}")
         reason = check.get("reason")
@@ -230,6 +288,7 @@ def main() -> None:
                 structural_errors.append("result_params_mismatch")
             try:
                 qc = extract_json_object(output_text(result))
+                qc = normalize_split_atom_checks(qc)
             except (ValueError, json.JSONDecodeError) as exc:
                 structural_errors.append(f"invalid_json:{exc}")
         decision = "invalid"

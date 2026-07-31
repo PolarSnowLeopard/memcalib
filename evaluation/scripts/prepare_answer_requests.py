@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +18,7 @@ DEFAULT_PROMPT = ROOT / "evaluation" / "prompts" / "answer-system.txt"
 DEFAULT_OUTPUT = ROOT / "evaluation" / "runs" / "memcalib-v0.1-500" / "requests" / "answers"
 DEFAULT_MANIFEST = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-500" / "answer-request.manifest.json"
 CONDITIONS = ("full_memory", "no_memory")
+MODEL_KEY_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 
 
 def build_answer_messages(sample: dict[str, Any], condition: str, system_prompt: str) -> list[dict[str, str]]:
@@ -50,6 +53,32 @@ def build_answer_request(
             "expected_model": model,
         },
     }
+
+
+def config_for_single_model(
+    config: dict[str, Any],
+    *,
+    model_key: str,
+    model: str | None = None,
+    display_name: str | None = None,
+    checkpoint_role: str | None = None,
+) -> dict[str, Any]:
+    if not MODEL_KEY_PATTERN.fullmatch(model_key):
+        raise ValueError(
+            "model key must start with an alphanumeric character and contain only "
+            "letters, numbers, dots, underscores, or hyphens"
+        )
+    selected = copy.deepcopy(config)
+    entry: dict[str, Any] = {
+        "key": model_key,
+        "model": model or model_key,
+        "answer_mode": "nonthinking",
+        "checkpoint_role": checkpoint_role or "baseline",
+    }
+    if display_name:
+        entry["display_name"] = display_name
+    selected["answer_models"] = [entry]
+    return selected
 
 
 def prepare_answer_requests(
@@ -116,8 +145,25 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--conditions", nargs="+", choices=CONDITIONS)
+    parser.add_argument(
+        "--model-key",
+        help="Prepare requests for one arbitrary logical model key instead of every configured model.",
+    )
+    parser.add_argument("--model", help="Logical model identifier stored in request metadata.")
+    parser.add_argument("--display-name", help="Human-readable model name stored in the model entry.")
+    parser.add_argument("--checkpoint-role", help="Checkpoint role, for example official, sft, or grpo.")
     args = parser.parse_args()
     config = json.loads(args.config.read_text(encoding="utf-8"))
+    if args.model_key:
+        config = config_for_single_model(
+            config,
+            model_key=args.model_key,
+            model=args.model,
+            display_name=args.display_name,
+            checkpoint_role=args.checkpoint_role,
+        )
+    elif any((args.model, args.display_name, args.checkpoint_role)):
+        parser.error("--model, --display-name, and --checkpoint-role require --model-key")
     samples = list(iter_jsonl(args.input))
     system_prompt = args.prompt.read_text(encoding="utf-8")
     configured_conditions = config.get("evaluation_modes", {}).get("official_research_conditions")

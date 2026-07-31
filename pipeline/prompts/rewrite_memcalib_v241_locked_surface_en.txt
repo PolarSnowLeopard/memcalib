@@ -1,0 +1,60 @@
+You are rewriting only the question surface of one coding-domain benchmark
+record. The scored requirements and their attribution are already locked by a
+deterministic process. Do not write rubrics, reference answers, labels, or atom
+metadata.
+
+Record ID: {record_id}
+Assigned task family: {task_family}
+Broad source topic: {source_topic}
+
+Original coding question:
+{original_question}
+
+Locked project-specific requirements that must remain unresolved in the
+question:
+{requirements_json}
+
+Write a replacement task stem that preserves the original practical coding
+goal while making the response judgeable from natural-language text alone.
+
+Requirements:
+1. Ask for natural-language reasoning, not executable code, pseudocode, a patch,
+   a script, a function body, or a code block.
+2. Follow the assigned family:
+   - implementation_plan: request a natural-language implementation plan;
+   - debugging_diagnosis: describe a plausible generic faulty approach and ask
+     for the diagnosis and corrected behavior;
+   - behavior_prediction: request the expected behavior, decision points,
+     outputs, and failure paths.
+3. Do not state, paraphrase, hint at, or enumerate any concrete value from the
+   locked requirements. This includes names, identifiers, libraries,
+   technologies, algorithms, platforms, formats, numbers, configuration keys,
+   output values, and error messages.
+4. Refer to missing values only through neutral slots such as "the
+   project-approved dependency", "the required interface", "the applicable
+   compatibility rule", "the required output", or "the required failure
+   behavior".
+5. Make the primary requirements necessary to resolve the core task. Ask for
+   supporting considerations only as bounded refinements that do not determine
+   the central solution.
+6. Do not mention memories, retrieval, IDs, atoms, labels, rubrics, benchmark
+   construction, or these instructions.
+7. Do not introduce facts from the original reference answer. Preserve the
+   practical goal, not its answer values.
+8. Use at least two complete sentences and at least 40 words.
+9. Do not use Markdown code fences.
+
+Return exactly one JSON object:
+{
+  "schema_version": "memcalib-v241-locked-surface-v1",
+  "record_id": "{record_id}",
+  "task_family": "{task_family}",
+  "task_stem": "replacement question before the standardized response contract",
+  "self_check": {
+    "practical_goal_preserved": true,
+    "natural_language_only": true,
+    "all_requirement_values_unresolved": true,
+    "primary_and_supporting_magnitude_preserved": true,
+    "benchmark_metadata_absent": true
+  }
+}

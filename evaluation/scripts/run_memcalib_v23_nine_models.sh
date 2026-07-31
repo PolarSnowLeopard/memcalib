@@ -21,6 +21,8 @@ RUN=${MEMCALIB_RUN:-evaluation/runs/memcalib-v23-multidomain-500-nine-models}
 ANALYSIS=${MEMCALIB_ANALYSIS:-evaluation/archive/analyses/memcalib-v23-multidomain-500-nine-models-candidate-metrics}
 BAILIAN_ANSWER_THINKING=${BAILIAN_ANSWER_THINKING:-true}
 CODEX_REUSE_ROOT=${CODEX_REUSE_ROOT:-}
+ANSWER_REUSE_ROOT=${ANSWER_REUSE_ROOT:-}
+JUDGE_REUSE_ROOT=${JUDGE_REUSE_ROOT:-}
 JUDGE_GATE_PATTERN=${JUDGE_GATE_PATTERN:-}
 ANSWER_REQ="$RUN/requests/answers"
 ANSWER_OUT="$RUN/answers"
@@ -138,6 +140,15 @@ run_answer_model() {
   local condition
   mkdir -p "$ANSWER_OUT/$key"
   for condition in full_memory no_memory; do
+    if [[ -n "$ANSWER_REUSE_ROOT" && ! -s "$ANSWER_OUT/$key/$condition.jsonl" \
+      && -s "$ANSWER_REUSE_ROOT/$key/$condition.jsonl" ]]; then
+      PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/prefill_matching_results.py \
+        --requests "$ANSWER_REQ/$key/$condition.jsonl" \
+        --prior-results "$ANSWER_REUSE_ROOT/$key/$condition.jsonl" \
+        --output "$ANSWER_OUT/$key/$condition.jsonl" --model "$model" \
+        --report "$ANSWER_OUT/$key/$condition.prefill.json" \
+        >> "$ANSWER_OUT/$key/$condition.log" 2>&1
+    fi
     run_api_complete \
       "$ANSWER_REQ/$key/$condition.jsonl" "$ANSWER_OUT/$key/$condition.jsonl" \
       "$model" 8192 "$workers" "$rpm" 20 "$body"
@@ -148,8 +159,8 @@ run_codex_condition() {
   local condition=$1
   local output="$ANSWER_OUT/codex-gpt56-sol/$condition.jsonl"
   local base=${output%.jsonl}
+  mkdir -p "$(dirname "$output")"
   if [[ -n "$CODEX_REUSE_ROOT" ]]; then
-    mkdir -p "$(dirname "$output")"
     PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/resolve_api_results.py \
       --requests "$ANSWER_REQ/codex-gpt56-sol/$condition.jsonl" \
       --result "$CODEX_REUSE_ROOT/codex-gpt56-sol/$condition.jsonl" \
@@ -161,8 +172,15 @@ run_codex_condition() {
       >> "$base.log" 2>&1
     return
   fi
+  if [[ -n "$ANSWER_REUSE_ROOT" && ! -s "$output" \
+    && -s "$ANSWER_REUSE_ROOT/codex-gpt56-sol/$condition.jsonl" ]]; then
+    PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/prefill_matching_results.py \
+      --requests "$ANSWER_REQ/codex-gpt56-sol/$condition.jsonl" \
+      --prior-results "$ANSWER_REUSE_ROOT/codex-gpt56-sol/$condition.jsonl" \
+      --output "$output" --model gpt-5.6-sol \
+      --report "$base.prefill.json" >> "$base.log" 2>&1
+  fi
   local round=1 code=1
-  mkdir -p "$(dirname "$output")"
   while [[ "$round" -le 4 ]]; do
     set +e
     PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/run_codex_answers.py \
@@ -263,7 +281,7 @@ if [[ "${SKIP_ANSWER_GENERATION:-false}" != "true" ]]; then
   run_answer_model deepseek deepseek-v4-pro 120 240 & p3=$!
   run_answer_model deepseek-flash deepseek-v4-flash 120 300 & p4=$!
   run_answer_model kimi kimi-k2.6 120 240 & p5=$!
-  run_answer_model qwen35-35b-a3b qwen3.5-35b-a3b 120 90 & p6=$!
+  run_answer_model qwen35-35b-a3b qwen3.5-35b-a3b 32 90 & p6=$!
   run_answer_model qwen3-8b qwen3-8b 120 90 & p7=$!
   run_answer_model glm52 glm-5.2 120 90 & p8=$!
   run_codex_condition full_memory & p9=$!
@@ -295,6 +313,33 @@ if [[ -n "$JUDGE_GATE_PATTERN" ]]; then
 fi
 
 phase judge_generation
+if [[ -n "$JUDGE_REUSE_ROOT" ]]; then
+  if [[ ! -s "$JUDGE_API/primary.jsonl" && -s "$JUDGE_REUSE_ROOT/primary.jsonl" ]]; then
+    PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/prefill_matching_results.py \
+      --requests "$JUDGE_REQ/primary.jsonl" \
+      --prior-results "$JUDGE_REUSE_ROOT/primary.jsonl" \
+      --output "$JUDGE_API/primary.jsonl" --model qwen3.7-plus \
+      --report "$JUDGE_API/primary.prefill.json" >> "$JUDGE_API/primary.log" 2>&1
+  fi
+  if [[ ! -s "$JUDGE_API/secondary-deepseek.jsonl" \
+    && -s "$JUDGE_REUSE_ROOT/secondary-deepseek.jsonl" ]]; then
+    PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/prefill_matching_results.py \
+      --requests "$JUDGE_REQ/secondary-deepseek.jsonl" \
+      --prior-results "$JUDGE_REUSE_ROOT/secondary-deepseek.jsonl" \
+      --output "$JUDGE_API/secondary-deepseek.jsonl" --model deepseek-v4-pro \
+      --report "$JUDGE_API/secondary-deepseek.prefill.json" \
+      >> "$JUDGE_API/secondary-deepseek.log" 2>&1
+  fi
+  if [[ ! -s "$JUDGE_API/secondary-kimi.jsonl" \
+    && -s "$JUDGE_REUSE_ROOT/secondary-kimi.jsonl" ]]; then
+    PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/prefill_matching_results.py \
+      --requests "$JUDGE_REQ/secondary-kimi.jsonl" \
+      --prior-results "$JUDGE_REUSE_ROOT/secondary-kimi.jsonl" \
+      --output "$JUDGE_API/secondary-kimi.jsonl" --model kimi-k2.6 \
+      --report "$JUDGE_API/secondary-kimi.prefill.json" \
+      >> "$JUDGE_API/secondary-kimi.log" 2>&1
+  fi
+fi
 run_api_complete \
   "$JUDGE_REQ/primary.jsonl" "$JUDGE_API/primary.jsonl" \
   qwen3.7-plus 16384 300 1200 25 '{"enable_thinking":false}' & j1=$!

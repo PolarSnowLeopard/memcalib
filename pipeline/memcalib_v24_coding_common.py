@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from memcalib_v23_common import canonical_sha256, norm_text
+from memcalib_v24_alignment import analyze_atom_alignment
 
 
 PIPELINE_DIR = Path(__file__).resolve().parent
@@ -272,6 +273,21 @@ def validate_revision_payload(
                 errors.append(
                     f"{prefix}_required_element_{evidence_index}_runtime_only"
                 )
+        alignment = analyze_atom_alignment(
+            atom,
+            " ".join(required),
+            expected_atoms,
+            str(task_stem or ""),
+        )
+        blocking_alignment_reasons = {
+            "probable_cross_atom_rubric_swap",
+            "rubric_introduces_unsupported_identifier",
+            "probable_query_atom_value_leakage",
+            "probable_query_rubric_value_leakage",
+        }
+        for reason in alignment["reasons"]:
+            if reason in blocking_alignment_reasons:
+                errors.append(f"{prefix}_{reason}")
     if len(observed_ids) != len(set(observed_ids)):
         errors.append("applicable_atom_ids_not_unique")
     if set(observed_ids) != set(expected_ids):

@@ -1,0 +1,31 @@
+{
+  "schema_version": "memcalib-candidate-metric-visualization-manifest-v1",
+  "inputs": {
+    "primary": {
+      "path": "evaluation/runs/memcalib-v241-multidomain-494-nine-models-nonthinking/judgments/primary.valid.jsonl",
+      "sha256": "05e99139fec04655fac5efb2d0cc0926c8b8f0bc7cf19fedcabc84b45d1fd266"
+    },
+    "metrics": {
+      "path": "evaluation/current/v2.4.1/analyses/candidate-metrics-nonthinking/candidate-metrics.json",
+      "sha256": "81b935333a72f74be96787ddea2398dfb255dc1f2513a9fb5829b29d5df1f3c9"
+    }
+  },
+  "script": {
+    "path": "evaluation/scripts/plot_candidate_metric_diagnostics.py",
+    "sha256": "f7e7101b1437f4ff8afc8fc151731052ce208e1f41e5230aaf04fafcbaa895d8"
+  },
+  "output": {
+    "path": "evaluation/current/v2.4.1/analyses/candidate-metrics-nonthinking/candidate-metric-diagnostics.html",
+    "sha256": "4794e7e7ed832dd8a94d582a348f83d0972559dd1385e45c3c5ca96bbf3f13c6",
+    "bytes": 71184
+  },
+  "integrity": {
+    "models": 9,
+    "samples_per_model": [
+      494
+    ],
+    "tail_samples_per_model": [
+      50
+    ]
+  }
+}

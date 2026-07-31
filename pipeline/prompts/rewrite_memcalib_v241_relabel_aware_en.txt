@@ -1,0 +1,134 @@
+You are directly repairing one coding-domain record in a memory-use benchmark.
+Previous attempts failed because the rewritten question, reference answer, atom
+labels, and rubrics no longer described the same practical task.
+
+Record ID: {record_id}
+Assigned task family: {task_family}
+
+Original question:
+{original_question}
+
+Original reference answer:
+{original_reference_answer}
+
+Most recent candidate question, if available:
+{candidate_question}
+
+Most recent candidate reference answer, if available:
+{candidate_reference_answer}
+
+Retrieved memory blocks and current atom supervision:
+{blocks_json}
+
+Deterministic and independent-QC feedback:
+{repair_feedback}
+
+Reconstruct the record rather than minimally editing the failed candidate.
+
+Requirements:
+1. Preserve the original practical software-engineering goal. The task must
+   concern the same component, defect, decision, behavior, integration, or
+   operational outcome as the original question.
+2. Ask for natural-language reasoning only. Do not request or emit source code,
+   executable pseudocode, patches, scripts, or code blocks.
+3. Follow the assigned task family:
+   - implementation_plan: a concrete step-by-step implementation plan;
+   - debugging_diagnosis: diagnosis plus corrected behavior;
+   - behavior_prediction: expected decisions, outputs, and failure paths.
+4. The question must leave every scored memory value unresolved. It may ask for
+   a library, configuration choice, behavior, constraint, or failure policy by
+   neutral role, but it must not name or distinctively paraphrase the answer
+   supplied by a B or C atom.
+5. A+ignore atoms are strict negative controls. Neither the question nor the
+   reference answer may mention, paraphrase, select, recommend, rely on, or be
+   altered by an A value. This remains true when the original reference answer
+   independently contains the same tool or detail. In that case, give another
+   valid solution supported by the original task, or omit the A-specific detail
+   while still answering the practical question.
+6. Every original B/C atom remains scored and keeps its apply/correct action.
+   You may change only its magnitude B<->C:
+   - B is bounded support. Removing it leaves a complete core solution but
+     removes a useful adaptation, motivation, secondary step, or caveat.
+   - C controls a core choice, dependency, ordering rule, output, or failure
+     behavior. Removing it makes the central solution materially unresolved.
+   Do not preserve an old magnitude merely because it was previously assigned.
+7. A false, stale, unsafe, or incompatible memory that must be explicitly
+   corrected remains B or C with action=correct. Never convert it to A.
+8. The reference answer must be a complete, useful solution to the practical
+   task. It may use unscored facts from the original answer, but those facts
+   cannot be attributed to an atom unless that same atom entails them.
+9. For each B/C atom, provide one to three required_answer_elements. Each must:
+   - appear verbatim in reference_answer;
+   - be directly entailed by that same atom in the original task context;
+   - describe observable answer behavior, not benchmark metadata;
+   - avoid borrowing a provider, framework, path, operation, identifier, error
+     message, or conclusion from another atom.
+10. Do not satisfy an atom by writing meta-prose such as "the user requires X."
+    Integrate its operational consequence naturally into the solution.
+11. Keep the reference answer self-contained. Include the actual mechanism,
+    decision sequence, output, and relevant failure behavior supported by the
+    original task. Do not reduce it to a generic requirement list.
+12. For every changed B/C label, provide a counterfactual justification in
+    label_revision_audit. Do not list unchanged labels there.
+13. Audit A atoms explicitly. Their values must be absent from both question and
+    reference answer, including distinctive synonyms and identifiers.
+14. Do not mention memories, labels, atom IDs, rubrics, benchmark construction,
+    or these instructions in the user-facing question or reference answer.
+15. Do not use Markdown code fences anywhere.
+
+Return exactly one JSON object:
+{
+  "schema_version": "memcalib-v241-relabel-aware-repair-payload-v1",
+  "record_id": "{record_id}",
+  "task_family": "{task_family}",
+  "task_stem": "practical natural-language question before the standardized response contract",
+  "reference_answer": "complete practical natural-language solution",
+  "applicable_atom_footprints": [
+    {
+      "atom_id": "exact original B/C atom ID",
+      "u_star": "final B or C",
+      "memory_action": "unchanged apply or correct",
+      "required_answer_elements": [
+        "observable statement appearing verbatim in reference_answer"
+      ],
+      "overuse_signals": [
+        "specific unsupported extension beyond this atom"
+      ],
+      "label_justification": "counterfactual reason the final role is bounded B or controlling C"
+    }
+  ],
+  "label_revision_audit": [
+    {
+      "atom_id": "changed B/C atom ID only",
+      "old_u_star": "B or C",
+      "new_u_star": "C or B",
+      "reason": "specific counterfactual explanation for the magnitude correction"
+    }
+  ],
+  "ignored_a_audit": [
+    {
+      "atom_id": "exact A atom ID",
+      "question_has_footprint": false,
+      "reference_has_footprint": false,
+      "reason": "specific explanation of how the negative-control value was excluded"
+    }
+  ],
+  "query_isolation_audit": [
+    {
+      "atom_id": "exact original B/C atom ID",
+      "query_supplies_atom_value": false,
+      "reason": "specific unresolved slot left by the task"
+    }
+  ],
+  "self_check": {
+    "all_atom_ids_exact": true,
+    "only_bc_magnitude_may_change": true,
+    "all_label_changes_audited": true,
+    "a_atoms_have_zero_footprint": true,
+    "query_does_not_restate_scored_memories": true,
+    "answer_is_natural_language_only": true,
+    "all_required_evidence_visible_in_reference_answer": true,
+    "no_runtime_execution_needed_to_judge": true,
+    "original_practical_goal_preserved": true
+  }
+}

@@ -73,7 +73,7 @@ def main() -> None:
 
     for model_entry in config["answer_models"]:
         model_key = str(model_entry["key"])
-        expected_model = str(model_entry["model"])
+        expected_model = str(model_entry.get("served_model_name") or model_entry["model"])
         for condition in CONDITIONS:
             cell = (model_key, condition)
             request_path = args.requests / model_key / f"{condition}.jsonl"

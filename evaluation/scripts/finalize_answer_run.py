@@ -20,6 +20,10 @@ DEFAULT_MANIFEST = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1
 CONDITIONS = ("full_memory", "no_memory")
 
 
+def validation_model(model_entry: dict[str, Any]) -> str:
+    return str(model_entry.get("served_model_name") or model_entry["model"])
+
+
 def summarize_result_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
     models: Counter[str] = Counter()
     finish_reasons: Counter[str] = Counter()
@@ -63,7 +67,7 @@ def main() -> None:
     total = 0
     for model_entry in config["answer_models"]:
         model_key = str(model_entry["key"])
-        model = str(model_entry["model"])
+        model = validation_model(model_entry)
         for condition in conditions:
             input_path = args.requests / model_key / f"{condition}.jsonl"
             output_path = args.results / model_key / f"{condition}.jsonl"

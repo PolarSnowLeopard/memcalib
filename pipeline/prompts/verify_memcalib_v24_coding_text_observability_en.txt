@@ -9,7 +9,10 @@ Record:
 The intended label semantics are:
 - A + ignore: the ideal answer must be observably identical with and without the
   atom. Any legitimate mention, caveat, plan change, correction, or detail caused
-  by the atom means it is not A.
+  by the atom means it is not A. A proposition may still appear in the answer
+  when it is independently required by the current question or ordinary task
+  knowledge; that is not use of the A atom. Judge counterfactual influence, not
+  raw string occurrence.
 - B + apply/correct: the atom has bounded supporting influence.
 - C + apply/correct: the atom controls a core decision, constraint, dependency,
   ordering, output, or failure behavior.
@@ -19,12 +22,20 @@ Audit the record-level properties:
 1. task_family_fidelity: the question genuinely matches its assigned family.
 2. natural_language_only: the question clearly requests prose rather than source
    code, a patch, executable pseudocode, or code blocks.
-3. semantic_equivalence: the revised task preserves the practical intent of the
-   supplied memories and reference answer rather than changing to an unrelated
-   task.
+3. semantic_equivalence: compare original_question/original_reference_answer
+   against question/reference_answer. The revision must preserve the original
+   practical software-engineering goal while changing the requested response
+   form from executable code to natural-language reasoning. The revised
+   reference answer is memory-conditioned: it may and should add behavior
+   warranted by valid B/C atoms even when that behavior is absent from the
+   original question or original reference answer. Do not call such a
+   memory-warranted addition a semantic change. Compare the two versions for
+   preservation of the unscored practical task, inputs, outputs, and mechanism;
+   audit B/C additions separately under the atom checks.
 4. reference_completeness: the prose reference answer explicitly contains every
-   B/C minimal_evidence item and does not rely on variable aliases, helper
-   functions, or unstated execution semantics.
+   B/C minimal_evidence item, gives a complete practical answer to the revised
+   question, and does not rely on variable aliases, helper functions, or
+   unstated execution semantics.
 5. runtime_independence: a judge can score the response from answer text alone
    without running code, tests, tools, or hidden state.
 
@@ -37,6 +48,35 @@ Audit every atom in supplied order:
   rather than hidden intent or runtime-only behavior.
 - query_value_status: whether the question text itself supplies the atom-specific
   value or constraint. Use not_supplied, partially_supplied, or fully_supplied.
+
+For every B/C atom, also apply these requirements when deciding the verdicts:
+- Same-atom entailment: every minimal-evidence item and required answer behavior
+  must be directly supported by that atom's own text or evidence. Do not allow a
+  rubric to import a technology, provider, path, recommendation, application
+  domain, or conclusion from another atom or merely from the reference answer.
+- Cross-atom attribution: compare the rubric against all atoms. If another atom
+  is the better semantic source, fail rubric_objectivity for the misattributed
+  rubric and any resulting duplicate or missing attribution.
+- Magnitude preservation: B must remain bounded supporting influence. Fail
+  label_action_validity if the rewritten task makes a B value control the core
+  answer. C must control a core decision or behavior; fail if it has become only
+  supporting.
+- The benchmark intentionally evaluates whether an assistant uses relevant
+  retrieved memories. A valid B/C atom is therefore allowed to supply a user
+  preference, project context, technology, path, or constraint that the question
+  deliberately leaves unstated. Absence from the question is not irrelevance,
+  circularity, semantic drift, or query leakage. Fail relevance only when the
+  atom cannot legitimately influence the original practical task even as
+  additional user/project context.
+- The original reference answer is a legitimate source for unscored practical
+  solution details such as the general mechanism, algorithm, diagnosis, or
+  standard tool behavior. Those details need not be supplied by a memory atom.
+- Neither the original nor revised reference answer is an evidence source for a
+  scored atom. A B/C required element must still be entailed by that same atom.
+- Do not fail reference_completeness merely because the revised answer contains
+  useful unscored details from the original reference answer. Fail only when
+  those details contradict the memories, illegitimately use an A+ignore atom,
+  or are incorrectly attributed to a B/C rubric.
 
 Apply query_value_status mechanically at the proposition-value level:
 - A question that asks for an exact function name is not_supplied for an atom
@@ -56,6 +96,14 @@ Apply query_value_status mechanically at the proposition-value level:
   partially_supplied.
 - Asking for the category of information carried by an atom is not_supplied.
   Supplying the atom-specific value, constraint, or conclusion is leakage.
+- A memory atom supplying a value that the question intentionally leaves
+  unresolved is the benchmark's intended condition and is not query leakage.
+  Never mark fully_supplied or partially_supplied merely because the memory
+  supplies the answer. Inspect only the literal and semantic content of the
+  question field.
+- If your reason says the question "does not provide", "does not state", "does
+  not mention", or "does not name" the atom-specific value, the only consistent
+  query_value_status is not_supplied.
 
 Judge label_action_validity independently from query_value_status. If a C atom would
 control the answer when it is the only source of a required value, mark its
@@ -70,7 +118,8 @@ Decision rules:
   scoring evidence, or runtime independence.
 - reject for query leakage, a wrong label/action, unobservable answer behavior,
   runtime-dependent scoring, an incomplete reference answer, an invalid task
-  family, or a material semantic change.
+  family, a material semantic change, a required element not entailed by its own
+  atom, a cross-atom rubric swap, or B/C magnitude drift.
 
 Return exactly one JSON object:
 {
