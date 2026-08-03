@@ -8,7 +8,18 @@ cd "$ROOT"
 set -a
 source .env.local
 set +a
-if [[ -z "${DASHSCOPE_API_KEY:-${BAILIAN_API_KEY:-}}" ]]; then
+BAILIAN_API_KEY_ARGS=()
+if [[ "${MEMCALIB_BAILIAN_CREDENTIAL_MODE:-default}" == "broad_only" ]]; then
+  broad_api_key="${DASHSCOPE_API_KEY_FALLBACK:-${BAILIAN_API_KEY_FALLBACK:-}}"
+  if [[ -z "$broad_api_key" ]]; then
+    printf 'The broad/fallback Bailian API key is missing from .env.local\n' >&2
+    exit 1
+  fi
+  export MEMCALIB_BROAD_ONLY_API_KEY="$broad_api_key"
+  unset broad_api_key DASHSCOPE_API_KEY BAILIAN_API_KEY
+  unset DASHSCOPE_API_KEY_FALLBACK BAILIAN_API_KEY_FALLBACK
+  BAILIAN_API_KEY_ARGS=(--api-key-env MEMCALIB_BROAD_ONLY_API_KEY)
+elif [[ -z "${DASHSCOPE_API_KEY:-${BAILIAN_API_KEY:-}}" ]]; then
   printf 'DASHSCOPE_API_KEY or BAILIAN_API_KEY is missing from .env.local\n' >&2
   exit 1
 fi
@@ -20,6 +31,16 @@ RELEASE=${MEMCALIB_RELEASE:-$SAMPLE_RELEASE}
 RUN=${MEMCALIB_RUN:-evaluation/runs/memcalib-v23-multidomain-500-nine-models}
 ANALYSIS=${MEMCALIB_ANALYSIS:-evaluation/archive/analyses/memcalib-v23-multidomain-500-nine-models-candidate-metrics}
 BAILIAN_ANSWER_THINKING=${BAILIAN_ANSWER_THINKING:-true}
+CODEX_ANSWER_WORKERS=${CODEX_ANSWER_WORKERS:-12}
+PRIMARY_JUDGE_MODEL=${PRIMARY_JUDGE_MODEL:-qwen3.7-plus}
+PRIMARY_JUDGE_WORKERS=${PRIMARY_JUDGE_WORKERS:-300}
+PRIMARY_JUDGE_RPM=${PRIMARY_JUDGE_RPM:-1200}
+SECONDARY_DEFAULT_JUDGE_MODEL=${SECONDARY_DEFAULT_JUDGE_MODEL:-deepseek-v4-pro}
+SECONDARY_DEFAULT_JUDGE_WORKERS=${SECONDARY_DEFAULT_JUDGE_WORKERS:-100}
+SECONDARY_DEFAULT_JUDGE_RPM=${SECONDARY_DEFAULT_JUDGE_RPM:-480}
+SECONDARY_DEEPSEEK_JUDGE_MODEL=${SECONDARY_DEEPSEEK_JUDGE_MODEL:-kimi-k2.6}
+SECONDARY_DEEPSEEK_JUDGE_WORKERS=${SECONDARY_DEEPSEEK_JUDGE_WORKERS:-80}
+SECONDARY_DEEPSEEK_JUDGE_RPM=${SECONDARY_DEEPSEEK_JUDGE_RPM:-360}
 CODEX_REUSE_ROOT=${CODEX_REUSE_ROOT:-}
 ANSWER_REUSE_ROOT=${ANSWER_REUSE_ROOT:-}
 JUDGE_REUSE_ROOT=${JUDGE_REUSE_ROOT:-}
@@ -47,6 +68,7 @@ run_api_complete() {
 
   set +e
   PYTHONPATH=pipeline "$PYTHON_BIN" pipeline/06_run_bailian_api.py \
+    "${BAILIAN_API_KEY_ARGS[@]}" \
     --input "$request_path" --output "$canonical_output" \
     --failed "$base.failed.jsonl" --invalid-output "$base.api-invalid.jsonl" \
     --model "$model" --temperature 0 --max-tokens "$max_tokens" \
@@ -81,6 +103,7 @@ run_api_complete() {
     fi
     set +e
     PYTHONPATH=pipeline "$PYTHON_BIN" pipeline/06_run_bailian_api.py \
+      "${BAILIAN_API_KEY_ARGS[@]}" \
       --input "$missing_request" --output "$retry_output" \
       --failed "$base.retry-api${round}.failed.jsonl" \
       --invalid-output "$base.retry-api${round}.api-invalid.jsonl" \
@@ -186,7 +209,7 @@ run_codex_condition() {
     PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/run_codex_answers.py \
       --input "$ANSWER_REQ/codex-gpt56-sol/$condition.jsonl" \
       --output "$output" --failed "$base.failed.jsonl" --report "$base.report.json" \
-      --model gpt-5.6-sol --reasoning-effort none --max-workers 12 \
+      --model gpt-5.6-sol --reasoning-effort none --max-workers "$CODEX_ANSWER_WORKERS" \
       --timeout 600 --progress-every 10 >> "$base.log" 2>&1
     code=$?
     set -e
@@ -318,7 +341,7 @@ if [[ -n "$JUDGE_REUSE_ROOT" ]]; then
     PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/prefill_matching_results.py \
       --requests "$JUDGE_REQ/primary.jsonl" \
       --prior-results "$JUDGE_REUSE_ROOT/primary.jsonl" \
-      --output "$JUDGE_API/primary.jsonl" --model qwen3.7-plus \
+      --output "$JUDGE_API/primary.jsonl" --model "$PRIMARY_JUDGE_MODEL" \
       --report "$JUDGE_API/primary.prefill.json" >> "$JUDGE_API/primary.log" 2>&1
   fi
   if [[ ! -s "$JUDGE_API/secondary-deepseek.jsonl" \
@@ -326,7 +349,7 @@ if [[ -n "$JUDGE_REUSE_ROOT" ]]; then
     PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/prefill_matching_results.py \
       --requests "$JUDGE_REQ/secondary-deepseek.jsonl" \
       --prior-results "$JUDGE_REUSE_ROOT/secondary-deepseek.jsonl" \
-      --output "$JUDGE_API/secondary-deepseek.jsonl" --model deepseek-v4-pro \
+      --output "$JUDGE_API/secondary-deepseek.jsonl" --model "$SECONDARY_DEFAULT_JUDGE_MODEL" \
       --report "$JUDGE_API/secondary-deepseek.prefill.json" \
       >> "$JUDGE_API/secondary-deepseek.log" 2>&1
   fi
@@ -335,20 +358,20 @@ if [[ -n "$JUDGE_REUSE_ROOT" ]]; then
     PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/prefill_matching_results.py \
       --requests "$JUDGE_REQ/secondary-kimi.jsonl" \
       --prior-results "$JUDGE_REUSE_ROOT/secondary-kimi.jsonl" \
-      --output "$JUDGE_API/secondary-kimi.jsonl" --model kimi-k2.6 \
+      --output "$JUDGE_API/secondary-kimi.jsonl" --model "$SECONDARY_DEEPSEEK_JUDGE_MODEL" \
       --report "$JUDGE_API/secondary-kimi.prefill.json" \
       >> "$JUDGE_API/secondary-kimi.log" 2>&1
   fi
 fi
 run_api_complete \
   "$JUDGE_REQ/primary.jsonl" "$JUDGE_API/primary.jsonl" \
-  qwen3.7-plus 16384 300 1200 25 '{"enable_thinking":false}' & j1=$!
+  "$PRIMARY_JUDGE_MODEL" 16384 "$PRIMARY_JUDGE_WORKERS" "$PRIMARY_JUDGE_RPM" 25 '{"enable_thinking":false}' & j1=$!
 run_api_complete \
   "$JUDGE_REQ/secondary-deepseek.jsonl" "$JUDGE_API/secondary-deepseek.jsonl" \
-  deepseek-v4-pro 16384 100 480 20 '{"enable_thinking":false}' & j2=$!
+  "$SECONDARY_DEFAULT_JUDGE_MODEL" 16384 "$SECONDARY_DEFAULT_JUDGE_WORKERS" "$SECONDARY_DEFAULT_JUDGE_RPM" 20 '{"enable_thinking":false}' & j2=$!
 run_api_complete \
   "$JUDGE_REQ/secondary-kimi.jsonl" "$JUDGE_API/secondary-kimi.jsonl" \
-  kimi-k2.6 16384 80 360 20 '{"enable_thinking":false}' & j3=$!
+  "$SECONDARY_DEEPSEEK_JUDGE_MODEL" 16384 "$SECONDARY_DEEPSEEK_JUDGE_WORKERS" "$SECONDARY_DEEPSEEK_JUDGE_RPM" 20 '{"enable_thinking":false}' & j3=$!
 judge_code=0
 for pid in "$j1" "$j2" "$j3"; do
   wait "$pid" || judge_code=1
@@ -359,9 +382,9 @@ if [[ "$judge_code" -ne 0 ]]; then
 fi
 
 phase judgment_normalization
-process_judgments primary primary.jsonl qwen3.7-plus 100 480
-process_judgments secondary-deepseek secondary-deepseek.jsonl deepseek-v4-pro 50 240
-process_judgments secondary-kimi secondary-kimi.jsonl kimi-k2.6 40 180
+process_judgments primary primary.jsonl "$PRIMARY_JUDGE_MODEL" "$PRIMARY_JUDGE_WORKERS" "$PRIMARY_JUDGE_RPM"
+process_judgments secondary-deepseek secondary-deepseek.jsonl "$SECONDARY_DEFAULT_JUDGE_MODEL" "$SECONDARY_DEFAULT_JUDGE_WORKERS" "$SECONDARY_DEFAULT_JUDGE_RPM"
+process_judgments secondary-kimi secondary-kimi.jsonl "$SECONDARY_DEEPSEEK_JUDGE_MODEL" "$SECONDARY_DEEPSEEK_JUDGE_WORKERS" "$SECONDARY_DEEPSEEK_JUDGE_RPM"
 secondary_expected=$(($(wc -l < "$JUDGE_REQ/secondary-deepseek.jsonl") + $(wc -l < "$JUDGE_REQ/secondary-kimi.jsonl")))
 PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/merge_judgments.py \
   --input "$JUDGMENTS/secondary-deepseek.valid.jsonl" \
@@ -386,6 +409,11 @@ PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/plot_candidate_metric_diagnostics.
   --metrics "$ANALYSIS/candidate-metrics.json" \
   --output "$ANALYSIS/candidate-metric-diagnostics.html" \
   --manifest "$ANALYSIS/candidate-metric-diagnostics.manifest.json"
+PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/analyze_sample_level_calibration.py \
+  --judgments "nonthinking=$JUDGMENTS/primary.valid.jsonl" \
+  --hidden "$SAMPLE_RELEASE/hidden-evaluation.jsonl" \
+  --output-dir "$ANALYSIS/sample-level" --bootstrap-replicates 2000 \
+  --study-title "${SAMPLE_LEVEL_STUDY_TITLE:-MemCalib sample-level Non-Think metrics}"
 
 phase completed
 date -Iseconds > "$RUN/workflow.completed"

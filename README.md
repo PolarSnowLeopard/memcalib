@@ -48,6 +48,8 @@ pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/
 - [30 条评测前逐样本人工审查报告](docs/current/v2.4.1/review/memcalib-v241-manual-review-report-30.md)
 - [30 条完整监督审查样本](docs/current/v2.4.1/review/memcalib-v241-manual-review-sample-30.jsonl)
 - [v2.4.1 非思考九模型评测](evaluation/current/v2.4.1/README.md)
+- [DeepSeek-V4-Pro Judge 三轮 Non-Think 聚合结果](evaluation/current/v2.4.1/analyses/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/aggregate/README.md)
+- [三轮聚合可视化表](evaluation/current/v2.4.1/analyses/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/aggregate/three-repeat-summary.html)
 - [中文样本级三层主指标、公式与区间](evaluation/current/v2.4.1/analyses/three-layer-metrics-nonthinking/README.md)
 - [机器生成的样本级分布明细](evaluation/current/v2.4.1/analyses/sample-level-nonthinking/README.md)
 - [原子级候选指标与诊断图](evaluation/current/v2.4.1/analyses/candidate-metrics-nonthinking/README.md)
@@ -56,7 +58,7 @@ pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/
 
 ## 当前评测摘要
 
-主口径为 **Non-thinking**，与训练设置一致。评测锁定 v2.4 的 494 个完全配对 ID，并在纠正后的 v2.4.1 数据上重新生成受影响回答。八个百炼回答模型关闭 thinking；Codex GPT-5.6 Sol 使用 `reasoning_effort=none`。主 Judge 完成 8,892/8,892，副 Judge 完成 450/450；26 条主 Judge 结构错误经两轮定向重试后 residual invalid=0。
+主口径为 **Non-thinking**，与训练设置一致。正式 `test_eval` 子集冻结 500 个历史评测 ID；当前跨模型主表采用其中 494 个完全配对 ID。九个模型在同一批样本上独立评测三轮，每轮均包含 Full-memory 与 No-memory：每轮 8,892 个回答，三轮共 26,676 个回答。八个百炼模型关闭 thinking，Codex GPT-5.6 Sol 使用 `reasoning_effort=none`。三轮所有主判分均由关闭 thinking 的 DeepSeek-V4-Pro 完成，共 26,676/26,676；另有 1,350 条同 Judge 分层复判。百炼回答与 Judge 全程只使用第二个、模型覆盖更广的 key，未占用用于训练的快速 key。
 
 主报告采用三层样本级口径：
 
@@ -64,17 +66,19 @@ pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/
 - 方向主指标：`sOPB(0.5)` 与 `sUPB(0.5)`；
 - 事件率护栏：`Any-OPB` 与 `Any-UPB`。
 
+下表报告三轮 Full-memory 的均值与三轮总体标准差（`均值 ± SD`）：
+
 | 模型 | SCS↑ | sOPB↓ | sUPB↓ | Any-OPB↓ | Any-UPB↓ | Exact↑ |
 |---|---:|---:|---:|---:|---:|---:|
-| Codex GPT-5.6 Sol | **40.4%** | **33.8%** | 36.0% | **46.0%** | 53.6% | **21.5%** |
-| Kimi-K2.6 | 30.3% | 55.3% | **27.8%** | 69.0% | 43.7% | 14.6% |
-| GLM-5.2 | 30.1% | 53.7% | 29.5% | 67.4% | 43.9% | 15.0% |
-| Qwen3-8B | 26.7% | 38.6% | 49.6% | 51.2% | 67.6% | 10.3% |
-| Qwen3.7-Max | 26.6% | 54.2% | 35.6% | 68.4% | 54.0% | 10.5% |
-| DeepSeek-V4-Flash | 24.9% | 63.0% | 28.2% | 77.1% | 44.9% | 10.5% |
-| DeepSeek-V4-Pro | 24.1% | 64.2% | 28.0% | 78.7% | 44.3% | 10.5% |
-| Qwen3.5-35B-A3B | 21.5% | 67.9% | 27.4% | 81.0% | **43.1%** | 8.7% |
-| Qwen3.6-Flash | 21.3% | 68.6% | 27.7% | 82.6% | 44.3% | 8.1% |
+| Codex GPT-5.6 Sol | **48.80% ± 0.78** | **29.48% ± 0.59** | 28.45% ± 0.72 | **42.17% ± 0.48** | 43.86% ± 1.54 | **30.09% ± 1.10** |
+| Kimi-K2.6 | 37.72% ± 0.96 | 50.76% ± 0.46 | 20.54% ± 0.89 | 65.45% ± 0.50 | 32.32% ± 1.54 | 21.79% ± 0.91 |
+| GLM-5.2 | 36.31% ± 1.02 | 48.42% ± 0.58 | 23.58% ± 0.83 | 62.82% ± 0.50 | 35.96% ± 1.59 | 19.84% ± 1.59 |
+| DeepSeek-V4-Flash | 33.60% ± 0.37 | 50.85% ± 0.96 | 27.00% ± 0.56 | 67.34% ± 1.50 | 41.90% ± 0.57 | 15.92% ± 0.53 |
+| Qwen3.7-Max | 33.43% ± 0.80 | 50.35% ± 1.07 | 28.71% ± 0.59 | 66.53% ± 1.57 | 43.25% ± 0.67 | 16.94% ± 0.50 |
+| Qwen3-8B | 32.40% ± 0.44 | 32.91% ± 0.85 | 46.54% ± 0.43 | 45.88% ± 1.70 | 62.82% ± 0.58 | 15.59% ± 0.83 |
+| DeepSeek-V4-Pro | 31.24% ± 1.32 | 59.39% ± 0.64 | 20.86% ± 1.52 | 75.64% ± 0.10 | 33.27% ± 2.07 | 15.32% ± 1.06 |
+| Qwen3.6-Flash | 26.92% ± 0.28 | 64.86% ± 0.19 | **18.63% ± 0.69** | 79.96% ± 0.17 | **29.96% ± 1.01** | 12.89% ± 0.25 |
+| Qwen3.5-35B-A3B | 26.78% ± 0.50 | 64.87% ± 0.42 | 19.50% ± 0.83 | 80.23% ± 0.50 | 31.65% ± 1.74 | 11.81% ± 0.76 |
 
 原子级 H、MinCalib、MCC、Kappa、CVaR、PMU、Rasch、pairwise 和 Pareto 仅作为补充诊断，不替代三层样本级主口径。
 
@@ -87,6 +91,7 @@ pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/
 ```text
 evaluation/current/v2.4.1/releases/
   memcalib-v241-multidomain-494-nine-models-nonthinking/
+  memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/
 ```
 
 ## 仓库结构
@@ -107,5 +112,5 @@ tests/                     流水线和发布工具测试
 
 ```bash
 PY=/Users/zhaofanyu/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3
-$PY -m unittest discover -s tests -p 'test_*.py'
+PYTHONPATH=. $PY -m unittest discover -s tests -p 'test_*.py'
 ```

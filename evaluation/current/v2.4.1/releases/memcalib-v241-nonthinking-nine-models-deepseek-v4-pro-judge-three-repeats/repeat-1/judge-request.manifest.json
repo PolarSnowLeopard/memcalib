@@ -1,0 +1,152 @@
+{
+  "schema_version": "memcalib-judge-requests-ordered-usage-v2.1",
+  "primary_requests": 8892,
+  "secondary_requests": 450,
+  "secondary_by_judge": {
+    "deepseek-v4-pro": 100
+  },
+  "human_random_ids": 0,
+  "secondary_sampling": {
+    "total": 450,
+    "per_model_per_condition": 25,
+    "stratify_by": [
+      "condition",
+      "source_dataset",
+      "source_topic",
+      "composite_block_revision.difficulty_level",
+      "atom_count_bucket"
+    ]
+  },
+  "conditions": [
+    "full_memory",
+    "no_memory"
+  ],
+  "artifacts": {
+    "primary.jsonl": {
+      "rows": 8892,
+      "sha256": "6c41b6f72cefaa727bf78be24201927e87d641bf9a6ab97e268630d1fad01da6"
+    },
+    "secondary-deepseek.jsonl": {
+      "rows": 350,
+      "sha256": "3be0c17b23f5dd497a905f1b5e93d33605ca196194695187e8246b0b921ecef9"
+    },
+    "secondary-kimi.jsonl": {
+      "rows": 100,
+      "sha256": "b1f8cbe3638aab791ad755a8f762c3889d6cfa228549ec8464d83e2bc08e1f46"
+    },
+    "secondary-answer-ids.txt": {
+      "rows": 450,
+      "sha256": "f2d3ec8766949ca99619aae5395a7952c37dddfdd3acb673d8c5843f6d739a29"
+    },
+    "human-random-answer-ids.txt": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/current/v2.4.1/configs/memcalib-v241-multidomain-494-nine-models-nonthinking-deepseek-v4-pro-judge.json",
+      "sha256": "3676628263c2a8b559411725b04a1ec693481e3b67f648bd9e44d7305f6b997e"
+    },
+    "hidden": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-multidomain-494-nine-models-nonthinking/hidden-evaluation.jsonl",
+      "sha256": "f6ab49966e21654e02f5d3e8faf4ddbf0f4cbca3fa1fe344cbdbfc86cba25d6d"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/judge-system-v2.1.txt",
+      "sha256": "482899899ad089318068c562d909327bfee12f012eb266d3484a915244885dc6"
+    },
+    "answers": [
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/qwen-max/full_memory.jsonl",
+        "sha256": "f38776965fc7af7c462407923e70e5ea8645bced1c4dadb964bc5517e9437a87",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/qwen-max/no_memory.jsonl",
+        "sha256": "15202b0087eaa8fca50bd6c1c74f039893a1c124f69240f77ac19dee31a9effb",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/qwen-flash/full_memory.jsonl",
+        "sha256": "42a33fb40b245a583d33e9fae7a3ab42966af0ba70138aa2a0d5b3872111fd02",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/qwen-flash/no_memory.jsonl",
+        "sha256": "8c7287b452b9af0208efe95c635dd9cb73997e73798d83c753b1fcf8064ba491",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/deepseek/full_memory.jsonl",
+        "sha256": "2e58874a8bbfc541cc72ec0b724703d1ce3772f90b53e0db3b4ad33fdd40812b",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/deepseek/no_memory.jsonl",
+        "sha256": "af110ef7232c959ac6b6d78c7509bc677ba4bdd7d2d04aa53639750522f53e82",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/deepseek-flash/full_memory.jsonl",
+        "sha256": "8b934e3ee46362888474fae7de3b3c6bfbba6423cfd06a4b18aabd383823c856",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/deepseek-flash/no_memory.jsonl",
+        "sha256": "46942165fb1f2b3ea16b32cec2459a716fcd66f719b9fe2bf59f4eb64e31b8d1",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/kimi/full_memory.jsonl",
+        "sha256": "c49fa1fc94e104c3a077d28ce7847e32035896dd4dcce565bdb1e6061fc7876a",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/kimi/no_memory.jsonl",
+        "sha256": "8620908b1bd59c961b1d5f9c5cc2c6563c25fed381ee37bc162446a3eece06b3",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/qwen35-35b-a3b/full_memory.jsonl",
+        "sha256": "742648c71379f06fedc7ae34f7c5fca6bf2cba8911066fbf63bfaf3df135ffdf",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/qwen35-35b-a3b/no_memory.jsonl",
+        "sha256": "a0fd5ae7169044c7ff2e4346fa80c798c27ab9f84c63c19ce893d3d84ca1eb03",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/qwen3-8b/full_memory.jsonl",
+        "sha256": "dea0b12338e23f83b4dea5e6d1175c8cfa9f797ed24d564dca0908945bea5148",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/qwen3-8b/no_memory.jsonl",
+        "sha256": "9c5e317c7e485fbc767ed71610187d88982d724ae35ef895c193c9f21685f188",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/glm52/full_memory.jsonl",
+        "sha256": "c7448d5f7a55656778f016057b7f6572af5e9b1270062efdd20a43a71b6984ea",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/glm52/no_memory.jsonl",
+        "sha256": "b7823dfc9fd0593d25e04981c810eba290f0e9132472c6455d0eaa90902d4620",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/codex-gpt56-sol/full_memory.jsonl",
+        "sha256": "c026bed73bc462c0238054295c187f87aec9f42b5b4c80e3eb88808c73b41743",
+        "rows": 494
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/answers/codex-gpt56-sol/no_memory.jsonl",
+        "sha256": "f261813b64763e1bddac0d20d4a4bc5bb649aa4bf2c7fdf31c5ae5dbc4ca06c2",
+        "rows": 494
+      }
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": "memcalib-candidate-metric-visualization-manifest-v1",
+  "inputs": {
+    "primary": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/judgments/primary.valid.jsonl",
+      "sha256": "b4cc92fa758194837d2adeb37e5c76824c0e9fae115d0e6f24f45858db61c3f3"
+    },
+    "metrics": {
+      "path": "evaluation/current/v2.4.1/analyses/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/candidate-metrics.json",
+      "sha256": "760424912ab15e7e75a59e543a05bacf28eac7e135555723d4576ad2affd109c"
+    }
+  },
+  "script": {
+    "path": "evaluation/scripts/plot_candidate_metric_diagnostics.py",
+    "sha256": "f7e7101b1437f4ff8afc8fc151731052ce208e1f41e5230aaf04fafcbaa895d8"
+  },
+  "output": {
+    "path": "evaluation/current/v2.4.1/analyses/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-1/candidate-metric-diagnostics.html",
+    "sha256": "a6cbfd7bf94dfe835c56dba71af70c40317de440c4ed93fae279266fed05682d",
+    "bytes": 71182
+  },
+  "integrity": {
+    "models": 9,
+    "samples_per_model": [
+      494
+    ],
+    "tail_samples_per_model": [
+      50
+    ]
+  }
+}

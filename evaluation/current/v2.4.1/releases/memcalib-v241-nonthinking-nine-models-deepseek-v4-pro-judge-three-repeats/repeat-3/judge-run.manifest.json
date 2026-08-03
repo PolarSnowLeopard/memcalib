@@ -1,0 +1,175 @@
+{
+  "schema_version": "memcalib-judge-run-v1",
+  "status": "completed",
+  "completed_at": "2026-08-04T06:16:52+08:00",
+  "generation": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "enable_thinking": false
+  },
+  "primary_judge": {
+    "key": "deepseek-v4-pro-primary",
+    "model": "deepseek-v4-pro"
+  },
+  "secondary_judges": [
+    {
+      "key": "deepseek-v4-pro-secondary-a",
+      "model": "deepseek-v4-pro"
+    },
+    {
+      "key": "deepseek-v4-pro-secondary-b",
+      "model": "deepseek-v4-pro"
+    }
+  ],
+  "request_manifest": {
+    "path": "evaluation/current/v2.4.1/releases/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/judge-request.manifest.json",
+    "sha256": "09032bf40320dab6f5092b6fdda30491824945f021e4b28aa5c5be98f96ea90a"
+  },
+  "normalized": {
+    "primary": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/judgments/primary.valid.jsonl",
+      "sha256": "c27fe71d622bca71af37d58158917e54f14e5ed2af8a5b7254237132b30b5b56",
+      "rows": 8892,
+      "summary": {
+        "rows": 8892,
+        "unique_answer_request_ids": 8892,
+        "atoms": 142920,
+        "judge_models": {
+          "deepseek-v4-pro": 8892
+        },
+        "rows_with_warnings": 279,
+        "warning_counts": {
+          "ungrounded_evidence_quote": 320
+        },
+        "rows_with_schema_repairs": 0,
+        "schema_repairs": 0
+      }
+    },
+    "secondary": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/judgments/secondary.valid.jsonl",
+      "sha256": "65b8ee48a485c4b3fe2faa1cb9fef2d9362074001d831ec27abd98b8b47bd8a7",
+      "rows": 450,
+      "summary": {
+        "rows": 450,
+        "unique_answer_request_ids": 450,
+        "atoms": 7900,
+        "judge_models": {
+          "deepseek-v4-pro": 450
+        },
+        "rows_with_warnings": 13,
+        "warning_counts": {
+          "ungrounded_evidence_quote": 26
+        },
+        "rows_with_schema_repairs": 0,
+        "schema_repairs": 0
+      }
+    }
+  },
+  "targeted_retry_outputs": {
+    "requests/judges/primary.structural-retry1.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/requests/judges/primary.structural-retry1.jsonl",
+      "sha256": "71d7efc906dae3276707e4d6dfa0375b44614e13b25eddfb20f17164cc15b804",
+      "rows": 1
+    },
+    "api/primary.retry-api1.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/primary.retry-api1.jsonl",
+      "sha256": "19bc2ff3fa411220ee5067ce06dcc16a06cbc24ed7d43404978f95c56ab46043",
+      "rows": 328
+    },
+    "api/primary.retry-api1.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/primary.retry-api1.requests.jsonl",
+      "sha256": "0214ee1cd17c013c2e69ed7bec6351297a546baae2cf41b148015c92d8fe387f",
+      "rows": 328
+    },
+    "api/primary.retry-api2.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/primary.retry-api2.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "api/primary.structural-retry1.final-missing.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/primary.structural-retry1.final-missing.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "api/primary.structural-retry1.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/primary.structural-retry1.jsonl",
+      "sha256": "4e4c7254bf681c60c6ec98e0e37bf6bdd909b850d2961d5a4579e084ef23c4f4",
+      "rows": 1
+    },
+    "api/primary.structural-retry1.retry-api1.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/primary.structural-retry1.retry-api1.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "api/secondary-deepseek.retry-api1.failed.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/secondary-deepseek.retry-api1.failed.jsonl",
+      "sha256": "5450b708237c01db93a1eee4ec6d59e215bdc25c33a52cd748a702708e7fdb92",
+      "rows": 9
+    },
+    "api/secondary-deepseek.retry-api1.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/secondary-deepseek.retry-api1.jsonl",
+      "sha256": "81937600516a66ec25df2073e450ecba3e25a220aadb821285373aa7d4d0cd86",
+      "rows": 63
+    },
+    "api/secondary-deepseek.retry-api1.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/secondary-deepseek.retry-api1.requests.jsonl",
+      "sha256": "4a98629ea91fb284e23f3340641ae5a75ff1912b628212b69516aefb3eae443d",
+      "rows": 72
+    },
+    "api/secondary-deepseek.retry-api2.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/secondary-deepseek.retry-api2.jsonl",
+      "sha256": "e9b239cc094cedfa9fa3559fc0ef7aeaf45301068b72fa4ebe8dd136a70e92d5",
+      "rows": 9
+    },
+    "api/secondary-deepseek.retry-api2.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/secondary-deepseek.retry-api2.requests.jsonl",
+      "sha256": "bd4641f8b91c1fbfd74e3f1cd6a6c9efe70bf3617916808d8afc7eb82634f876",
+      "rows": 9
+    },
+    "api/secondary-deepseek.retry-api3.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/secondary-deepseek.retry-api3.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "api/secondary-kimi.retry-api1.failed.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/secondary-kimi.retry-api1.failed.jsonl",
+      "sha256": "b1739f40222e91dd8ebace62273b52921b99d78df6b66eafc9b915cb9c7463cf",
+      "rows": 4
+    },
+    "api/secondary-kimi.retry-api1.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/secondary-kimi.retry-api1.jsonl",
+      "sha256": "8c4061f38b80e76e5bad9f2299d9a8a15577103881faa6d8db30f4c358db5cd3",
+      "rows": 20
+    },
+    "api/secondary-kimi.retry-api1.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/secondary-kimi.retry-api1.requests.jsonl",
+      "sha256": "27b926bf6a1b1c12ee5556d46231ad0c276615b04d43a520c0b541f95673de73",
+      "rows": 24
+    },
+    "api/secondary-kimi.retry-api2.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/secondary-kimi.retry-api2.jsonl",
+      "sha256": "cb6cac1165378e0ba5321b7079966f04e9b9aa57ecd7e093c29be479a1e19468",
+      "rows": 4
+    },
+    "api/secondary-kimi.retry-api2.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/secondary-kimi.retry-api2.requests.jsonl",
+      "sha256": "2e76a343c51dfbd518992404a36fc0b31f6af0d61745155ea9430e92b870ecc0",
+      "rows": 4
+    },
+    "api/secondary-kimi.retry-api3.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/api/secondary-kimi.retry-api3.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "judgments/primary.structural-retry1.invalid.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/judgments/primary.structural-retry1.invalid.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "judgments/primary.structural-retry1.valid.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/repeat-3/judgments/primary.structural-retry1.valid.jsonl",
+      "sha256": "63c22d326c2df0026c62ad795f32b1b55753e5b18f770000b3758ed04bf77f8d",
+      "rows": 1
+    }
+  }
+}
