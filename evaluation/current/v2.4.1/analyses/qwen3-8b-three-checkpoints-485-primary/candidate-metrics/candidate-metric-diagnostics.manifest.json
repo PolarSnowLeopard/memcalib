@@ -1,0 +1,31 @@
+{
+  "schema_version": "memcalib-candidate-metric-visualization-manifest-v1",
+  "inputs": {
+    "primary": {
+      "path": "evaluation/runs/memcalib-v241-qwen3-8b-three-checkpoints-485-primary/judgments/primary.valid.jsonl",
+      "sha256": "eedc58557f8f0dce9df8a5432e01d58186796cbbc778ec44375050ce4e8fef20"
+    },
+    "metrics": {
+      "path": "evaluation/current/v2.4.1/analyses/qwen3-8b-three-checkpoints-485-primary/candidate-metrics/candidate-metrics.json",
+      "sha256": "477cb6997b62228f5ba23d8c2d32092ced64f7cb3600c2ecc0fe613d016e5809"
+    }
+  },
+  "script": {
+    "path": "evaluation/scripts/plot_candidate_metric_diagnostics.py",
+    "sha256": "f7e7101b1437f4ff8afc8fc151731052ce208e1f41e5230aaf04fafcbaa895d8"
+  },
+  "output": {
+    "path": "evaluation/current/v2.4.1/analyses/qwen3-8b-three-checkpoints-485-primary/candidate-metrics/candidate-metric-diagnostics.html",
+    "sha256": "b6df38752a0d2b9a408b91696fd16be7972ef03477a6da8f40632a8b3c9abfb9",
+    "bytes": 32627
+  },
+  "integrity": {
+    "models": 3,
+    "samples_per_model": [
+      485
+    ],
+    "tail_samples_per_model": [
+      49
+    ]
+  }
+}

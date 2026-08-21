@@ -1,0 +1,106 @@
+{
+  "schema_version": "memcalib-judge-requests-ordered-usage-v2.1",
+  "primary_requests": 13500,
+  "secondary_requests": 225,
+  "secondary_by_judge": {
+    "deepseek-v4-pro": 225
+  },
+  "human_random_ids": 0,
+  "secondary_sampling": {
+    "total": 225,
+    "per_model_per_condition": 25,
+    "stratify_by": [
+      "condition",
+      "source_dataset",
+      "source_topic",
+      "composite_block_revision.difficulty_level",
+      "atom_count_bucket"
+    ]
+  },
+  "conditions": [
+    "full_memory"
+  ],
+  "artifacts": {
+    "primary.jsonl": {
+      "rows": 13500,
+      "sha256": "8a754cbdaf581102dc57b36d0148a59e423a99c30a86fefccf66bd90d63d9580"
+    },
+    "secondary-deepseek.jsonl": {
+      "rows": 200,
+      "sha256": "f276d2060d48918d7550c410dae715489b463ddfd5f59b4b1c136f19694fba20"
+    },
+    "secondary-kimi.jsonl": {
+      "rows": 25,
+      "sha256": "b8bf9793152c1dd847141e98136a73fbf0ca4d290607b81b18a9e123c341ced8"
+    },
+    "secondary-answer-ids.txt": {
+      "rows": 225,
+      "sha256": "8a2cf95b65f3344c984e4b38480bfedaca789f2466ebc1438cda87a45146ade5"
+    },
+    "human-random-answer-ids.txt": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/current/v2.4.1/configs/memcalib-v241-benchmark1500-nine-models-nonthinking.json",
+      "sha256": "8bd2c5b4f2a01809cbbb15c47ab8e31d5d44fccca1e50c677aa16ebf5a95abaa"
+    },
+    "hidden": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-benchmark-test-eval-1500/hidden-evaluation.jsonl",
+      "sha256": "b5ff1c23ae132c1b570f78baef0ca5da6c0a5312bd00a747734188251afc00f7"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/judge-system-v2.1.txt",
+      "sha256": "482899899ad089318068c562d909327bfee12f012eb266d3484a915244885dc6"
+    },
+    "answers": [
+      {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/answers/qwen38-max/full_memory.jsonl",
+        "sha256": "135d5d4f455e711f8fe884b03719778787bfd6f91917a47913e8b9012d629073",
+        "rows": 1500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/answers/kimi-k26/full_memory.jsonl",
+        "sha256": "9b364921c8ccf76614c1dfdb255bad2a65ebde609e1f045135b63eecc752cff3",
+        "rows": 1500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/answers/deepseek-flash-0731/full_memory.jsonl",
+        "sha256": "b13ab7556c634a8efd99944a78a63523f94f35ca2ea6f34ef5c516fe3a2a4cbc",
+        "rows": 1500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/answers/glm52/full_memory.jsonl",
+        "sha256": "d2eeba9f52151cd3a81df96c8e704e1c58ad88d988e599c2169cb773cadc20ae",
+        "rows": 1500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/answers/qwen35-35b-a3b/full_memory.jsonl",
+        "sha256": "d5bc4b2b09e2ef98d3b0643f7951ae4143a6ecaafa7d733aeaa23ccb9f84e55b",
+        "rows": 1500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/answers/qwen3-8b/full_memory.jsonl",
+        "sha256": "837c74864c0510f0511cf3d4d8c811421b3407f8e468725824b84f2ac061ad3a",
+        "rows": 1500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/answers/claude-sonnet-4-6/full_memory.jsonl",
+        "sha256": "480944baddb1fcc423034647db8e0199bb15042e6daace866452d2deabb7856d",
+        "rows": 1500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/answers/gpt56-sol/full_memory.jsonl",
+        "sha256": "cb94b404799cb4a44971a31b6c14cf0a46fbec389a77217ff4d7eb8405e7f8d8",
+        "rows": 1500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/answers/gemini35-flash/full_memory.jsonl",
+        "sha256": "38bfc21fc3988aa45947513fb4588e6ce35f23db7df4625c2dcc0b2b12ec8425",
+        "rows": 1500
+      }
+    ]
+  }
+}

@@ -84,6 +84,7 @@ class MemCalibV2SampleReleaseTest(unittest.TestCase):
                 json.dumps(
                     {
                         "release": "test-v2-40",
+                        "status": "locked_release_candidate",
                         "seed": 42,
                         "source_count": 120,
                         "sample_count": 40,
@@ -105,6 +106,7 @@ class MemCalibV2SampleReleaseTest(unittest.TestCase):
             ]
 
         self.assertEqual(first_ids, second_ids)
+        self.assertEqual("locked_release_candidate", manifest["status"])
         self.assertEqual(manifest["ordered_id_sha256"], manifest_again["ordered_id_sha256"])
         self.assertEqual(
             Counter({"health_seed": 20, "general": 10, "coding": 10}),

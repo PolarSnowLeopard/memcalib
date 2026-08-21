@@ -1,0 +1,127 @@
+{
+  "schema_version": "memcalib-judge-run-v1",
+  "status": "completed",
+  "completed_at": "2026-08-20T18:57:17+08:00",
+  "generation": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "enable_thinking": false,
+    "top_p": "not_explicitly_set",
+    "top_k": "not_explicitly_set"
+  },
+  "primary_judge": {
+    "key": "deepseek-v4-pro-primary",
+    "model": "deepseek-v4-pro"
+  },
+  "secondary_judges": [
+    {
+      "key": "deepseek-v4-pro-secondary-a",
+      "model": "deepseek-v4-pro"
+    },
+    {
+      "key": "deepseek-v4-pro-secondary-b",
+      "model": "deepseek-v4-pro"
+    }
+  ],
+  "request_manifest": {
+    "path": "evaluation/current/v2.4.1/releases/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/judge-request.manifest.json",
+    "sha256": "95bc499fc65d08f45aaf62ff10f81ba07bd7d8d6b93811970ddedf7298d1efd6"
+  },
+  "normalized": {
+    "primary": {
+      "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/judgments/primary.valid.jsonl",
+      "sha256": "d4dd3ca4b8067a7bdeffaefe5e75ee100e07d37fc4d60905abe073ac3083aaae",
+      "rows": 13500,
+      "summary": {
+        "rows": 13500,
+        "unique_answer_request_ids": 13500,
+        "atoms": 209763,
+        "judge_models": {
+          "deepseek-v4-pro": 13500
+        },
+        "rows_with_warnings": 805,
+        "warning_counts": {
+          "ungrounded_evidence_quote": 1004
+        },
+        "rows_with_schema_repairs": 0,
+        "schema_repairs": 0
+      }
+    },
+    "secondary": {
+      "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/judgments/secondary.valid.jsonl",
+      "sha256": "c4dd53fbb7878a246c0467605c57842553d3a3b3a07b3997ecb189bee9ded37a",
+      "rows": 225,
+      "summary": {
+        "rows": 225,
+        "unique_answer_request_ids": 225,
+        "atoms": 3537,
+        "judge_models": {
+          "deepseek-v4-pro": 225
+        },
+        "rows_with_warnings": 11,
+        "warning_counts": {
+          "ungrounded_evidence_quote": 11
+        },
+        "rows_with_schema_repairs": 0,
+        "schema_repairs": 0
+      }
+    }
+  },
+  "targeted_retry_outputs": {
+    "requests/judges/primary.structural-retry1.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/requests/judges/primary.structural-retry1.jsonl",
+      "sha256": "52ae3cb3e04ec86ad3c5204fe9f5d10c5b06779868c4717bbaa66d5e6fabebbd",
+      "rows": 1
+    },
+    "api/primary.retry-api1.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/api/primary.retry-api1.jsonl",
+      "sha256": "76264c07c7fa7767cb6c887a47af8be3954441d9f9485c55036109788afa91f3",
+      "rows": 6
+    },
+    "api/primary.retry-api1.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/api/primary.retry-api1.requests.jsonl",
+      "sha256": "304dc8560843c3ba1d97656796189f90f33919aba1ea17b9d7df04173f58ad15",
+      "rows": 6
+    },
+    "api/primary.retry-api2.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/api/primary.retry-api2.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "api/primary.structural-retry1.final-missing.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/api/primary.structural-retry1.final-missing.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "api/primary.structural-retry1.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/api/primary.structural-retry1.jsonl",
+      "sha256": "f0e34c321859f2ab3eedb243fc5ef2888e6b42e27ba9f7f43eef852916aecd58",
+      "rows": 1
+    },
+    "api/primary.structural-retry1.retry-api1.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/api/primary.structural-retry1.retry-api1.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "api/secondary-deepseek.retry-api1.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/api/secondary-deepseek.retry-api1.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "api/secondary-kimi.retry-api1.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/api/secondary-kimi.retry-api1.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "judgments/primary.structural-retry1.invalid.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/judgments/primary.structural-retry1.invalid.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "judgments/primary.structural-retry1.valid.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/judgments/primary.structural-retry1.valid.jsonl",
+      "sha256": "ac7ede70da4a47943cd2c413c7f9174640834b77f4e9856c705db9c8257605fa",
+      "rows": 1
+    }
+  }
+}

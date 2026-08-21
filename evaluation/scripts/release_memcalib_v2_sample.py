@@ -284,7 +284,7 @@ def build_release(
     manifest = {
         "schema_version": SCHEMA_VERSION,
         "release": str(config["release"]),
-        "status": "internal_diagnostic",
+        "status": str(config.get("status") or "internal_diagnostic"),
         "samples": len(selected),
         "seed": int(config["seed"]),
         "ordered_id_sha256": ordered_id_sha256(selected),

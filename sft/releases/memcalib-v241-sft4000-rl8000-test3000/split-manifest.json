@@ -1,0 +1,635 @@
+{
+  "schema_version": "memcalib-v241-sft-rl-test-split-v2",
+  "seed": 20260807,
+  "partition_policy": {
+    "top_level_partitions": {
+      "sft_cold_start": 4000,
+      "rl": 8000,
+      "test": 3000
+    },
+    "no_dev_partition": true,
+    "lineage": "Create a new leakage-aware 12,000/3,000 train/test boundary while anchoring the historical 500-row evaluation subset in test.",
+    "sft_selection": "Deterministic proportional stratification by domain and difficulty, then label/correction profile, source dataset, and atom-count bucket. Historical training-pilot question groups remain in SFT unless a group is forced into test.",
+    "rl_selection": "Exact remainder of the new 12,000-row training partition.",
+    "question_group_isolation": "Rows with identical final-question text are assigned as a group. Groups touching the locked evaluation subset are forced into test; other duplicate groups cannot be split across SFT, RL, and test.",
+    "locked_evaluation": "The final 1,500-row benchmark test subset is contained in test and preserves the historical 500-row evaluation set as an ordered anchor. The added 1,000 rows are deterministically stratified, and normalized final-question text is unique.",
+    "record_content": "Copied byte-for-byte from the v2.4.1 release JSONL."
+  },
+  "source": {
+    "path": "pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/release/memcalib_v241_multidomain_benchmark_15000.jsonl",
+    "rows": 15000,
+    "sha256": "f76b9d6b1d07c6e27e975562ce5b05a338a6d59f093674eea947d65e74e59f50"
+  },
+  "inherited_partition": {
+    "path": "sft/releases/memcalib-v23-sft-12000-1500-1500",
+    "manifest_sha256": "022eeb4974110486f748e026384e2a089fe1c49c0c276e714c23f2ebc44b5009",
+    "id_replacements": {
+      "crk2_v2_raw_coding_0731c5f2e7b0d174": "crk2_v2_raw_coding_e19cebbe74362259"
+    },
+    "replacement_audit_path": "pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/audit/memcalib_v241_manual_review_gate.audit.jsonl",
+    "replacement_audit_sha256": "1d7e62fb37dc0248915f784626a2dd295bf188e9073d5857bda7d0884468a0b2"
+  },
+  "locked_evaluation": {
+    "path": "pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/release/splits/test_eval_1500.jsonl",
+    "rows": 1500,
+    "sha256": "fd74038b645942ba3bd8d1de0c8655d180873aea563ba39f3d02d94d080c4043",
+    "contained_in_test": true,
+    "overlap_with_sft": 0,
+    "overlap_with_rl": 0,
+    "unique_normalized_questions": 1500,
+    "domain_targets": {
+      "coding": 375,
+      "general": 375,
+      "health_seed": 750
+    },
+    "historical_anchor": {
+      "rows": 500,
+      "ids_path": "sft/releases/memcalib-v241-sft4000-rl8000-test3000/test_eval_anchor_500-ids.txt",
+      "ids_sha256": "2c0ebdc8005ce5fa69a811b97d39af43f2e238d41535ffef06a5c6ffed356a43",
+      "jsonl_path": "pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/release/splits/test_eval_anchor_500.jsonl",
+      "jsonl_sha256": "a38a397f44797c0c3b551d4a27997a100fe5a33dccc9836f586362f5dddadd40",
+      "preserved_as_ordered_prefix": true
+    },
+    "selection_seed": 20260807,
+    "selection_policy": "Preserve the historical anchor; exclude duplicate normalized questions; select exact domain quotas with proportional difficulty, label/correction, source, and atom-count balancing."
+  },
+  "counts": {
+    "train_all": 12000,
+    "sft_cold_start": 4000,
+    "rl": 8000,
+    "test": 3000,
+    "test_eval": 1500,
+    "test_remaining": 1500,
+    "legacy_pilot": 500
+  },
+  "containment": {
+    "legacy_pilot_in_sft_cold_start": 499,
+    "legacy_pilot_moved_to_test_for_question_isolation": 1,
+    "legacy_pilot_in_rl": 0,
+    "test_eval_in_test": true,
+    "test_equals_eval_plus_remaining": true,
+    "train_equals_sft_plus_rl": true,
+    "historical_eval_anchor_in_test_eval": true,
+    "historical_eval_anchor_rows": 500,
+    "test_eval_unique_normalized_questions": 1500
+  },
+  "comparison_with_inherited_partition": {
+    "sft_cold_start": {
+      "train": 3369,
+      "dev": 375,
+      "test": 256
+    },
+    "rl": {
+      "train": 6580,
+      "dev": 859,
+      "test": 561
+    },
+    "test": {
+      "train": 2051,
+      "dev": 266,
+      "test": 683
+    }
+  },
+  "top_level_id_overlap": {
+    "sft_cold_start__rl": 0,
+    "sft_cold_start__test": 0,
+    "rl__test": 0
+  },
+  "leakage_checks": {
+    "source_identity": {
+      "distinct_by_partition": {
+        "sft_cold_start": 4000,
+        "rl": 8000,
+        "test": 3000
+      },
+      "cross_partition_overlap": {
+        "sft_cold_start__rl": 0,
+        "sft_cold_start__test": 0,
+        "rl__test": 0
+      }
+    },
+    "raw_query_hash": {
+      "distinct_by_partition": {
+        "sft_cold_start": 4000,
+        "rl": 8000,
+        "test": 3000
+      },
+      "cross_partition_overlap": {
+        "sft_cold_start__rl": 0,
+        "sft_cold_start__test": 0,
+        "rl__test": 0
+      }
+    },
+    "question_hash": {
+      "distinct_by_partition": {
+        "sft_cold_start": 3944,
+        "rl": 7931,
+        "test": 2967
+      },
+      "cross_partition_overlap": {
+        "sft_cold_start__rl": 0,
+        "sft_cold_start__test": 0,
+        "rl__test": 0
+      }
+    }
+  },
+  "distributions": {
+    "train_all": {
+      "records": 12000,
+      "domain": {
+        "coding": 3000,
+        "general": 3000,
+        "health_seed": 6000
+      },
+      "difficulty": {
+        "level_1": 3001,
+        "level_2": 6000,
+        "level_3": 2999
+      },
+      "domain_difficulty": {
+        "coding:level_1": 751,
+        "coding:level_2": 1500,
+        "coding:level_3": 749,
+        "general:level_1": 750,
+        "general:level_2": 1500,
+        "general:level_3": 750,
+        "health_seed:level_1": 1500,
+        "health_seed:level_2": 3000,
+        "health_seed:level_3": 1500
+      },
+      "source_dataset": {
+        "HuggingFaceH4/stack-exchange-preferences": 645,
+        "HuggingFaceH4/ultrachat_200k": 1899,
+        "OpenAssistant/oasst1": 377,
+        "OpenAssistant/oasst2": 724,
+        "OpenMed/MedDialog": 3036,
+        "codeparrot/apps": 139,
+        "ise-uiuc/Magicoder-OSS-Instruct-75K": 2216,
+        "lavita/ChatDoctor-HealthCareMagic-100k": 2964
+      },
+      "atom_bucket": {
+        "06-09": 2118,
+        "10-14": 4199,
+        "15-20": 3367,
+        "21+": 2316
+      },
+      "label_profile": {
+        "A": 12,
+        "AB": 1882,
+        "ABC": 8083,
+        "AC": 2023
+      },
+      "records_with_correct": 259,
+      "atoms": {
+        "min": 6,
+        "mean": 15.61525,
+        "max": 63
+      }
+    },
+    "sft_cold_start": {
+      "records": 4000,
+      "domain": {
+        "coding": 1000,
+        "general": 1000,
+        "health_seed": 2000
+      },
+      "difficulty": {
+        "level_1": 1002,
+        "level_2": 1999,
+        "level_3": 999
+      },
+      "domain_difficulty": {
+        "coding:level_1": 250,
+        "coding:level_2": 500,
+        "coding:level_3": 250,
+        "general:level_1": 250,
+        "general:level_2": 500,
+        "general:level_3": 250,
+        "health_seed:level_1": 502,
+        "health_seed:level_2": 999,
+        "health_seed:level_3": 499
+      },
+      "source_dataset": {
+        "HuggingFaceH4/stack-exchange-preferences": 215,
+        "HuggingFaceH4/ultrachat_200k": 633,
+        "OpenAssistant/oasst1": 124,
+        "OpenAssistant/oasst2": 243,
+        "OpenMed/MedDialog": 1010,
+        "codeparrot/apps": 44,
+        "ise-uiuc/Magicoder-OSS-Instruct-75K": 741,
+        "lavita/ChatDoctor-HealthCareMagic-100k": 990
+      },
+      "atom_bucket": {
+        "06-09": 704,
+        "10-14": 1402,
+        "15-20": 1125,
+        "21+": 769
+      },
+      "label_profile": {
+        "A": 3,
+        "AB": 632,
+        "ABC": 2695,
+        "AC": 670
+      },
+      "records_with_correct": 86,
+      "atoms": {
+        "min": 6,
+        "mean": 15.59425,
+        "max": 63
+      }
+    },
+    "rl": {
+      "records": 8000,
+      "domain": {
+        "coding": 2000,
+        "general": 2000,
+        "health_seed": 4000
+      },
+      "difficulty": {
+        "level_1": 1999,
+        "level_2": 4001,
+        "level_3": 2000
+      },
+      "domain_difficulty": {
+        "coding:level_1": 501,
+        "coding:level_2": 1000,
+        "coding:level_3": 499,
+        "general:level_1": 500,
+        "general:level_2": 1000,
+        "general:level_3": 500,
+        "health_seed:level_1": 998,
+        "health_seed:level_2": 2001,
+        "health_seed:level_3": 1001
+      },
+      "source_dataset": {
+        "HuggingFaceH4/stack-exchange-preferences": 430,
+        "HuggingFaceH4/ultrachat_200k": 1266,
+        "OpenAssistant/oasst1": 253,
+        "OpenAssistant/oasst2": 481,
+        "OpenMed/MedDialog": 2026,
+        "codeparrot/apps": 95,
+        "ise-uiuc/Magicoder-OSS-Instruct-75K": 1475,
+        "lavita/ChatDoctor-HealthCareMagic-100k": 1974
+      },
+      "atom_bucket": {
+        "06-09": 1414,
+        "10-14": 2797,
+        "15-20": 2242,
+        "21+": 1547
+      },
+      "label_profile": {
+        "A": 9,
+        "AB": 1250,
+        "ABC": 5388,
+        "AC": 1353
+      },
+      "records_with_correct": 173,
+      "atoms": {
+        "min": 6,
+        "mean": 15.62575,
+        "max": 61
+      }
+    },
+    "test": {
+      "records": 3000,
+      "domain": {
+        "coding": 750,
+        "general": 750,
+        "health_seed": 1500
+      },
+      "difficulty": {
+        "level_1": 750,
+        "level_2": 1500,
+        "level_3": 750
+      },
+      "domain_difficulty": {
+        "coding:level_1": 187,
+        "coding:level_2": 375,
+        "coding:level_3": 188,
+        "general:level_1": 188,
+        "general:level_2": 375,
+        "general:level_3": 187,
+        "health_seed:level_1": 375,
+        "health_seed:level_2": 750,
+        "health_seed:level_3": 375
+      },
+      "source_dataset": {
+        "HuggingFaceH4/stack-exchange-preferences": 160,
+        "HuggingFaceH4/ultrachat_200k": 478,
+        "OpenAssistant/oasst1": 93,
+        "OpenAssistant/oasst2": 179,
+        "OpenMed/MedDialog": 757,
+        "codeparrot/apps": 35,
+        "ise-uiuc/Magicoder-OSS-Instruct-75K": 555,
+        "lavita/ChatDoctor-HealthCareMagic-100k": 743
+      },
+      "atom_bucket": {
+        "06-09": 529,
+        "10-14": 1048,
+        "15-20": 839,
+        "21+": 584
+      },
+      "label_profile": {
+        "A": 3,
+        "AB": 473,
+        "ABC": 2019,
+        "AC": 505
+      },
+      "records_with_correct": 61,
+      "atoms": {
+        "min": 6,
+        "mean": 15.612333333333334,
+        "max": 61
+      }
+    },
+    "test_eval": {
+      "records": 1500,
+      "domain": {
+        "coding": 375,
+        "general": 375,
+        "health_seed": 750
+      },
+      "difficulty": {
+        "level_1": 375,
+        "level_2": 748,
+        "level_3": 377
+      },
+      "domain_difficulty": {
+        "coding:level_1": 94,
+        "coding:level_2": 187,
+        "coding:level_3": 94,
+        "general:level_1": 94,
+        "general:level_2": 187,
+        "general:level_3": 94,
+        "health_seed:level_1": 187,
+        "health_seed:level_2": 374,
+        "health_seed:level_3": 189
+      },
+      "source_dataset": {
+        "HuggingFaceH4/stack-exchange-preferences": 84,
+        "HuggingFaceH4/ultrachat_200k": 242,
+        "OpenAssistant/oasst1": 43,
+        "OpenAssistant/oasst2": 90,
+        "OpenMed/MedDialog": 377,
+        "codeparrot/apps": 16,
+        "ise-uiuc/Magicoder-OSS-Instruct-75K": 275,
+        "lavita/ChatDoctor-HealthCareMagic-100k": 373
+      },
+      "atom_bucket": {
+        "06-09": 262,
+        "10-14": 522,
+        "15-20": 424,
+        "21+": 292
+      },
+      "label_profile": {
+        "A": 3,
+        "AB": 239,
+        "ABC": 1009,
+        "AC": 249
+      },
+      "records_with_correct": 33,
+      "atoms": {
+        "min": 6,
+        "mean": 15.538,
+        "max": 58
+      }
+    },
+    "test_remaining": {
+      "records": 1500,
+      "domain": {
+        "coding": 375,
+        "general": 375,
+        "health_seed": 750
+      },
+      "difficulty": {
+        "level_1": 375,
+        "level_2": 752,
+        "level_3": 373
+      },
+      "domain_difficulty": {
+        "coding:level_1": 93,
+        "coding:level_2": 188,
+        "coding:level_3": 94,
+        "general:level_1": 94,
+        "general:level_2": 188,
+        "general:level_3": 93,
+        "health_seed:level_1": 188,
+        "health_seed:level_2": 376,
+        "health_seed:level_3": 186
+      },
+      "source_dataset": {
+        "HuggingFaceH4/stack-exchange-preferences": 76,
+        "HuggingFaceH4/ultrachat_200k": 236,
+        "OpenAssistant/oasst1": 50,
+        "OpenAssistant/oasst2": 89,
+        "OpenMed/MedDialog": 380,
+        "codeparrot/apps": 19,
+        "ise-uiuc/Magicoder-OSS-Instruct-75K": 280,
+        "lavita/ChatDoctor-HealthCareMagic-100k": 370
+      },
+      "atom_bucket": {
+        "06-09": 267,
+        "10-14": 526,
+        "15-20": 415,
+        "21+": 292
+      },
+      "label_profile": {
+        "AB": 234,
+        "ABC": 1010,
+        "AC": 256
+      },
+      "records_with_correct": 28,
+      "atoms": {
+        "min": 6,
+        "mean": 15.686666666666667,
+        "max": 61
+      }
+    },
+    "legacy_pilot": {
+      "records": 500,
+      "domain": {
+        "coding": 125,
+        "general": 125,
+        "health_seed": 250
+      },
+      "difficulty": {
+        "level_1": 125,
+        "level_2": 251,
+        "level_3": 124
+      },
+      "domain_difficulty": {
+        "coding:level_1": 31,
+        "coding:level_2": 63,
+        "coding:level_3": 31,
+        "general:level_1": 31,
+        "general:level_2": 63,
+        "general:level_3": 31,
+        "health_seed:level_1": 63,
+        "health_seed:level_2": 125,
+        "health_seed:level_3": 62
+      },
+      "source_dataset": {
+        "HuggingFaceH4/stack-exchange-preferences": 28,
+        "HuggingFaceH4/ultrachat_200k": 79,
+        "OpenAssistant/oasst1": 14,
+        "OpenAssistant/oasst2": 32,
+        "OpenMed/MedDialog": 125,
+        "codeparrot/apps": 3,
+        "ise-uiuc/Magicoder-OSS-Instruct-75K": 94,
+        "lavita/ChatDoctor-HealthCareMagic-100k": 125
+      },
+      "atom_bucket": {
+        "06-09": 86,
+        "10-14": 173,
+        "15-20": 143,
+        "21+": 98
+      },
+      "label_profile": {
+        "AB": 77,
+        "ABC": 340,
+        "AC": 83
+      },
+      "records_with_correct": 11,
+      "atoms": {
+        "min": 6,
+        "mean": 15.948,
+        "max": 58
+      }
+    },
+    "test_eval_anchor": {
+      "records": 500,
+      "domain": {
+        "coding": 125,
+        "general": 125,
+        "health_seed": 250
+      },
+      "difficulty": {
+        "level_1": 125,
+        "level_2": 250,
+        "level_3": 125
+      },
+      "domain_difficulty": {
+        "coding:level_1": 25,
+        "coding:level_2": 65,
+        "coding:level_3": 35,
+        "general:level_1": 38,
+        "general:level_2": 60,
+        "general:level_3": 27,
+        "health_seed:level_1": 62,
+        "health_seed:level_2": 125,
+        "health_seed:level_3": 63
+      },
+      "source_dataset": {
+        "HuggingFaceH4/stack-exchange-preferences": 25,
+        "HuggingFaceH4/ultrachat_200k": 82,
+        "OpenAssistant/oasst1": 15,
+        "OpenAssistant/oasst2": 28,
+        "OpenMed/MedDialog": 129,
+        "codeparrot/apps": 6,
+        "ise-uiuc/Magicoder-OSS-Instruct-75K": 94,
+        "lavita/ChatDoctor-HealthCareMagic-100k": 121
+      },
+      "atom_bucket": {
+        "06-09": 83,
+        "10-14": 166,
+        "15-20": 139,
+        "21+": 112
+      },
+      "label_profile": {
+        "A": 2,
+        "AB": 78,
+        "ABC": 336,
+        "AC": 84
+      },
+      "records_with_correct": 11,
+      "atoms": {
+        "min": 6,
+        "mean": 16.028,
+        "max": 58
+      }
+    }
+  },
+  "control_artifacts": {
+    "train_all-ids.txt": {
+      "rows": 12000,
+      "sha256": "20d8ca5e594c98dc045f550da1740fa8160225d42a22303a4a7cf2a44c36ffb7"
+    },
+    "sft_cold_start-ids.txt": {
+      "rows": 4000,
+      "sha256": "78d4b01275d2ea39a60ba0d05f1e438e2b549c8dea276f62650ea6a1ef5156de"
+    },
+    "rl-ids.txt": {
+      "rows": 8000,
+      "sha256": "ab39697da2fb77048d6269fa1b464d8ffc218c23a04ac34f95ba6f4ebc49d9f3"
+    },
+    "test-ids.txt": {
+      "rows": 3000,
+      "sha256": "db3d8fc4bb73c737cd73bec80efb0a06804afab9e190e4cce6ccfe90a4670211"
+    },
+    "test_remaining-ids.txt": {
+      "rows": 1500,
+      "sha256": "45aedb6891253683e3ad3d0959d99b181287ce77c9ff7643e71d8b8c45a960b5"
+    },
+    "legacy_pilot-ids.txt": {
+      "rows": 500,
+      "sha256": "a4f58b35b42d25e7abb8018d9f2c18847c668adbdf12c67de7ec26876929b33b"
+    },
+    "test_eval-ids.txt": {
+      "rows": 1500,
+      "sha256": "3273d2e3faf196ba42ebc71d2861af3f19a1a3837ddea0d9b1451fdbc7492fe3"
+    },
+    "test_eval_anchor_500-ids.txt": {
+      "rows": 500,
+      "sha256": "2c0ebdc8005ce5fa69a811b97d39af43f2e238d41535ffef06a5c6ffed356a43"
+    }
+  },
+  "data_artifacts": {
+    "sft_cold_start_4000.jsonl": {
+      "rows": 4000,
+      "bytes": 534172049,
+      "sha256": "613fa20a201fa71d6b1263a9a8c88d8f1dbd9c394e98ca10ddb3c3a397f76b2c",
+      "path": "pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/release/splits/sft_cold_start_4000.jsonl"
+    },
+    "rl_8000.jsonl": {
+      "rows": 8000,
+      "bytes": 1071427002,
+      "sha256": "97388771965a3a0a074301f2df748e609559aac94592472f4162d3b2eed0be8a",
+      "path": "pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/release/splits/rl_8000.jsonl"
+    },
+    "test_3000.jsonl": {
+      "rows": 3000,
+      "bytes": 395312781,
+      "sha256": "ec2aaf765776edb6417289d9c97d24eba75985610ed487a7263223669ae03dd6",
+      "path": "pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/release/splits/test_3000.jsonl"
+    },
+    "test_eval_1500.jsonl": {
+      "path": "pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/release/splits/test_eval_1500.jsonl",
+      "rows": 1500,
+      "bytes": 196078507,
+      "sha256": "fd74038b645942ba3bd8d1de0c8655d180873aea563ba39f3d02d94d080c4043"
+    },
+    "test_remaining_1500.jsonl": {
+      "path": "pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/release/splits/test_remaining_1500.jsonl",
+      "rows": 1500,
+      "bytes": 199234274,
+      "sha256": "d33849cff53abfef39114fe346c393261031570406e96142d14907a509b25a74"
+    },
+    "test_eval_anchor_500.jsonl": {
+      "path": "pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/release/splits/test_eval_anchor_500.jsonl",
+      "rows": 500,
+      "bytes": 68003959,
+      "sha256": "a38a397f44797c0c3b551d4a27997a100fe5a33dccc9836f586362f5dddadd40"
+    }
+  },
+  "evaluation_expansion": {
+    "date": "2026-08-07",
+    "seed": 20260807,
+    "test_rows": 3000,
+    "evaluation_rows": 1500,
+    "remaining_rows": 1500,
+    "historical_anchor_rows": 500,
+    "new_rows": 1000,
+    "normalized_question_duplicates": 0,
+    "model_evaluation_status": "not_started_pending_final_model_list"
+  }
+}

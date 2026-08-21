@@ -1,0 +1,35 @@
+{
+  "schema_version": "memcalib-sample-level-calibration-manifest-v2",
+  "sources": {
+    "hidden": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-qwen3-8b-three-checkpoints-485-primary/hidden-evaluation.jsonl.gz",
+      "sha256": "1f43bab95d72b97528b6e81cfb44fce7caf812af4ac1db0375d6373d89815c8d",
+      "rows": 485
+    },
+    "judgments": {
+      "primary": {
+        "path": "evaluation/runs/memcalib-v241-qwen3-8b-four-model-485-primary/judgments/primary.valid.jsonl",
+        "sha256": "793e13553041d04cb0337fd5eb224e562f1dcd6615f4ca06be46611d3b99160a",
+        "rows": 1940
+      }
+    }
+  },
+  "outputs": {
+    "sample-level-metrics.json": {
+      "sha256": "ffa1baddfa993e6cb5a5d998cbdb51ce5ddd6bcd773e98b0cde654d945dc71a7",
+      "bytes": 116223
+    },
+    "sample-level-scores.csv": {
+      "sha256": "5a72aaa46037aa2c533f1769a605ca0ae45e4d6abefc41ae73a57b3c613ab5bb",
+      "bytes": 399916
+    },
+    "README.md": {
+      "sha256": "946b882f2808518065d6176c4cdd501195ee93c0307e2e30f319a2cef53f7fe5",
+      "bytes": 4630
+    },
+    "sample-level-score-distributions.html": {
+      "sha256": "451ef2bd77d78b86613bbbc2a7a3f364f252821037135f49c3c260ee93aaad07",
+      "bytes": 5333
+    }
+  }
+}

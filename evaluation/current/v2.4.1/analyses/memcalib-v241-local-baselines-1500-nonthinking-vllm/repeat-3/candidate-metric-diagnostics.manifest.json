@@ -1,0 +1,31 @@
+{
+  "schema_version": "memcalib-candidate-metric-visualization-manifest-v1",
+  "inputs": {
+    "primary": {
+      "path": "evaluation/runs/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-3/judgments/primary.valid.jsonl",
+      "sha256": "3e4a41ba871ea2fbcc5ccbc32fd7124c3046e7c5b85b66e633c07c06bece1e83"
+    },
+    "metrics": {
+      "path": "evaluation/current/v2.4.1/analyses/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-3/candidate-metrics.json",
+      "sha256": "1f458cc4ea3fe05b268c1951f7d598b09b58cafda94f75efcbaf42bbd77254d0"
+    }
+  },
+  "script": {
+    "path": "evaluation/scripts/plot_candidate_metric_diagnostics.py",
+    "sha256": "d76dde1c33abf31e9cd024789454977873736cdf9a5ca410c987a8f4699a540a"
+  },
+  "output": {
+    "path": "evaluation/current/v2.4.1/analyses/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-3/candidate-metric-diagnostics.html",
+    "sha256": "53a926e85ab96f0b59ed73cf40c60d647265ec12174f2818a94733adf55d87fc",
+    "bytes": 49305
+  },
+  "integrity": {
+    "models": 2,
+    "samples_per_model": [
+      1500
+    ],
+    "tail_samples_per_model": [
+      150
+    ]
+  }
+}

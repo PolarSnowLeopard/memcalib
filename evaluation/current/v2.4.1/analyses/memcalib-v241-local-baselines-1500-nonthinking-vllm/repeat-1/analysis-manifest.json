@@ -1,0 +1,51 @@
+{
+  "schema_version": "memcalib-candidate-metrics-analysis-manifest-v1",
+  "source": {
+    "rows": 3000,
+    "models": 2,
+    "samples_per_model_per_condition": 1500,
+    "bootstrap_replicates": 2000,
+    "seed": 20260722,
+    "basis": "ordered-usage-v2.1 primary Judge outputs",
+    "conditions": [
+      "full_memory"
+    ],
+    "primary_judgments": "evaluation/runs/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-1/judgments/primary.valid.jsonl",
+    "primary_sha256": "33c09381dba7ea65ce79166833953001b8ab11eb6b99ab6ed01c1784d9e255f2",
+    "official_metrics": "evaluation/current/v2.4.1/releases/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-1/metrics.json",
+    "official_metrics_sha256": "8d04841790afde4efef5169f3d3735014ce9d9e49be2ef7b7ec8b6dd88e04024"
+  },
+  "input_integrity": {
+    "rows": 3000,
+    "unique_answer_request_ids": 3000,
+    "models": [
+      "ministral3-8b-instruct-2512-bf16-local-vllm",
+      "qwen35-35b-a3b-local-vllm"
+    ],
+    "conditions": [
+      "full_memory"
+    ],
+    "model_condition_buckets": 2,
+    "samples_per_bucket": 1500,
+    "common_sample_ids": 1500,
+    "atom_signatures_consistent": true
+  },
+  "script": {
+    "path": "evaluation/scripts/analyze_candidate_metrics.py",
+    "sha256": "4c1af0e94b6616a26129ea92484ad7d384263e046237ab7a17c4cebd7b952297"
+  },
+  "artifacts": {
+    "README.md": {
+      "bytes": 7002,
+      "sha256": "be8d5ef0a93a5ff614a9475af769428b9fe853ed397e9c28a06e5e656f61a521"
+    },
+    "candidate-metrics.csv": {
+      "bytes": 1408,
+      "sha256": "ec3ba46a1d4c5d10cce1dae8c12e368dfa57b08e4136a023f7344c89eaa5983a"
+    },
+    "candidate-metrics.json": {
+      "bytes": 29428,
+      "sha256": "2c13dc36a26d12ef0999e3a34413322e81533e1cd39e0e45ebe6eb1561160728"
+    }
+  }
+}

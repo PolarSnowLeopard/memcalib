@@ -1,0 +1,83 @@
+{
+  "schema_version": "memcalib-judge-run-v1",
+  "status": "completed",
+  "completed_at": "2026-08-11T17:11:42+08:00",
+  "generation": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "enable_thinking": false,
+    "top_p": "not_explicitly_set",
+    "top_k": "not_explicitly_set"
+  },
+  "primary_judge": {
+    "key": "deepseek-v4-pro-primary",
+    "model": "deepseek-v4-pro"
+  },
+  "secondary_judges": [
+    {
+      "key": "deepseek-v4-pro-secondary-a",
+      "model": "deepseek-v4-pro"
+    },
+    {
+      "key": "deepseek-v4-pro-secondary-b",
+      "model": "deepseek-v4-pro"
+    }
+  ],
+  "request_manifest": {
+    "path": "evaluation/current/v2.4.1/releases/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-3/judge-request.manifest.json",
+    "sha256": "dbbb4d7d6ddb88422228878d25055f922b7404158d37208ca7432678c9d25f09"
+  },
+  "normalized": {
+    "primary": {
+      "path": "evaluation/runs/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-3/judgments/primary.valid.jsonl",
+      "sha256": "3e4a41ba871ea2fbcc5ccbc32fd7124c3046e7c5b85b66e633c07c06bece1e83",
+      "rows": 3000,
+      "summary": {
+        "rows": 3000,
+        "unique_answer_request_ids": 3000,
+        "atoms": 46614,
+        "judge_models": {
+          "deepseek-v4-pro": 3000
+        },
+        "rows_with_warnings": 266,
+        "warning_counts": {
+          "deterministic_inference_failure_policy": 1,
+          "ungrounded_evidence_quote": 350
+        },
+        "rows_with_schema_repairs": 1,
+        "schema_repairs": 1
+      }
+    },
+    "secondary": {
+      "path": "evaluation/runs/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-3/judgments/secondary.valid.jsonl",
+      "sha256": "ea186b90477771d23bb9f97797b0bc19b70b33ea722a58203c06bc3a89cae01e",
+      "rows": 50,
+      "summary": {
+        "rows": 50,
+        "unique_answer_request_ids": 50,
+        "atoms": 797,
+        "judge_models": {
+          "deepseek-v4-pro": 50
+        },
+        "rows_with_warnings": 3,
+        "warning_counts": {
+          "ungrounded_evidence_quote": 3
+        },
+        "rows_with_schema_repairs": 0,
+        "schema_repairs": 0
+      }
+    }
+  },
+  "targeted_retry_outputs": {
+    "api/primary.retry-api1.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-3/api/primary.retry-api1.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    },
+    "api/secondary-deepseek.retry-api1.requests.jsonl": {
+      "path": "evaluation/runs/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-3/api/secondary-deepseek.retry-api1.requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rows": 0
+    }
+  }
+}

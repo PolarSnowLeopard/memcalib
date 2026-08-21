@@ -1,0 +1,213 @@
+{
+  "schema_version": "memcalib-answer-requests-v1",
+  "samples": 1500,
+  "formal_requests": 13500,
+  "smoke_requests": 18,
+  "models": [
+    {
+      "key": "qwen38-max",
+      "model": "qwen3.8-max",
+      "answer_mode": "nonthinking",
+      "channel": "bailian"
+    },
+    {
+      "key": "kimi-k26",
+      "model": "kimi-k2.6",
+      "answer_mode": "nonthinking",
+      "channel": "bailian"
+    },
+    {
+      "key": "deepseek-flash-0731",
+      "model": "deepseek-v4-flash-0731",
+      "answer_mode": "nonthinking",
+      "channel": "bailian"
+    },
+    {
+      "key": "glm52",
+      "model": "glm-5.2",
+      "answer_mode": "nonthinking",
+      "channel": "bailian"
+    },
+    {
+      "key": "qwen35-35b-a3b",
+      "model": "qwen3.5-35b-a3b",
+      "answer_mode": "nonthinking",
+      "channel": "bailian"
+    },
+    {
+      "key": "qwen3-8b",
+      "model": "qwen3-8b",
+      "answer_mode": "nonthinking",
+      "channel": "bailian"
+    },
+    {
+      "key": "claude-sonnet-4-6",
+      "model": "claude-sonnet-4-6",
+      "answer_mode": "nonthinking",
+      "channel": "primus_chat_direct"
+    },
+    {
+      "key": "gpt56-sol",
+      "model": "gpt-5.6-sol",
+      "answer_mode": "nonthinking",
+      "channel": "primus_chat_direct"
+    },
+    {
+      "key": "gemini35-flash",
+      "model": "gemini-3.5-flash",
+      "answer_mode": "nonthinking",
+      "channel": "primus_chat_direct"
+    }
+  ],
+  "conditions": [
+    "full_memory"
+  ],
+  "generation": {
+    "bailian": {
+      "do_sample": true,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "top_k": "omitted because the compatible API rejects -1",
+      "n": 1,
+      "seeds": [
+        42,
+        43,
+        44
+      ],
+      "max_tokens": 8192,
+      "enable_thinking": false
+    },
+    "primus_chat_direct": {
+      "temperature": 1.0,
+      "max_tokens": 8192,
+      "top_p": "omitted because Claude rejects it as deprecated",
+      "top_k": "omitted for a common cross-provider contract",
+      "seed": "not supported by the provider interface; 42/43/44 are repeat labels only",
+      "thinking": "no explicit cross-provider thinking control is sent; visible answer outputs are checked for non-thinking format"
+    }
+  },
+  "artifacts": {
+    "claude-sonnet-4-6/full_memory.jsonl": {
+      "rows": 1500,
+      "sha256": "8120a2dbe9031b4e5d433c1be5148e51d4c530faed183c42bbaef2d3c3ebff65",
+      "model": "claude-sonnet-4-6",
+      "condition": "full_memory"
+    },
+    "claude-sonnet-4-6/smoke.jsonl": {
+      "rows": 2,
+      "sha256": "cccfb2056a26bc7f7450344784be2479361de6c4604402f865361521bf7e9153",
+      "model": "claude-sonnet-4-6",
+      "condition": "smoke"
+    },
+    "deepseek-flash-0731/full_memory.jsonl": {
+      "rows": 1500,
+      "sha256": "a15b3f52936dda49e19224b510f6853cd390d2635604316be612144b87d8e38a",
+      "model": "deepseek-v4-flash-0731",
+      "condition": "full_memory"
+    },
+    "deepseek-flash-0731/smoke.jsonl": {
+      "rows": 2,
+      "sha256": "5a27b286c8f388f40e144467985cd2ec5407b56c3d4ddbfb9d3d783d6ea909d9",
+      "model": "deepseek-v4-flash-0731",
+      "condition": "smoke"
+    },
+    "gemini35-flash/full_memory.jsonl": {
+      "rows": 1500,
+      "sha256": "3b219b462564a12dfa5a3484a3483839b0bae1444e99a6dbbff9010111d479d4",
+      "model": "gemini-3.5-flash",
+      "condition": "full_memory"
+    },
+    "gemini35-flash/smoke.jsonl": {
+      "rows": 2,
+      "sha256": "2a722dd8594b3879fc9d36806b2714fb8b289fe9f5286a8bde170365447d101b",
+      "model": "gemini-3.5-flash",
+      "condition": "smoke"
+    },
+    "glm52/full_memory.jsonl": {
+      "rows": 1500,
+      "sha256": "ef4080e8375f86ffaf322b934dc025d3d18092afb8abdae1bfb71dd8b5cfe5b2",
+      "model": "glm-5.2",
+      "condition": "full_memory"
+    },
+    "glm52/smoke.jsonl": {
+      "rows": 2,
+      "sha256": "8d692382fbbc9a297db96d47d0b8e9f00d8d35f21d550f868320175a044302f8",
+      "model": "glm-5.2",
+      "condition": "smoke"
+    },
+    "gpt56-sol/full_memory.jsonl": {
+      "rows": 1500,
+      "sha256": "206b2cbc4baaa0e5fbd2dc9f874cc987218f4f852b09e65f2b83aba7b47f66e9",
+      "model": "gpt-5.6-sol",
+      "condition": "full_memory"
+    },
+    "gpt56-sol/smoke.jsonl": {
+      "rows": 2,
+      "sha256": "1b7cb6adcf499118db08c258450ba2672a69d28613bb7d6d7e8fc495a925486e",
+      "model": "gpt-5.6-sol",
+      "condition": "smoke"
+    },
+    "kimi-k26/full_memory.jsonl": {
+      "rows": 1500,
+      "sha256": "bbc63067e4776ba6c02e92da88f8a8f601caab866af8738ca6a2a9326a46a823",
+      "model": "kimi-k2.6",
+      "condition": "full_memory"
+    },
+    "kimi-k26/smoke.jsonl": {
+      "rows": 2,
+      "sha256": "01c55b1bf864f73215a87714889a183b0b903e3d0fd4783f65e6beb6119f9f8f",
+      "model": "kimi-k2.6",
+      "condition": "smoke"
+    },
+    "qwen3-8b/full_memory.jsonl": {
+      "rows": 1500,
+      "sha256": "e2db452f609d5533ee616c585688070e6d996b56d7f66790e9863ce6d93bd344",
+      "model": "qwen3-8b",
+      "condition": "full_memory"
+    },
+    "qwen3-8b/smoke.jsonl": {
+      "rows": 2,
+      "sha256": "3bde8543b55a5d738df523c95b54e051053a4ea00e6d071d3410991b968cb779",
+      "model": "qwen3-8b",
+      "condition": "smoke"
+    },
+    "qwen35-35b-a3b/full_memory.jsonl": {
+      "rows": 1500,
+      "sha256": "2901048e93904e46c7097830cbb3a946343cc3af8fe02c71cce8dc82445f65b1",
+      "model": "qwen3.5-35b-a3b",
+      "condition": "full_memory"
+    },
+    "qwen35-35b-a3b/smoke.jsonl": {
+      "rows": 2,
+      "sha256": "915bf59af43d7e77bb8c09d1a80704c0e906e576ea5bc02b9a382ffe6abb2bb3",
+      "model": "qwen3.5-35b-a3b",
+      "condition": "smoke"
+    },
+    "qwen38-max/full_memory.jsonl": {
+      "rows": 1500,
+      "sha256": "cd3626f632a4e3a432248a31eb1a0fa661d03b16edabd32bf1fb3bf62008d01f",
+      "model": "qwen3.8-max",
+      "condition": "full_memory"
+    },
+    "qwen38-max/smoke.jsonl": {
+      "rows": 2,
+      "sha256": "6a3bcd64e881ccb6f31757467f6a2c8fc8300386350de79d3dbf6e475cca83da",
+      "model": "qwen3.8-max",
+      "condition": "smoke"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/current/v2.4.1/configs/memcalib-v241-benchmark1500-nine-models-nonthinking.json",
+      "sha256": "8bd2c5b4f2a01809cbbb15c47ab8e31d5d44fccca1e50c677aa16ebf5a95abaa"
+    },
+    "samples": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-benchmark-test-eval-1500/model-facing.jsonl",
+      "sha256": "0126453e3c393b37874896ff5ff8fd612250b8ac5c0c2fcc614668897200388f"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/answer-system.txt",
+      "sha256": "9a6eae1d8dca3f034c88d769cb0ff3ec798f6533d1dc9e88c4aed8670eae3a7f"
+    }
+  }
+}

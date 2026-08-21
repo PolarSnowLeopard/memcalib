@@ -34,13 +34,21 @@ DEFAULT_OUTPUT = ANALYSIS_DIR / "candidate-metric-diagnostics.html"
 DEFAULT_MANIFEST = ANALYSIS_DIR / "candidate-metric-diagnostics.manifest.json"
 RANK = {"A": 0, "B": 1, "C": 2}
 SHORT_NAMES = {
+    "claude-opus-5": "Claude Opus 5",
+    "claude-sonnet-4-6": "Claude Sonnet 4.6",
     "codex-gpt56-sol": "Codex",
     "deepseek": "DS-Pro",
     "deepseek-flash": "DS-Flash",
+    "deepseek-flash-0731": "DS-Flash-0731",
     "glm52": "GLM-5.2",
+    "gemini35-flash": "Gemini 3.5 Flash",
+    "gpt56-sol": "GPT-5.6-SOL",
+    "grok-4": "Grok 4",
     "kimi": "Kimi",
+    "kimi-k26": "Kimi-K2.6",
     "qwen-flash": "Qwen-Flash",
     "qwen-max": "Qwen-Max",
+    "qwen38-max": "Qwen3.8-Max",
     "qwen3-8b": "Qwen-8B",
     "qwen35-35b-a3b": "Qwen-35B",
     "qwen35-a3b-base-vllm": "Qwen-35B Base",

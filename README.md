@@ -2,7 +2,7 @@
 
 **评测对话语言模型应当何时以及如何使用记忆。**
 
-MemCalib 评测模型在回答新问题时，能否恰当地调节检索记忆或存储记忆对回答的影响。模型接收自然段形式的非原子记忆块；评测端使用隐藏的原子级监督，判断每项信息应被抑制、有限使用，还是作为关键约束。
+MemCalib 评测模型在回答新问题时，能否恰当地调节检索记忆或存储记忆对回答的影响。正式评测使用自然段形式的父记忆块；同一 canonical 记录还保存原子文本的确定性直接拼接视图，供句子级信用分配使用。评测端使用隐藏的原子级监督，判断每项信息应被抑制、有限使用，还是作为关键约束。
 
 ## 当前版本：v2.4.1
 
@@ -19,6 +19,10 @@ v2.4.1 是当前纠正后的数据版本。它针对人工发现的原子文本�
 | 每条样本隐藏原子 | 6–63，均值 15.6147 |
 | A / B / C 原子 | 197,510 / 18,943 / 17,767 |
 | level 1 / 2 / 3 | 3,751 / 7,500 / 3,749 |
+| SFT / RL / test | 4,000 / 8,000 / 3,000（无独立 dev） |
+| 双严格 SFT 监督 | 11,892 / 12,000 训练样本 |
+| 无监督训练样本 | 108（保留在 canonical，不进入 SFT baseline） |
+| 固定评测子集 | test 内 1,500 条（保留历史 500 条锚点） |
 | 评测前人工分层审查 | 首轮 18/30 通过；修正后 30/30 通过 |
 
 能力标签描述记忆对当前回答的使用强度：
@@ -39,17 +43,22 @@ pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/
 发布 SHA-256：
 
 ```text
-8bc18ae468e1ab1d41ffa4556c6e042a62538eca01e97029db94f850c2c46dc4
+f76b9d6b1d07c6e27e975562ce5b05a338a6d59f093674eea947d65e74e59f50
 ```
 
 ## 当前入口
 
 - [v2.4.1 数据、质检与人工门禁](docs/current/v2.4.1/README.md)
+- [v2.4.1 正式划分、ID 清单与统计](sft/releases/memcalib-v241-sft4000-rl8000-test3000/split-manifest.json)
+- [v2.4.1 正式 1,500 条 Benchmark Test 发布包](evaluation/current/v2.4.1/releases/memcalib-v241-benchmark-test-eval-1500/release-manifest.json)
+- [v2.4.1 训练字段、直接拼接与反事实契约](docs/current/v2.4.1/training-fields.md)
 - [30 条评测前逐样本人工审查报告](docs/current/v2.4.1/review/memcalib-v241-manual-review-report-30.md)
 - [30 条完整监督审查样本](docs/current/v2.4.1/review/memcalib-v241-manual-review-sample-30.jsonl)
 - [v2.4.1 非思考九模型评测](evaluation/current/v2.4.1/README.md)
-- [DeepSeek-V4-Pro Judge 三轮 Non-Think 聚合结果](evaluation/current/v2.4.1/analyses/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/aggregate/README.md)
-- [三轮聚合可视化表](evaluation/current/v2.4.1/analyses/memcalib-v241-nonthinking-nine-models-deepseek-v4-pro-judge-three-repeats/aggregate/three-repeat-summary.html)
+- [正式 1,500 条九模型三轮 Non-Think 聚合结果](evaluation/current/v2.4.1/analyses/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/aggregate/README.md)
+- [正式九模型三轮聚合可视化表](evaluation/current/v2.4.1/analyses/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/aggregate/three-repeat-summary.html)
+- [本地 vLLM 两模型 1,500 条三轮 Non-Think 聚合结果](evaluation/current/v2.4.1/analyses/memcalib-v241-local-baselines-1500-nonthinking-vllm/aggregate/README.md)
+- [本地 vLLM 两模型三轮聚合可视化表](evaluation/current/v2.4.1/analyses/memcalib-v241-local-baselines-1500-nonthinking-vllm/aggregate/three-repeat-summary.html)
 - [中文样本级三层主指标、公式与区间](evaluation/current/v2.4.1/analyses/three-layer-metrics-nonthinking/README.md)
 - [机器生成的样本级分布明细](evaluation/current/v2.4.1/analyses/sample-level-nonthinking/README.md)
 - [原子级候选指标与诊断图](evaluation/current/v2.4.1/analyses/candidate-metrics-nonthinking/README.md)
@@ -58,7 +67,34 @@ pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/
 
 ## 当前评测摘要
 
-主口径为 **Non-thinking**，与训练设置一致。正式 `test_eval` 子集冻结 500 个历史评测 ID；当前跨模型主表采用其中 494 个完全配对 ID。九个模型在同一批样本上独立评测三轮，每轮均包含 Full-memory 与 No-memory：每轮 8,892 个回答，三轮共 26,676 个回答。八个百炼模型关闭 thinking，Codex GPT-5.6 Sol 使用 `reasoning_effort=none`。三轮所有主判分均由关闭 thinking 的 DeepSeek-V4-Pro 完成，共 26,676/26,676；另有 1,350 条同 Judge 分层复判。百炼回答与 Judge 全程只使用第二个、模型覆盖更广的 key，未占用用于训练的快速 key。
+正式 `test_eval` 已扩展并锁定为 1,500 条，领域为 health_seed/general/coding = 750/375/375；它保留原 500 条评测集作为可追溯锚点，新增 1,000 条，并保证归一化问题文本无重复。正式评测覆盖 6 个百炼模型、3 个公司统一推理平台模型和 2 个本地 vLLM 基线；主口径均为 Full-memory、Non-Think、三轮独立生成，Judge 为关闭 thinking 的 DeepSeek-V4-Pro。
+
+正式 1,500 条上的九个远程推理模型三轮结果如下（数值为百分数，`±` 后为总体标准差百分点）：
+
+| Model | SCS ↑ | Exact ↑ | sOPB ↓ | sUPB ↓ | Any-OPB ↓ | Any-UPB ↓ |
+|---|---:|---:|---:|---:|---:|---:|
+| Qwen3.8-Max | 34.22±0.52 | 17.80±0.48 | 50.11±0.33 | 27.46±0.32 | 66.09±0.51 | 41.16±0.21 |
+| Kimi-K2.6 | 35.54±0.18 | 20.00±0.28 | 53.83±0.19 | 19.94±0.60 | 68.67±0.63 | 31.56±0.98 |
+| DeepSeek-V4-Flash-0731 | 33.72±0.76 | 16.96±0.93 | 55.64±1.08 | 20.86±0.59 | 73.31±1.01 | 32.64±0.76 |
+| GLM-5.2 | 34.40±0.45 | 18.20±0.61 | 52.13±0.42 | 23.42±0.31 | 67.53±0.88 | 35.73±0.71 |
+| Qwen3.5-35B-A3B | 24.78±0.43 | 10.47±0.48 | 67.55±0.65 | **19.04±0.63** | 83.07±0.63 | **30.47±1.00** |
+| Qwen3-8B | 31.84±0.09 | 15.56±0.30 | **34.68±0.33** | 46.57±0.12 | **48.22±0.68** | 62.47±0.29 |
+| GPT-5.6-SOL | **46.25±0.60** | **28.40±0.85** | 38.45±0.15 | 22.92±0.40 | 53.33±0.45 | 35.82±0.51 |
+| Claude Sonnet 4.6 | 36.44±0.34 | 19.09±0.33 | 48.89±0.62 | 24.77±0.37 | 65.40±0.77 | 37.93±0.38 |
+| Gemini 3.5 Flash | 34.96±0.53 | 17.96±0.58 | 51.65±0.45 | 24.73±0.14 | 68.27±0.38 | 37.69±0.25 |
+
+三个公司统一推理平台模型与六个百炼模型使用同一锁定样本、提示词、三轮种子和 Judge 协议。原计划的 Claude Opus 5 在 415 条有效回答后被平台访问策略阻断；这些结果只保留为失败审计，正式评测改用 Claude Sonnet 4.6 并从零完成三轮，未将两个 Claude 模型混合统计。九模型三轮共完成 40,500/40,500 条主 Judge 和 675/675 条分层副 Judge，定向重试后 API 失败与结构 invalid 均为 0。
+
+两个本地 vLLM 基线使用相同评测设置，但与九个远程推理模型分表报告：
+
+| Model | SCS ↑ | Exact ↑ | sOPB ↓ | sUPB ↓ | Any-OPB ↓ | Any-UPB ↓ |
+|---|---:|---:|---:|---:|---:|---:|
+| Qwen3.5-35B-A3B (Local vLLM) | 24.59±0.12 | 10.13±0.16 | 67.74±0.16 | **18.55±0.26** | 83.20±0.14 | **29.82±0.52** |
+| Ministral-3-8B-Instruct-2512 (Local vLLM) | **30.41±0.13** | **14.84±0.21** | **59.12±0.06** | 24.10±0.22 | **75.62±0.03** | 37.00±0.28 |
+
+三轮共完成 9,000 条主 Judge 和 150 条分层副 Judge，Judge API 失败与结构 invalid 均为 0。Qwen3.5-35B-A3B 第三轮有 1 条上游回答生成失败；该样本未被删除，而是按预注册失败策略保留在分母中并计为任务质量 0、全部目标原子预测为 A。
+
+以下结果仅是扩展前 494 个完全配对 ID 上的历史 Non-thinking 九模型实验，不是新 1,500 条 benchmark 的分数。该历史实验在同一批样本上独立评测三轮，每轮均包含 Full-memory 与 No-memory：每轮 8,892 个回答，三轮共 26,676 个回答。八个百炼模型关闭 thinking，Codex GPT-5.6 Sol 使用 `reasoning_effort=none`。三轮所有主判分均由关闭 thinking 的 DeepSeek-V4-Pro 完成，共 26,676/26,676；另有 1,350 条同 Judge 分层复判。
 
 主报告采用三层样本级口径：
 
@@ -66,7 +102,7 @@ pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/
 - 方向主指标：`sOPB(0.5)` 与 `sUPB(0.5)`；
 - 事件率护栏：`Any-OPB` 与 `Any-UPB`。
 
-下表报告三轮 Full-memory 的均值与三轮总体标准差（`均值 ± SD`）：
+下表报告历史 494 条实验中三轮 Full-memory 的均值与三轮总体标准差（`均值 ± SD`）：
 
 | 模型 | SCS↑ | sOPB↓ | sUPB↓ | Any-OPB↓ | Any-UPB↓ | Exact↑ |
 |---|---:|---:|---:|---:|---:|---:|

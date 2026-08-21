@@ -1,0 +1,1177 @@
+{
+  "schema_version": "memcalib-evaluation-metrics-v2",
+  "models": {
+    "ministral3-8b-instruct-2512-bf16-local-vllm": {
+      "full_memory": {
+        "answers": 1500,
+        "atoms": 23307,
+        "label_counts": {
+          "A": 19634,
+          "B": 1903,
+          "C": 1770
+        },
+        "label_success": {
+          "A": 0.8673729245186921,
+          "B": 0.7167630057803468,
+          "C": 0.8231638418079096
+        },
+        "memcalib_score": 0.8024332573689827,
+        "strict_sample_accuracy": 0.14733333333333334,
+        "mixed_parent_strict_accuracy": null,
+        "mixed_parent_count": 0,
+        "verdict_counts": {
+          "correct_bounded_use": 1364,
+          "correct_control": 1457,
+          "correct_suppression": 17030,
+          "over_use": 2628,
+          "under_use": 828
+        },
+        "mean_task_quality": 2.452,
+        "safety_failure_rate": 0.1,
+        "opb_error_rate": 0.07261937063608224,
+        "upb_error_rate": 0.22373074331044351,
+        "opb_resistance": 0.9273806293639177,
+        "upb_resistance": 0.7762692566895565,
+        "memcalib_h_score": 0.8451232588548717,
+        "micro_opb_error_rate": 0.12202256581696615,
+        "micro_upb_error_rate": 0.2254288047917234,
+        "micro_memcalib_h_score": 0.8230390543018828,
+        "directional_components": {
+          "A_over_rate": 0.13262707548130795,
+          "B_over_rate": 0.012611665790856543,
+          "B_under_rate": 0.27062532842879666,
+          "C_under_rate": 0.1768361581920904
+        },
+        "scorable_atoms": 23307,
+        "scorable_coverage": 1.0,
+        "contradiction_rate": 0.00030033895396232893,
+        "explicit_contradiction_rate": 0.00012871669455528383,
+        "constraint_violation_rate": 0.0001716222594070451,
+        "full_confusion_available": true,
+        "confusion_matrix": {
+          "A": {
+            "A": 17030,
+            "B": 1901,
+            "C": 703
+          },
+          "B": {
+            "A": 515,
+            "B": 1364,
+            "C": 24
+          },
+          "C": {
+            "A": 145,
+            "B": 168,
+            "C": 1457
+          }
+        }
+      },
+      "no_memory": {
+        "answers": 0,
+        "atoms": 0,
+        "label_counts": {
+          "A": 0,
+          "B": 0,
+          "C": 0
+        },
+        "label_success": {
+          "A": null,
+          "B": null,
+          "C": null
+        },
+        "memcalib_score": null,
+        "strict_sample_accuracy": null,
+        "mixed_parent_strict_accuracy": null,
+        "mixed_parent_count": 0,
+        "verdict_counts": {},
+        "mean_task_quality": null,
+        "safety_failure_rate": null,
+        "opb_error_rate": null,
+        "upb_error_rate": null,
+        "opb_resistance": null,
+        "upb_resistance": null,
+        "memcalib_h_score": null,
+        "micro_opb_error_rate": null,
+        "micro_upb_error_rate": null,
+        "micro_memcalib_h_score": null,
+        "directional_components": {
+          "A_over_rate": null,
+          "B_over_rate": null,
+          "B_under_rate": null,
+          "C_under_rate": null
+        },
+        "scorable_atoms": 0,
+        "scorable_coverage": null,
+        "contradiction_rate": null,
+        "explicit_contradiction_rate": null,
+        "constraint_violation_rate": null,
+        "full_confusion_available": false,
+        "confusion_matrix": null
+      },
+      "paired": {
+        "delta_A": null,
+        "delta_B": null,
+        "delta_C": null,
+        "A_contamination_effect": null,
+        "paired_atom_counts": {
+          "A": 0,
+          "B": 0,
+          "C": 0
+        },
+        "memory_induced_opb": null,
+        "memory_reduced_upb": null
+      },
+      "panels": {
+        "coding": {
+          "full_memory": {
+            "answers": 375,
+            "atoms": 5880,
+            "label_counts": {
+              "A": 5017,
+              "B": 255,
+              "C": 608
+            },
+            "label_success": {
+              "A": 0.8507075941797887,
+              "B": 0.8392156862745098,
+              "C": 0.8832236842105263
+            },
+            "memcalib_score": 0.857715654888275,
+            "strict_sample_accuracy": 0.17066666666666666,
+            "mixed_parent_strict_accuracy": null,
+            "mixed_parent_count": 0,
+            "verdict_counts": {
+              "correct_bounded_use": 214,
+              "correct_control": 537,
+              "correct_suppression": 4268,
+              "over_use": 752,
+              "under_use": 109
+            },
+            "mean_task_quality": 2.509333333333333,
+            "safety_failure_rate": 0.0,
+            "opb_error_rate": 0.0805285558512821,
+            "upb_error_rate": 0.13289796181630548,
+            "opb_resistance": 0.919471444148718,
+            "upb_resistance": 0.8671020381836945,
+            "memcalib_h_score": 0.8925191951603322,
+            "micro_opb_error_rate": 0.1426403641881639,
+            "micro_upb_error_rate": 0.12630359212050984,
+            "micro_memcalib_h_score": 0.8654509330296877,
+            "directional_components": {
+              "A_over_rate": 0.14929240582021128,
+              "B_over_rate": 0.011764705882352941,
+              "B_under_rate": 0.14901960784313725,
+              "C_under_rate": 0.11677631578947369
+            },
+            "scorable_atoms": 5880,
+            "scorable_coverage": 1.0,
+            "contradiction_rate": 0.0003401360544217687,
+            "explicit_contradiction_rate": 0.0003401360544217687,
+            "constraint_violation_rate": 0.0,
+            "full_confusion_available": true,
+            "confusion_matrix": {
+              "A": {
+                "A": 4268,
+                "B": 624,
+                "C": 125
+              },
+              "B": {
+                "A": 38,
+                "B": 214,
+                "C": 3
+              },
+              "C": {
+                "A": 28,
+                "B": 43,
+                "C": 537
+              }
+            }
+          },
+          "no_memory": {
+            "answers": 0,
+            "atoms": 0,
+            "label_counts": {
+              "A": 0,
+              "B": 0,
+              "C": 0
+            },
+            "label_success": {
+              "A": null,
+              "B": null,
+              "C": null
+            },
+            "memcalib_score": null,
+            "strict_sample_accuracy": null,
+            "mixed_parent_strict_accuracy": null,
+            "mixed_parent_count": 0,
+            "verdict_counts": {},
+            "mean_task_quality": null,
+            "safety_failure_rate": null,
+            "opb_error_rate": null,
+            "upb_error_rate": null,
+            "opb_resistance": null,
+            "upb_resistance": null,
+            "memcalib_h_score": null,
+            "micro_opb_error_rate": null,
+            "micro_upb_error_rate": null,
+            "micro_memcalib_h_score": null,
+            "directional_components": {
+              "A_over_rate": null,
+              "B_over_rate": null,
+              "B_under_rate": null,
+              "C_under_rate": null
+            },
+            "scorable_atoms": 0,
+            "scorable_coverage": null,
+            "contradiction_rate": null,
+            "explicit_contradiction_rate": null,
+            "constraint_violation_rate": null,
+            "full_confusion_available": false,
+            "confusion_matrix": null
+          },
+          "paired": {
+            "delta_A": null,
+            "delta_B": null,
+            "delta_C": null,
+            "A_contamination_effect": null,
+            "paired_atom_counts": {
+              "A": 0,
+              "B": 0,
+              "C": 0
+            },
+            "memory_induced_opb": null,
+            "memory_reduced_upb": null
+          }
+        },
+        "general": {
+          "full_memory": {
+            "answers": 375,
+            "atoms": 5836,
+            "label_counts": {
+              "A": 5038,
+              "B": 500,
+              "C": 298
+            },
+            "label_success": {
+              "A": 0.868598650258039,
+              "B": 0.756,
+              "C": 0.8590604026845637
+            },
+            "memcalib_score": 0.8278863509808675,
+            "strict_sample_accuracy": 0.15466666666666667,
+            "mixed_parent_strict_accuracy": null,
+            "mixed_parent_count": 0,
+            "verdict_counts": {
+              "correct_bounded_use": 378,
+              "correct_control": 256,
+              "correct_suppression": 4376,
+              "over_use": 670,
+              "under_use": 156
+            },
+            "mean_task_quality": 2.6346666666666665,
+            "safety_failure_rate": 0.0026666666666666666,
+            "opb_error_rate": 0.07370067487098056,
+            "upb_error_rate": 0.18446979865771812,
+            "opb_resistance": 0.9262993251290195,
+            "upb_resistance": 0.8155302013422818,
+            "memcalib_h_score": 0.8673926623072841,
+            "micro_opb_error_rate": 0.12098230408089564,
+            "micro_upb_error_rate": 0.19548872180451127,
+            "micro_memcalib_h_score": 0.8401158055176975,
+            "directional_components": {
+              "A_over_rate": 0.1314013497419611,
+              "B_over_rate": 0.016,
+              "B_under_rate": 0.228,
+              "C_under_rate": 0.14093959731543623
+            },
+            "scorable_atoms": 5836,
+            "scorable_coverage": 1.0,
+            "contradiction_rate": 0.00017135023989033586,
+            "explicit_contradiction_rate": 0.00017135023989033586,
+            "constraint_violation_rate": 0.0,
+            "full_confusion_available": true,
+            "confusion_matrix": {
+              "A": {
+                "A": 4376,
+                "B": 442,
+                "C": 220
+              },
+              "B": {
+                "A": 114,
+                "B": 378,
+                "C": 8
+              },
+              "C": {
+                "A": 26,
+                "B": 16,
+                "C": 256
+              }
+            }
+          },
+          "no_memory": {
+            "answers": 0,
+            "atoms": 0,
+            "label_counts": {
+              "A": 0,
+              "B": 0,
+              "C": 0
+            },
+            "label_success": {
+              "A": null,
+              "B": null,
+              "C": null
+            },
+            "memcalib_score": null,
+            "strict_sample_accuracy": null,
+            "mixed_parent_strict_accuracy": null,
+            "mixed_parent_count": 0,
+            "verdict_counts": {},
+            "mean_task_quality": null,
+            "safety_failure_rate": null,
+            "opb_error_rate": null,
+            "upb_error_rate": null,
+            "opb_resistance": null,
+            "upb_resistance": null,
+            "memcalib_h_score": null,
+            "micro_opb_error_rate": null,
+            "micro_upb_error_rate": null,
+            "micro_memcalib_h_score": null,
+            "directional_components": {
+              "A_over_rate": null,
+              "B_over_rate": null,
+              "B_under_rate": null,
+              "C_under_rate": null
+            },
+            "scorable_atoms": 0,
+            "scorable_coverage": null,
+            "contradiction_rate": null,
+            "explicit_contradiction_rate": null,
+            "constraint_violation_rate": null,
+            "full_confusion_available": false,
+            "confusion_matrix": null
+          },
+          "paired": {
+            "delta_A": null,
+            "delta_B": null,
+            "delta_C": null,
+            "A_contamination_effect": null,
+            "paired_atom_counts": {
+              "A": 0,
+              "B": 0,
+              "C": 0
+            },
+            "memory_induced_opb": null,
+            "memory_reduced_upb": null
+          }
+        },
+        "health_seed": {
+          "full_memory": {
+            "answers": 750,
+            "atoms": 11591,
+            "label_counts": {
+              "A": 9579,
+              "B": 1148,
+              "C": 864
+            },
+            "label_success": {
+              "A": 0.8754567282597349,
+              "B": 0.6724738675958188,
+              "C": 0.7685185185185185
+            },
+            "memcalib_score": 0.7721497047913575,
+            "strict_sample_accuracy": 0.132,
+            "mixed_parent_strict_accuracy": null,
+            "mixed_parent_count": 0,
+            "verdict_counts": {
+              "correct_bounded_use": 772,
+              "correct_control": 664,
+              "correct_suppression": 8386,
+              "over_use": 1206,
+              "under_use": 563
+            },
+            "mean_task_quality": 2.332,
+            "safety_failure_rate": 0.19866666666666666,
+            "opb_error_rate": 0.06793365677605592,
+            "upb_error_rate": 0.273841786036908,
+            "opb_resistance": 0.9320663432239441,
+            "upb_resistance": 0.726158213963092,
+            "memcalib_h_score": 0.8163280759015656,
+            "micro_opb_error_rate": 0.11242658711662161,
+            "micro_upb_error_rate": 0.2798210735586481,
+            "micro_memcalib_h_score": 0.7951618567032689,
+            "directional_components": {
+              "A_over_rate": 0.12454327174026517,
+              "B_over_rate": 0.01132404181184669,
+              "B_under_rate": 0.3162020905923345,
+              "C_under_rate": 0.23148148148148148
+            },
+            "scorable_atoms": 11591,
+            "scorable_coverage": 1.0,
+            "contradiction_rate": 0.0003450953325856268,
+            "explicit_contradiction_rate": 0.0,
+            "constraint_violation_rate": 0.0003450953325856268,
+            "full_confusion_available": true,
+            "confusion_matrix": {
+              "A": {
+                "A": 8386,
+                "B": 835,
+                "C": 358
+              },
+              "B": {
+                "A": 363,
+                "B": 772,
+                "C": 13
+              },
+              "C": {
+                "A": 91,
+                "B": 109,
+                "C": 664
+              }
+            }
+          },
+          "no_memory": {
+            "answers": 0,
+            "atoms": 0,
+            "label_counts": {
+              "A": 0,
+              "B": 0,
+              "C": 0
+            },
+            "label_success": {
+              "A": null,
+              "B": null,
+              "C": null
+            },
+            "memcalib_score": null,
+            "strict_sample_accuracy": null,
+            "mixed_parent_strict_accuracy": null,
+            "mixed_parent_count": 0,
+            "verdict_counts": {},
+            "mean_task_quality": null,
+            "safety_failure_rate": null,
+            "opb_error_rate": null,
+            "upb_error_rate": null,
+            "opb_resistance": null,
+            "upb_resistance": null,
+            "memcalib_h_score": null,
+            "micro_opb_error_rate": null,
+            "micro_upb_error_rate": null,
+            "micro_memcalib_h_score": null,
+            "directional_components": {
+              "A_over_rate": null,
+              "B_over_rate": null,
+              "B_under_rate": null,
+              "C_under_rate": null
+            },
+            "scorable_atoms": 0,
+            "scorable_coverage": null,
+            "contradiction_rate": null,
+            "explicit_contradiction_rate": null,
+            "constraint_violation_rate": null,
+            "full_confusion_available": false,
+            "confusion_matrix": null
+          },
+          "paired": {
+            "delta_A": null,
+            "delta_B": null,
+            "delta_C": null,
+            "A_contamination_effect": null,
+            "paired_atom_counts": {
+              "A": 0,
+              "B": 0,
+              "C": 0
+            },
+            "memory_induced_opb": null,
+            "memory_reduced_upb": null
+          }
+        }
+      },
+      "bootstrap": {
+        "full_memory_label_success": {
+          "A": {
+            "estimate": 0.8673729245186921,
+            "ci_low": 0.8593042569466909,
+            "ci_high": 0.8750898276004319,
+            "replicates": 2000,
+            "clusters": 1500
+          },
+          "B": {
+            "estimate": 0.7167630057803468,
+            "ci_low": 0.694559938403222,
+            "ci_high": 0.7393171396537024,
+            "replicates": 2000,
+            "clusters": 1248
+          },
+          "C": {
+            "estimate": 0.8231638418079096,
+            "ci_low": 0.8036114840874937,
+            "ci_high": 0.842163370798137,
+            "replicates": 2000,
+            "clusters": 1258
+          }
+        },
+        "paired_delta": {},
+        "directional": {
+          "full_memory": {
+            "opb_error_rate": {
+              "estimate": 0.07261937063608224,
+              "ci_low": 0.06804199302086357,
+              "ci_high": 0.07780231941594495,
+              "replicates": 2000,
+              "clusters": 1500
+            },
+            "upb_error_rate": {
+              "estimate": 0.22373074331044351,
+              "ci_low": 0.2079947275493375,
+              "ci_high": 0.23957649086881808,
+              "replicates": 2000,
+              "clusters": 1500
+            },
+            "memcalib_h_score": {
+              "estimate": 0.8451232588548717,
+              "ci_low": 0.8355095682832473,
+              "ci_high": 0.8543947489938839,
+              "replicates": 2000,
+              "clusters": 1500
+            }
+          },
+          "paired": {}
+        }
+      }
+    },
+    "qwen35-35b-a3b-local-vllm": {
+      "full_memory": {
+        "answers": 1500,
+        "atoms": 23307,
+        "label_counts": {
+          "A": 19634,
+          "B": 1903,
+          "C": 1770
+        },
+        "label_success": {
+          "A": 0.8242844046042579,
+          "B": 0.7682606410930111,
+          "C": 0.892090395480226
+        },
+        "memcalib_score": 0.8282118137258316,
+        "strict_sample_accuracy": 0.10333333333333333,
+        "mixed_parent_strict_accuracy": null,
+        "mixed_parent_count": 0,
+        "verdict_counts": {
+          "correct_bounded_use": 1462,
+          "correct_control": 1579,
+          "correct_suppression": 16184,
+          "over_use": 3472,
+          "under_use": 610
+        },
+        "mean_task_quality": 3.5713333333333335,
+        "safety_failure_rate": 0.006666666666666667,
+        "opb_error_rate": 0.09363814451868029,
+        "upb_error_rate": 0.16404413489257225,
+        "opb_resistance": 0.9063618554813198,
+        "upb_resistance": 0.8359558651074277,
+        "memcalib_h_score": 0.8697363288519301,
+        "micro_opb_error_rate": 0.16121093931373914,
+        "micro_upb_error_rate": 0.1660767764769943,
+        "micro_memcalib_h_score": 0.836349064865014,
+        "directional_components": {
+          "A_over_rate": 0.17571559539574208,
+          "B_over_rate": 0.011560693641618497,
+          "B_under_rate": 0.22017866526537047,
+          "C_under_rate": 0.10790960451977401
+        },
+        "scorable_atoms": 23307,
+        "scorable_coverage": 1.0,
+        "contradiction_rate": 0.00038615008366585146,
+        "explicit_contradiction_rate": 0.0003432445188140902,
+        "constraint_violation_rate": 4.2905564851761274e-05,
+        "full_confusion_available": true,
+        "confusion_matrix": {
+          "A": {
+            "A": 16184,
+            "B": 2664,
+            "C": 786
+          },
+          "B": {
+            "A": 419,
+            "B": 1462,
+            "C": 22
+          },
+          "C": {
+            "A": 92,
+            "B": 99,
+            "C": 1579
+          }
+        }
+      },
+      "no_memory": {
+        "answers": 0,
+        "atoms": 0,
+        "label_counts": {
+          "A": 0,
+          "B": 0,
+          "C": 0
+        },
+        "label_success": {
+          "A": null,
+          "B": null,
+          "C": null
+        },
+        "memcalib_score": null,
+        "strict_sample_accuracy": null,
+        "mixed_parent_strict_accuracy": null,
+        "mixed_parent_count": 0,
+        "verdict_counts": {},
+        "mean_task_quality": null,
+        "safety_failure_rate": null,
+        "opb_error_rate": null,
+        "upb_error_rate": null,
+        "opb_resistance": null,
+        "upb_resistance": null,
+        "memcalib_h_score": null,
+        "micro_opb_error_rate": null,
+        "micro_upb_error_rate": null,
+        "micro_memcalib_h_score": null,
+        "directional_components": {
+          "A_over_rate": null,
+          "B_over_rate": null,
+          "B_under_rate": null,
+          "C_under_rate": null
+        },
+        "scorable_atoms": 0,
+        "scorable_coverage": null,
+        "contradiction_rate": null,
+        "explicit_contradiction_rate": null,
+        "constraint_violation_rate": null,
+        "full_confusion_available": false,
+        "confusion_matrix": null
+      },
+      "paired": {
+        "delta_A": null,
+        "delta_B": null,
+        "delta_C": null,
+        "A_contamination_effect": null,
+        "paired_atom_counts": {
+          "A": 0,
+          "B": 0,
+          "C": 0
+        },
+        "memory_induced_opb": null,
+        "memory_reduced_upb": null
+      },
+      "panels": {
+        "coding": {
+          "full_memory": {
+            "answers": 375,
+            "atoms": 5880,
+            "label_counts": {
+              "A": 5017,
+              "B": 255,
+              "C": 608
+            },
+            "label_success": {
+              "A": 0.76161052421766,
+              "B": 0.8941176470588236,
+              "C": 0.9424342105263158
+            },
+            "memcalib_score": 0.8660541272675998,
+            "strict_sample_accuracy": 0.056,
+            "mixed_parent_strict_accuracy": null,
+            "mixed_parent_count": 0,
+            "verdict_counts": {
+              "correct_bounded_use": 228,
+              "correct_control": 573,
+              "correct_suppression": 3821,
+              "over_use": 1200,
+              "under_use": 58
+            },
+            "mean_task_quality": 3.7306666666666666,
+            "safety_failure_rate": 0.0,
+            "opb_error_rate": 0.12703787514607198,
+            "upb_error_rate": 0.07388093395252837,
+            "opb_resistance": 0.872962124853928,
+            "upb_resistance": 0.9261190660474716,
+            "memcalib_h_score": 0.898755288925529,
+            "micro_opb_error_rate": 0.2276176024279211,
+            "micro_upb_error_rate": 0.06720741599073002,
+            "micro_memcalib_h_score": 0.8450423918445968,
+            "directional_components": {
+              "A_over_rate": 0.23838947578234004,
+              "B_over_rate": 0.01568627450980392,
+              "B_under_rate": 0.09019607843137255,
+              "C_under_rate": 0.05756578947368421
+            },
+            "scorable_atoms": 5880,
+            "scorable_coverage": 1.0,
+            "contradiction_rate": 0.0003401360544217687,
+            "explicit_contradiction_rate": 0.0003401360544217687,
+            "constraint_violation_rate": 0.0,
+            "full_confusion_available": true,
+            "confusion_matrix": {
+              "A": {
+                "A": 3821,
+                "B": 1026,
+                "C": 170
+              },
+              "B": {
+                "A": 23,
+                "B": 228,
+                "C": 4
+              },
+              "C": {
+                "A": 12,
+                "B": 23,
+                "C": 573
+              }
+            }
+          },
+          "no_memory": {
+            "answers": 0,
+            "atoms": 0,
+            "label_counts": {
+              "A": 0,
+              "B": 0,
+              "C": 0
+            },
+            "label_success": {
+              "A": null,
+              "B": null,
+              "C": null
+            },
+            "memcalib_score": null,
+            "strict_sample_accuracy": null,
+            "mixed_parent_strict_accuracy": null,
+            "mixed_parent_count": 0,
+            "verdict_counts": {},
+            "mean_task_quality": null,
+            "safety_failure_rate": null,
+            "opb_error_rate": null,
+            "upb_error_rate": null,
+            "opb_resistance": null,
+            "upb_resistance": null,
+            "memcalib_h_score": null,
+            "micro_opb_error_rate": null,
+            "micro_upb_error_rate": null,
+            "micro_memcalib_h_score": null,
+            "directional_components": {
+              "A_over_rate": null,
+              "B_over_rate": null,
+              "B_under_rate": null,
+              "C_under_rate": null
+            },
+            "scorable_atoms": 0,
+            "scorable_coverage": null,
+            "contradiction_rate": null,
+            "explicit_contradiction_rate": null,
+            "constraint_violation_rate": null,
+            "full_confusion_available": false,
+            "confusion_matrix": null
+          },
+          "paired": {
+            "delta_A": null,
+            "delta_B": null,
+            "delta_C": null,
+            "A_contamination_effect": null,
+            "paired_atom_counts": {
+              "A": 0,
+              "B": 0,
+              "C": 0
+            },
+            "memory_induced_opb": null,
+            "memory_reduced_upb": null
+          }
+        },
+        "general": {
+          "full_memory": {
+            "answers": 375,
+            "atoms": 5836,
+            "label_counts": {
+              "A": 5038,
+              "B": 500,
+              "C": 298
+            },
+            "label_success": {
+              "A": 0.8171893608574832,
+              "B": 0.75,
+              "C": 0.8355704697986577
+            },
+            "memcalib_score": 0.800919943552047,
+            "strict_sample_accuracy": 0.07466666666666667,
+            "mixed_parent_strict_accuracy": null,
+            "mixed_parent_count": 0,
+            "verdict_counts": {
+              "correct_bounded_use": 375,
+              "correct_control": 249,
+              "correct_suppression": 4117,
+              "over_use": 934,
+              "under_use": 161
+            },
+            "mean_task_quality": 3.3173333333333335,
+            "safety_failure_rate": 0.0026666666666666666,
+            "opb_error_rate": 0.10440531957125844,
+            "upb_error_rate": 0.19421476510067115,
+            "opb_resistance": 0.8955946804287416,
+            "upb_resistance": 0.8057852348993289,
+            "memcalib_h_score": 0.8483196062705473,
+            "micro_opb_error_rate": 0.16865294330083064,
+            "micro_upb_error_rate": 0.20175438596491227,
+            "micro_memcalib_h_score": 0.8144601453712722,
+            "directional_components": {
+              "A_over_rate": 0.18281063914251688,
+              "B_over_rate": 0.026,
+              "B_under_rate": 0.224,
+              "C_under_rate": 0.1644295302013423
+            },
+            "scorable_atoms": 5836,
+            "scorable_coverage": 1.0,
+            "contradiction_rate": 0.0003427004797806717,
+            "explicit_contradiction_rate": 0.00017135023989033586,
+            "constraint_violation_rate": 0.00017135023989033586,
+            "full_confusion_available": true,
+            "confusion_matrix": {
+              "A": {
+                "A": 4117,
+                "B": 637,
+                "C": 284
+              },
+              "B": {
+                "A": 112,
+                "B": 375,
+                "C": 13
+              },
+              "C": {
+                "A": 25,
+                "B": 24,
+                "C": 249
+              }
+            }
+          },
+          "no_memory": {
+            "answers": 0,
+            "atoms": 0,
+            "label_counts": {
+              "A": 0,
+              "B": 0,
+              "C": 0
+            },
+            "label_success": {
+              "A": null,
+              "B": null,
+              "C": null
+            },
+            "memcalib_score": null,
+            "strict_sample_accuracy": null,
+            "mixed_parent_strict_accuracy": null,
+            "mixed_parent_count": 0,
+            "verdict_counts": {},
+            "mean_task_quality": null,
+            "safety_failure_rate": null,
+            "opb_error_rate": null,
+            "upb_error_rate": null,
+            "opb_resistance": null,
+            "upb_resistance": null,
+            "memcalib_h_score": null,
+            "micro_opb_error_rate": null,
+            "micro_upb_error_rate": null,
+            "micro_memcalib_h_score": null,
+            "directional_components": {
+              "A_over_rate": null,
+              "B_over_rate": null,
+              "B_under_rate": null,
+              "C_under_rate": null
+            },
+            "scorable_atoms": 0,
+            "scorable_coverage": null,
+            "contradiction_rate": null,
+            "explicit_contradiction_rate": null,
+            "constraint_violation_rate": null,
+            "full_confusion_available": false,
+            "confusion_matrix": null
+          },
+          "paired": {
+            "delta_A": null,
+            "delta_B": null,
+            "delta_C": null,
+            "A_contamination_effect": null,
+            "paired_atom_counts": {
+              "A": 0,
+              "B": 0,
+              "C": 0
+            },
+            "memory_induced_opb": null,
+            "memory_reduced_upb": null
+          }
+        },
+        "health_seed": {
+          "full_memory": {
+            "answers": 750,
+            "atoms": 11591,
+            "label_counts": {
+              "A": 9579,
+              "B": 1148,
+              "C": 864
+            },
+            "label_success": {
+              "A": 0.86084142394822,
+              "B": 0.7482578397212544,
+              "C": 0.8761574074074074
+            },
+            "memcalib_score": 0.8284188903589605,
+            "strict_sample_accuracy": 0.14133333333333334,
+            "mixed_parent_strict_accuracy": null,
+            "mixed_parent_count": 0,
+            "verdict_counts": {
+              "correct_bounded_use": 859,
+              "correct_control": 757,
+              "correct_suppression": 8246,
+              "over_use": 1338,
+              "under_use": 391
+            },
+            "mean_task_quality": 3.6186666666666665,
+            "safety_failure_rate": 0.012,
+            "opb_error_rate": 0.07175698837432203,
+            "upb_error_rate": 0.18561467608723706,
+            "opb_resistance": 0.928243011625678,
+            "upb_resistance": 0.814385323912763,
+            "memcalib_h_score": 0.8675946216138649,
+            "micro_opb_error_rate": 0.12473198471147572,
+            "micro_upb_error_rate": 0.19433399602385687,
+            "micro_memcalib_h_score": 0.8390260131615598,
+            "directional_components": {
+              "A_over_rate": 0.13915857605177995,
+              "B_over_rate": 0.004355400696864111,
+              "B_under_rate": 0.24738675958188153,
+              "C_under_rate": 0.12384259259259259
+            },
+            "scorable_atoms": 11591,
+            "scorable_coverage": 1.0,
+            "contradiction_rate": 0.0004313691657320335,
+            "explicit_contradiction_rate": 0.0004313691657320335,
+            "constraint_violation_rate": 0.0,
+            "full_confusion_available": true,
+            "confusion_matrix": {
+              "A": {
+                "A": 8246,
+                "B": 1001,
+                "C": 332
+              },
+              "B": {
+                "A": 284,
+                "B": 859,
+                "C": 5
+              },
+              "C": {
+                "A": 55,
+                "B": 52,
+                "C": 757
+              }
+            }
+          },
+          "no_memory": {
+            "answers": 0,
+            "atoms": 0,
+            "label_counts": {
+              "A": 0,
+              "B": 0,
+              "C": 0
+            },
+            "label_success": {
+              "A": null,
+              "B": null,
+              "C": null
+            },
+            "memcalib_score": null,
+            "strict_sample_accuracy": null,
+            "mixed_parent_strict_accuracy": null,
+            "mixed_parent_count": 0,
+            "verdict_counts": {},
+            "mean_task_quality": null,
+            "safety_failure_rate": null,
+            "opb_error_rate": null,
+            "upb_error_rate": null,
+            "opb_resistance": null,
+            "upb_resistance": null,
+            "memcalib_h_score": null,
+            "micro_opb_error_rate": null,
+            "micro_upb_error_rate": null,
+            "micro_memcalib_h_score": null,
+            "directional_components": {
+              "A_over_rate": null,
+              "B_over_rate": null,
+              "B_under_rate": null,
+              "C_under_rate": null
+            },
+            "scorable_atoms": 0,
+            "scorable_coverage": null,
+            "contradiction_rate": null,
+            "explicit_contradiction_rate": null,
+            "constraint_violation_rate": null,
+            "full_confusion_available": false,
+            "confusion_matrix": null
+          },
+          "paired": {
+            "delta_A": null,
+            "delta_B": null,
+            "delta_C": null,
+            "A_contamination_effect": null,
+            "paired_atom_counts": {
+              "A": 0,
+              "B": 0,
+              "C": 0
+            },
+            "memory_induced_opb": null,
+            "memory_reduced_upb": null
+          }
+        }
+      },
+      "bootstrap": {
+        "full_memory_label_success": {
+          "A": {
+            "estimate": 0.8242844046042579,
+            "ci_low": 0.8151384732861011,
+            "ci_high": 0.8328982819912643,
+            "replicates": 2000,
+            "clusters": 1500
+          },
+          "B": {
+            "estimate": 0.7682606410930111,
+            "ci_low": 0.7474566940569656,
+            "ci_high": 0.7883442411952424,
+            "replicates": 2000,
+            "clusters": 1248
+          },
+          "C": {
+            "estimate": 0.892090395480226,
+            "ci_low": 0.875709182785011,
+            "ci_high": 0.9074696446750925,
+            "replicates": 2000,
+            "clusters": 1258
+          }
+        },
+        "paired_delta": {},
+        "directional": {
+          "full_memory": {
+            "opb_error_rate": {
+              "estimate": 0.09363814451868029,
+              "ci_low": 0.08850666922086121,
+              "ci_high": 0.09871673321985873,
+              "replicates": 2000,
+              "clusters": 1500
+            },
+            "upb_error_rate": {
+              "estimate": 0.16404413489257225,
+              "ci_low": 0.15035317624753086,
+              "ci_high": 0.1777119007065738,
+              "replicates": 2000,
+              "clusters": 1500
+            },
+            "memcalib_h_score": {
+              "estimate": 0.8697363288519301,
+              "ci_low": 0.8623068905669251,
+              "ci_high": 0.8771307942629668,
+              "replicates": 2000,
+              "clusters": 1500
+            }
+          },
+          "paired": {}
+        }
+      }
+    }
+  },
+  "judge_agreement": {
+    "overall": {
+      "n": 797,
+      "exact_agreement": 0.9887076537013801,
+      "kappa": 0.9750940094374017
+    },
+    "by_label": {
+      "A": {
+        "n": 671,
+        "exact_agreement": 0.9940387481371088,
+        "kappa": 0.9752571997492533
+      },
+      "B": {
+        "n": 63,
+        "exact_agreement": 0.9523809523809523,
+        "kappa": 0.8943543879262157
+      },
+      "C": {
+        "n": 63,
+        "exact_agreement": 0.9682539682539683,
+        "kappa": 0.8970588235294118
+      }
+    },
+    "by_secondary_judge": {
+      "deepseek-v4-pro": {
+        "n": 797,
+        "exact_agreement": 0.9887076537013801,
+        "kappa": 0.9750940094374017
+      }
+    },
+    "ordered_usage": {
+      "n": 797,
+      "exact_agreement": 0.9836888331242158,
+      "linear_weighted_kappa": 0.9701018344043885
+    },
+    "scorable_exact_agreement": 1.0,
+    "contradiction_exact_agreement": null,
+    "explicit_contradiction_exact_agreement": 1.0,
+    "constraint_violation_exact_agreement": 1.0
+  },
+  "judge_output_quality": {
+    "primary": {
+      "rows": 3000,
+      "rows_with_warnings": 261,
+      "warning_counts": {
+        "ungrounded_evidence_quote": 325
+      },
+      "rows_with_schema_repairs": 0,
+      "schema_repairs": 0
+    },
+    "secondary": {
+      "rows": 50,
+      "rows_with_warnings": 8,
+      "warning_counts": {
+        "ungrounded_evidence_quote": 9
+      },
+      "rows_with_schema_repairs": 0,
+      "schema_repairs": 0
+    }
+  },
+  "evaluation_summary": {
+    "samples": 1500,
+    "conditions": [
+      "full_memory"
+    ],
+    "models": [
+      "ministral3-8b-instruct-2512-bf16-local-vllm",
+      "qwen35-35b-a3b-local-vllm"
+    ],
+    "primary_judgments": 3000,
+    "secondary_judgments": 50
+  },
+  "validity_assessment": {
+    "status": "needs_review",
+    "checks": {
+      "at_least_five_models_complete": false,
+      "judge_exact_agreement_at_least_0.75": true,
+      "judge_kappa_at_least_0.60": true
+    },
+    "failed_checks": [
+      "at_least_five_models_complete"
+    ],
+    "caveats": [
+      "limited_single_score_discrimination"
+    ],
+    "model_score_spread": 0.024613069997058368,
+    "label_profile_spreads": {
+      "A": 0.04308851991443419,
+      "B": 0.05149763531266427,
+      "C": 0.06892655367231637
+    },
+    "max_label_profile_spread": 0.06892655367231637,
+    "models_with_memory_reduced_UPB": 0,
+    "counterfactual_available": false,
+    "human_validation": "pending"
+  }
+}

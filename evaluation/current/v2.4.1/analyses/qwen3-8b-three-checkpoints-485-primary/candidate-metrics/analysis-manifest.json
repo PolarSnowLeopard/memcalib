@@ -1,0 +1,50 @@
+{
+  "schema_version": "memcalib-candidate-metrics-analysis-manifest-v1",
+  "source": {
+    "rows": 1455,
+    "models": 3,
+    "samples_per_model_per_condition": 485,
+    "bootstrap_replicates": 2000,
+    "seed": 20260803,
+    "basis": "ordered-usage-v2.1 primary Judge outputs",
+    "conditions": [
+      "full_memory"
+    ],
+    "primary_judgments": "evaluation/runs/memcalib-v241-qwen3-8b-three-checkpoints-485-primary/judgments/primary.valid.jsonl",
+    "primary_sha256": "eedc58557f8f0dce9df8a5432e01d58186796cbbc778ec44375050ce4e8fef20"
+  },
+  "input_integrity": {
+    "rows": 1455,
+    "unique_answer_request_ids": 1455,
+    "models": [
+      "qwen3-8b-v241-coldstart-4k",
+      "qwen3-8b-v241-sft-atomic-12k",
+      "qwen3-8b-v241-sft-fluent-12k"
+    ],
+    "conditions": [
+      "full_memory"
+    ],
+    "model_condition_buckets": 3,
+    "samples_per_bucket": 485,
+    "common_sample_ids": 485,
+    "atom_signatures_consistent": true
+  },
+  "script": {
+    "path": "evaluation/scripts/analyze_candidate_metrics.py",
+    "sha256": "b826ad71bb774c8541f8b5da4cceca495205c7dba94113f4da5a4ad776593c52"
+  },
+  "artifacts": {
+    "README.md": {
+      "bytes": 7746,
+      "sha256": "5a458eb57b7773b23513f6651761f75bf8252491e071331475994d0e8a5be87b"
+    },
+    "candidate-metrics.csv": {
+      "bytes": 1844,
+      "sha256": "8a347b3ea16c61cd5c7da1854fce77b3f0d04abca3da6a6a7669fd9d494fa910"
+    },
+    "candidate-metrics.json": {
+      "bytes": 40799,
+      "sha256": "477cb6997b62228f5ba23d8c2d32092ced64f7cb3600c2ecc0fe613d016e5809"
+    }
+  }
+}

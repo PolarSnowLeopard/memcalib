@@ -1,0 +1,144 @@
+{
+  "schema_version": "memcalib-v2-multidomain-sample-release-v1",
+  "release": "memcalib-v241-benchmark-test-eval-1500",
+  "status": "locked_release_candidate",
+  "samples": 1500,
+  "seed": 20260807,
+  "ordered_id_sha256": "09c0507cbad3fea278eb72f9565750c67dd73a94864b64dbf80a70c161b6fbfa",
+  "sampling": {
+    "method": "exact_locked_v241_test_eval_1500",
+    "historical_anchor_rows": 500,
+    "new_rows": 1000,
+    "normalized_question_duplicates": 0,
+    "evaluation_status": "not_started_pending_final_model_list"
+  },
+  "preferred_query_id_overlap": {
+    "path": null,
+    "preferred_query_ids": 0,
+    "selected_query_ids": 0,
+    "semantics": "shared query/source identity only; benchmark memory blocks and model-facing rows may differ across versions"
+  },
+  "distribution": {
+    "domains": {
+      "coding": 375,
+      "general": 375,
+      "health_seed": 750
+    },
+    "sources": {
+      "HuggingFaceH4/stack-exchange-preferences": 84,
+      "HuggingFaceH4/ultrachat_200k": 242,
+      "OpenAssistant/oasst1": 43,
+      "OpenAssistant/oasst2": 90,
+      "OpenMed/MedDialog": 377,
+      "codeparrot/apps": 16,
+      "ise-uiuc/Magicoder-OSS-Instruct-75K": 275,
+      "lavita/ChatDoctor-HealthCareMagic-100k": 373
+    },
+    "topics": {
+      "acute_symptoms": 65,
+      "api_library": 87,
+      "cardio": 17,
+      "career_productivity": 21,
+      "chronic_disease": 74,
+      "coding_other": 8,
+      "data_algorithm": 86,
+      "debugging": 84,
+      "digestive": 68,
+      "general_other": 81,
+      "implementation": 60,
+      "learning_explanation": 61,
+      "medication_treatment": 85,
+      "mental_sleep": 29,
+      "neuro": 44,
+      "pediatrics": 91,
+      "planning_advice": 82,
+      "pregnancy_reproductive": 79,
+      "relationships_communication": 44,
+      "respiratory_ent": 74,
+      "skin_allergy": 81,
+      "systems_devops": 20,
+      "testing_quality": 30,
+      "travel_shopping_household": 41,
+      "writing_creative": 88
+    },
+    "release_admission": {
+      "review": 100,
+      "strict_pass": 1400
+    },
+    "atom_count_buckets": {
+      "6-7": 102,
+      "8+": 1398
+    },
+    "difficulty_levels": {
+      "level_1": 375,
+      "level_2": 748,
+      "level_3": 377
+    },
+    "memory_labels": {
+      "A": 19634,
+      "B": 1903,
+      "C": 1770
+    }
+  },
+  "source": {
+    "path": "pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/release/splits/test_eval_1500.jsonl",
+    "rows": 1500,
+    "sha256": "fd74038b645942ba3bd8d1de0c8655d180873aea563ba39f3d02d94d080c4043"
+  },
+  "config": {
+    "path": "evaluation/current/v2.4.1/configs/memcalib-v241-benchmark-test-eval-1500.json",
+    "sha256": "bf8efb3bdc89d1a86627407ad78fc7caa864910d208f6c5aaf4272359e71ee47"
+  },
+  "artifacts": {
+    "hidden": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-benchmark-test-eval-1500/hidden-evaluation.jsonl",
+      "bytes": 196469441,
+      "sha256": "b5ff1c23ae132c1b570f78baef0ca5da6c0a5312bd00a747734188251afc00f7",
+      "rows": 1500
+    },
+    "hidden_gzip": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-benchmark-test-eval-1500/hidden-evaluation.jsonl.gz",
+      "bytes": 26544471,
+      "sha256": "8f4183baf389037f049e12e0ede143f1f7042bf9591b6c667bd2f872737bebaf"
+    },
+    "model_facing": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-benchmark-test-eval-1500/model-facing.jsonl",
+      "bytes": 3544001,
+      "sha256": "0126453e3c393b37874896ff5ff8fd612250b8ac5c0c2fcc614668897200388f",
+      "rows": 1500
+    },
+    "model_facing_gzip": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-benchmark-test-eval-1500/model-facing.jsonl.gz",
+      "bytes": 888311,
+      "sha256": "67cc1adea5fff3691f862d38ffb288a3904b0b3c2658c29a5a53620d9dcae9f8"
+    },
+    "sample_ids": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-benchmark-test-eval-1500/sample-ids.txt",
+      "bytes": 49125,
+      "sha256": "6f6499c9938c6c3e40c2c0624e2bb359049ff897f77f8d13219b06ddbf831320",
+      "rows": 1500
+    }
+  },
+  "privacy_contract": {
+    "model_facing_fields": [
+      "id",
+      "domain",
+      "panel",
+      "source_dataset",
+      "source_topic",
+      "question",
+      "memory_blocks.parent_memory_id",
+      "memory_blocks.memory_text"
+    ],
+    "hidden_only": [
+      "source_answer",
+      "memories",
+      "usage_rubric",
+      "raw_selection",
+      "semantic_qc",
+      "independent_qc",
+      "revision_release_admission",
+      "release_admission"
+    ]
+  }
+}

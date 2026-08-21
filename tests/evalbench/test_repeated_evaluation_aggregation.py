@@ -50,6 +50,26 @@ class RepeatedEvaluationAggregationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "model sets differ"):
             aggregate([first, second])
 
+    def test_aggregate_accepts_full_memory_only_repeats(self) -> None:
+        cell = {field: 0.5 for field in OFFICIAL_FIELDS + SAMPLE_FIELDS}
+        repeats = [
+            {
+                "label": f"repeat-{index}",
+                "official": {},
+                "sample_level": {},
+                "conditions": ["full_memory"],
+                "rows": {"model-a": {"full_memory": dict(cell)}},
+            }
+            for index in (1, 2, 3)
+        ]
+
+        result = aggregate(repeats)
+
+        self.assertEqual(["full_memory"], result["conditions"])
+        self.assertEqual(
+            {"full_memory"}, set(result["models"]["model-a"])
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,88 @@
+{
+  "schema_version": "memcalib-v241-benchmark1500-nine-model-three-seed-full-memory-config-v1",
+  "seed": 42,
+  "repeat_seeds": [42, 43, 44],
+  "source_count": 1500,
+  "sample_count": 1500,
+  "release": "memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory",
+  "source_inputs": {
+    "locked_model_facing_sha256": "0126453e3c393b37874896ff5ff8fd612250b8ac5c0c2fcc614668897200388f",
+    "locked_hidden_evaluation_sha256": "b5ff1c23ae132c1b570f78baef0ca5da6c0a5312bd00a747734188251afc00f7"
+  },
+  "domain_counts": {
+    "health_seed": 750,
+    "general": 375,
+    "coding": 375
+  },
+  "sampling": {
+    "method": "reuse_exact_locked_v241_benchmark_test_eval_1500",
+    "repeat_policy": "three independent Full-memory generations per sample; Bailian receives seeds 42/43/44, while the cross-provider Primus Chat API repeats are labeled 42/43/44 but the provider interface does not enforce seed"
+  },
+  "evaluation_modes": {
+    "leaderboard_required_conditions": ["full_memory"],
+    "official_research_conditions": ["full_memory"],
+    "primary_metrics_condition": "full_memory"
+  },
+  "answer_models": [
+    {"key": "qwen38-max", "model": "qwen3.8-max", "answer_mode": "nonthinking", "channel": "bailian"},
+    {"key": "kimi-k26", "model": "kimi-k2.6", "answer_mode": "nonthinking", "channel": "bailian"},
+    {"key": "deepseek-flash-0731", "model": "deepseek-v4-flash-0731", "answer_mode": "nonthinking", "channel": "bailian"},
+    {"key": "glm52", "model": "glm-5.2", "answer_mode": "nonthinking", "channel": "bailian"},
+    {"key": "qwen35-35b-a3b", "model": "qwen3.5-35b-a3b", "answer_mode": "nonthinking", "channel": "bailian"},
+    {"key": "qwen3-8b", "model": "qwen3-8b", "answer_mode": "nonthinking", "channel": "bailian"},
+    {"key": "claude-sonnet-4-6", "model": "claude-sonnet-4-6", "answer_mode": "nonthinking", "channel": "primus_chat_direct"},
+    {"key": "gpt56-sol", "model": "gpt-5.6-sol", "answer_mode": "nonthinking", "channel": "primus_chat_direct"},
+    {"key": "gemini35-flash", "model": "gemini-3.5-flash", "answer_mode": "nonthinking", "channel": "primus_chat_direct"}
+  ],
+  "answer_prompt": {
+    "path": "evaluation/prompts/answer-system.txt",
+    "sha256": "9a6eae1d8dca3f034c88d769cb0ff3ec798f6533d1dc9e88c4aed8670eae3a7f"
+  },
+  "answer_generation": {
+    "bailian": {
+      "do_sample": true,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "top_k": "omitted because the compatible API rejects -1",
+      "n": 1,
+      "seeds": [42, 43, 44],
+      "max_tokens": 8192,
+      "enable_thinking": false
+    },
+    "primus_chat_direct": {
+      "temperature": 1.0,
+      "max_tokens": 8192,
+      "top_p": "omitted because Claude rejects it as deprecated",
+      "top_k": "omitted for a common cross-provider contract",
+      "seed": "not supported by the provider interface; 42/43/44 are repeat labels only",
+      "thinking": "no explicit cross-provider thinking control is sent; visible answer outputs are checked for non-thinking format"
+    }
+  },
+  "judge_protocol": "ordered-usage-v2.1",
+  "judge_prompt": "evaluation/prompts/judge-system-v2.1.txt",
+  "primary_judge": {"key": "deepseek-v4-pro-primary", "model": "deepseek-v4-pro"},
+  "secondary_judge": {"key": "deepseek-v4-pro-secondary-a", "model": "deepseek-v4-pro"},
+  "deepseek_secondary_judge": {"key": "deepseek-v4-pro-secondary-b", "model": "deepseek-v4-pro"},
+  "judge_generation": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "enable_thinking": false,
+    "top_p": "not_explicitly_set",
+    "top_k": "not_explicitly_set"
+  },
+  "secondary_judge_sampling": {
+    "total": 225,
+    "per_model_per_condition": 25,
+    "stratify_by": [
+      "condition",
+      "source_dataset",
+      "source_topic",
+      "composite_block_revision.difficulty_level",
+      "atom_count_bucket"
+    ]
+  },
+  "credential_policy": {
+    "bailian": "broad_only",
+    "primus_chat_direct": "user-scoped company Primus Chat credentials loaded from a local permission-restricted environment file"
+  }
+}

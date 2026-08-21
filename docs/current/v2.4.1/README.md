@@ -22,8 +22,49 @@ pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/
 SHA-256：
 
 ```text
-8bc18ae468e1ab1d41ffa4556c6e042a62538eca01e97029db94f850c2c46dc4
+f76b9d6b1d07c6e27e975562ce5b05a338a6d59f093674eea947d65e74e59f50
 ```
+
+每个父块同时保存正式评测使用的流畅 `memory_text` 和按原子 ID、原始文本及锁定顺序确定性生成的 `atomic_concat_text`。训练分区中有 11,892 条双严格监督写入同一 canonical JSONL 的顶层 `sft_supervision`；108 条未通过监督门禁的训练记录不含该字段，3,000 条 test 均不含该字段。拼接公式、反事实按 ID 删除规则和 teacher-forced 比较契约见：
+
+- [训练字段、直接拼接与反事实契约](training-fields.md)
+
+## 正式数据划分
+
+v2.4.1 不设置独立 dev 集。15,000 条数据被确定性划分为三个互斥的顶层分区：
+
+| 分区 | 数量 | health_seed | general | coding | 预定用途 |
+|---|---:|---:|---:|---:|---|
+| `sft_cold_start` | 4,000 | 2,000 | 1,000 | 1,000 | SFT 冷启动 |
+| `rl` | 8,000 | 4,000 | 2,000 | 2,000 | 后续强化学习 |
+| `test` | 3,000 | 1,500 | 750 | 750 | 只用于测试 |
+
+`test` 进一步提供两个互斥子集，但它们不是新的顶层分区：
+
+- `test_eval`：最终发布并反复使用的 1,500 条 benchmark Test，领域为 750 / 375 / 375；
+- `test_remaining`：其余 1,500 条测试样本。
+
+新的 `test_eval` 完整保留历史 500 条评测样本作为有序锚点，再按固定种子补充 1,000 条。扩展选择在领域、难度、标签/纠正动作组合、来源和原子数量层面分层，并保证 1,500 条归一化最终问题文本全部唯一。正式 Full-memory、Non-Think 评测现已完成 6 个百炼模型、3 个公司统一推理平台模型和 2 个本地 vLLM 基线；所有模型均独立生成三轮，并由关闭 thinking 的 DeepSeek-V4-Pro 判分。
+
+划分使用固定种子，并在领域、难度、标签/纠正动作组合、来源和原子数量层面保持分层。相同最终问题文本必须整体进入同一分区；三大分区之间的记录 ID、来源身份、原始问题和最终问题精确重叠均为 0。历史训练 pilot 中有 1 条与固定 test 样本共享完全相同的问题，因此按防泄漏规则移入 test；其余 499 条保留在 SFT 冷启动集。
+
+本地 JSONL：
+
+```text
+pipeline/data/multidomain/full-v2/revision-coding-text-observable-v24/v241/release/splits/
+  sft_cold_start_4000.jsonl
+  rl_8000.jsonl
+  test_3000.jsonl
+  test_eval_1500.jsonl
+  test_remaining_1500.jsonl
+  test_eval_anchor_500.jsonl
+```
+
+可复现控制文件、ID 清单、分布统计和各文件 SHA-256 见：
+
+- [v2.4.1 划分 manifest](../../../sft/releases/memcalib-v241-sft4000-rl8000-test3000/split-manifest.json)
+
+划分脚本只按 ID 原样分流记录，不给记录新增 split 字段，也不修改问题、记忆块、原子、rubric、参考答案或训练监督。
 
 ## 纠正流程
 
@@ -54,9 +95,11 @@ SHA-256：
 
 ## 评测口径
 
-论文与训练对齐的主评测口径为 **Non-thinking**。八个百炼模型关闭 thinking，Codex 固定为 `reasoning_effort=none`。入口见：
+论文与训练对齐的主评测口径为 **Non-thinking**。正式 1,500 条评测使用锁定样本、统一提示词和三轮独立生成；Judge 为关闭 thinking 的 DeepSeek-V4-Pro。入口见：
 
 - [v2.4.1 评测总览](../../../evaluation/current/v2.4.1/README.md)
+- [正式九模型三轮聚合结果](../../../evaluation/current/v2.4.1/analyses/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/aggregate/README.md)
+- [本地 vLLM 两模型三轮聚合结果](../../../evaluation/current/v2.4.1/analyses/memcalib-v241-local-baselines-1500-nonthinking-vllm/aggregate/README.md)
 - [样本级三层主指标](../../../evaluation/current/v2.4.1/analyses/sample-level-nonthinking/README.md)
 - [候选指标与诊断](../../../evaluation/current/v2.4.1/analyses/candidate-metrics-nonthinking/README.md)
 

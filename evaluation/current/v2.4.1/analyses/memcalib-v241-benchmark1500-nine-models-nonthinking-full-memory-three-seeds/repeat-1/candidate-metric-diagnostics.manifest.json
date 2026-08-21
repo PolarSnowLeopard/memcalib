@@ -1,0 +1,31 @@
+{
+  "schema_version": "memcalib-candidate-metric-visualization-manifest-v1",
+  "inputs": {
+    "primary": {
+      "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/judgments/primary.valid.jsonl",
+      "sha256": "d4dd3ca4b8067a7bdeffaefe5e75ee100e07d37fc4d60905abe073ac3083aaae"
+    },
+    "metrics": {
+      "path": "evaluation/current/v2.4.1/analyses/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/candidate-metrics.json",
+      "sha256": "af40eb5a87655c64af1d80310e76c8af7052d4957b14fbb55b71a01387d5158d"
+    }
+  },
+  "script": {
+    "path": "evaluation/scripts/plot_candidate_metric_diagnostics.py",
+    "sha256": "2a65f6d01ad118a6fe9ed40e7d3e71fbd39a350e255f0c660f96626bf9c22658"
+  },
+  "output": {
+    "path": "evaluation/current/v2.4.1/analyses/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/candidate-metric-diagnostics.html",
+    "sha256": "ed778e5bb087e5863c43f4f4c97e8635c64829de36ff47fa844b257cddc97751",
+    "bytes": 173862
+  },
+  "integrity": {
+    "models": 9,
+    "samples_per_model": [
+      1500
+    ],
+    "tail_samples_per_model": [
+      150
+    ]
+  }
+}

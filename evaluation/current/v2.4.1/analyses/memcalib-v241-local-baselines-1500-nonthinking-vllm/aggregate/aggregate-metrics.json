@@ -1,0 +1,377 @@
+{
+  "schema_version": "memcalib-repeated-evaluation-aggregate-v1",
+  "repeat_count": 3,
+  "sample_count": 1500,
+  "judge_model": "deepseek-v4-pro",
+  "answer_mode": "nonthinking",
+  "conditions": [
+    "full_memory"
+  ],
+  "sources": [
+    {
+      "label": "seed-42",
+      "official": {
+        "path": "evaluation/current/v2.4.1/releases/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-1/metrics.json",
+        "sha256": "8d04841790afde4efef5169f3d3735014ce9d9e49be2ef7b7ec8b6dd88e04024"
+      },
+      "sample_level": {
+        "path": "evaluation/current/v2.4.1/analyses/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-1/sample-level/sample-level-metrics.json",
+        "sha256": "835ef4ec6f4c6fd4ed79c3e2745b8ff4c4f12cb66a160b11403b008f37216c75"
+      }
+    },
+    {
+      "label": "seed-43",
+      "official": {
+        "path": "evaluation/current/v2.4.1/releases/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-2/metrics.json",
+        "sha256": "dcda3eb6321519c21122d815462a452ac342732ac3d20ef71d7dd5dacc49a467"
+      },
+      "sample_level": {
+        "path": "evaluation/current/v2.4.1/analyses/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-2/sample-level/sample-level-metrics.json",
+        "sha256": "c97217de31068fe4eb999298ee1a7a66956651c6247031066a4c43abf1ac0d0b"
+      }
+    },
+    {
+      "label": "seed-44",
+      "official": {
+        "path": "evaluation/current/v2.4.1/releases/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-3/metrics.json",
+        "sha256": "c9268372b6c72c826df38c2c3ba10de1772e04b445f125b604ddb518fc5f316e"
+      },
+      "sample_level": {
+        "path": "evaluation/current/v2.4.1/analyses/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-3/sample-level/sample-level-metrics.json",
+        "sha256": "fe7df6f95876bca3fd8bc219c00c142300a7957cdc01538177de776897936dda"
+      }
+    }
+  ],
+  "models": {
+    "ministral3-8b-instruct-2512-bf16-local-vllm": {
+      "full_memory": {
+        "memcalib_score": {
+          "mean": 0.8030888837050701,
+          "population_sd": 0.0020282723599253528,
+          "minimum": 0.8009983402555679,
+          "maximum": 0.8058350534906594
+        },
+        "memcalib_h_score": {
+          "mean": 0.8455846204502838,
+          "population_sd": 0.0016941642693912642,
+          "minimum": 0.8437792148141094,
+          "maximum": 0.8478513876818704
+        },
+        "opb_error_rate": {
+          "mean": 0.07194271207946908,
+          "population_sd": 0.0007113748842008774,
+          "minimum": 0.07095964933907963,
+          "maximum": 0.07261937063608224
+        },
+        "upb_error_rate": {
+          "mean": 0.2234239623629258,
+          "population_sd": 0.0024450890218786084,
+          "minimum": 0.2202877704249312,
+          "maximum": 0.22625337335340273
+        },
+        "strict_sample_accuracy": {
+          "mean": 0.14844444444444446,
+          "population_sd": 0.002060804110110148,
+          "minimum": 0.14666666666666667,
+          "maximum": 0.15133333333333332
+        },
+        "mean_task_quality": {
+          "mean": 2.5404444444444443,
+          "population_sd": 0.07683427733010523,
+          "minimum": 2.452,
+          "maximum": 2.6393333333333335
+        },
+        "safety_failure_rate": {
+          "mean": 0.0948888888888889,
+          "population_sd": 0.0038618104882183926,
+          "minimum": 0.09066666666666667,
+          "maximum": 0.1
+        },
+        "contradiction_rate": {
+          "mean": 0.00027173524406115475,
+          "population_sd": 2.0225877238213054e-05,
+          "minimum": 0.00025743338911056766,
+          "maximum": 0.00030033895396232893
+        },
+        "constraint_violation_rate": {
+          "mean": 0.00021452782425880637,
+          "population_sd": 3.5032247004235905e-05,
+          "minimum": 0.0001716222594070451,
+          "maximum": 0.00025743338911056766
+        },
+        "scs_0_5": {
+          "mean": 0.3041091916826036,
+          "population_sd": 0.0013276808403286024,
+          "minimum": 0.3029331588745117,
+          "maximum": 0.3059648100535075
+        },
+        "sample_directional_opb_0_5": {
+          "mean": 0.591212885538737,
+          "population_sd": 0.0006255682296977269,
+          "minimum": 0.5906495361328125,
+          "maximum": 0.5920853068033854
+        },
+        "sample_directional_upb_0_5": {
+          "mean": 0.24097569444444444,
+          "population_sd": 0.0022423405723225767,
+          "minimum": 0.23809375,
+          "maximum": 0.2435625
+        },
+        "sample_directional_h_0_5": {
+          "mean": 0.5313838206088088,
+          "population_sd": 0.000318530664735334,
+          "minimum": 0.53101115835869,
+          "maximum": 0.5317893201897814
+        },
+        "sample_any_opb_rate": {
+          "mean": 0.7562222222222222,
+          "population_sd": 0.0003142696805273722,
+          "minimum": 0.756,
+          "maximum": 0.7566666666666667
+        },
+        "sample_any_upb_rate": {
+          "mean": 0.36999999999999994,
+          "population_sd": 0.0028284271247461927,
+          "minimum": 0.366,
+          "maximum": 0.372
+        },
+        "sample_event_h": {
+          "mean": 0.3515286708866643,
+          "population_sd": 0.00011190615670208307,
+          "minimum": 0.3514495412844037,
+          "maximum": 0.3516869300911854
+        },
+        "sample_exact_accuracy": {
+          "mean": 0.14844444444444446,
+          "population_sd": 0.002060804110110148,
+          "minimum": 0.14666666666666667,
+          "maximum": 0.15133333333333332
+        },
+        "repeat_values": {
+          "seed-42": {
+            "memcalib_score": 0.8009983402555679,
+            "memcalib_h_score": 0.8437792148141094,
+            "opb_error_rate": 0.07224911626324534,
+            "upb_error_rate": 0.22625337335340273,
+            "strict_sample_accuracy": 0.15133333333333332,
+            "mean_task_quality": 2.53,
+            "safety_failure_rate": 0.09066666666666667,
+            "contradiction_rate": 0.00025743338911056766,
+            "constraint_violation_rate": 0.00025743338911056766,
+            "scs_0_5": 0.3059648100535075,
+            "sample_directional_opb_0_5": 0.590903813680013,
+            "sample_directional_upb_0_5": 0.2435625,
+            "sample_directional_h_0_5": 0.53101115835869,
+            "sample_any_opb_rate": 0.756,
+            "sample_any_upb_rate": 0.372,
+            "sample_event_h": 0.3514495412844037,
+            "sample_exact_accuracy": 0.15133333333333332
+          },
+          "seed-43": {
+            "memcalib_score": 0.8024332573689827,
+            "memcalib_h_score": 0.8451232588548717,
+            "opb_error_rate": 0.07261937063608224,
+            "upb_error_rate": 0.22373074331044351,
+            "strict_sample_accuracy": 0.14733333333333334,
+            "mean_task_quality": 2.452,
+            "safety_failure_rate": 0.1,
+            "contradiction_rate": 0.00030033895396232893,
+            "constraint_violation_rate": 0.0001716222594070451,
+            "scs_0_5": 0.30342960611979164,
+            "sample_directional_opb_0_5": 0.5906495361328125,
+            "sample_directional_upb_0_5": 0.24127083333333332,
+            "sample_directional_h_0_5": 0.5317893201897814,
+            "sample_any_opb_rate": 0.756,
+            "sample_any_upb_rate": 0.372,
+            "sample_event_h": 0.3514495412844037,
+            "sample_exact_accuracy": 0.14733333333333334
+          },
+          "seed-44": {
+            "memcalib_score": 0.8058350534906594,
+            "memcalib_h_score": 0.8478513876818704,
+            "opb_error_rate": 0.07095964933907963,
+            "upb_error_rate": 0.2202877704249312,
+            "strict_sample_accuracy": 0.14666666666666667,
+            "mean_task_quality": 2.6393333333333335,
+            "safety_failure_rate": 0.094,
+            "contradiction_rate": 0.00025743338911056766,
+            "constraint_violation_rate": 0.00021452782425880637,
+            "scs_0_5": 0.3029331588745117,
+            "sample_directional_opb_0_5": 0.5920853068033854,
+            "sample_directional_upb_0_5": 0.23809375,
+            "sample_directional_h_0_5": 0.5313509832779553,
+            "sample_any_opb_rate": 0.7566666666666667,
+            "sample_any_upb_rate": 0.366,
+            "sample_event_h": 0.3516869300911854,
+            "sample_exact_accuracy": 0.14666666666666667
+          }
+        }
+      }
+    },
+    "qwen35-35b-a3b-local-vllm": {
+      "full_memory": {
+        "memcalib_score": {
+          "mean": 0.8267597636622398,
+          "population_sd": 0.0010284937810788404,
+          "minimum": 0.8259605119536525,
+          "maximum": 0.8282118137258316
+        },
+        "memcalib_h_score": {
+          "mean": 0.8684873308274715,
+          "population_sd": 0.0008850547020987096,
+          "minimum": 0.8677922223984873,
+          "maximum": 0.8697363288519301
+        },
+        "opb_error_rate": {
+          "mean": 0.09284910356279415,
+          "population_sd": 0.0005669446428050308,
+          "minimum": 0.09233129432032361,
+          "maximum": 0.09363814451868029
+        },
+        "upb_error_rate": {
+          "mean": 0.16701125094384625,
+          "population_sd": 0.002106684958922732,
+          "minimum": 0.16404413489257225,
+          "maximum": 0.16872793774919767
+        },
+        "strict_sample_accuracy": {
+          "mean": 0.10133333333333333,
+          "population_sd": 0.0016329931618554534,
+          "minimum": 0.09933333333333333,
+          "maximum": 0.10333333333333333
+        },
+        "mean_task_quality": {
+          "mean": 3.5762222222222224,
+          "population_sd": 0.005559998223643033,
+          "minimum": 3.5713333333333335,
+          "maximum": 3.584
+        },
+        "safety_failure_rate": {
+          "mean": 0.007777777777777778,
+          "population_sd": 0.0008314794192830978,
+          "minimum": 0.006666666666666667,
+          "maximum": 0.008666666666666666
+        },
+        "contradiction_rate": {
+          "mean": 0.00025743338911056766,
+          "population_sd": 9.26866134409957e-05,
+          "minimum": 0.0001716222594070451,
+          "maximum": 0.00038615008366585146
+        },
+        "constraint_violation_rate": {
+          "mean": 4.2905564851761274e-05,
+          "population_sd": 0.0,
+          "minimum": 4.2905564851761274e-05,
+          "maximum": 4.2905564851761274e-05
+        },
+        "scs_0_5": {
+          "mean": 0.2459059393143074,
+          "population_sd": 0.00117807942451916,
+          "minimum": 0.24425958760641514,
+          "maximum": 0.24695036443074544
+        },
+        "sample_directional_opb_0_5": {
+          "mean": 0.6773965136201845,
+          "population_sd": 0.0015636729307173533,
+          "minimum": 0.6753852818806966,
+          "maximum": 0.6791982574438056
+        },
+        "sample_directional_upb_0_5": {
+          "mean": 0.18553645833333332,
+          "population_sd": 0.002635461269934368,
+          "minimum": 0.1820625,
+          "maximum": 0.18844270833333332
+        },
+        "sample_directional_h_0_5": {
+          "mean": 0.462147270300129,
+          "population_sd": 0.0014615354845709404,
+          "minimum": 0.4602093229781951,
+          "maximum": 0.46373865788449986
+        },
+        "sample_any_opb_rate": {
+          "mean": 0.832,
+          "population_sd": 0.0014401645996461696,
+          "minimum": 0.8306666666666667,
+          "maximum": 0.834
+        },
+        "sample_any_upb_rate": {
+          "mean": 0.2982222222222222,
+          "population_sd": 0.0052304899093065845,
+          "minimum": 0.29133333333333333,
+          "maximum": 0.304
+        },
+        "sample_event_h": {
+          "mean": 0.27108992158028955,
+          "population_sd": 0.0014987969200814237,
+          "minimum": 0.26899085365853664,
+          "maximum": 0.2723944530046225
+        },
+        "sample_exact_accuracy": {
+          "mean": 0.10133333333333333,
+          "population_sd": 0.0016329931618554534,
+          "minimum": 0.09933333333333333,
+          "maximum": 0.10333333333333333
+        },
+        "repeat_values": {
+          "seed-42": {
+            "memcalib_score": 0.8261069653072352,
+            "memcalib_h_score": 0.8679334412319971,
+            "opb_error_rate": 0.09257787184937857,
+            "upb_error_rate": 0.16826168018976875,
+            "strict_sample_accuracy": 0.09933333333333333,
+            "mean_task_quality": 3.584,
+            "safety_failure_rate": 0.008,
+            "contradiction_rate": 0.0001716222594070451,
+            "constraint_violation_rate": 4.2905564851761274e-05,
+            "scs_0_5": 0.2465078659057617,
+            "sample_directional_opb_0_5": 0.6753852818806966,
+            "sample_directional_upb_0_5": 0.18844270833333332,
+            "sample_directional_h_0_5": 0.46373865788449986,
+            "sample_any_opb_rate": 0.8306666666666667,
+            "sample_any_upb_rate": 0.304,
+            "sample_event_h": 0.2723944530046225,
+            "sample_exact_accuracy": 0.09933333333333333
+          },
+          "seed-43": {
+            "memcalib_score": 0.8282118137258316,
+            "memcalib_h_score": 0.8697363288519301,
+            "opb_error_rate": 0.09363814451868029,
+            "upb_error_rate": 0.16404413489257225,
+            "strict_sample_accuracy": 0.10333333333333333,
+            "mean_task_quality": 3.5713333333333335,
+            "safety_failure_rate": 0.006666666666666667,
+            "contradiction_rate": 0.00038615008366585146,
+            "constraint_violation_rate": 4.2905564851761274e-05,
+            "scs_0_5": 0.24695036443074544,
+            "sample_directional_opb_0_5": 0.6776060015360514,
+            "sample_directional_upb_0_5": 0.1820625,
+            "sample_directional_h_0_5": 0.4624938300376918,
+            "sample_any_opb_rate": 0.834,
+            "sample_any_upb_rate": 0.29133333333333333,
+            "sample_event_h": 0.26899085365853664,
+            "sample_exact_accuracy": 0.10333333333333333
+          },
+          "seed-44": {
+            "memcalib_score": 0.8259605119536525,
+            "memcalib_h_score": 0.8677922223984873,
+            "opb_error_rate": 0.09233129432032361,
+            "upb_error_rate": 0.16872793774919767,
+            "strict_sample_accuracy": 0.10133333333333333,
+            "mean_task_quality": 3.5733333333333333,
+            "safety_failure_rate": 0.008666666666666666,
+            "contradiction_rate": 0.00021452782425880637,
+            "constraint_violation_rate": 4.2905564851761274e-05,
+            "scs_0_5": 0.24425958760641514,
+            "sample_directional_opb_0_5": 0.6791982574438056,
+            "sample_directional_upb_0_5": 0.18610416666666665,
+            "sample_directional_h_0_5": 0.4602093229781951,
+            "sample_any_opb_rate": 0.8313333333333334,
+            "sample_any_upb_rate": 0.29933333333333334,
+            "sample_event_h": 0.27188445807770956,
+            "sample_exact_accuracy": 0.10133333333333333
+          }
+        }
+      }
+    }
+  }
+}

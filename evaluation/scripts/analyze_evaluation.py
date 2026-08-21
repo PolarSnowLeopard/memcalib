@@ -21,14 +21,23 @@ DEFAULT_METRICS = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-
 DEFAULT_REPORT = ROOT / "evaluation" / "archive" / "releases" / "memcalib-v0.1-500" / "report.html"
 CORRECT_VERDICT = {"A": "correct_suppression", "B": "correct_bounded_use", "C": "correct_control"}
 MODEL_DISPLAY_NAMES = {
+    "claude-opus-5": "Claude Opus 5",
+    "claude-sonnet-4-6": "Claude Sonnet 4.6",
     "codex-gpt56-sol": "Codex GPT-5.6 Sol",
     "deepseek": "DeepSeek-V4-Pro",
     "deepseek-flash": "DeepSeek-V4-Flash",
+    "deepseek-flash-0731": "DeepSeek-V4-Flash-0731",
+    "glm52": "GLM-5.2",
+    "gemini35-flash": "Gemini 3.5 Flash",
+    "gpt56-sol": "GPT-5.6-SOL",
+    "grok-4": "Grok 4",
     "kimi": "Kimi-K2.6",
+    "kimi-k26": "Kimi-K2.6",
     "qwen35-35b-a3b": "Qwen3.5-35B-A3B",
     "qwen35-122b-a10b": "Qwen3.5-122B-A10B",
     "qwen-flash": "Qwen3.6-Flash",
     "qwen-max": "Qwen3.7-Max",
+    "qwen38-max": "Qwen3.8-Max",
     "qwen3-8b": "Qwen3-8B",
 }
 

@@ -1,0 +1,40 @@
+{
+  "schema_version": "memcalib-v241-benchmark-test-eval-config-v1",
+  "release": "memcalib-v241-benchmark-test-eval-1500",
+  "status": "locked_release_candidate",
+  "seed": 20260807,
+  "source_count": 1500,
+  "sample_count": 1500,
+  "domain_counts": {
+    "health_seed": 750,
+    "general": 375,
+    "coding": 375
+  },
+  "domain_difficulty_counts": {
+    "health_seed": {
+      "level_1": 187,
+      "level_2": 374,
+      "level_3": 189
+    },
+    "general": {
+      "level_1": 94,
+      "level_2": 187,
+      "level_3": 94
+    },
+    "coding": {
+      "level_1": 94,
+      "level_2": 187,
+      "level_3": 94
+    }
+  },
+  "sampling": {
+    "method": "exact_locked_v241_test_eval_1500",
+    "historical_anchor_rows": 500,
+    "new_rows": 1000,
+    "normalized_question_duplicates": 0,
+    "evaluation_status": "not_started_pending_final_model_list"
+  },
+  "source_inputs": {
+    "benchmark_sha256": "fd74038b645942ba3bd8d1de0c8655d180873aea563ba39f3d02d94d080c4043"
+  }
+}

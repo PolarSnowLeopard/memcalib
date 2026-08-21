@@ -1,0 +1,58 @@
+{
+  "schema_version": "memcalib-candidate-metrics-analysis-manifest-v1",
+  "source": {
+    "rows": 13500,
+    "models": 9,
+    "samples_per_model_per_condition": 1500,
+    "bootstrap_replicates": 2000,
+    "seed": 20260722,
+    "basis": "ordered-usage-v2.1 primary Judge outputs",
+    "conditions": [
+      "full_memory"
+    ],
+    "primary_judgments": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/judgments/primary.valid.jsonl",
+    "primary_sha256": "d4dd3ca4b8067a7bdeffaefe5e75ee100e07d37fc4d60905abe073ac3083aaae",
+    "official_metrics": "evaluation/current/v2.4.1/releases/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-1/metrics.json",
+    "official_metrics_sha256": "924c0c45b9d55ca0803003e64952b349e54b9ee772542663796f1933c2c876d6"
+  },
+  "input_integrity": {
+    "rows": 13500,
+    "unique_answer_request_ids": 13500,
+    "models": [
+      "claude-sonnet-4-6",
+      "deepseek-flash-0731",
+      "gemini35-flash",
+      "glm52",
+      "gpt56-sol",
+      "kimi-k26",
+      "qwen3-8b",
+      "qwen35-35b-a3b",
+      "qwen38-max"
+    ],
+    "conditions": [
+      "full_memory"
+    ],
+    "model_condition_buckets": 9,
+    "samples_per_bucket": 1500,
+    "common_sample_ids": 1500,
+    "atom_signatures_consistent": true
+  },
+  "script": {
+    "path": "evaluation/scripts/analyze_candidate_metrics.py",
+    "sha256": "e64167476ab531357c5c8663fa00123e676d1cc8a73c95f5e57d6fd2ef5e3974"
+  },
+  "artifacts": {
+    "README.md": {
+      "bytes": 12253,
+      "sha256": "eccf6f629dd4baf7ef51bc2d2a157c3b27747a2eaa8017b8af7810df933eef50"
+    },
+    "candidate-metrics.csv": {
+      "bytes": 4218,
+      "sha256": "8656aa0964c293749525e8353ca20611444898f7ef2bd82572f963e417d0ff48"
+    },
+    "candidate-metrics.json": {
+      "bytes": 128014,
+      "sha256": "af40eb5a87655c64af1d80310e76c8af7052d4957b14fbb55b71a01387d5158d"
+    }
+  }
+}

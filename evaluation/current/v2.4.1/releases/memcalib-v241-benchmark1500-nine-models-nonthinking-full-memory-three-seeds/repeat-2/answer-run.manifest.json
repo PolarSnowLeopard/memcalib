@@ -1,0 +1,447 @@
+{
+  "schema_version": "memcalib-answer-run-v1",
+  "status": "completed",
+  "completed_at": "2026-08-20T18:58:04+08:00",
+  "formal_answers": 13500,
+  "models": [
+    {
+      "key": "qwen38-max",
+      "model": "qwen3.8-max",
+      "answer_mode": "nonthinking",
+      "channel": "bailian"
+    },
+    {
+      "key": "kimi-k26",
+      "model": "kimi-k2.6",
+      "answer_mode": "nonthinking",
+      "channel": "bailian"
+    },
+    {
+      "key": "deepseek-flash-0731",
+      "model": "deepseek-v4-flash-0731",
+      "answer_mode": "nonthinking",
+      "channel": "bailian"
+    },
+    {
+      "key": "glm52",
+      "model": "glm-5.2",
+      "answer_mode": "nonthinking",
+      "channel": "bailian"
+    },
+    {
+      "key": "qwen35-35b-a3b",
+      "model": "qwen3.5-35b-a3b",
+      "answer_mode": "nonthinking",
+      "channel": "bailian"
+    },
+    {
+      "key": "qwen3-8b",
+      "model": "qwen3-8b",
+      "answer_mode": "nonthinking",
+      "channel": "bailian"
+    },
+    {
+      "key": "claude-sonnet-4-6",
+      "model": "claude-sonnet-4-6",
+      "answer_mode": "nonthinking",
+      "channel": "primus_chat_direct"
+    },
+    {
+      "key": "gpt56-sol",
+      "model": "gpt-5.6-sol",
+      "answer_mode": "nonthinking",
+      "channel": "primus_chat_direct"
+    },
+    {
+      "key": "gemini35-flash",
+      "model": "gemini-3.5-flash",
+      "answer_mode": "nonthinking",
+      "channel": "primus_chat_direct"
+    }
+  ],
+  "conditions": [
+    "full_memory"
+  ],
+  "generation": {
+    "bailian": {
+      "do_sample": true,
+      "temperature": 1.0,
+      "top_p": 1.0,
+      "top_k": "omitted because the compatible API rejects -1",
+      "n": 1,
+      "seeds": [
+        42,
+        43,
+        44
+      ],
+      "max_tokens": 8192,
+      "enable_thinking": false
+    },
+    "primus_chat_direct": {
+      "temperature": 1.0,
+      "max_tokens": 8192,
+      "top_p": "omitted because Claude rejects it as deprecated",
+      "top_k": "omitted for a common cross-provider contract",
+      "seed": "not supported by the provider interface; 42/43/44 are repeat labels only",
+      "thinking": "no explicit cross-provider thinking control is sent; visible answer outputs are checked for non-thinking format"
+    }
+  },
+  "aggregate_usage": {
+    "prompt_tokens": 5008511,
+    "completion_tokens": 5645318,
+    "total_tokens": 12357345
+  },
+  "cells": {
+    "claude-sonnet-4-6:full_memory": {
+      "model": "claude-sonnet-4-6",
+      "condition": "full_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/requests/answers/claude-sonnet-4-6/full_memory.jsonl",
+        "sha256": "8120a2dbe9031b4e5d433c1be5148e51d4c530faed183c42bbaef2d3c3ebff65"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/answers/claude-sonnet-4-6/full_memory.jsonl",
+        "sha256": "a6fabe9ca3946533658ff74089c4ee7337ad84ba18308cd1d6543a82ed257f3f"
+      },
+      "validation": {
+        "expected": 1500,
+        "output_rows": 1500,
+        "unique_output_ids": 1500,
+        "duplicate_ids": 0,
+        "valid": 1500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 1500,
+        "returned_models": {
+          "claude-sonnet-4-6": 1500
+        },
+        "finish_reasons": {
+          "stop": 1500
+        },
+        "usage": {
+          "prompt_tokens": 735150,
+          "completion_tokens": 778901,
+          "total_tokens": 1514051
+        },
+        "response_chars": {
+          "min": 104,
+          "mean": 2246.332,
+          "max": 15326
+        }
+      }
+    },
+    "deepseek-flash-0731:full_memory": {
+      "model": "deepseek-v4-flash-0731",
+      "condition": "full_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/requests/answers/deepseek-flash-0731/full_memory.jsonl",
+        "sha256": "a15b3f52936dda49e19224b510f6853cd390d2635604316be612144b87d8e38a"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/answers/deepseek-flash-0731/full_memory.jsonl",
+        "sha256": "561d45b97f15f519a234166aba4027e47e6b0765a3c13fbb4653366c585986e7"
+      },
+      "validation": {
+        "expected": 1500,
+        "output_rows": 1500,
+        "unique_output_ids": 1500,
+        "duplicate_ids": 0,
+        "valid": 1500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 1500,
+        "returned_models": {
+          "deepseek-v4-flash-0731": 1500
+        },
+        "finish_reasons": {
+          "stop": 1500
+        },
+        "usage": {
+          "prompt_tokens": 657184,
+          "completion_tokens": 801581,
+          "total_tokens": 1458765
+        },
+        "response_chars": {
+          "min": 33,
+          "mean": 2427.2246666666665,
+          "max": 14650
+        }
+      }
+    },
+    "gemini35-flash:full_memory": {
+      "model": "gemini-3.5-flash",
+      "condition": "full_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/requests/answers/gemini35-flash/full_memory.jsonl",
+        "sha256": "3b219b462564a12dfa5a3484a3483839b0bae1444e99a6dbbff9010111d479d4"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/answers/gemini35-flash/full_memory.jsonl",
+        "sha256": "15f73fa1beec25dcdcad04549382106cc84889ee864573963b446cd6e54d5feb"
+      },
+      "validation": {
+        "expected": 1500,
+        "output_rows": 1500,
+        "unique_output_ids": 1500,
+        "duplicate_ids": 0,
+        "valid": 1500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 1500,
+        "returned_models": {
+          "gemini-3.5-flash": 1500
+        },
+        "finish_reasons": {
+          "stop": 1500
+        },
+        "usage": {
+          "prompt_tokens": 194264,
+          "completion_tokens": 892145,
+          "total_tokens": 1086409
+        },
+        "response_chars": {
+          "min": 37,
+          "mean": 2913.690666666667,
+          "max": 10024
+        }
+      }
+    },
+    "glm52:full_memory": {
+      "model": "glm-5.2",
+      "condition": "full_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/requests/answers/glm52/full_memory.jsonl",
+        "sha256": "ef4080e8375f86ffaf322b934dc025d3d18092afb8abdae1bfb71dd8b5cfe5b2"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/answers/glm52/full_memory.jsonl",
+        "sha256": "7e522f012533111156f1c6cabcc02e0b595d980b90fd82e8d10795f94b1ca48f"
+      },
+      "validation": {
+        "expected": 1500,
+        "output_rows": 1500,
+        "unique_output_ids": 1500,
+        "duplicate_ids": 0,
+        "valid": 1500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 1500,
+        "returned_models": {
+          "glm-5.2": 1500
+        },
+        "finish_reasons": {
+          "stop": 1500
+        },
+        "usage": {
+          "prompt_tokens": 658192,
+          "completion_tokens": 757554,
+          "total_tokens": 1415746
+        },
+        "response_chars": {
+          "min": 111,
+          "mean": 2476.4066666666668,
+          "max": 16550
+        }
+      }
+    },
+    "gpt56-sol:full_memory": {
+      "model": "gpt-5.6-sol",
+      "condition": "full_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/requests/answers/gpt56-sol/full_memory.jsonl",
+        "sha256": "206b2cbc4baaa0e5fbd2dc9f874cc987218f4f852b09e65f2b83aba7b47f66e9"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/answers/gpt56-sol/full_memory.jsonl",
+        "sha256": "6040f86d4217e8070dc9f40068cbf1dea8290afa5b686003c518ca365ccdbd0b"
+      },
+      "validation": {
+        "expected": 1500,
+        "output_rows": 1500,
+        "unique_output_ids": 1500,
+        "duplicate_ids": 0,
+        "valid": 1500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 1500,
+        "returned_models": {
+          "gpt-5.6-sol": 1500
+        },
+        "finish_reasons": {
+          "stop": 1500
+        },
+        "usage": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 1703516
+        },
+        "response_chars": {
+          "min": 40,
+          "mean": 2027.1506666666667,
+          "max": 17268
+        }
+      }
+    },
+    "kimi-k26:full_memory": {
+      "model": "kimi-k2.6",
+      "condition": "full_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/requests/answers/kimi-k26/full_memory.jsonl",
+        "sha256": "bbc63067e4776ba6c02e92da88f8a8f601caab866af8738ca6a2a9326a46a823"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/answers/kimi-k26/full_memory.jsonl",
+        "sha256": "55633f03b7851e4eb82c9ce275caf466fca9294d65be3fb892c435d633057f12"
+      },
+      "validation": {
+        "expected": 1500,
+        "output_rows": 1500,
+        "unique_output_ids": 1500,
+        "duplicate_ids": 0,
+        "valid": 1500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 1500,
+        "returned_models": {
+          "kimi-k2.6": 1500
+        },
+        "finish_reasons": {
+          "stop": 1500
+        },
+        "usage": {
+          "prompt_tokens": 661082,
+          "completion_tokens": 661772,
+          "total_tokens": 1322854
+        },
+        "response_chars": {
+          "min": 36,
+          "mean": 2174.996,
+          "max": 14298
+        }
+      }
+    },
+    "qwen3-8b:full_memory": {
+      "model": "qwen3-8b",
+      "condition": "full_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/requests/answers/qwen3-8b/full_memory.jsonl",
+        "sha256": "e2db452f609d5533ee616c585688070e6d996b56d7f66790e9863ce6d93bd344"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/answers/qwen3-8b/full_memory.jsonl",
+        "sha256": "05cb8376e00a63d3546b5d32d63c574a505af95ffd80dfae2acf03dcd0b01562"
+      },
+      "validation": {
+        "expected": 1500,
+        "output_rows": 1500,
+        "unique_output_ids": 1500,
+        "duplicate_ids": 0,
+        "valid": 1500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 1500,
+        "returned_models": {
+          "qwen3-8b": 1500
+        },
+        "finish_reasons": {
+          "stop": 1500
+        },
+        "usage": {
+          "prompt_tokens": 693011,
+          "completion_tokens": 400198,
+          "total_tokens": 1093209
+        },
+        "response_chars": {
+          "min": 21,
+          "mean": 1354.018,
+          "max": 9360
+        }
+      }
+    },
+    "qwen35-35b-a3b:full_memory": {
+      "model": "qwen3.5-35b-a3b",
+      "condition": "full_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/requests/answers/qwen35-35b-a3b/full_memory.jsonl",
+        "sha256": "2901048e93904e46c7097830cbb3a946343cc3af8fe02c71cce8dc82445f65b1"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/answers/qwen35-35b-a3b/full_memory.jsonl",
+        "sha256": "c0e2c7ad5d7979ca252ed681ba0e6e1f7de567144b1c0e1d9fc12f2284a0f798"
+      },
+      "validation": {
+        "expected": 1500,
+        "output_rows": 1500,
+        "unique_output_ids": 1500,
+        "duplicate_ids": 0,
+        "valid": 1500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 1500,
+        "returned_models": {
+          "qwen3.5-35b-a3b": 1500
+        },
+        "finish_reasons": {
+          "stop": 1500
+        },
+        "usage": {
+          "prompt_tokens": 704814,
+          "completion_tokens": 819783,
+          "total_tokens": 1524597
+        },
+        "response_chars": {
+          "min": 16,
+          "mean": 2669.1513333333332,
+          "max": 10491
+        }
+      }
+    },
+    "qwen38-max:full_memory": {
+      "model": "qwen3.8-max",
+      "condition": "full_memory",
+      "input": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/requests/answers/qwen38-max/full_memory.jsonl",
+        "sha256": "cd3626f632a4e3a432248a31eb1a0fa661d03b16edabd32bf1fb3bf62008d01f"
+      },
+      "output": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/answers/qwen38-max/full_memory.jsonl",
+        "sha256": "4b7a50b3ae69fef7e54b71d4b2d94735434d1287d53de2c9b35f595fd013da99"
+      },
+      "validation": {
+        "expected": 1500,
+        "output_rows": 1500,
+        "unique_output_ids": 1500,
+        "duplicate_ids": 0,
+        "valid": 1500,
+        "missing": 0
+      },
+      "summary": {
+        "rows": 1500,
+        "returned_models": {
+          "qwen3.8-max": 1500
+        },
+        "finish_reasons": {
+          "stop": 1500
+        },
+        "usage": {
+          "prompt_tokens": 704814,
+          "completion_tokens": 533384,
+          "total_tokens": 1238198
+        },
+        "response_chars": {
+          "min": 28,
+          "mean": 1769.778,
+          "max": 8894
+        }
+      }
+    }
+  }
+}

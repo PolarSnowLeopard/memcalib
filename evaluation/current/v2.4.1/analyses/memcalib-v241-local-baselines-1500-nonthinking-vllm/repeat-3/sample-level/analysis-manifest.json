@@ -1,0 +1,35 @@
+{
+  "schema_version": "memcalib-sample-level-calibration-manifest-v2",
+  "sources": {
+    "hidden": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-benchmark-test-eval-1500/hidden-evaluation.jsonl",
+      "sha256": "b5ff1c23ae132c1b570f78baef0ca5da6c0a5312bd00a747734188251afc00f7",
+      "rows": 1500
+    },
+    "judgments": {
+      "nonthinking": {
+        "path": "evaluation/runs/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-3/judgments/primary.valid.jsonl",
+        "sha256": "3e4a41ba871ea2fbcc5ccbc32fd7124c3046e7c5b85b66e633c07c06bece1e83",
+        "rows": 3000
+      }
+    }
+  },
+  "outputs": {
+    "sample-level-metrics.json": {
+      "sha256": "fe7df6f95876bca3fd8bc219c00c142300a7957cdc01538177de776897936dda",
+      "bytes": 59382
+    },
+    "sample-level-scores.csv": {
+      "sha256": "a274dc0305d2dbe2c33b281a7a840bf9deebb9ca760600a20b0f6cbe764ec867",
+      "bytes": 719085
+    },
+    "README.md": {
+      "sha256": "8e525a9b39bda0eeaa954f79ed808da902c6fb27beb09aa0fb153c07a9aa790a",
+      "bytes": 3961
+    },
+    "sample-level-score-distributions.html": {
+      "sha256": "533b5806dc6c5f7a4a29989e88ddd8be3e64153c69cd38b30a9cc25140349363",
+      "bytes": 3939
+    }
+  }
+}

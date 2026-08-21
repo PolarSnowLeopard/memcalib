@@ -1,0 +1,35 @@
+{
+  "schema_version": "memcalib-sample-level-calibration-manifest-v2",
+  "sources": {
+    "hidden": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-benchmark-test-eval-1500/hidden-evaluation.jsonl",
+      "sha256": "b5ff1c23ae132c1b570f78baef0ca5da6c0a5312bd00a747734188251afc00f7",
+      "rows": 1500
+    },
+    "judgments": {
+      "nonthinking": {
+        "path": "evaluation/runs/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/repeat-2/judgments/primary.valid.jsonl",
+        "sha256": "88a6ae0f5336b18cbe5d8e81ee28d2fbdde5358b058ad6c8a8bdc57d154fdffe",
+        "rows": 13500
+      }
+    }
+  },
+  "outputs": {
+    "sample-level-metrics.json": {
+      "sha256": "deaf1a1873ab52319b7905d0e64c37c9aa1a4cda6b43377ce3c8ae0fe713af77",
+      "bytes": 259884
+    },
+    "sample-level-scores.csv": {
+      "sha256": "367f280a764f333a6476de29598fcebc9168e9c4cdae4ccd6e532ed991f9b939",
+      "bytes": 2595855
+    },
+    "README.md": {
+      "sha256": "0b00f6c3a00e673f863423c7e3d074300d01cf0b1b52f226f96c684035ab5994",
+      "bytes": 6277
+    },
+    "sample-level-score-distributions.html": {
+      "sha256": "d6f3561d684896609e4fd16560364ae3c524013a15fad97f32a47d8daa702c1b",
+      "bytes": 8873
+    }
+  }
+}

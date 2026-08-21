@@ -8,6 +8,8 @@ cd "$ROOT"
 set -a
 source .env.local
 set +a
+# Bailian traffic is direct by default. Proxy use requires an explicit per-run opt-in.
+export MEMCALIB_ALLOW_NETWORK_PROXY=${MEMCALIB_BAILIAN_ALLOW_PROXY:-false}
 BAILIAN_API_KEY_ARGS=()
 if [[ "${MEMCALIB_BAILIAN_CREDENTIAL_MODE:-default}" == "broad_only" ]]; then
   broad_api_key="${DASHSCOPE_API_KEY_FALLBACK:-${BAILIAN_API_KEY_FALLBACK:-}}"
@@ -31,6 +33,11 @@ RELEASE=${MEMCALIB_RELEASE:-$SAMPLE_RELEASE}
 RUN=${MEMCALIB_RUN:-evaluation/runs/memcalib-v23-multidomain-500-nine-models}
 ANALYSIS=${MEMCALIB_ANALYSIS:-evaluation/archive/analyses/memcalib-v23-multidomain-500-nine-models-candidate-metrics}
 BAILIAN_ANSWER_THINKING=${BAILIAN_ANSWER_THINKING:-true}
+ANSWER_TEMPERATURE=${ANSWER_TEMPERATURE:-0}
+ANSWER_EXTRA_BODY_JSON=${ANSWER_EXTRA_BODY_JSON:-}
+ANSWER_MODEL_SET=${ANSWER_MODEL_SET:-historical_nine}
+MEMCALIB_CONDITIONS=${MEMCALIB_CONDITIONS:-"full_memory no_memory"}
+ANSWER_CONDITIONS=(${(z)MEMCALIB_CONDITIONS})
 CODEX_ANSWER_WORKERS=${CODEX_ANSWER_WORKERS:-12}
 PRIMARY_JUDGE_MODEL=${PRIMARY_JUDGE_MODEL:-qwen3.7-plus}
 PRIMARY_JUDGE_WORKERS=${PRIMARY_JUDGE_WORKERS:-300}
@@ -45,6 +52,7 @@ CODEX_REUSE_ROOT=${CODEX_REUSE_ROOT:-}
 ANSWER_REUSE_ROOT=${ANSWER_REUSE_ROOT:-}
 JUDGE_REUSE_ROOT=${JUDGE_REUSE_ROOT:-}
 JUDGE_GATE_PATTERN=${JUDGE_GATE_PATTERN:-}
+JUDGE_EXECUTION_MODE=${JUDGE_EXECUTION_MODE:-parallel}
 ANSWER_REQ="$RUN/requests/answers"
 ANSWER_OUT="$RUN/answers"
 ANSWER_REQ=${MEMCALIB_ANSWER_REQ:-$ANSWER_REQ}
@@ -63,15 +71,24 @@ phase() {
 run_api_complete() {
   local request_path=$1 canonical_output=$2 model=$3 max_tokens=$4
   local workers=$5 rpm=$6 progress_every=$7 extra_body_json=$8
+  local temperature=${9:-0}
   local base=${canonical_output%.jsonl}
   mkdir -p "$(dirname "$canonical_output")"
+
+  if [[ ! -s "$request_path" ]]; then
+    : > "$canonical_output"
+    PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/validate_api_results.py \
+      --input "$request_path" --output "$canonical_output" --model "$model" \
+      --report "$base.validation.json" >> "$base.log" 2>&1
+    return 0
+  fi
 
   set +e
   PYTHONPATH=pipeline "$PYTHON_BIN" pipeline/06_run_bailian_api.py \
     "${BAILIAN_API_KEY_ARGS[@]}" \
     --input "$request_path" --output "$canonical_output" \
     --failed "$base.failed.jsonl" --invalid-output "$base.api-invalid.jsonl" \
-    --model "$model" --temperature 0 --max-tokens "$max_tokens" \
+    --model "$model" --temperature "$temperature" --max-tokens "$max_tokens" \
     --extra-body-json "$extra_body_json" \
     --timeout 300 --hard-timeout 300 --max-retries 5 \
     --max-workers "$workers" --rpm "$rpm" --progress-every "$progress_every" \
@@ -107,7 +124,7 @@ run_api_complete() {
       --input "$missing_request" --output "$retry_output" \
       --failed "$base.retry-api${round}.failed.jsonl" \
       --invalid-output "$base.retry-api${round}.api-invalid.jsonl" \
-      --model "$model" --temperature 0 --max-tokens "$retry_max_tokens" \
+      --model "$model" --temperature "$temperature" --max-tokens "$retry_max_tokens" \
       --extra-body-json "$extra_body_json" \
       --timeout 300 --hard-timeout 300 --max-retries 5 \
       --max-workers "$workers" --rpm "$rpm" --progress-every 10 \
@@ -156,13 +173,18 @@ run_api_complete() {
 
 run_answer_model() {
   local key=$1 model=$2 workers=$3 rpm=$4
-  local body="{\"enable_thinking\":${BAILIAN_ANSWER_THINKING}}"
-  if [[ "$model" == "qwen3-8b" && "$BAILIAN_ANSWER_THINKING" == "true" ]]; then
+  local body
+  if [[ -n "$ANSWER_EXTRA_BODY_JSON" ]]; then
+    body="$ANSWER_EXTRA_BODY_JSON"
+  else
+    body="{\"enable_thinking\":${BAILIAN_ANSWER_THINKING}}"
+  fi
+  if [[ -z "$ANSWER_EXTRA_BODY_JSON" && "$model" == "qwen3-8b" && "$BAILIAN_ANSWER_THINKING" == "true" ]]; then
     body='{"enable_thinking":true,"stream":true,"stream_options":{"include_usage":true}}'
   fi
   local condition
   mkdir -p "$ANSWER_OUT/$key"
-  for condition in full_memory no_memory; do
+  for condition in "${ANSWER_CONDITIONS[@]}"; do
     if [[ -n "$ANSWER_REUSE_ROOT" && ! -s "$ANSWER_OUT/$key/$condition.jsonl" \
       && -s "$ANSWER_REUSE_ROOT/$key/$condition.jsonl" ]]; then
       PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/prefill_matching_results.py \
@@ -174,7 +196,7 @@ run_answer_model() {
     fi
     run_api_complete \
       "$ANSWER_REQ/$key/$condition.jsonl" "$ANSWER_OUT/$key/$condition.jsonl" \
-      "$model" 8192 "$workers" "$rpm" 20 "$body"
+      "$model" 8192 "$workers" "$rpm" 20 "$body" "$ANSWER_TEMPERATURE"
   done
 }
 
@@ -294,23 +316,34 @@ if [[ "${SKIP_ANSWER_REQUEST_PREP:-false}" != "true" ]]; then
   PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/prepare_answer_requests.py \
     --config "$CONFIG" --input "$SAMPLE_RELEASE/model-facing.jsonl" \
     --output-dir "$ANSWER_REQ" --manifest "$RELEASE/answer-request.manifest.json" \
-    --conditions full_memory no_memory
+    --conditions "${ANSWER_CONDITIONS[@]}"
 fi
 
 phase answer_generation
 if [[ "${SKIP_ANSWER_GENERATION:-false}" != "true" ]]; then
-  run_answer_model qwen-max qwen3.7-max 120 300 & p1=$!
-  run_answer_model qwen-flash qwen3.6-flash 120 300 & p2=$!
-  run_answer_model deepseek deepseek-v4-pro 120 240 & p3=$!
-  run_answer_model deepseek-flash deepseek-v4-flash 120 300 & p4=$!
-  run_answer_model kimi kimi-k2.6 120 240 & p5=$!
-  run_answer_model qwen35-35b-a3b qwen3.5-35b-a3b 32 90 & p6=$!
-  run_answer_model qwen3-8b qwen3-8b 120 90 & p7=$!
-  run_answer_model glm52 glm-5.2 120 90 & p8=$!
-  run_codex_condition full_memory & p9=$!
-  run_codex_condition no_memory & p10=$!
+  answer_pids=()
+  if [[ "$ANSWER_MODEL_SET" == "v241_benchmark_six" ]]; then
+    run_answer_model qwen38-max qwen3.8-max 160 180 & answer_pids+=($!)
+    run_answer_model kimi-k26 kimi-k2.6 160 180 & answer_pids+=($!)
+    run_answer_model deepseek-flash-0731 deepseek-v4-flash-0731 160 180 & answer_pids+=($!)
+    run_answer_model glm52 glm-5.2 160 180 & answer_pids+=($!)
+    run_answer_model qwen35-35b-a3b qwen3.5-35b-a3b 160 180 & answer_pids+=($!)
+    run_answer_model qwen3-8b qwen3-8b 160 180 & answer_pids+=($!)
+  else
+    run_answer_model qwen-max qwen3.7-max 120 300 & answer_pids+=($!)
+    run_answer_model qwen-flash qwen3.6-flash 120 300 & answer_pids+=($!)
+    run_answer_model deepseek deepseek-v4-pro 120 240 & answer_pids+=($!)
+    run_answer_model deepseek-flash deepseek-v4-flash 120 300 & answer_pids+=($!)
+    run_answer_model kimi kimi-k2.6 120 240 & answer_pids+=($!)
+    run_answer_model qwen35-35b-a3b qwen3.5-35b-a3b 32 90 & answer_pids+=($!)
+    run_answer_model qwen3-8b qwen3-8b 120 90 & answer_pids+=($!)
+    run_answer_model glm52 glm-5.2 120 90 & answer_pids+=($!)
+    for condition in "${ANSWER_CONDITIONS[@]}"; do
+      run_codex_condition "$condition" & answer_pids+=($!)
+    done
+  fi
   answer_code=0
-  for pid in "$p1" "$p2" "$p3" "$p4" "$p5" "$p6" "$p7" "$p8" "$p9" "$p10"; do
+  for pid in "${answer_pids[@]}"; do
     wait "$pid" || answer_code=1
   done
   if [[ "$answer_code" -ne 0 ]]; then
@@ -322,11 +355,11 @@ fi
 phase answer_validation_and_judge_requests
 PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/finalize_answer_run.py \
   --config "$CONFIG" --requests "$ANSWER_REQ" --results "$ANSWER_OUT" \
-  --manifest "$RELEASE/answer-run.manifest.json" --conditions full_memory no_memory
+  --manifest "$RELEASE/answer-run.manifest.json" --conditions "${ANSWER_CONDITIONS[@]}"
 PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/prepare_judge_requests.py \
   --config "$CONFIG" --hidden "$SAMPLE_RELEASE/hidden-evaluation.jsonl" --answers "$ANSWER_OUT" \
   --output-dir "$JUDGE_REQ" --manifest "$RELEASE/judge-request.manifest.json" \
-  --conditions full_memory no_memory
+  --conditions "${ANSWER_CONDITIONS[@]}"
 
 if [[ -n "$JUDGE_GATE_PATTERN" ]]; then
   phase waiting_for_judge_capacity
@@ -363,19 +396,37 @@ if [[ -n "$JUDGE_REUSE_ROOT" ]]; then
       >> "$JUDGE_API/secondary-kimi.log" 2>&1
   fi
 fi
-run_api_complete \
-  "$JUDGE_REQ/primary.jsonl" "$JUDGE_API/primary.jsonl" \
-  "$PRIMARY_JUDGE_MODEL" 16384 "$PRIMARY_JUDGE_WORKERS" "$PRIMARY_JUDGE_RPM" 25 '{"enable_thinking":false}' & j1=$!
-run_api_complete \
-  "$JUDGE_REQ/secondary-deepseek.jsonl" "$JUDGE_API/secondary-deepseek.jsonl" \
-  "$SECONDARY_DEFAULT_JUDGE_MODEL" 16384 "$SECONDARY_DEFAULT_JUDGE_WORKERS" "$SECONDARY_DEFAULT_JUDGE_RPM" 20 '{"enable_thinking":false}' & j2=$!
-run_api_complete \
-  "$JUDGE_REQ/secondary-kimi.jsonl" "$JUDGE_API/secondary-kimi.jsonl" \
-  "$SECONDARY_DEEPSEEK_JUDGE_MODEL" 16384 "$SECONDARY_DEEPSEEK_JUDGE_WORKERS" "$SECONDARY_DEEPSEEK_JUDGE_RPM" 20 '{"enable_thinking":false}' & j3=$!
 judge_code=0
-for pid in "$j1" "$j2" "$j3"; do
-  wait "$pid" || judge_code=1
-done
+if [[ "$JUDGE_EXECUTION_MODE" == "primary_then_secondary" ]]; then
+  run_api_complete \
+    "$JUDGE_REQ/primary.jsonl" "$JUDGE_API/primary.jsonl" \
+    "$PRIMARY_JUDGE_MODEL" 16384 "$PRIMARY_JUDGE_WORKERS" "$PRIMARY_JUDGE_RPM" 25 '{"enable_thinking":false}' \
+    || judge_code=1
+  if [[ "$judge_code" -eq 0 ]]; then
+    run_api_complete \
+      "$JUDGE_REQ/secondary-deepseek.jsonl" "$JUDGE_API/secondary-deepseek.jsonl" \
+      "$SECONDARY_DEFAULT_JUDGE_MODEL" 16384 "$SECONDARY_DEFAULT_JUDGE_WORKERS" "$SECONDARY_DEFAULT_JUDGE_RPM" 20 '{"enable_thinking":false}' & j2=$!
+    run_api_complete \
+      "$JUDGE_REQ/secondary-kimi.jsonl" "$JUDGE_API/secondary-kimi.jsonl" \
+      "$SECONDARY_DEEPSEEK_JUDGE_MODEL" 16384 "$SECONDARY_DEEPSEEK_JUDGE_WORKERS" "$SECONDARY_DEEPSEEK_JUDGE_RPM" 20 '{"enable_thinking":false}' & j3=$!
+    for pid in "$j2" "$j3"; do
+      wait "$pid" || judge_code=1
+    done
+  fi
+else
+  run_api_complete \
+    "$JUDGE_REQ/primary.jsonl" "$JUDGE_API/primary.jsonl" \
+    "$PRIMARY_JUDGE_MODEL" 16384 "$PRIMARY_JUDGE_WORKERS" "$PRIMARY_JUDGE_RPM" 25 '{"enable_thinking":false}' & j1=$!
+  run_api_complete \
+    "$JUDGE_REQ/secondary-deepseek.jsonl" "$JUDGE_API/secondary-deepseek.jsonl" \
+    "$SECONDARY_DEFAULT_JUDGE_MODEL" 16384 "$SECONDARY_DEFAULT_JUDGE_WORKERS" "$SECONDARY_DEFAULT_JUDGE_RPM" 20 '{"enable_thinking":false}' & j2=$!
+  run_api_complete \
+    "$JUDGE_REQ/secondary-kimi.jsonl" "$JUDGE_API/secondary-kimi.jsonl" \
+    "$SECONDARY_DEEPSEEK_JUDGE_MODEL" 16384 "$SECONDARY_DEEPSEEK_JUDGE_WORKERS" "$SECONDARY_DEEPSEEK_JUDGE_RPM" 20 '{"enable_thinking":false}' & j3=$!
+  for pid in "$j1" "$j2" "$j3"; do
+    wait "$pid" || judge_code=1
+  done
+fi
 if [[ "$judge_code" -ne 0 ]]; then
   phase judge_generation_failed
   exit 1
@@ -390,6 +441,20 @@ PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/merge_judgments.py \
   --input "$JUDGMENTS/secondary-deepseek.valid.jsonl" \
   --input "$JUDGMENTS/secondary-kimi.valid.jsonl" \
   --output "$JUDGMENTS/secondary.valid.jsonl" --expected "$secondary_expected"
+
+if [[ -n "${INFERENCE_FAILURE_AUDIT:-}" ]]; then
+  PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/apply_inference_failure_judgment_policy.py \
+    --judgments "$JUDGMENTS/primary.valid.jsonl" \
+    --audit "$INFERENCE_FAILURE_AUDIT" \
+    --output "$JUDGMENTS/primary.valid.jsonl" \
+    --report "$JUDGMENTS/primary.inference-failure-policy.json" \
+    --require-all
+  PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/apply_inference_failure_judgment_policy.py \
+    --judgments "$JUDGMENTS/secondary.valid.jsonl" \
+    --audit "$INFERENCE_FAILURE_AUDIT" \
+    --output "$JUDGMENTS/secondary.valid.jsonl" \
+    --report "$JUDGMENTS/secondary.inference-failure-policy.json"
+fi
 
 phase metrics_and_report
 PYTHONPATH=. "$PYTHON_BIN" evaluation/scripts/finalize_judge_run.py \

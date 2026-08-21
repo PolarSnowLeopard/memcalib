@@ -2,7 +2,61 @@
 
 本目录是纠正后 v2.4.1 的当前评测入口。主口径为 **Non-thinking**，与训练设置一致；不与冻结的 v2.4 结果混表。
 
-## 当前主实验：DeepSeek-V4-Pro Judge 三轮 Non-Think
+## 正式 Benchmark Test：1,500 条
+
+正式发布评测集现已从历史 500 条扩展为 1,500 条，领域为 health_seed/general/coding = 750/375/375。原 500 条完整保留为有序锚点，新增 1,000 条；归一化问题文本无重复，且该 1,500 条与 SFT、RL 分区均无重叠。数据发布包见 [`releases/memcalib-v241-benchmark-test-eval-1500/`](releases/memcalib-v241-benchmark-test-eval-1500/)。
+
+正式 1,500 条上的评估已完成 6 个百炼模型、3 个公司统一推理平台模型及 2 个本地 vLLM 基线。远程推理模型与本地 vLLM 基线分表报告；后续 494 条三轮九模型结果只用于保留历史实验记录，不能当作新正式 benchmark 的得分。
+
+## 正式 1,500 条九模型结果
+
+- 模型：6 个百炼模型，以及 GPT-5.6-SOL、Claude Sonnet 4.6、Gemini 3.5 Flash；
+- 条件：Full-memory、Non-Think，每个模型在种子 42/43/44 下各生成一次；
+- 主 Judge：DeepSeek-V4-Pro，关闭 thinking；
+- 覆盖：三轮主 Judge `40,500/40,500`，分层副 Judge `675/675`；
+- 定向重试后 Judge API 失败：0；结构 invalid：0。
+
+| Model | SCS ↑ | Exact ↑ | sOPB ↓ | sUPB ↓ | Any-OPB ↓ | Any-UPB ↓ |
+|---|---:|---:|---:|---:|---:|---:|
+| Qwen3.8-Max | 34.22±0.52 | 17.80±0.48 | 50.11±0.33 | 27.46±0.32 | 66.09±0.51 | 41.16±0.21 |
+| Kimi-K2.6 | 35.54±0.18 | 20.00±0.28 | 53.83±0.19 | 19.94±0.60 | 68.67±0.63 | 31.56±0.98 |
+| DeepSeek-V4-Flash-0731 | 33.72±0.76 | 16.96±0.93 | 55.64±1.08 | 20.86±0.59 | 73.31±1.01 | 32.64±0.76 |
+| GLM-5.2 | 34.40±0.45 | 18.20±0.61 | 52.13±0.42 | 23.42±0.31 | 67.53±0.88 | 35.73±0.71 |
+| Qwen3.5-35B-A3B | 24.78±0.43 | 10.47±0.48 | 67.55±0.65 | **19.04±0.63** | 83.07±0.63 | **30.47±1.00** |
+| Qwen3-8B | 31.84±0.09 | 15.56±0.30 | **34.68±0.33** | 46.57±0.12 | **48.22±0.68** | 62.47±0.29 |
+| GPT-5.6-SOL | **46.25±0.60** | **28.40±0.85** | 38.45±0.15 | 22.92±0.40 | 53.33±0.45 | 35.82±0.51 |
+| Claude Sonnet 4.6 | 36.44±0.34 | 19.09±0.33 | 48.89±0.62 | 24.77±0.37 | 65.40±0.77 | 37.93±0.38 |
+| Gemini 3.5 Flash | 34.96±0.53 | 17.96±0.58 | 51.65±0.45 | 24.73±0.14 | 68.27±0.38 | 37.69±0.25 |
+
+数值是百分数三轮均值，`±` 后为总体标准差（百分点）。公司统一推理平台模型使用与百炼模型相同的锁定样本、提示词、三轮种子和 Judge 协议。原计划的 Claude Opus 5 在获得 415 条有效回答后被平台访问策略阻断；其输出只保留为失败审计，正式表格中的 Claude 结果全部来自从零完成三轮的 Sonnet 4.6。
+
+- [九模型聚合说明](analyses/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/aggregate/README.md)
+- [九模型聚合 JSON](analyses/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/aggregate/aggregate-metrics.json)
+- [九模型三轮可视化表](analyses/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/aggregate/three-repeat-summary.html)
+- [九模型逐轮发布产物](releases/memcalib-v241-benchmark1500-nine-models-nonthinking-full-memory-three-seeds/)
+
+## 正式 1,500 条本地 vLLM 基线
+
+- 模型：Qwen3.5-35B-A3B、Ministral-3-8B-Instruct-2512；
+- 条件：Full-memory、Non-Think，每个模型在种子 42/43/44 下各生成一次；
+- 主 Judge：DeepSeek-V4-Pro，关闭 thinking；
+- 覆盖：三轮主 Judge `9,000/9,000`，分层副 Judge `150/150`；
+- Judge API 失败：0；结构 invalid：0；
+- 回答生成失败：Qwen3.5-35B-A3B 第三轮 1 条，按固定失败策略保留在分母中。
+
+| Model | SCS ↑ | Exact ↑ | sOPB ↓ | sUPB ↓ | Any-OPB ↓ | Any-UPB ↓ |
+|---|---:|---:|---:|---:|---:|---:|
+| Qwen3.5-35B-A3B (Local vLLM) | 24.59±0.12 | 10.13±0.16 | 67.74±0.16 | **18.55±0.26** | 83.20±0.14 | **29.82±0.52** |
+| Ministral-3-8B-Instruct-2512 (Local vLLM) | **30.41±0.13** | **14.84±0.21** | **59.12±0.06** | 24.10±0.22 | **75.62±0.03** | 37.00±0.28 |
+
+数值是百分数三轮均值，`±` 后为总体标准差（百分点）。本地基线的逐轮指标、聚合机器可读结果和 HTML 表格见：
+
+- [聚合说明](analyses/memcalib-v241-local-baselines-1500-nonthinking-vllm/aggregate/README.md)
+- [聚合 JSON](analyses/memcalib-v241-local-baselines-1500-nonthinking-vllm/aggregate/aggregate-metrics.json)
+- [三轮可视化表](analyses/memcalib-v241-local-baselines-1500-nonthinking-vllm/aggregate/three-repeat-summary.html)
+- [逐轮发布产物](releases/memcalib-v241-local-baselines-1500-nonthinking-vllm/)
+
+## 历史主实验：DeepSeek-V4-Pro Judge 三轮 Non-Think
 
 - 样本：同一组 494 个完全配对 ID；
 - 领域：health_seed 250、general 125、coding 119；
@@ -83,6 +137,11 @@
 - [样本级分布图](analyses/sample-level-nonthinking/sample-level-score-distributions.html)
 - [候选指标与稳健性分析](analyses/candidate-metrics-nonthinking/README.md)
 - [尾部、Pareto 与排名诊断图](analyses/candidate-metrics-nonthinking/candidate-metric-diagnostics.html)
+- [Qwen3-8B 自定义 checkpoint 集群评测（494 条、Non-Think）](cluster/memcalib-v241-qwen3-8b-checkpoints-494/README.md)
+- [Qwen3-8B v2.4.1 三训练视图对比（485 条、Full-memory）](analyses/qwen3-8b-three-checkpoints-485-primary/README.md)
+- [原始 Qwen3-8B 与三训练视图严格同 prompt 对比（485 条、全部主指标）](analyses/qwen3-8b-four-model-current-prompt-485-primary/README.md)
+- [原始 Qwen3-8B 的 Qwen3.7-Plus / DeepSeek-V4-Pro 全覆盖 Judge 稳定性对比](analyses/qwen3-8b-original-current-prompt-485-deepseek-v4-pro-judge/README.md)
+- [旧 prompt 原始 Qwen3-8B 近似对比（历史产物）](analyses/qwen3-8b-four-model-485-primary/README.md)
 
 模型回答、Judge 原始输出、结构重试和规范化判断保存在本地运行目录：
 

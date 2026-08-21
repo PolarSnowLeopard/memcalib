@@ -1,0 +1,71 @@
+{
+  "schema_version": "memcalib-judge-requests-ordered-usage-v2.1",
+  "primary_requests": 3000,
+  "secondary_requests": 50,
+  "secondary_by_judge": {
+    "deepseek-v4-pro": 50
+  },
+  "human_random_ids": 0,
+  "secondary_sampling": {
+    "total": 50,
+    "per_model_per_condition": 25,
+    "stratify_by": [
+      "condition",
+      "source_dataset",
+      "source_topic",
+      "composite_block_revision.difficulty_level",
+      "atom_count_bucket"
+    ]
+  },
+  "conditions": [
+    "full_memory"
+  ],
+  "artifacts": {
+    "primary.jsonl": {
+      "rows": 3000,
+      "sha256": "96e13bc7975407d58c0d067d2e06336d991a3fc8316ef3fd72c07e40e21ef484"
+    },
+    "secondary-deepseek.jsonl": {
+      "rows": 50,
+      "sha256": "b166d2d2662aff9b44323b36d8c5245e46cd5e1f8e3f518d9e8c0e2f9502eade"
+    },
+    "secondary-kimi.jsonl": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "secondary-answer-ids.txt": {
+      "rows": 50,
+      "sha256": "43d15dfca2b63e55c1511b9050f80a6fae216c44ed01955b16cdd2926fe6bfaa"
+    },
+    "human-random-answer-ids.txt": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "inputs": {
+    "config": {
+      "path": "evaluation/current/v2.4.1/configs/memcalib-v241-benchmark1500-local-vllm-two-models-nonthinking.json",
+      "sha256": "b65b4f46f2cb144db5117b0d7c0ceca517ab49bbd66e9d4196f7116b9858c8d2"
+    },
+    "hidden": {
+      "path": "evaluation/current/v2.4.1/releases/memcalib-v241-benchmark-test-eval-1500/hidden-evaluation.jsonl",
+      "sha256": "b5ff1c23ae132c1b570f78baef0ca5da6c0a5312bd00a747734188251afc00f7"
+    },
+    "prompt": {
+      "path": "evaluation/prompts/judge-system-v2.1.txt",
+      "sha256": "482899899ad089318068c562d909327bfee12f012eb266d3484a915244885dc6"
+    },
+    "answers": [
+      {
+        "path": "evaluation/runs/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-3/answers/qwen35-35b-a3b-local-vllm/full_memory.jsonl",
+        "sha256": "d31b82e949f3ada13702af7bef89ab6e61226dfc78cb5b411f67a34b8643d783",
+        "rows": 1500
+      },
+      {
+        "path": "evaluation/runs/memcalib-v241-local-baselines-1500-nonthinking-vllm/repeat-3/answers/ministral3-8b-instruct-2512-bf16-local-vllm/full_memory.jsonl",
+        "sha256": "014f671b6486856a94ae75d85d4f2fcba8ed3a67caad0cee2a0d98e2a84b63f3",
+        "rows": 1500
+      }
+    ]
+  }
+}

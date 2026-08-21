@@ -1,0 +1,31 @@
+{
+  "schema_version": "memcalib-candidate-metric-visualization-manifest-v1",
+  "inputs": {
+    "primary": {
+      "path": "evaluation/runs/memcalib-v241-qwen3-8b-four-model-485-primary/judgments/primary.valid.jsonl",
+      "sha256": "793e13553041d04cb0337fd5eb224e562f1dcd6615f4ca06be46611d3b99160a"
+    },
+    "metrics": {
+      "path": "evaluation/current/v2.4.1/analyses/qwen3-8b-four-model-485-primary/candidate-metrics/candidate-metrics.json",
+      "sha256": "f02844fc03575023ebe783650615162a3ce65d44289bcb2b55cf3385f31481c6"
+    }
+  },
+  "script": {
+    "path": "evaluation/scripts/plot_candidate_metric_diagnostics.py",
+    "sha256": "f7e7101b1437f4ff8afc8fc151731052ce208e1f41e5230aaf04fafcbaa895d8"
+  },
+  "output": {
+    "path": "evaluation/current/v2.4.1/analyses/qwen3-8b-four-model-485-primary/candidate-metrics/candidate-metric-diagnostics.html",
+    "sha256": "27e4ff78a8823290b64974109a090697a541f907d68d26a2fa9536f9bfe5b871",
+    "bytes": 38939
+  },
+  "integrity": {
+    "models": 4,
+    "samples_per_model": [
+      485
+    ],
+    "tail_samples_per_model": [
+      49
+    ]
+  }
+}

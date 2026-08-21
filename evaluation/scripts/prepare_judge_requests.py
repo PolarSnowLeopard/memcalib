@@ -253,11 +253,14 @@ def prepare_judge_requests(
     human_path.write_text("".join(f"{value}\n" for value in sorted(human_random_ids)), encoding="utf-8")
     artifacts[secondary_path.name] = {"rows": len(secondary_ids), "sha256": sha256_file(secondary_path)}
     artifacts[human_path.name] = {"rows": len(human_random_ids), "sha256": sha256_file(human_path)}
+    secondary_by_judge = Counter()
+    secondary_by_judge[default_secondary] += len(secondary_default)
+    secondary_by_judge[deepseek_secondary] += len(secondary_deepseek)
     return {
         "schema_version": f"memcalib-judge-requests-{judge_protocol}",
         "primary_requests": len(primary),
         "secondary_requests": len(secondary_default) + len(secondary_deepseek),
-        "secondary_by_judge": {default_secondary: len(secondary_default), deepseek_secondary: len(secondary_deepseek)},
+        "secondary_by_judge": dict(sorted(secondary_by_judge.items())),
         "human_random_ids": len(human_random_ids),
         "secondary_sampling": formal_sampling or {"representative_per_cell": 70, "diagnostic_per_cell": 30},
         "conditions": sorted({str(answer["user_defined_params"]["condition"]) for answer in answers}),

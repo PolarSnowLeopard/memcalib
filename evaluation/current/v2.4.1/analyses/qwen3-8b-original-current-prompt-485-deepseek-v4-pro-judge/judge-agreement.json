@@ -1,0 +1,398 @@
+{
+  "schema_version": "memcalib-ordered-judge-calibration-summary-v2",
+  "judge_protocol": "ordered-usage-v2.1",
+  "status": "automatic_checks_passed",
+  "expected_answers": 485,
+  "checks": {
+    "primary_complete": true,
+    "secondary_complete": true,
+    "primary_protocol_complete": true,
+    "secondary_protocol_complete": true,
+    "ordered_exact_at_least_0.80": true,
+    "linear_weighted_kappa_at_least_0.70": true,
+    "scorable_agreement_at_least_0.95": true
+  },
+  "failed_checks": [],
+  "diagnostic_flags": [],
+  "human_review": "pending",
+  "primary_protocol": {
+    "rows": 485,
+    "protocol_rows": 485,
+    "atoms": 7818,
+    "scorable_atoms": 7818,
+    "scorable_coverage": 1.0,
+    "full_confusion_available": true,
+    "gold_counts": {
+      "A": 6635,
+      "B": 619,
+      "C": 564
+    },
+    "prediction_counts": {
+      "A": 6725,
+      "B": 611,
+      "C": 482
+    },
+    "confusion_matrix": {
+      "A": {
+        "A": 6206,
+        "B": 266,
+        "C": 163
+      },
+      "B": {
+        "A": 361,
+        "B": 247,
+        "C": 11
+      },
+      "C": {
+        "A": 158,
+        "B": 98,
+        "C": 308
+      }
+    },
+    "contradiction_rate": null,
+    "explicit_contradiction_rate": 0.0007674597083653108,
+    "constraint_violation_rate": 0.006523407521105142
+  },
+  "secondary_protocol": {
+    "rows": 485,
+    "protocol_rows": 485,
+    "atoms": 7818,
+    "scorable_atoms": 7818,
+    "scorable_coverage": 1.0,
+    "full_confusion_available": true,
+    "gold_counts": {
+      "A": 6635,
+      "B": 619,
+      "C": 564
+    },
+    "prediction_counts": {
+      "A": 6696,
+      "B": 697,
+      "C": 425
+    },
+    "confusion_matrix": {
+      "A": {
+        "A": 6205,
+        "B": 321,
+        "C": 109
+      },
+      "B": {
+        "A": 347,
+        "B": 272,
+        "C": 0
+      },
+      "C": {
+        "A": 144,
+        "B": 104,
+        "C": 316
+      }
+    },
+    "contradiction_rate": null,
+    "explicit_contradiction_rate": 0.0,
+    "constraint_violation_rate": 0.00012790995139421848
+  },
+  "agreement": {
+    "overall": {
+      "n": 7818,
+      "exact_agreement": 0.9746738296239448,
+      "kappa": 0.9292910989172471
+    },
+    "by_label": {
+      "A": {
+        "n": 6635,
+        "exact_agreement": 0.987490580256217,
+        "kappa": 0.8966884124922032
+      },
+      "B": {
+        "n": 619,
+        "exact_agreement": 0.9143780290791599,
+        "kappa": 0.8279744114099942
+      },
+      "C": {
+        "n": 564,
+        "exact_agreement": 0.8900709219858156,
+        "kappa": 0.7776703967446592
+      }
+    },
+    "by_secondary_judge": {
+      "deepseek-v4-pro": {
+        "n": 7818,
+        "exact_agreement": 0.9746738296239448,
+        "kappa": 0.9292910989172471
+      }
+    },
+    "ordered_usage": {
+      "n": 7818,
+      "exact_agreement": 0.9630340240470708,
+      "linear_weighted_kappa": 0.8882386238847042
+    },
+    "scorable_exact_agreement": 1.0,
+    "contradiction_exact_agreement": null,
+    "explicit_contradiction_exact_agreement": 0.9992325402916347,
+    "constraint_violation_exact_agreement": 0.9936045024302891
+  },
+  "agreement_slices": {
+    "model_key": {
+      "qwen3-8b-v241-original-current-prompt": {
+        "overall": {
+          "n": 7818,
+          "exact_agreement": 0.9746738296239448,
+          "kappa": 0.9292910989172471
+        },
+        "by_label": {
+          "A": {
+            "n": 6635,
+            "exact_agreement": 0.987490580256217,
+            "kappa": 0.8966884124922032
+          },
+          "B": {
+            "n": 619,
+            "exact_agreement": 0.9143780290791599,
+            "kappa": 0.8279744114099942
+          },
+          "C": {
+            "n": 564,
+            "exact_agreement": 0.8900709219858156,
+            "kappa": 0.7776703967446592
+          }
+        },
+        "by_secondary_judge": {
+          "deepseek-v4-pro": {
+            "n": 7818,
+            "exact_agreement": 0.9746738296239448,
+            "kappa": 0.9292910989172471
+          }
+        },
+        "ordered_usage": {
+          "n": 7818,
+          "exact_agreement": 0.9630340240470708,
+          "linear_weighted_kappa": 0.8882386238847042
+        },
+        "scorable_exact_agreement": 1.0,
+        "contradiction_exact_agreement": null,
+        "explicit_contradiction_exact_agreement": 0.9992325402916347,
+        "constraint_violation_exact_agreement": 0.9936045024302891
+      }
+    },
+    "condition": {
+      "full_memory": {
+        "overall": {
+          "n": 7818,
+          "exact_agreement": 0.9746738296239448,
+          "kappa": 0.9292910989172471
+        },
+        "by_label": {
+          "A": {
+            "n": 6635,
+            "exact_agreement": 0.987490580256217,
+            "kappa": 0.8966884124922032
+          },
+          "B": {
+            "n": 619,
+            "exact_agreement": 0.9143780290791599,
+            "kappa": 0.8279744114099942
+          },
+          "C": {
+            "n": 564,
+            "exact_agreement": 0.8900709219858156,
+            "kappa": 0.7776703967446592
+          }
+        },
+        "by_secondary_judge": {
+          "deepseek-v4-pro": {
+            "n": 7818,
+            "exact_agreement": 0.9746738296239448,
+            "kappa": 0.9292910989172471
+          }
+        },
+        "ordered_usage": {
+          "n": 7818,
+          "exact_agreement": 0.9630340240470708,
+          "linear_weighted_kappa": 0.8882386238847042
+        },
+        "scorable_exact_agreement": 1.0,
+        "contradiction_exact_agreement": null,
+        "explicit_contradiction_exact_agreement": 0.9992325402916347,
+        "constraint_violation_exact_agreement": 0.9936045024302891
+      }
+    },
+    "panel": {
+      "coding": {
+        "overall": {
+          "n": 1999,
+          "exact_agreement": 0.968984492246123,
+          "kappa": 0.9182381804963842
+        },
+        "by_label": {
+          "A": {
+            "n": 1724,
+            "exact_agreement": 0.9825986078886311,
+            "kappa": 0.9011120118696178
+          },
+          "B": {
+            "n": 75,
+            "exact_agreement": 0.8666666666666667,
+            "kappa": 0.7345132743362832
+          },
+          "C": {
+            "n": 200,
+            "exact_agreement": 0.89,
+            "kappa": 0.7066275503400453
+          }
+        },
+        "by_secondary_judge": {
+          "deepseek-v4-pro": {
+            "n": 1999,
+            "exact_agreement": 0.968984492246123,
+            "kappa": 0.9182381804963842
+          }
+        },
+        "ordered_usage": {
+          "n": 1999,
+          "exact_agreement": 0.951975987993997,
+          "linear_weighted_kappa": 0.90012358242193
+        },
+        "scorable_exact_agreement": 1.0,
+        "contradiction_exact_agreement": null,
+        "explicit_contradiction_exact_agreement": 0.9994997498749375,
+        "constraint_violation_exact_agreement": 0.9989994997498749
+      },
+      "general": {
+        "overall": {
+          "n": 1848,
+          "exact_agreement": 0.974025974025974,
+          "kappa": 0.9240261742437219
+        },
+        "by_label": {
+          "A": {
+            "n": 1602,
+            "exact_agreement": 0.9881398252184769,
+            "kappa": 0.9106472919418755
+          },
+          "B": {
+            "n": 162,
+            "exact_agreement": 0.8765432098765432,
+            "kappa": 0.7577570093457944
+          },
+          "C": {
+            "n": 84,
+            "exact_agreement": 0.8928571428571429,
+            "kappa": 0.7657992565055763
+          }
+        },
+        "by_secondary_judge": {
+          "deepseek-v4-pro": {
+            "n": 1848,
+            "exact_agreement": 0.974025974025974,
+            "kappa": 0.9240261742437219
+          }
+        },
+        "ordered_usage": {
+          "n": 1848,
+          "exact_agreement": 0.961038961038961,
+          "linear_weighted_kappa": 0.881563235760401
+        },
+        "scorable_exact_agreement": 1.0,
+        "contradiction_exact_agreement": null,
+        "explicit_contradiction_exact_agreement": 0.9989177489177489,
+        "constraint_violation_exact_agreement": 0.9859307359307359
+      },
+      "health_seed": {
+        "overall": {
+          "n": 3971,
+          "exact_agreement": 0.9778393351800554,
+          "kappa": 0.9369671283812607
+        },
+        "by_label": {
+          "A": {
+            "n": 3309,
+            "exact_agreement": 0.9897249924448474,
+            "kappa": 0.8789940586562491
+          },
+          "B": {
+            "n": 382,
+            "exact_agreement": 0.9397905759162304,
+            "kappa": 0.8704760219951941
+          },
+          "C": {
+            "n": 280,
+            "exact_agreement": 0.8892857142857142,
+            "kappa": 0.7660377358490564
+          }
+        },
+        "by_secondary_judge": {
+          "deepseek-v4-pro": {
+            "n": 3971,
+            "exact_agreement": 0.9778393351800554,
+            "kappa": 0.9369671283812607
+          }
+        },
+        "ordered_usage": {
+          "n": 3971,
+          "exact_agreement": 0.9695290858725761,
+          "linear_weighted_kappa": 0.8787867605184628
+        },
+        "scorable_exact_agreement": 1.0,
+        "contradiction_exact_agreement": null,
+        "explicit_contradiction_exact_agreement": 0.9992445227902291,
+        "constraint_violation_exact_agreement": 0.9944598337950139
+      }
+    }
+  },
+  "output_quality": {
+    "primary": {
+      "rows": 485,
+      "rows_with_warnings": 22,
+      "warning_counts": {
+        "invalid_confidence": 24,
+        "ungrounded_evidence_quote": 22
+      },
+      "rows_with_schema_repairs": 0,
+      "schema_repairs": 0
+    },
+    "secondary": {
+      "rows": 485,
+      "rows_with_warnings": 16,
+      "warning_counts": {
+        "ungrounded_evidence_quote": 20
+      },
+      "rows_with_schema_repairs": 0,
+      "schema_repairs": 0
+    }
+  },
+  "inputs": {
+    "request_manifest": {
+      "path": "evaluation/runs/memcalib-v241-qwen3-8b-original-current-prompt-485-deepseek-v4-pro-judge/judge-request.manifest.json",
+      "sha256": "eba3cfb2c69e0aa25cff79102353eae3f308e96a0b2479aaf676f5587256f793"
+    },
+    "primary_judgments": {
+      "path": "evaluation/runs/memcalib-v241-qwen3-8b-original-current-prompt-485-primary/judgments/primary.valid.jsonl",
+      "sha256": "6847861ad5917153a28277dc443d94419314a380dfbb503c453f5a9705db7eb5"
+    },
+    "secondary_judgments": {
+      "path": "evaluation/runs/memcalib-v241-qwen3-8b-original-current-prompt-485-deepseek-v4-pro-judge/judgments/primary.valid.jsonl",
+      "sha256": "7e6fc6f7021b88a49059cbebad2e0960f4d6fa9dfe929b6ffbb67c9ee5bf54f9"
+    }
+  },
+  "resolution": {
+    "api_validation": {
+      "primary": {
+        "valid": true,
+        "input": "evaluation/runs/memcalib-v241-qwen3-8b-original-current-prompt-485-primary/requests/judges/primary.jsonl",
+        "output": "evaluation/runs/memcalib-v241-qwen3-8b-original-current-prompt-485-primary/api/primary.jsonl",
+        "expected_model": "qwen3.7-plus",
+        "counts": {
+          "expected": 485,
+          "output_rows": 485,
+          "unique_output_ids": 485,
+          "duplicate_ids": 0,
+          "valid": 485,
+          "missing": 0
+        },
+        "errors": {}
+      }
+    },
+    "postprocess_initial": {},
+    "targeted_retries": {}
+  }
+}

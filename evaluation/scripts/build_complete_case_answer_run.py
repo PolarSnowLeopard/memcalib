@@ -11,7 +11,7 @@ from typing import Any
 from evaluation.common import iter_jsonl, request_fingerprint, sha256_file, write_json, write_jsonl
 
 
-CONDITIONS = ("full_memory", "no_memory")
+DEFAULT_CONDITIONS = ("full_memory", "no_memory")
 
 
 def finish_reason(row: dict[str, Any]) -> str:
@@ -66,6 +66,13 @@ def main() -> None:
     args = parser.parse_args()
 
     config = json.loads(args.config.read_text(encoding="utf-8"))
+    configured_conditions = config.get("evaluation_modes", {}).get(
+        "official_research_conditions"
+    )
+    conditions = tuple(configured_conditions or DEFAULT_CONDITIONS)
+    unknown_conditions = set(conditions) - set(DEFAULT_CONDITIONS)
+    if not conditions or unknown_conditions:
+        raise ValueError(f"invalid evaluation conditions: {conditions}")
     cell_requests: dict[tuple[str, str], list[dict[str, Any]]] = {}
     cell_results: dict[tuple[str, str], dict[str, dict[str, Any]]] = {}
     cell_sample_ids: dict[tuple[str, str], set[str]] = {}
@@ -74,7 +81,7 @@ def main() -> None:
     for model_entry in config["answer_models"]:
         model_key = str(model_entry["key"])
         expected_model = str(model_entry.get("served_model_name") or model_entry["model"])
-        for condition in CONDITIONS:
+        for condition in conditions:
             cell = (model_key, condition)
             request_path = args.requests / model_key / f"{condition}.jsonl"
             requests = list(iter_jsonl(request_path))
